@@ -29,8 +29,8 @@
 
 | 文档 | 内容 |
 |---|---|
-| [RSI.md](../../RSI.md) | 自改进回路：触发分流、台账、子代理协议、四道门、不变量保护清单、建模经验分支 |
-| [issue.md](./issue.md) | RSI 台账（`RSI-xxx`） |
+| [RSI.md](../../RSI.md) | 自改进回路（通用协议已上收统一仓库 [ThreeFish-AI/rsi](https://github.com/ThreeFish-AI/rsi)）：仓内触发分流、ledger 纪律、子代理附加纪律、统一 G0–G4 门禁指针与 machine_checks、不变量保护清单、建模经验分支 |
+| [issue.md](./issue.md) | RSI ledger（`RSI-xxx`） |
 | [evals/README.md](../../evals/README.md) | 输出质量评测与触发评测的用法（`evals.json` / `trigger-evals.json`） |
 | [modeling-experience-distillation.md](../research/modeling-experience-distillation.md) | 建模经验有界沉淀的理论、证据（IEEE 引用）与方案比选 |
 | [prose-refinement.md](../research/prose-refinement.md) | ⑤ 成文优化的语料取证、理论依据（IEEE 引用）与方案比选（落位 / 插入位置 / 执法力度） |

@@ -203,6 +203,60 @@ def test_relative_links_resolve():
     )
 
 
+def test_rsi_protocol_anchors_pinned():
+    """判据 3b：RSI.md 指向统一协议的锚点集合钉死（防跨仓静默漂移）。
+
+    统一协议（ThreeFish-AI/rsi 的 references/protocol.md）章节标题若在其仓内
+    评审中改名/重排，本仓 RSI.md 的 blob 链接锚点即失效——外链 liveness 仓内
+    不可执法（test_relative_links_resolve 豁免外链），本测试把当前引用的锚点
+    字面量钉成显式集合：锚点增删改写须同步改 expected，让「上游改标题、
+    下游无声烂链」从静默漂移变成显式红灯。
+    """
+    expected = {
+        "#3-旁路捕获",
+        "#4-派发与编排",
+        "#5-核验门禁",
+        "#7-确认与提交",
+        "#9-失败出路",
+        "#10-降级矩阵",
+        "#附录a-vibe-video-旧门禁映射",
+    }
+    anchors = {
+        "#" + target.rsplit("#", 1)[1]
+        for _, target in prose_links(RSI_MD.read_text(encoding="utf-8"))
+        if "ThreeFish-AI/rsi/blob/main/references/protocol.md" in target
+        and "#" in target
+    }
+    missing = expected - anchors
+    extra = anchors - expected
+    assert not missing and not extra, (
+        "RSI.md 统一协议锚点集合与钉子不一致：\n"
+        f"  缺失 {sorted(missing)}——上游标题已改（去 rsi 仓核对新 slug 并同步本测试），或本仓误删指针\n"
+        f"  多出 {sorted(extra)}——新增/改写锚点须同步登记本测试 expected"
+    )
+
+
+def test_machine_checks_pinned():
+    """判据 3c：pytest 命令仓内两处逐字一致（RSI.md §四可执行形态 ↔
+    pyproject.toml 顶部注释折行快照；第三份住 rsi 仓适配档案 machine_checks，
+    跨仓不执法）。增删 --with 依赖须同步两处——依赖漂移原本要到 pytest
+    收集期才大声报错，本测试把它提前到文本层并拦住单侧漂移。
+    """
+    rsi_text = RSI_MD.read_text(encoding="utf-8")
+    m = re.search(r"^uv run --no-project .*pytest tests -q$", rsi_text, re.MULTILINE)
+    assert m, "RSI.md §四 缺 pytest 命令行（可执行形态 SSOT）"
+    pyproject = (skill_root() / "pyproject.toml").read_text(encoding="utf-8")
+    comments = " ".join(
+        ln.lstrip("#").rstrip("\\").strip()
+        for ln in pyproject.split("\n")
+        if ln.startswith("#")
+    )
+    assert " ".join(m.group(0).split()) in " ".join(comments.split()), (
+        "RSI.md §四 pytest 命令与 pyproject.toml 顶部注释不一致——"
+        "两处须同步增删 --with 依赖（折行差异可容忍，token 序列不可）"
+    )
+
+
 # ---- 用户可见文案 ↔ 工具面一致性（RSI-005 / RSI-006）----
 #
 # 门的报错指引与脚手架的「下一步」提示是用户照做的命令——它们与机制面漂移时，
