@@ -20,7 +20,7 @@
 | [07](../../references/07-tts-voice.md) · [08](../../references/08-remotion-implementation.md) · [09](../../references/09-render-qa.md) · [10](../../references/10-final-render.md) | 生产层阶段规格 ⑦–⑩ |
 | [VOICE-CLONING.md](../../references/VOICE-CLONING.md) | 声音克隆操作手册：部署、样本、风格档、合成、缓存、排障 |
 | [INDEXTTS-2.5-ADVANCED.md](../../references/INDEXTTS-2.5-ADVANCED.md) | 上游能力面与进阶：机制循证、配音质量提升路线图 |
-| [PRON-GLOSSARY.md](../../references/PRON-GLOSSARY.md) | 易错字台账：发音标注跨集复用表 |
+| [PRON-GLOSSARY.md](../../references/PRON-GLOSSARY.md) | 易错字 ledger：发音标注跨集复用表 |
 | [MODELING-PLAYBOOK.md](../../references/MODELING-PLAYBOOK.md) | 动效画面建模手册（有界经验库，门 `check_playbook.py`） |
 | [DIRECTING-CRAFT.md](../../references/DIRECTING-CRAFT.md) | 导演手艺知识库：镜头语言/节奏/动画原则/导演级审查判据（`@shot` 词表 SSOT，RSI-048） |
 | [SERIES-INTRO.md](../../references/SERIES-INTRO.md) | 系列片头资产契约：独立音轨/静音带 T 表方法论/改稿五同步/双语 drift 登记/NARRATION-SUBS 口播容器命名约定（RSI-051） |
@@ -29,8 +29,8 @@
 
 | 文档 | 内容 |
 |---|---|
-| [RSI.md](../../RSI.md) | 自改进回路（通用协议已上收统一仓库 [ThreeFish-AI/rsi](https://github.com/ThreeFish-AI/rsi)）：仓内触发分流、台账纪律、子代理附加纪律、统一 G0–G4 门禁指针与 machine_checks、不变量保护清单、建模经验分支 |
-| [issue.md](./issue.md) | RSI 台账（`RSI-xxx`） |
+| [RSI.md](../../RSI.md) | 自改进回路（通用协议已上收统一仓库 [ThreeFish-AI/rsi](https://github.com/ThreeFish-AI/rsi)）：仓内触发分流、ledger 纪律、子代理附加纪律、统一 G0–G4 门禁指针与 machine_checks、不变量保护清单、建模经验分支 |
+| [issue.md](./issue.md) | RSI ledger（`RSI-xxx`） |
 | [evals/README.md](../../evals/README.md) | 输出质量评测与触发评测的用法（`evals.json` / `trigger-evals.json`） |
 | [modeling-experience-distillation.md](../research/modeling-experience-distillation.md) | 建模经验有界沉淀的理论、证据（IEEE 引用）与方案比选 |
 | [prose-refinement.md](../research/prose-refinement.md) | ⑤ 成文优化的语料取证、理论依据（IEEE 引用）与方案比选（落位 / 插入位置 / 执法力度） |

@@ -94,7 +94,7 @@ uv run --no-project $T/scripts/pipeline.py --project $P deliver   # → <根>/<�
 - **复用边界**：Python 脚本集中共享（SSOT）；Remotion 原语复制不共享——复制源头 `assets/video-skeleton/`，`scaffold.py` 实例化、`verify_skeleton.py` 字节级执法漂移。
 - **依赖版本策略**：优先最新稳定版（模板钉版/README 地板只是快照下限）；建集先 `npm view remotion version` 对照，Remotion 全家桶同 major 整组追新（drift 登记）、跨 major 走 RSI；细则见 [PIPELINE.md §九](references/PIPELINE.md)。
 - **双锚点**：skill 根随安装位置（脚本自 `__file__` 向上找 `SKILL.md`），工作区根由哨兵搜索定位——机制与内容物理分离，互不牵连。
-- **RSI 纪律**：本 Skill 自身缺陷与改进走 [RSI.md](RSI.md) 回路（登记台账 → 另起子代理 → 统一 G0–G4 门禁 → PR 回流）；制作中 `$T` 机制文件只读（例外仅台账与建模手册候选区两处仅追加），禁顺手改。
+- **RSI 纪律**：本 Skill 自身缺陷与改进走 [RSI.md](RSI.md) 回路（登记 ledger → 另起子代理 → G0–G4 门禁 → PR 回流）；制作中 `$T` 机制文件只读（例外仅 ledger 与建模手册候选区两处仅追加），禁顺手改。
 - **双语对齐**（双语集）：`narration.en.md` 与主稿句 id 1:1（build/check 执法）+ 基线锁防译稿静默失鲜；语言常数只在 `scripts/langs.py`（tts.py 内联镜像测试钉住）；tts/render/deliver 缺省只跑主语言、显式 `--lang` 才多版本（见 [PIPELINE.md §五「双语渲染」](references/PIPELINE.md)）。
 
 ## 运行时陷阱
@@ -128,4 +128,4 @@ uv run --no-project $T/scripts/pipeline.py --project $P deliver   # → <根>/<�
 
 ## 自改进回路（RSI）
 
-制片中发现**本 Skill 自身**缺陷或改进项走 RSI：登记 [issue.md 台账](docs/.agents/issue.md)，**另起子代理**调研并核验；视频内容问题走既有 QA 回路。G0–G4 门禁（统一协议）全过后发起 PR 并回报链接。内容侧例外：认可/否决的**动效建模方法**追加进有界的 [建模手册](references/MODELING-PLAYBOOK.md) 候选区。协议全文：[RSI.md](RSI.md)。
+制片中发现**本 Skill 自身**缺陷或改进项走 RSI：登记 [ledger](docs/.agents/issue.md)，**另起子代理**调研并核验；视频内容问题走既有 QA 回路。G0–G4 门禁（统一协议）全过后发起 PR 并回报链接。内容侧例外：认可/否决的**动效建模方法**追加进有界的 [建模手册](references/MODELING-PLAYBOOK.md) 候选区。协议全文：[RSI.md](RSI.md)。

@@ -885,11 +885,11 @@
 
 **表因**（2026-10-11，RSI 协议上收批次）：RSI 通用协议（门禁、状态机、派发、降级）与 preening-substrate/guided-learn 仓互为孪生拷贝，机制改进需逐仓修改，且沉淀后需人工到目标仓上下文反复 Review-Fix。
 
-**根因**：协议级机制没有单一事实源；四道门判据与台账纪律耦合在同一文件。
+**根因**：协议级机制没有单一事实源；四道门判据与 ledger 纪律耦合在同一文件。
 
 **定性**：非阻断改进（协议级机制债：不卡单次制片，但机制演进须多仓同改，漂移风险随接入仓数线性放大）。
 
-**处理方式**：通用协议上收 ThreeFish-AI/rsi（[references/protocol.md](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md)），本仓 RSI.md 保留触发分流、台账纪律、15 条不变量与建模经验分支，门禁/处理模式/失败出路/通用降级改指针；旧四道门与统一 G0–G4 的映射见统一协议附录A。PR：分支 ThreeFish-AI/rsi-059-unify-protocol。
+**处理方式**：通用协议上收 ThreeFish-AI/rsi（[references/protocol.md](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md)），本仓 RSI.md 保留触发分流、ledger 纪律、15 条不变量与建模经验分支，门禁/处理模式/失败出路/通用降级改指针；旧四道门与统一 G0–G4 的映射见统一协议附录A。PR：分支 ThreeFish-AI/rsi-059-unify-protocol。
 
 **后续防范**：仓内不得复述统一协议门禁判据（防第二事实源）；RSI.md 只承载仓内特有节。
 
