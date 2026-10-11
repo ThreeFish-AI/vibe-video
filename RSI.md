@@ -24,7 +24,7 @@
 - 编号 `RSI-001` 起三位递增；**刻意不用 `ISSUE-` 前缀**（上游 negentropy 的 ISSUE-xxx 已占用本仓正文外链，复用必混淆；引用上游教训一律写全 URL）。
 - 新条目追加文件末尾，同一问题只维护一处；复发不新开编号，在原条目追加带日期的复盘点。
 - 登记字段六段式：表因（可观测症状）/ 根因（技术归因，含文件路径）/ 定性（阻断性缺陷｜非阻断改进）/ 处理方式（PR + commit 链接）/ 后续防范（Negative Prompt 式禁令）/ 同类问题影响（可选）。
-- 条目格式：仓内沿用六段式；统一模板的分级（T1–T3）/状态（六态）等运行时字段住项目 `.temp` backlog（统一协议 §3），回填本 ledger 时不搬运（格式覆写声明；完整字段映射待后续 RSI 条目）。
+- 条目格式（与统一模板字段映射）：仓内沿用六段式——表因↔最小复现与来源、根因↔疑似根因、定性↔两种处理模式归属（阻断性缺陷｜非阻断改进）并可标注统一分级 T1–T3、处理方式↔结论（PR/commit 回填即 `submitted` 终态；「排队待议」「不成立 + 证据」即 `ready`/`rejected` 的仓内自然语言形态）、后续防范与同类问题影响为仓内特有（Negative Prompt 沉淀，统一模板无对应）；统一模板的状态六态住项目 `.temp` backlog（统一协议 §3），回填本 ledger 时不搬运。
 
 ## 三、子代理协议（fresh context）
 
@@ -33,14 +33,15 @@
 - 主代理只做三件事：**登记 ledger → 另起子代理 → 不顺手改**（制作过程中 `$T` 机制文件对主代理只读，例外仅两处**仅追加**的登记面：本 ledger、[建模手册](references/MODELING-PLAYBOOK.md)「候选区」——机制热修与手册条目增删改都走子代理，不在制片上下文里顺手落笔）。
 - 子代理只在 `$T` 的 git worktree 话题分支上工作（不占用户当前分支）；`$W`/`$P`/`$V` 一律只读——复现可读，绝不写；禁止 push 主分支、禁止 Rebase，commit 遵循仓库既有中文 conventional 风格。
 - 输入契约仓内脱敏加强：用户内容**脱敏摘录**不整搬——**声音样本是生物特征**，样本路径与音频一律不进材料。
+- 输入契约附改动面白名单：主代理派发时初步圈定允许触碰的文件，子代理可申请扩圈，但须在 PR 描述里说明理由——改动面裁量权锚在持制片上下文的主代理侧，不随 fresh context 子代理自定。
 - 分级线（仿 Stage ④「互不污染视角」）：触碰第九节不变量清单、或横跨 ≥3 文件的改动：**实施与核验须两个独立子代理**（核验方只拿 diff + ledger 条目，不拿实施方的推理过程）；一行 typo / 死链级修复：允许单代理自查过门。
 
 ## 四、门禁（统一 G0–G4）
 
-判据、回执格式与反刷分规则以[统一协议 §5 核验门禁](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#5-核验门禁)为准（G0 预检去重 / G1 属实与正确性 / G2 方案比选与收益 / G3 非回归与不变量勾验 / G4 安全隐私）；旧 G1–G4 的逐门映射见[附录A](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#附录a-vibe-video-旧门禁映射)。仓内机器执法命令（统一适配档案 `machine_checks` 引用同一份）：
+判据、回执格式与反刷分规则以[统一协议 §5 核验门禁](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#5-核验门禁)为准（G0 预检去重 / G1 属实与正确性 / G2 方案比选与收益 / G3 非回归与不变量勾验 / G4 安全隐私）；旧 G1–G4 的逐门映射见[附录A](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#附录a-vibe-video-旧门禁映射)。仓内附加执法资产：改动 SKILL.md 描述或路由时按 [evals/](evals/README.md) 做新旧对拍（统一协议无此仓内资产，触发条件住本节）。仓内机器执法命令（统一适配档案 `machine_checks` 引用同一份；与 pyproject.toml 顶部注释由 `test_machine_checks_pinned` 锚定一致）：
 
 ```bash
-# 命令 SSOT = pyproject.toml 顶部注释；依赖漂移在 pytest 收集阶段即大声报错
+# 命令与 pyproject.toml 顶部注释（折行快照）由 test_machine_checks_pinned 锚定一致；依赖漂移在 pytest 收集阶段即大声报错
 uv run --no-project --with pytest --with numpy --with pillow --with mutagen --with soundfile python -m pytest tests -q
 ```
 
