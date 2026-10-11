@@ -24,6 +24,7 @@
 - 编号 `RSI-001` 起三位递增；**刻意不用 `ISSUE-` 前缀**（上游 negentropy 的 ISSUE-xxx 已占用本仓正文外链，复用必混淆；引用上游教训一律写全 URL）。
 - 新条目追加文件末尾，同一问题只维护一处；复发不新开编号，在原条目追加带日期的复盘点。
 - 登记字段六段式：表因（可观测症状）/ 根因（技术归因，含文件路径）/ 定性（阻断性缺陷｜非阻断改进）/ 处理方式（PR + commit 链接）/ 后续防范（Negative Prompt 式禁令）/ 同类问题影响（可选）。
+- 条目格式：仓内沿用六段式；统一模板的分级（T1–T3）/状态（六态）等运行时字段住项目 `.temp` backlog（统一协议 §3），回填本 ledger 时不搬运（格式覆写声明；完整字段映射待后续 RSI 条目）。
 
 ## 三、子代理协议（fresh context）
 
@@ -47,10 +48,12 @@ uv run --no-project --with pytest --with numpy --with pillow --with mutagen --wi
 
 阻断性缺陷（立即快速通道、门禁一道不省）与非阻断改进（默认登记排队、收益证据门槛更高）的判据已上收[统一协议 §4](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#4-派发与编排)。
 
+仓内解堵纪律：阻断性缺陷修复期间，主代理可临时采用子代理分支上的修复继续制片（修复 worktree 挂 `$T` 侧检出），PR 与回归核验照常走完——制片不等合并。
+
 ## 六、PR 规范
 
 - 分支 `ThreeFish-AI/rsi-<NNN>-<topic>`；base = `main`（本仓惯例，无长期 feature 基线分支）；RSI 编号入 PR 标题。
-- 门禁全过 → **自动创建 PR** 并向用户回报链接；PR 标题中文 conventional（`fix|docs|feat(rsi): …`），描述必含 **G0–G4 核验回执表**（[统一协议 §5](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#5-核验门禁) 格式：每门 ✅/❌ + 一句话证据）。
+- 门禁全过 → 按统一协议 §7 **一次确认后创建 PR** 并回报链接；PR 标题中文 conventional（`fix|docs|feat(rsi): …`），描述必含 **G0–G4 核验回执表**（[统一协议 §5](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#5-核验门禁) 格式：每门 ✅/❌ + 一句话证据）。
 - CHANGELOG `[Unreleased]` 登记；ledger 条目回填 PR 与 commit 链接。通用确认与提交流程（一次授权、Draft 规则、硬禁令）见[统一协议 §7](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#7-确认与提交)。
 
 ## 七、失败出路（门未过怎么办）
@@ -61,7 +64,7 @@ uv run --no-project --with pytest --with numpy --with pillow --with mutagen --wi
 
 拷贝式安装（无 `.git`）时**大声退出**（对齐仓内哨兵文化），绝不直接改无版本控制的副本——出路：GitHub 开 Issue（附 ledger 条目草稿），或 clone 正式仓迁移条目后走标准回路；通用降级矩阵（无网络 / 无 gh / 无子代理 / 背压）见[统一协议 §10](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#10-降级矩阵)。
 
-## 九、不变量保护清单（G4 核对面）
+## 九、不变量保护清单（统一 G3 勾验面）
 
 清单是**索引不是事实源**——每条一句话判由，正文 SSOT 各归其位（防第二事实源）：
 
@@ -94,7 +97,7 @@ uv run --no-project --with pytest --with numpy --with pillow --with mutagen --wi
 
 **权重生命周期**：新条目 w=2（用户认可）或 w=1（仅主 Agent）；复用后被认可 +1、被否决或返工 −1；w≤0 必须移出。**晋升定式**须 w ≥ `PROMOTE_W`、证覆盖 ≥ `PROMOTE_EPISODES` 集（门执法），且含 ≥1 次用户信号（门不可见，由核验子代理对照条目去向表核对）。
 
-**四门映射**（不新增门）：G1 信号属实（显式信号 + 可复查锚点：候选须 `集目录名#镜号`，条目「证」可放宽为 `集目录名[#镜号]`——多镜综合的经验允许不点名单镜）/ G2 可迁移且不重复（抽象为「概念结构 → 视觉形式」，同键合并，不重述 08 机制与红线）/ G3 `check_playbook.py` 零 ERROR 零 WARN 且 pytest 全绿（越过 `HIGH` 须在同一 PR 内压到 `TARGET`） / G4 PR 附**条目去向表**（每个被删/并编号 → 去向 + 理由）。
+**门禁映射**（不新增门；编号为统一 G0–G4 语义，旧四道门对应见统一协议附录A）：G1 信号属实（显式信号 + 可复查锚点：候选须 `集目录名#镜号`，条目「证」可放宽为 `集目录名[#镜号]`——多镜综合的经验允许不点名单镜）/ G2 可迁移且不重复（抽象为「概念结构 → 视觉形式」，同键合并，不重述 08 机制与红线）/ G3 `check_playbook.py` 零 ERROR 零 WARN 且 pytest 全绿（越过 `HIGH` 须在同一 PR 内压到 `TARGET`）并附**条目去向表**（每个被删/并编号 → 去向 + 理由）/ G4 安全隐私按统一协议 §5。
 
 **压缩阶梯**（字数 ≥ `HIGH` 触发，逐级执行、达 ≤ `TARGET` 即停；数值只在 check_playbook.py，失真由小到大）：
 

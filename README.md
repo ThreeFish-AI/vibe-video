@@ -159,7 +159,7 @@ uv run --no-project $W/scripts/pipeline.py --project $P qa --video out/draft.mp4
 | [SKILL.md](SKILL.md) | Skill 路由壳：任务分流、工作流、十阶段速查、关键不变量、运行时陷阱、按需加载 |
 | [references/PIPELINE.md](references/PIPELINE.md) | 机制 SSOT：脚本清单、pipeline.toml 字段表、路径变量与环境变量、复用边界 |
 | [references/](references/) | 阶段规格（`01`–`10` 每阶段一份，文件号 = 阶段序号，可直接作为子代理 prompt）与声音克隆、读音、建模等手册 |
-| [RSI.md](RSI.md) | RSI 自改进回路：Skill 缺陷/改进的台账登记、子代理协议、四道门核验与 PR 回流 |
+| [RSI.md](RSI.md) | RSI 自改进回路（通用协议已上收 [ThreeFish-AI/rsi](https://github.com/ThreeFish-AI/rsi)）：Skill 缺陷/改进的 ledger 登记、子代理附加纪律、统一 G0–G4 门禁与 PR 回流 |
 | [CHANGELOG.md](CHANGELOG.md) | 版本史与迁移记录 |
 
 全量文档索引（含手册、评测集、研究文档与资产目录）见 [docs/.agents/knowledge-map.md](docs/.agents/knowledge-map.md)。

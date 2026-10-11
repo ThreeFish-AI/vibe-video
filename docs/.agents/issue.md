@@ -1,4 +1,4 @@
-# Issue 台账（RSI 回路的登记面）
+# Issue ledger（RSI 回路的登记面）
 
 本仓缺陷与改进的唯一登记处，由 [RSI.md](../../RSI.md) 回路消费。编号 `RSI-xxx` 三位递增，从 RSI-001 起——**刻意不用 `ISSUE-` 前缀**：本仓正文里的 ISSUE-162/170/175/188 等全部指向上游 [negentropy 的台账](https://github.com/ThreeFish-AI/negentropy/blob/master/docs/.agents/issue.md)，本地复用前缀必然混淆；引用上游教训一律写全 URL，不裸写编号。
 
@@ -6,7 +6,7 @@
 
 - 发现即登记，新条目追加文件末尾；同一问题只维护一处，复发不新开编号（在原条目追加带日期的复盘点）；
 - 条目字段六段式：表因 / 根因 / 定性 / 处理方式 / 后续防范 / 同类问题影响（可选）；
-- 登记本身不等于启动处理——处理走 RSI 回路（另起子代理 + 四道门 + PR）。
+- 登记本身不等于启动处理——处理走 RSI 回路（另起子代理 + 统一 G0–G4 门禁 + PR）。
 
 ---
 
@@ -889,7 +889,7 @@
 
 **定性**：非阻断改进（协议级机制债：不卡单次制片，但机制演进须多仓同改，漂移风险随接入仓数线性放大）。
 
-**处理方式**：通用协议上收 ThreeFish-AI/rsi（[references/protocol.md](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md)），本仓 RSI.md 保留触发分流、ledger 纪律、15 条不变量与建模经验分支，门禁/处理模式/失败出路/通用降级改指针；旧四道门与统一 G0–G4 的映射见统一协议附录A。PR：分支 ThreeFish-AI/rsi-059-unify-protocol。
+**处理方式**：通用协议上收 ThreeFish-AI/rsi（[references/protocol.md](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md)），本仓 RSI.md 保留触发分流、ledger 纪律、15 条不变量与建模经验分支，门禁/处理模式/失败出路/通用降级改指针；旧四道门与统一 G0–G4 的映射见统一协议附录A。PR：[#43](https://github.com/ThreeFish-AI/vibe-video/pull/43)（分支 ThreeFish-AI/rsi-059-unify-protocol；commit 87e1602 上收主体、7cfd085 术语对齐；审查修复追加 commit 见 PR 时间线）。
 
 **后续防范**：仓内不得复述统一协议门禁判据（防第二事实源）；RSI.md 只承载仓内特有节。
 

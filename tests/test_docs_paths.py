@@ -203,6 +203,39 @@ def test_relative_links_resolve():
     )
 
 
+def test_rsi_protocol_anchors_pinned():
+    """判据 3b：RSI.md 指向统一协议的锚点集合钉死（防跨仓静默漂移）。
+
+    统一协议（ThreeFish-AI/rsi 的 references/protocol.md）章节标题若在其仓内
+    评审中改名/重排，本仓 RSI.md 的 blob 链接锚点即失效——外链 liveness 仓内
+    不可执法（test_relative_links_resolve 豁免外链），本测试把当前引用的锚点
+    字面量钉成显式集合：锚点增删改写须同步改 expected，让「上游改标题、
+    下游无声烂链」从静默漂移变成显式红灯。
+    """
+    expected = {
+        "#3-旁路捕获",
+        "#4-派发与编排",
+        "#5-核验门禁",
+        "#7-确认与提交",
+        "#9-失败出路",
+        "#10-降级矩阵",
+        "#附录a-vibe-video-旧门禁映射",
+    }
+    anchors = {
+        "#" + target.rsplit("#", 1)[1]
+        for _, target in prose_links(RSI_MD.read_text(encoding="utf-8"))
+        if "ThreeFish-AI/rsi/blob/main/references/protocol.md" in target
+        and "#" in target
+    }
+    missing = expected - anchors
+    extra = anchors - expected
+    assert not missing and not extra, (
+        "RSI.md 统一协议锚点集合与钉子不一致：\n"
+        f"  缺失 {sorted(missing)}——上游标题已改（去 rsi 仓核对新 slug 并同步本测试），或本仓误删指针\n"
+        f"  多出 {sorted(extra)}——新增/改写锚点须同步登记本测试 expected"
+    )
+
+
 # ---- 用户可见文案 ↔ 工具面一致性（RSI-005 / RSI-006）----
 #
 # 门的报错指引与脚手架的「下一步」提示是用户照做的命令——它们与机制面漂移时，
