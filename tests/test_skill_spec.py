@@ -368,8 +368,9 @@ INLINE_CODE_RE = re.compile(r"`[^`]*`")
 def test_repo_free_of_human_placeholders():
     """全仓文本产物不得残留人工占位（TODO(human|user) 形态，RSI-060 追记）。
 
-    规约 SSOT 在全局协作规约（ThreeFish-AI/agents.md）Operational Excellence「Human-in-the-Loop」：
-    需人工决策的环节由 Agent 以交互请求发起，交付物须是可合入的完整现行态。Markdown 的行内代码与围栏内容不计（允许以代码
+    需人工决策的环节由 Agent 以交互请求发起，交付物须是可合入的完整现行态；规约上提为
+    ThreeFish-AI/agents.md Operational Excellence「Human-in-the-Loop」条（分支
+    rsi/human-in-the-loop-no-placeholder，待合入），合入前本门先行执法。Markdown 的行内代码与围栏内容不计（允许以代码
     形态讨论该标记）；node_modules 与隐藏目录（docs/.agents 除外）不扫。
     """
     offenders = []

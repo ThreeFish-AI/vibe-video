@@ -38,7 +38,9 @@
   消除术语。机器面（WARN 级）：评审员圈定本集术语系统后跑
   `uv run --no-project $T/scripts/check_script.py --project $P --term-density --terms 集中度,门槛,计费单位`
   （中文术语声明计入、拉丁字母词自动计入；beat 边界读 narration.json 的
-  beatStart，幕内空行 = 一个 beat）。
+  beatStart，幕内空行 = 一个 beat）。分幕表有「前置概念」列时，`--terms` 概念名
+  从该列逐字取、措辞以 narration.md 为准并回改该列——单向派生规则见
+  [02「前置概念」列注](./02-planning.md)。
 
 **开篇钩子与核心引子门（Opening Hook & Catalyst Gate）**（首句黄金 3–5 秒留存，入场优先级高于标题）：
 - **模式与即时吸引力**：首句（`p0-01`）必须严格以**「这是 XXX ……」**句式入场，必须在 3–5 秒内产生强烈的认知张力（认知颠覆/现实痛点/极端反差），第一时间锁死观众注意力；平淡开场、空洞寒暄或缺乏钩子直接判 `REWRITE`；

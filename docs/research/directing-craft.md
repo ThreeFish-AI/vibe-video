@@ -110,4 +110,4 @@ parser 顺序修正（必钉回归测试）：parse_motion_tags 先剥离 @cam/@
 
 [10] B. Shneiderman, "The eyes have it: A task by data type taxonomy for information visualizations," in *Proc. IEEE Symp. Visual Languages*, Boulder, CO, USA, 1996, pp. 336–343, doi: 10.1109/VL.1996.545307（"Overview first, zoom and filter, then details-on-demand" 信息检索 mantra 的原始出处——回拉层级澄清的主依据）.
 
-[11] K. Perlin and J. F. Fox, "Pad: An approach to iconographic user interfaces," in *Proc. ACM CHI Conf. Human Factors in Computing Systems*, Amsterdam, The Netherlands, 1993, pp. 500–500, doi: 10.1145/169059.169626（semantic zooming 概念的提出——多级抽象按需切换、细节渐次浮现，佐证「最近一级全景」而非全图常驻）.
+[11] K. Perlin and D. Fox, "Pad: An alternative approach to the computer interface," in *Proc. 20th Annu. Conf. Computer Graphics and Interactive Techniques (SIGGRAPH)*, Anaheim, CA, USA, 1993, pp. 57–64, doi: 10.1145/166117.166125（semantic zooming 概念的提出——多级抽象按需切换、细节渐次浮现，佐证「最近一级全景」而非全图常驻）.

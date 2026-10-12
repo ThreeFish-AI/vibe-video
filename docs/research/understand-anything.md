@@ -12,7 +12,7 @@
 
 **安全面**：issue #656 的缺陷代码仍在、修复 PR #695 未合并，但缺陷只在 core 导出的 `isStale`/`getChangedFiles` 上（[core/src/index.ts](https://github.com/Egonex-AI/Understand-Anything/blob/000fbf3f36b5e534a0a8d3461cf24f5dc9ae43fe/understand-anything-plugin/packages/core/src/index.ts) 导出实测）；`/understand` 运行时走 [prepare-incremental.mjs](https://github.com/Egonex-AI/Understand-Anything/blob/000fbf3f36b5e534a0a8d3461cf24f5dc9ae43fe/understand-anything-plugin/skills/understand/prepare-incremental.mjs)（`git rev-parse --verify --end-of-options` 防注入形态），本身安全——故 #656 **不构成路径 b 的前置阻断**。VULN-002（SKILL.md 插值 `git diff` 输出）在钉定提交上已修。
 
-**构建链与许可**：Node≥22 / pnpm≥10 只是文档约定、无 engines 强制；首次构建装整个 workspace（含 dashboard）；allowBuilds 放行 esbuild 与 tree-sitter 执行安装脚本，`|| pnpm install` 回退会放弃 frozen-lockfile——与「不引入未审计依赖」直接冲突。dashboard 钉 `elkjs ^0.9.3`（[dashboard/package.json](https://github.com/Egonex-AI/Understand-Anything/blob/000fbf3f36b5e534a0a8d3461cf24f5dc9ae43fe/understand-anything-plugin/packages/dashboard/package.json) 实测），而 **elkjs 0.9.3 是 EPL-2.0 单一许可**——「EPL-2.0 OR GPL-3.0-or-later」双许可只适用于更新版本（如 0.13.0），初稿三份方案的双许可表述均已被核验推翻。
+**构建链与许可**：Node≥22 / pnpm≥10 只是文档约定、无 engines 强制；首次构建装整个 workspace（含 dashboard）；allowBuilds 放行 esbuild 与 tree-sitter 执行安装脚本，`|| pnpm install` 回退会放弃 frozen-lockfile——与「不引入未审计依赖」直接冲突。dashboard 钉 `elkjs ^0.9.3`（[dashboard/package.json](https://github.com/Egonex-AI/Understand-Anything/blob/000fbf3f36b5e534a0a8d3461cf24f5dc9ae43fe/understand-anything-plugin/packages/dashboard/package.json) 实测），而 **elkjs 0.9.3 是 EPL-2.0 单一许可**——「EPL-2.0 OR GPL-3.0-or-later」双许可自 0.12.0 起的已发布版本生效，初稿三份方案的双许可表述均已被核验推翻。
 
 **交互闸与数据外发**：Phase 0.5 是提示词层**硬人工闸**、没有任何非交互参数；>100 文件闸门措辞为「确认或提示后继续」，属软闸；headless 下行为不确定。UA 自身无网络回传，**外发取决于宿主模型**——默认 Claude Code 下 README、manifest、目录树、结构抽取结果及部分原始源码会进入模型提供方；[SECURITY.md](https://github.com/Egonex-AI/Understand-Anything/blob/000fbf3f36b5e534a0a8d3461cf24f5dc9ae43fe/SECURITY.md) 的 local-only 只指工具自身，不能当作「代码不出本机」的依据。
 
@@ -50,12 +50,12 @@ UA 的净增量**只对大型纯代码仓**（100–300 文件量级）有意义
 | 2 | vendor 仅 core 抽取（TS） | **否决**：同一构建链问题；graphology/tree-sitter 依赖树未审计 |
 | 3 | Python 重写 tree-sitter 抽取（本期写适配器脚本） | **否决（本期）**：零消费者；schema 在漂移、lineRange/gitCommitHash 是 LLM 转录值，现在写只能是猜测型解析器——降 D1（§七），首集靠 01 人工纪律 |
 | 4 | 新增「⓪ 知识图谱」阶段（改 stages.toml） | **否决**：给低频需求设常驻流程面；「先有数据再有门」（ISSUE-167/188 假 WARN 先例；RSI 不变量 8） |
-| 5 | source_ledger 加 kind=kg/ua | **否决**：RSI-030 已否决给本地冻结件强挂 kind——三型分流表 {A,B,C} 是型别判定 SSOT，加第四行破坏 test_source_types 执法；路径 a 用 kind=repo 即可 |
+| 5 | source_ledger 加 kind=kg/ua | **否决**：RSI-030 已否决给本地冻结件强挂 kind——fetch/verify 是「活信源重抓比对」语义，冻结产物强挂 kind 制造语义漂移、违背最小干预（[12] 方案比选①原文）；配套论据：三型分流表 {A,B,C} 加第四行破坏 test_source_types 执法。路径 a 恰无漂移——图谱经 raw URL @G 抓取、指纹漂移即 FAIL，正是 kind=repo 语义 |
 | 6 | 图谱 JSON 冻进 research/ 作结构事实源 | **否决**：research/ 是事实源区，放 LLM 派生物制造第二事实源错觉；图谱与中间件只落 `$P/.temp/`，source-notes 头部登记 sha256 与出处 |
 | 7 | dashboard 录制为 Map-First 底图 | **否决**：01 图片纪律；无深链/状态 API；fitView 按墙钟 500ms 对不上词窗；字号 10–11px；7 色板取模与系列色板冲突；LLM 推断上屏；形成第二渲染面（HyperFrames 否决同款论据） |
 | **8** | **按集 opt-in：UA 只作骨架起草器与读码导航（01 硬规则子节 + 本文存证）** | **采纳**：零代码/零依赖/零新门；两钉闸 + S0/S1/L 消费纪律把 LLM 字段钉死在「线索」位；骨架规格本身与工具无关（主体收益），UA 随时可撤 |
 
-**Chesterton's Fence**（为何动 01 B 型节而不动分流表/kind）：RSI-030 否决 kind 的理由是「型别三行的意义在于文件名清单只在分流表一处枚举、下游一律泛引」——新增第四型或 kind 会让十余处下游指针再复制一遍。故骨架是 source-notes.md **内的一节**（派生视图），不进分流表、不加 kind、不加证据等级——「派生视图，非证据」一句即消解了定级问题。text-to-cad 先例（[dependency-policy](./dependency-policy-and-asset-tools.md) §三）只有「按集 opt-in、不入模板」一半可平移——其 skills CLI 有 `-s` 单 skill 安装通道，UA 没有官方单 skill 通道，整插件安装会连带 hooks（每次 Bash 起 node），故 UA 连「可选工具附录」都不进，只落 01 子节 + 研究文档。HyperFrames 先例（同文 §二）的「第二渲染面」否决论据直接适用于 dashboard 录制案。
+**Chesterton's Fence**（为何动 01 B 型节而不动分流表/kind）：RSI-030 否决 kind 的理由是「fetch/verify 是活信源重抓比对语义，冻结本地文档强挂 kind 制造语义漂移，且违背最小干预」（方案比选①原文，[12]）；「文件名清单只在分流表一处枚举、下游一律泛引」是其后续防范②的防复制论据，本文同向遵守。故骨架是 source-notes.md **内的一节**（派生视图），不进分流表、不加 kind、不加证据等级——「派生视图，非证据」一句即消解了定级问题。text-to-cad 先例（[dependency-policy](./dependency-policy-and-asset-tools.md) §三）只有「按集 opt-in、不入模板」一半可平移——其 skills CLI 有 `-s` 单 skill 安装通道，UA 没有官方单 skill 通道，整插件安装会连带 hooks（每次 Bash 起 node），故 UA 连「可选工具附录」都不进，只落 01 子节 + 研究文档。HyperFrames 先例（同文 §二）的「第二渲染面」否决论据直接适用于 dashboard 录制案。
 
 ## 五、概念移植采纳 / 不采纳清单
 
@@ -95,7 +95,7 @@ UA 的净增量**只对大型纯代码仓**（100–300 文件量级）有意义
 
 **D1 适配备忘（5 条，已核验）**：① 读原始 JSON——core validateGraph 会剥 recoveredFromImportMap 与 kind；② 前缀别名归一（`func:`/`function:`、`step:`）；③ 钉版两钉闸（图谱自述 gitCommitHash 对本集 pin + 图谱条目自身 pin，H≠pin 或缺失即不用）；④ lineRange 与全量 gitCommitHash 按 S1 处理、用前复核（S0/L 按 §二）；⑤ 纯 stdlib 只读、只写 `$P/.temp/`、失败指路式（点名 skip 而非静默）。
 
-**另立 RSI 候选**（不入本 PR，登记于 `.temp/backlog`）：source_ledger verify 区分抓取失败（unknown）与确证漂移（FAIL，现把抓取失败也计入 FAIL——fail-closed 不变，仅诊断性拆分）；改稿影响清单 rework_impact（可与 RSI-052 合并）；⑤ 冻结事实丢失报告；信源漂移反查；html_dir 口径不一致（与 RSI-038 一并评估）；check_playbook 伪锚校验；RSI 门禁方法论三条（登记到统一仓 ThreeFish-AI/rsi，不进本仓 ledger）。
+**另立 RSI 候选**（不入本 PR，按统一协议 §3 记入项目侧 backlog，不随仓库分发）：source_ledger verify 区分抓取失败（unknown）与确证漂移（FAIL，现把抓取失败也计入 FAIL——fail-closed 不变，仅诊断性拆分）；改稿影响清单 rework_impact（可与 RSI-052 合并）；⑤ 冻结事实丢失报告；信源漂移反查；html_dir 口径不一致（与 RSI-038 一并评估）；check_playbook 伪锚校验；RSI 门禁方法论三条（登记到统一仓 ThreeFish-AI/rsi，不进本仓 ledger）。
 
 ## 八、已知局限
 
@@ -123,7 +123,7 @@ UA 的净增量**只对大型纯代码仓**（100–300 文件量级）有意义
 
 [10] Egonex-AI, "Issue #656 / Pull Request #695," Understand-Anything（缺陷在 core 导出 API、修复未合并；/understand 路径不受影响）. [Online]. Available: https://github.com/Egonex-AI/Understand-Anything/issues/656
 
-[11] elkjs contributors, "elkjs," npm registry（0.9.3 = EPL-2.0 单许可；「EPL-2.0 OR GPL-3.0-or-later」双许可自更新版本起）. [Online]. Available: https://www.npmjs.com/package/elkjs
+[11] elkjs contributors, "elkjs," npm registry（0.9.3 = EPL-2.0 单许可；「EPL-2.0 OR GPL-3.0-or-later」双许可自 0.12.0 起）. [Online]. Available: https://www.npmjs.com/package/elkjs/v/0.9.3
 
 [12] ThreeFish-AI, "RSI-030 / RSI-032 / RSI-048 台账," vibe-video docs/.agents/issue.md（C 型分流、四定式、导演手艺——本文比选的仓内先例）. [Online]. Available: https://github.com/ThreeFish-AI/vibe-video/blob/main/docs/.agents/issue.md
 
@@ -145,5 +145,5 @@ UA 的净增量**只对大型纯代码仓**（100–300 文件量级）有意义
 - https://github.com/Egonex-AI/Understand-Anything/blob/000fbf3f36b5e534a0a8d3461cf24f5dc9ae43fe/understand-anything-plugin/packages/dashboard/package.json
 - https://github.com/Egonex-AI/Understand-Anything/issues/656
 - https://github.com/Egonex-AI/Understand-Anything/pull/695
-- https://www.npmjs.com/package/elkjs
+- https://www.npmjs.com/package/elkjs/v/0.9.3
 - https://github.com/ThreeFish-AI/vibe-video/blob/main/docs/.agents/issue.md
