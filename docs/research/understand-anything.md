@@ -33,7 +33,7 @@
 | 级 | 字段 | 来源 | 消费纪律 |
 |---|---|---|---|
 | **S0 确定性** | file 节点 filePath；recoveredFromImportMap 的 imports 边 | 工具确定性写入 | 可直接作「读哪些文件」的导航 |
-| **S1 确定性来源 + LLM 转录** | function/class 的 lineRange；其余结构边；全量路径 `project.gitCommitHash` | 数值源自确定性解析、但经 LLM 转抄且无对账 | 用前必须在钉选提交复核；「相等」只是必要条件，不据此跳过节点复核 |
+| **S1 确定性来源 + LLM 转录** | function/class 的 filePath/lineRange；其余结构边；全量路径 `project.gitCommitHash` | 数值源自确定性解析、但经 LLM 转抄且无对账 | 用前必须在钉选提交复核；「相等」只是必要条件，不据此跳过节点复核 |
 | **L 纯 LLM** | summary、tags、layers 层名、tour、语义边 | 编排/子代理生成 | 永远只是线索：不进断言、不进口播、不作 ④ 锚点、不上屏 |
 
 schema 漂移清单（适配与复核时须归一）：`func:` / `function:` 前缀别名并存；`step:` 前缀节点；validateGraph 加载时剥 recoveredFromImportMap / kind 标记（读原始 JSON 而非经 core 加载的内存态）。
