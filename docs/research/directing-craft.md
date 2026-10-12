@@ -15,7 +15,7 @@
 | 调研原则簇 | 既有纹理可挂靠 | 零覆盖需新建 |
 |---|---|---|
 | 旁白锚定时序 | 08 铁律「`rel(beat,'句id')` 句边界推导」 | 词级落点（Land on the Word）、画面先行 0–0.5s [5] |
-| Overview-First | 四定式 1「全景坐标先行」 | 回看密度规则（每 2–3 局部镜回拉全景） |
+| Overview-First | 四定式 1「全景坐标先行」 | 回看密度规则（每 2–3 局部镜回拉全景）+ 回拉层级澄清（最近一级全景） |
 | 消融对比/基线标尺 | 四定式 3/4 | — |
 | 情绪曲线 | 03 声音导演规则 | 视觉张力曲线（景别行程、呼吸幕） |
 | 隐喻角色化 | MODELING-PLAYBOOK 策展回路 | 隐喻注册表（02 视觉语言节增量） |
@@ -23,6 +23,12 @@
 | 节奏系统 | 记忆点 60–90s | 1/f 长短交替、时长底线、重音镜、呼吸幕 |
 | 动画原则 | DUR 六档/easing 四条/spring 三档（token 已备） | AAS、Suppression、Eye-Trace 判据 |
 | 数据本体红线 | 3D「弹簧过冲要钳行程」实践 | 泛化为 2D 全域红线 |
+
+**回拉层级澄清（RSI-060 补）**：§4.1 回看密度规则的回拉目标定为「能同时看清当前焦点及其
+直接上下文的最近一级全景（层级结构即父层）」，仅幕首或换层（§1.3 语义断裂）回到全片根
+全景——依据是信息检索 mantra 的「overview 先行、zoom and filter 按需下钻」[10] 与
+semantic zoom 文献的多层抽象按需切换 [11]（全图常驻反而是噪声）；Understand-Anything
+dashboard 的概览/下钻两级导航是工程佐证（评估见 [understand-anything 研究文档](./understand-anything.md)）。
 
 ## 三、方案比选（G2）
 
@@ -101,3 +107,7 @@ parser 顺序修正（必钉回归测试）：parse_motion_tags 先剥离 @cam/@
 [7] J. Hullman, "Why authors don't visualize uncertainty," *IEEE Trans. Vis. Comput. Graph.*, vol. 26, no. 1, pp. 10–14, 2020（图解叙事的注意力引导）.
 [8] B. Tversky, J. B. Morrison, and M. Bétrancourt, "Animation: Can it facilitate?," *Int. J. Hum.-Comput. Stud.*, vol. 57, no. 4, pp. 247–262, 2002（动画有效性的边界条件——时机与编排）.
 [9] Kurzgesagt 团队制作流程与色彩策略的公开分享 [Online]. Available: https://kurzgesagt.org/；3Blue1Brown（G. Sanderson）关于 Manim 设计哲学与动画作为注意力语言的公开访谈 [Online]. Available: https://www.dwarkesh.com/p/grant-sanderson；TED-Ed 动画协作模式（educator–animator collaboration，动画承载讲解的一部分）[Online]. Available: https://ed.ted.com/。
+
+[10] B. Shneiderman, "The eyes have it: A task by data type taxonomy for information visualizations," in *Proc. IEEE Symp. Visual Languages*, Boulder, CO, USA, 1996, pp. 336–343, doi: 10.1109/VL.1996.545307（"Overview first, zoom and filter, then details-on-demand" 信息检索 mantra 的原始出处——回拉层级澄清的主依据）.
+
+[11] K. Perlin and J. F. Fox, "Pad: An approach to iconographic user interfaces," in *Proc. ACM CHI Conf. Human Factors in Computing Systems*, Amsterdam, The Netherlands, 1993, pp. 500–500, doi: 10.1145/169059.169626（semantic zooming 概念的提出——多级抽象按需切换、细节渐次浮现，佐证「最近一级全景」而非全图常驻）.

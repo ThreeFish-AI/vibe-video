@@ -37,6 +37,7 @@
 | [dependency-policy-and-asset-tools.md](../research/dependency-policy-and-asset-tools.md) | 依赖版本策略比选、HyperFrames 复核（vs Remotion）与 text-to-cad 评估（RSI-016 循证） |
 | [motion-engineering.md](../research/motion-engineering.md) | Visual Lock、Morph Continuity、过渡/循环抽帧验收与 Motion Blur opt-in 的方案依据 |
 | [directing-craft.md](../research/directing-craft.md) | 导演手艺知识库的调研综合、方案比选（G2）与机械门族数据契约 roadmap（RSI-048） |
+| [understand-anything.md](../research/understand-anything.md) | Understand-Anything 工程能力融入评估：事实快照（钉版）、图谱字段 S0/S1/L 定级、引入形态八案比选与回拉层级依据（RSI-060） |
 
 ## 资产
 

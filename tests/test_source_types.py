@@ -5,6 +5,10 @@ C 型（guided-learn 精读产物）落地后的纪律：**文件名清单只在
 锚点（写法同 test_docs_paths 的文案锚定测试）；刻意不做「02–05 全文禁裸 paper-notes」
 类脆断言——01 的 A 型正文与各规格对 A 型的具名使用（如「A 型即 paper-notes」括注）是
 合法形态，一刀切禁词会把它们误判成漂移。
+
+RSI-060 追加：B 型纯代码仓库「结构骨架与素材映射」节（骨架是派生视图非证据）与
+Understand-Anything 按集 opt-in 子节的桥接锚，下游 02/03/05/06 同步指针——跨文件指针
+按节名断言、不带节号（01 自身标题除外），防节号顺移再复制一份脆锚。
 """
 
 from __future__ import annotations
@@ -99,3 +103,43 @@ def test_guided_learn_process_concretization_bridges():
         assert pattern in s08, (
             f"08-remotion-implementation.md 缺少过程具象化动效映射：{pattern}"
         )
+
+
+def test_b_type_structure_skeleton_bridge():
+    """RSI-060：B 型纯代码仓库结构骨架节 + UA 按集 opt-in 纪律在位，下游四规格同步指针。
+
+    跨文件断言一律按节名（「结构骨架与素材映射」）、不带节号——01 节号再顺移不破此门；
+    01 自身的「六、结构骨架与素材映射」标题是唯一带节号锚（目录行 TOC 门另案执法）。
+    """
+    s01 = (REFERENCES / "01-source-extraction.md").read_text(encoding="utf-8")
+    assert "## 六、结构骨架与素材映射" in s01, (
+        "01 缺 B 型结构骨架节（RSI-060 主体收益）"
+    )
+    for anchor in ("派生视图，非证据", "按集 opt-in", "不进口播", "gitCommitHash"):
+        assert anchor in s01, f"01 结构骨架节缺锚点：{anchor}"
+
+    s02 = (REFERENCES / "02-planning.md").read_text(encoding="utf-8")
+    assert "前置概念" in s02, (
+        "02 分幕表缺可选「前置概念」列（幕级先释后用，RSI-015 承接）"
+    )
+    assert "结构骨架与素材映射" in s02, "02 记忆点括注缺 B 型骨架指针（01/02 双处同步）"
+    assert "**名称对齐**（单向派生）" in s02, (
+        "02 前置概念列缺名称对齐规则（④B --terms 取名方向与回改责任，防两份概念名清单漂移）"
+    )
+
+    s03 = (REFERENCES / "03-narration.md").read_text(encoding="utf-8")
+    assert "结构骨架与素材映射" in s03, (
+        "03 术语降落括注缺 B 型骨架指针（02/03 双处同步）"
+    )
+
+    s05 = (REFERENCES / "05-prose-refinement.md").read_text(encoding="utf-8")
+    assert "前置概念" in s05, "05 §五缺「前置概念列不改写」半句"
+    assert "结构骨架" in s05, (
+        "05 §六冻结清单缺结构骨架节三要素（层名/节点名/走查链输入值）"
+    )
+
+    s06 = (REFERENCES / "06-storyboard.md").read_text(encoding="utf-8")
+    assert any(
+        ("四定式" in ln and "B 型" in ln and "结构骨架与素材映射" in ln)
+        for ln in s06.splitlines()
+    ), "06 四定式引导句未泛化到 B 型结构骨架（按节名指针，不带节号）"
