@@ -58,12 +58,14 @@ uv run hf download IndexTeam/IndexTTS-2.5 --local-dir checkpoints
 
 ### 2.3 启动推理服务
 
+服务脚本住 [dub 仓](https://github.com/ThreeFish-AI/dub)（TTS 机制 SSOT），下文 `$DUB` = dub skill 根（`~/.claude/skills/dub`，或 `DUB_HOME`）；直接用 `$DUB/scripts/dub.py server start` 也可一键拉起。
+
 在 index-tts 根目录（`~/tools/index-tts` 为默认位置，工具侧可经 `VIBE_VIDEO_INDEX_TTS_ROOT` 覆盖）：
 
 ```bash
 cd ~/tools/index-tts
 uv run --frozen --with fastapi --with uvicorn --with soundfile --with numpy --with lameenc \
-    python $T/scripts/tts_server.py \
+    python $DUB/scripts/dub_tts_server.py \
     --model-dir checkpoints --indextts-version 2.5 --host 127.0.0.1 --port 8766 \
     [--use-qwen-emo]   # 可选：加载 QwenEmotion（0.6B，约 +1.5 GB 内存），启用 --emo-text 自然语言情感
 ```
@@ -93,7 +95,7 @@ uv run --frozen --with fastapi --with uvicorn --with soundfile --with numpy --wi
 # 判在用（两查皆空才可关）：他人连接 or 他人合成进程
 lsof -nP -iTCP:8766 -sTCP:ESTABLISHED
 pgrep -fl "scripts/tts.py|tts_sample.py|tts_bench.py"
-# 关闭：按端口只关这一个实例（勿 pkill -f tts_server.py——会连带杀掉 8767 上他人的第二个 tts_server.py 实例）
+# 关闭：按端口只关这一个实例（勿 pkill -f tts_server.py——会连带杀掉 8767 上他人的第二个服务实例）
 lsof -ti tcp:8766 -sTCP:LISTEN | xargs kill
 ```
 

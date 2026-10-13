@@ -86,6 +86,8 @@ IndexTTS 服务端（端口取自 `tts.server`，默认 8766，下文命令以�
 
 先完成者**不得**关闭他人正用的实例（以第 1 步判据为准）；适当重启本身即运维收益——清空累积态、归还显存。完整部署/启停命令见 [VOICE-CLONING.md §二](VOICE-CLONING.md)。
 
+> **机制住 dub**：服务脚本、风格预设、digest 与客户端原语都在 [dub 仓](https://github.com/ThreeFish-AI/dub)，本仓 `tts.py` 经 `DUB_HOME` / `~/.claude/skills/dub` 定位并委托。dub 自带按需起停：`dub.py server start|stop`，`stop` 遇实例仍被占用时不杀、起有界 watchdog 巡检到连续空闲再停；与上文第 1–2 步的人工判据同向，二选一即可。
+
 ## 完成门（交给 Stage ⑨ 前）
 
 - manifest 句数 = narration 句数；`pipeline.py check` 的实测时长口径落在预算窗内（草声期/升档中间态该口径跳过并点名，见「两档生命周期」——**末次 TTS 完成后（edge 或克隆皆同）本门必须实测过窗才算交付**）；
