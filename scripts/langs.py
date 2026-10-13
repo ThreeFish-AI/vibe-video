@@ -24,9 +24,8 @@ final.mp4 各只有一个路径，语言相关常数（tts lang 码、edge 音�
 ## 导入边界（承重，勿破）
 
 本模块**不得** import paths / config（保持零工作区锚、可被任何脚本含 check 族
-直接 import）。反向红线：**tts.py / tts_server.py 不得 import 本模块**——它们会被
-拷进 ~/tools/index-tts 的 venv 单独运行（见 paths.py 导入边界），同目录依赖会断掉
-那条拷出路径；tts.py 持内联最小镜像表，与 LANGS 的一致性由
+直接 import）。反向红线：**tts.py 不得 import 本模块**——它不 import 任何同目录
+模块（见 paths.py 导入边界）；tts.py 持内联最小镜像表，与 LANGS 的一致性由
 tests/test_langs.py 钉住（timing.json「TS/Python 双语共读」的同构纪律）。TS 侧
 镜像为模板 video/src/i18n.tsx 的 audioDir()，同受测试执法。
 

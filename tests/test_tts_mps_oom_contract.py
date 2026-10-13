@@ -42,7 +42,7 @@ def _expr_text(node: ast.expr) -> str:
 
 
 def _remedy_literals() -> tuple[list[str], list[str]]:
-    """AST 抽 tts_server.py 三个 remedy 的隐式拼接全文。
+    """AST 抽 dub_tts_server.py 三个 remedy 的隐式拼接全文。
 
     确认触顶分支应恰一处；未确认触顶与未设上限两个分支都必须保持可重试。
     """

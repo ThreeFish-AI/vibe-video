@@ -5,7 +5,7 @@
 - 输出：<工程>/video/public/audio/{id}.mp3 + <工程>/video/public/audio/manifest.json
 - 引擎：
   - edge（默认）：edge-tts 预置音色，免密钥，行为与历史版本完全一致；
-  - indextts：声音克隆（IndexTTS-2.5 本地服务），需先启动 tts_server.py，
+  - indextts：声音克隆（IndexTTS-2.5 本地服务），需先启动 dub 的 dub_tts_server.py，
     通过 --ref 提供参考音色样本、--style 选择风格（sunny 明快阳光为推荐位，
     sunny-steady 为其定稿档＝同参数 + 束宽 3；另有激情/轻快/自信/正能量）。
 - 幂等：参数与文本未变则跳过（SHA1 摘要 sidecar 缓存）。
@@ -62,8 +62,8 @@ def _find_dub_scripts() -> Path:
     sys.exit(
         "找不到 dub skill（TTS 机制原语住在那里）。已检查：\n"
         + "\n".join(f"  - {c}" for c in candidates)
-        + "\n安装：git clone https://github.com/ThreeFish-AI/dub ~/Documents/projects/aurelius/dub"
-        " && ln -sfn ~/Documents/projects/aurelius/dub ~/.claude/skills/dub（或设 DUB_HOME）"
+        + "\n安装：git clone https://github.com/ThreeFish-AI/dub ~/projects/dub"
+        " && ln -sfn ~/projects/dub ~/.claude/skills/dub（或设 DUB_HOME）"
     )
 
 
@@ -114,10 +114,10 @@ from dub_tts_blocks import (  # noqa: E402,F401
 
 
 #: 语言镜像表：narration-lang → (IndexTTS infer lang 码, edge 缺省音色)。
-#: ⚠️ 内联而非 import langs——本文件会被拷进 ~/tools/index-tts 的 venv 单独运行
-#: （paths.py「导入边界」），同目录依赖会断掉那条拷出路径；与 scripts/langs.py
-#: 的 LANGS 注册表的一致性由 tests/test_tts_lang_mirror.py 钉住（timing.json
-#: 「TS/Python 双语共读」的同构纪律）。路径后缀规则（zh 无后缀 / en 加 .en）
+#: ⚠️ 内联而非 import langs——本文件不 import 任何同目录模块（paths.py「导入边界」，
+#: test_tts_lang_mirror 的 AST 扫描执法），仅凭入参与环境变量运行、不需要工作区锚；
+#: 与 scripts/langs.py 的 LANGS 注册表的一致性由 tests/test_tts_lang_mirror.py 钉住
+#: （timing.json「TS/Python 双语共读」的同构纪律）。路径后缀规则（zh 无后缀 / en 加 .en）
 #: 同理内联，与 langs.narration_json / langs.audio_dir 同构。
 LANG_MIRROR: dict[str, tuple[str, str]] = {
     "zh": ("ZH", DEFAULT_VOICE),
@@ -281,8 +281,8 @@ def steady_match(
 #: 与本次不一致时硬失败，要求显式 --allow-voice-switch。不参与逐句摘要，故零缓存影响。
 ENGINE_MARKER = ".engine"
 
-#: 服务端脚本住在 dub 仓（机制 SSOT）。启动命令此前有三份副本（本文件、tts_sample.py、
-#: VOICE-CLONING.md），收敛为唯一生成处。
+#: 服务端脚本住在 dub 仓（机制 SSOT）；启动命令的唯一生成处是下面的 server_launch_hint，
+#: tts_sample.py、tts_resume.py 与 VOICE-CLONING.md 皆由它派生或对它钉死。
 SERVER_SCRIPT = _DUB_SCRIPTS / "dub_tts_server.py"
 
 
@@ -599,8 +599,8 @@ def blocks_unsupported_hint(health: dict) -> str:
     fallback = '；或本集改用逐句档（pipeline.toml [tts] style = "sunny"，直调 tts.py 用 --style sunny）'
     if "supports_blocks" not in health:
         return (
-            "当前服务不支持块合成（story 档需要）：服务端代码过旧，请用本 skill"
-            f" 当前 tts_server.py 重启服务，见 {MANUAL} §二"
+            "当前服务不支持块合成（story 档需要）：服务端代码过旧，请用 dub"
+            f" 当前 dub_tts_server.py 重启服务，见 {MANUAL} §二"
         )
     if health.get("version") == "2":
         return (
@@ -615,7 +615,7 @@ def blocks_unsupported_hint(health: dict) -> str:
         )
     return (
         "当前服务报告不支持块合成（supports_blocks=false，未回报原因）"
-        f"——请用本 skill 当前 tts_server.py 重启服务（见 {MANUAL} §二）{fallback}"
+        f"——请用 dub 当前 dub_tts_server.py 重启服务（见 {MANUAL} §二）{fallback}"
     )
 
 
@@ -767,7 +767,7 @@ async def synth_block_indextts(
         if fmts != {"mp3"}:  # 同逐句路径的编码器守卫：WAV 字节不得落成 .mp3
             raise NonRetryableError(
                 f"服务端编码器不可用（format={','.join(sorted(map(str, fmts)))}）"
-                f"—— 按 {MANUAL} §七 检查 soundfile/lameenc，或用当前 tts_server.py 重启服务"
+                f"—— 按 {MANUAL} §七 检查 soundfile/lameenc，或用 dub 当前 dub_tts_server.py 重启服务"
             )
         for k, clip in enumerate(clips):
             item = block_items[k]
@@ -1631,11 +1631,11 @@ async def main() -> None:
         if sampling_only and not health.get("supports_sampling_params"):
             parser.error(
                 f"当前服务不支持采样参数（{','.join(sorted(sampling_only))}）：服务端代码过旧，"
-                f"请用本 skill 当前 tts_server.py 重启服务，见 {MANUAL} §二"
+                f"请用 dub 当前 dub_tts_server.py 重启服务，见 {MANUAL} §二"
             )
         if "seed" in sampling and not health.get("supports_seed"):
             parser.error(
-                f"当前服务不支持 --seed：服务端代码过旧，请用本 skill 当前 tts_server.py 重启服务，见 {MANUAL} §二"
+                f"当前服务不支持 --seed：服务端代码过旧，请用 dub 当前 dub_tts_server.py 重启服务，见 {MANUAL} §二"
             )
         if sampling.get("text_normalization") is False and not health.get(
             "supports_text_normalization"
