@@ -910,3 +910,23 @@
 **同类问题影响**：A/C 型集与已交付「站点+仓库」混合 B 集（claude-code-explained-video）不追溯——骨架节按 01 验收「纯代码仓集」判定触发（判据以 01 为准，本条不复述），纯文档 B 集写明不适用；首个纯代码仓集交付后走 ⑩ 复盘定级（D9）；UA 再评估触发器与撤销条件住研究文档 §七。
 
 **复盘点 2026-10-12（人工占位纪律）**：实施期按 Learning 输出风格在 02「前置概念」列注下留了 `TODO(human)` 占位等用户填写，用户否决这一做法——仓库产物里的占位会被当作现行态合入、阻塞后续读者，且与「交付前验证」相悖。处置：名称对齐句由主代理按 SSOT 纪律定稿（单向派生、以 narration.md 为准）；新增全仓机器门 [test_skill_spec](../../tests/test_skill_spec.py)::`test_repo_free_of_human_placeholders`（`TODO(human|user)` 形态即红，Markdown 行内代码与围栏除外），顺带清除 test_subtitle_single_line 断言消息中失效的占位引用；规约上提为全局协作规约 ThreeFish-AI/agents.md「Human-in-the-Loop」条（[PR #9](https://github.com/ThreeFish-AI/agents.md/pull/9) 已合入 master `7f5a072`，措辞已回扫对齐：Operational Excellence 第 7 条与本仓机器门同义）。后续防范：需人工决策的环节一律以交互请求（事中不阻塞时并行推进其余工作，或事后集中提问）发起，产物落地完整现行态，禁在仓库文件中留人工占位。
+
+## RSI-065 配音机制上收独立 Skill dub：本仓 tts.py 内联副本改为委托
+
+**表因**（2026-10-13，用户点名）：用户要求把配音（TTS）抽成独立 Skill——给文本和风格就产出 mp3，且 edge 引擎没有任何「文本 → mp3」独立入口、输出目录无环境变量可控。本仓的 TTS 机制（风格预设、摘要、HTTP 客户端、版本库原语、服务端）只能服务整集流水线。
+
+**根因**：机制层与编排层（`narration.json` 逐句循环、manifest、story 块规划、RSI-040 门）揉在 `tts.py` 一个 2366 行文件里，从未分层；`tts_server.py` 对 `tts.py` 仅两处 import 耦合（采样默认值、四个块切分纯函数），说明切口天然存在。
+
+**定性**：非阻断改进 · 结构性重构（行为等价：缓存摘要逐字节不变，存量缓存零失效）。
+
+**处理方式**：PR [#48](https://github.com/ThreeFish-AI/vibe-video/pull/48)（分支 `feat/dub-delegation`，commit 36d082c、0bccc49、e0105e2、3a056db）。机制原语上收 [ThreeFish-AI/dub](https://github.com/ThreeFish-AI/dub)，本仓 `tts.py` 按 [PIPELINE.md「环境变量」节](../../references/PIPELINE.md)的定位顺序定位后 import 并再导出（`tts.X` 命名空间不变，`tts_sample.py`、`tts_resume.py` 依赖面零改动；测试面 `test_tts_resume.py` 41 例零改动，`test_digest.py` 17 例与纯 dub 用例迁出 dub，`test_tts_blocks.py` 67→54 例、`test_tts_store.py` 13→5 例、`test_tts_lang_mirror.py` 9→8 例瘦身，新增 `test_dub_delegation.py` 27 例与 `test_tts_resolve.py` 4 例）；`tts.py` 2366 → 1728 行，`tts_server.py` 删除（git 历史保留）。留在本仓的是视频特定编排：narration 循环、manifest、`.engine` 标记与 RSI-040 门、`plan_blocks` / `sentence_weight` / `block_synth_text`（硬依赖台本的 `blockStart` / `scene`）、argparse 面。`pron_marks.py` 与 `tts_sample.py` 不动（前者是 narration 管道策略，后者 16 处文档引用且 import 全部经再导出解析）。`dub` 缺位即大声退出，列出候选与安装命令，禁止静默降级到内联副本。同批配套收紧（均属本条登记的处理面）：`DUB_HOME` 入环境变量注册表、文档约 6 处服务端路径改指 dub、RSI.md 增不变量 16。
+
+**后续防范**：
+
+- 机制原语只住 dub，本仓不得再内联或另拷（`tests/test_dub_delegation.py`：`__module__` 判行为面、AST 判结构面）；
+- 黄金哈希、预设不变量、版本库与块切分的测试只住 dub（本仓不留镜像副本，`test_digest.py` 已迁出）；dub 一改摘要格式，15 集存量缓存随之失效，由 dub 仓的测试在源头拦住；
+- dub 的库模块一律 `dub_` 前缀，`sys.path` 用 append 而非 insert(0)，本仓兄弟模块优先解析；
+- 本仓 pytest 现硬依赖 dub 已挂载（大声退出 + 安装指引，禁静默跳过）；
+- SKILL.md 正文预算仅余 3 字符，再加内容须先等价压缩旧文案。
+
+**同类问题影响**：分集 `scripts/tts.py` 薄包装（15 份逐字节相同）不动——它们转调本仓 `scripts/tts.py`，委托发生在其内部；`VIBE_VIDEO_TTS_STORE` 默认目录与摘要格式均不变，零重合成。dub 自己的版本库 `DUB_STORE` 是独立的，不与本仓共享。

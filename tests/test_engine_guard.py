@@ -6,7 +6,12 @@ import json
 import sys
 from pathlib import Path
 
-from tts import check_voice_marker, server_launch_hint, write_voice_marker  # noqa: E402
+from tts import (
+    SERVER_SCRIPT,  # noqa: E402
+    check_voice_marker,
+    server_launch_hint,
+    write_voice_marker,
+)  # noqa: E402
 
 from helpers import timing_constants
 
@@ -60,7 +65,7 @@ def test_voice_marker_absent_passes(tmp_path):
 def test_server_launch_hint_has_no_placeholder():
     hint = server_launch_hint()
     assert "<仓库路径>" not in hint
-    assert "tts_server.py" in hint and "index-tts" in hint
+    assert f"python {SERVER_SCRIPT}" in hint and "index-tts" in hint
     assert "checkpoints" in hint
 
 

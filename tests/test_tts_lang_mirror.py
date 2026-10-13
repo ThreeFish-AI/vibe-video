@@ -1,7 +1,7 @@
 """tts.py 的内联语言镜像表与导入边界执法。
 
-tts.py 受 paths.py「导入边界」约束（会被拷进 ~/tools/index-tts 的 venv 单独运行），
-不得 import 任何同目录模块——语言常数只能在文件内镜像。镜像与 langs.LANGS
+tts.py 受 paths.py「导入边界」约束（不 import 任何同目录模块），
+语言常数只能在文件内镜像。镜像与 langs.LANGS
 注册表的一致性由此钉住（timing.json「TS/Python 双语共读」的同构纪律）：
 注册表换音色/加语言而镜像未跟，这里先红。
 """
@@ -43,24 +43,16 @@ def _imported_top_levels(tree: ast.Module) -> set[str]:
 
 
 def test_tts_does_not_import_sibling_modules():
-    """导入边界（承重）：tts.py 不得 import 同目录模块——它会被拷进 index-tts
-    的 venv 运行，任何同目录依赖都会断掉那条拷出路径。AST 扫描 import 语句，
-    同目录集合从 scripts/*.py 现存文件派生（新增脚本自动进执法面）。"""
+    """导入边界（承重）：tts.py 不得 import 同目录模块——它不持工作区锚，
+    仅凭入参与环境变量运行（dub 依赖经 _find_dub_scripts 单点定位）。AST 扫描
+    import 语句，同目录集合从 scripts/*.py 现存文件派生（新增脚本自动进执法面）。"""
     tree = ast.parse((SCRIPTS / "tts.py").read_text(encoding="utf-8"))
     siblings = {p.stem for p in SCRIPTS.glob("*.py")}
     offenders = _imported_top_levels(tree) & siblings
     assert not offenders, (
-        f"tts.py 引入了同目录依赖 {sorted(offenders)}——违反 paths.py 导入边界，"
-        "拷进 ~/tools/index-tts 后会 ModuleNotFoundError"
+        f"tts.py 引入了同目录依赖 {sorted(offenders)}——违反 paths.py 导入边界"
+        "（同目录依赖一律迁 dub 或改走入参/env）"
     )
-
-
-def test_tts_text_mappings_are_zh_only():
-    """全角破折号/省略号映射仅对 ZH 生效；en 原样透传；缺省参数向后兼容 ZH。"""
-    assert tts.tts_text("破折——号。", "ZH") == "破折，号。"
-    assert tts.tts_text("省略……结束。", "ZH") == "省略。结束。"
-    assert tts.tts_text("wait—— here…", "EN") == "wait—— here…"
-    assert tts.tts_text("缺省即 ZH——不变") == "缺省即 ZH，不变"
 
 
 def _run_tts(*argv: str):
