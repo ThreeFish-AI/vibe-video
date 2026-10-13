@@ -999,3 +999,17 @@
 **后续防范**：跨仓命名契约（入口脚本 `vibe_tts.py`、模块前缀 `vibe_tts_*`、六个 `VIBE_TTS_*` 环境变量、skill 目录名）以 vibe-tts 仓为 SSOT，上游再有更名或契约变化时本仓须同步一次；委托发现逻辑内联在 `_find_vibe_tts_scripts`（不 import 兄弟模块，test_tts_lang_mirror 钉死），与上游 `vibe_tts_paths.find_vibe_tts_root` 同构可对照。
 
 **同类问题影响**：缓存摘要 `digest_indextts` 更名前后逐字节相同（上游黄金哈希测试钉值零改动、经本仓委托继承），15 集存量缓存零失效；vibe-tts 仓自己的数据目录从 `Application Support/dub` 迁至 `Application Support/vibe-tts`，属上游仓内部迁移，本仓 `VIBE_VIDEO_TTS_STORE` 不受影响。分集 `scripts/tts.py` 薄包装（15 份逐字节相同）不动，委托发生在其转调的本仓 `scripts/tts.py` 内部。本条目之前的存量登记（RSI-065 等）为冻结历史，不再改写。
+
+## RSI-067 反模式表节标题条目计数无机器执法：表行增删后计数漂移只靠评审人眼
+
+**表因**（2026-10-13，RSI 回路捕获）：在途评估存证条（A-29/A-30 两条新反模式入表，表 28→30 行）落地迭代中，[DIRECTING-CRAFT.md](../../references/DIRECTING-CRAFT.md) §七节标题的计数「28 条」未随表行数同步，由独立收敛门 reviewer 在评审中人工抓到后修复——评审漏看即静默合入。
+
+**根因**：节标题内嵌计数与表行是手工维护的两份事实（第二事实源形态），[test_directing_craft.py](../../tests/test_directing_craft.py) 此前只断言文档行数上限（`MAX_LINES=500`），对「标题计数 == 表内 `| A-` 行数」无任何机器断言——漏报的门等于没门。
+
+**定性**：门覆盖缺口 · 非阻断（漂移只损知识库可读性与可信度，不影响流水线行为）。
+
+**处理方式**：[tests/test_directing_craft.py](../../tests/test_directing_craft.py) 新增 `test_section_count_matches_table`——从文本两侧各自解析（标题「反模式表（NN 条…」中的计数、`^\| A-\d+` 表行）后断言相等；不硬编码具体条数（与并行条目 A-29/A-30 的合并顺序无关）；标题计数锚失配或表零数据行同样判红（防格式断裂后静默通过）。验证三态：现状（28/28）绿、人为篡改计数为 27 红（验证后还原）、全量 pytest 无回归。
+
+**后续防范**：反模式表条目增删（含后续制片经验攒批回流）落地时计数一致性由机器门执法，不再依赖评审人眼；文档内嵌计数/汇总数字凡与可机器解析的行集并存，登记时一律补同构一致性门。
+
+**同类问题影响**：DIRECTING-CRAFT 其余节标题（§1.1 景别表等）目前无内嵌计数，无同型漂移面；SKILL.md 等其他文档若未来加入内嵌计数须同步此门先例。

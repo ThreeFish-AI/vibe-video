@@ -11,6 +11,9 @@
 
 RSI-060 追加：§4.1 回看密度规则的回拉层级澄清锚（「最近一级全景」——依据与 IEEE
 引用住 docs/research/directing-craft.md；研究文档侧暂无内容门，链接门仅保文件可达）。
+
+RSI-067 追加：§七反模式表节标题计数与表行数的机器一致性门（A-29/A-30 落地时
+计数漂移靠评审人眼抓漏，本门使漂移即测试失败）。
 """
 
 from __future__ import annotations
@@ -101,4 +104,31 @@ def test_skill_md_load_on_demand_row():
     text = read_skill_md()
     assert "[DIRECTING-CRAFT.md](references/DIRECTING-CRAFT.md)" in text, (
         "SKILL.md 按需加载表缺 DIRECTING-CRAFT 行——Agent 无发现通道，知识库成孤岛（RSI-048）"
+    )
+
+
+def test_section_count_matches_table():
+    """RSI-067：§七标题的条目计数须与表内反模式行数一致（计数漂移即红）。
+
+    A-29/A-30 落地时节标题仍写「28 条」未随表行数同步，靠评审人眼抓漏——
+    计数与表行是手工维护的两份事实，本门从文本两侧各自解析后断言相等；
+    不硬编码具体条数（与并行条目的合并顺序无关），标题锚失配或表零数据行
+    同样判红（防格式断裂后静默通过）。
+    """
+    import re
+
+    text = read_ref("DIRECTING-CRAFT.md")
+    match = re.search(r"^## 七、反模式表（(\d+) 条", text, re.MULTILINE)
+    assert match is not None, (
+        "DIRECTING-CRAFT §七标题找不到「反模式表（NN 条…」计数锚——"
+        "标题措辞或格式变了须同步本测试的解析式"
+    )
+    declared = int(match.group(1))
+    rows = re.findall(r"^\| A-\d+", text, re.MULTILINE)
+    assert rows, (
+        "DIRECTING-CRAFT §七反模式表零数据行（`| A-` 开头）——表被清空或行格式断裂"
+    )
+    assert declared == len(rows), (
+        f"§七标题计数「{declared} 条」≠ 表内反模式行数 {len(rows)}"
+        "——条目增删后须同步节标题计数（RSI-067 机器执法门）"
     )
