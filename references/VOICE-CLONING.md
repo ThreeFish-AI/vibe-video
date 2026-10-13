@@ -58,14 +58,14 @@ uv run hf download IndexTeam/IndexTTS-2.5 --local-dir checkpoints
 
 ### 2.3 启动推理服务
 
-服务脚本住 [dub 仓](https://github.com/ThreeFish-AI/dub)（TTS 机制 SSOT），下文 `$DUB` = dub skill 根（定位顺序 `DUB_HOME` → `~/.claude/skills/dub`，完整表见 [PIPELINE.md「环境变量」节](PIPELINE.md)）。需要 QwenEmotion（`--emo-text`）的服务仍用下方手工命令（`dub.py server start` 不接受 `--use-qwen-emo`，且它读 dub 侧 `DUB_INDEX_TTS_ROOT` / `DUB_INDEXTTS_SERVER`，与本仓 `VIBE_VIDEO_INDEX_TTS_ROOT` / `INDEXTTS_SERVER` 各读各的，见 dub 仓 `references/ENV.md`）；无需情感档时 `$DUB/scripts/dub.py server start` 可一键拉起。
+服务脚本住 [vibe-tts 仓](https://github.com/ThreeFish-AI/vibe-tts)（TTS 机制 SSOT），下文 `$VIBE_TTS` = vibe-tts skill 根（定位顺序 `VIBE_TTS_HOME` → `~/.claude/skills/vibe-tts`，完整表见 [PIPELINE.md「环境变量」节](PIPELINE.md)）。需要 QwenEmotion（`--emo-text`）的服务仍用下方手工命令（`vibe_tts.py server start` 不接受 `--use-qwen-emo`，且它读 vibe-tts 侧 `VIBE_TTS_INDEX_TTS_ROOT` / `VIBE_TTS_INDEXTTS_SERVER`，与本仓 `VIBE_VIDEO_INDEX_TTS_ROOT` / `INDEXTTS_SERVER` 各读各的，见 vibe-tts 仓 `references/ENV.md`）；无需情感档时 `$VIBE_TTS/scripts/vibe_tts.py server start` 可一键拉起。
 
 在 index-tts 根目录（`~/tools/index-tts` 为默认位置，工具侧可经 `VIBE_VIDEO_INDEX_TTS_ROOT` 覆盖）：
 
 ```bash
 cd ~/tools/index-tts
 uv run --frozen --with fastapi --with uvicorn --with soundfile --with numpy --with lameenc \
-    python $DUB/scripts/dub_tts_server.py \
+    python $VIBE_TTS/scripts/vibe_tts_server.py \
     --model-dir checkpoints --indextts-version 2.5 --host 127.0.0.1 --port 8766 \
     [--use-qwen-emo]   # 可选：加载 QwenEmotion（0.6B，约 +1.5 GB 内存），启用 --emo-text 自然语言情感
 ```
@@ -94,9 +94,9 @@ uv run --frozen --with fastapi --with uvicorn --with soundfile --with numpy --wi
 ```bash
 # 判在用（两查皆空才可关）：他人连接 or 他人合成进程
 lsof -nP -iTCP:8766 -sTCP:ESTABLISHED
-pgrep -fl "scripts/tts.py|tts_sample.py|tts_bench.py|dub.py"
-# 关闭：优先 dub.py server stop（按端口、连续空闲才停，忙则起有界 watchdog 巡到空闲，见 07「服务生命周期」）
-#   dub 未挂载时退回按端口只关这一个实例（勿 pkill -f dub_tts_server.py——会连带杀掉 8767 上他人的第二个服务实例）
+pgrep -fl "scripts/tts.py|tts_sample.py|tts_bench.py|vibe_tts.py"
+# 关闭：优先 vibe_tts.py server stop（按端口、连续空闲才停，忙则起有界 watchdog 巡到空闲，见 07「服务生命周期」）
+#   vibe-tts 未挂载时退回按端口只关这一个实例（勿 pkill -f vibe_tts_server.py——会连带杀掉 8767 上他人的第二个服务实例）
 lsof -ti tcp:8766 -sTCP:LISTEN | xargs kill
 ```
 

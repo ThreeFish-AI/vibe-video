@@ -46,7 +46,7 @@
 
 ## 三、安装
 
-Skill 本体是纯指令，零依赖即装即用；下表工具链（含配音机制 dub）仅运行流水线时需要。
+Skill 本体是纯指令，零依赖即装即用；下表工具链（含配音机制 vibe-tts）仅运行流水线时需要。
 
 ### 前置依赖（Prerequisites）
 
@@ -58,7 +58,7 @@ Skill 本体是纯指令，零依赖即装即用；下表工具链（含配音�
 | Node ≥ 23.6 | 运动层单测用 `node --test` 原生跑 TS |
 | playwright（Python） | archify 图解录制驱动（按需 `uv run --with playwright`，无需预装；进程纪律见 [references/PIPELINE.md](references/PIPELINE.md) §十） |
 | 系统 Chrome | archify 录制器以 `channel="chrome"` 起真实 Chrome 的无头实例（无头优先、用后即关，见 [references/PIPELINE.md](references/PIPELINE.md) §十） |
-| [ThreeFish-AI/dub](https://github.com/ThreeFish-AI/dub) | 配音机制原语（TTS SSOT）：`scripts/tts.py` import 时即定位，缺位即退出并打印安装命令（edge 草声也依赖）。安装：`git clone https://github.com/ThreeFish-AI/dub ~/projects/dub && ln -sfn ~/projects/dub ~/.claude/skills/dub`，或设 `DUB_HOME=<clone 根>`；完整定位顺序见 [references/PIPELINE.md](references/PIPELINE.md)「环境变量」节 |
+| [ThreeFish-AI/vibe-tts](https://github.com/ThreeFish-AI/vibe-tts) | 配音机制原语（TTS SSOT）：`scripts/tts.py` import 时即定位，缺位即退出并打印安装命令（edge 草声也依赖）。安装：`git clone https://github.com/ThreeFish-AI/vibe-tts ~/projects/vibe-tts && ln -sfn ~/projects/vibe-tts ~/.claude/skills/vibe-tts`，或设 `VIBE_TTS_HOME=<clone 根>`；完整定位顺序见 [references/PIPELINE.md](references/PIPELINE.md)「环境变量」节 |
 | （可选）IndexTTS-2.5 本地服务 | 声音克隆后端（默认 `127.0.0.1:8766`），部署见 [references/VOICE-CLONING.md](references/VOICE-CLONING.md) §二 |
 
 表中版本为**最低地板**：所有依赖（含分集工程内的 Remotion 家族）一律优先最新稳定版——建集装依赖前先 `npm view remotion version` 对照，追新与跨 major 升级规则见 [references/PIPELINE.md](references/PIPELINE.md) §九。
@@ -74,7 +74,7 @@ ln -s ~/projects/vibe-video ~/.claude/skills/vibe-video
 
 ### 其他宿主与 skills CLI
 
-dub 的多宿主挂载同理：同一 clone 再链 `~/.agents/skills/dub`，或设 `DUB_HOME` 指向 clone 根。
+vibe-tts 的多宿主挂载同理：同一 clone 再链 `~/.agents/skills/vibe-tts`，或设 `VIBE_TTS_HOME` 指向 clone 根。
 
 ```bash
 npx skills add ThreeFish-AI/vibe-video   # 交互选择宿主；--copy 可选固化副本
@@ -86,7 +86,7 @@ npx skills add ThreeFish-AI/vibe-video   # 交互选择宿主；--copy 可选固
 ### 验证安装
 
 - 宿主内：`/skills`（Claude Code / Codex）或 Skills 面板（Cursor）应列出 vibe-video；
-- CLI 冒烟：`uv run --no-project <clone 根>/scripts/scaffold.py --help` 可正常打印；dub 侧 `python3 ~/.claude/skills/dub/scripts/dub.py styles` 应列出风格表。
+- CLI 冒烟：`uv run --no-project <clone 根>/scripts/scaffold.py --help` 可正常打印；vibe-tts 侧 `python3 ~/.claude/skills/vibe-tts/scripts/vibe_tts.py styles` 应列出风格表。
 
 ### 更新与卸载
 
@@ -144,7 +144,7 @@ uv run --no-project $W/scripts/pipeline.py --project $P build
 uv run --no-project $W/scripts/pipeline.py --project $P check
 
 # 8) ⑦ 配音（edge 草声按分集包装器契约直调，三句秒级；克隆升档见 references/07。
-#    配音机制住 dub——首次运行前按「前置依赖」装好 dub，缺位会大声退出并打印安装命令）
+#    配音机制住 vibe-tts——首次运行前按「前置依赖」装好 vibe-tts，缺位会大声退出并打印安装命令）
 cd "$P" && uv run --no-project --with edge-tts --with mutagen scripts/tts.py
 
 # 9) ⑨ 草渲 + 抽帧体检（先装分集依赖；产物 $P/out/draft.mp4）
@@ -170,7 +170,7 @@ uv run --no-project $W/scripts/pipeline.py --project $P qa --video out/draft.mp4
 
 ## 六、相邻 Skill
 
-同一作者的配套技能：[guided-learn](https://github.com/ThreeFish-AI/guided-learn)（产出《精读与通俗拆解》；其精读产物是 Stage ① 的 C 型输入信源（见 [references/01](references/01-source-extraction.md)），无产物时是精读上游）、[archify](https://github.com/tt-a1i/archify)（架构图绘制与动效录制，阶段 ⑧ 的图例资产来源、覆盖门的消费对象）、[dub](https://github.com/ThreeFish-AI/dub)（单段文本配音与 IndexTTS 服务起停；Stage ⑦ 的配音机制原语 SSOT，安装见「前置依赖」）。
+同一作者的配套技能：[guided-learn](https://github.com/ThreeFish-AI/guided-learn)（产出《精读与通俗拆解》；其精读产物是 Stage ① 的 C 型输入信源（见 [references/01](references/01-source-extraction.md)），无产物时是精读上游）、[archify](https://github.com/tt-a1i/archify)（架构图绘制与动效录制，阶段 ⑧ 的图例资产来源、覆盖门的消费对象）、[vibe-tts](https://github.com/ThreeFish-AI/vibe-tts)（单段文本配音与 IndexTTS 服务起停；Stage ⑦ 的配音机制原语 SSOT，安装见「前置依赖」）。
 
 ## 七、致谢
 
