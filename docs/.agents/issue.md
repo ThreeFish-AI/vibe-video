@@ -1002,13 +1002,13 @@
 
 ## RSI-067 反模式表节标题条目计数无机器执法：表行增删后计数漂移只靠评审人眼
 
-**表因**（2026-10-13，RSI 回路捕获）：在途评估存证条（A-29/A-30 两条新反模式入表，表 28→30 行）落地迭代中，[DIRECTING-CRAFT.md](../../references/DIRECTING-CRAFT.md) §七节标题的计数「28 条」未随表行数同步，由独立收敛门 reviewer 在评审中人工抓到后修复——评审漏看即静默合入。
+**表因**（2026-10-13，RSI 回路捕获）：在途评估存证条（A-29/A-30 两条新反模式入表，表 28→30 行，PR #50）落地迭代中，[DIRECTING-CRAFT.md](../../references/DIRECTING-CRAFT.md) §七节标题的计数「28 条」未随表行数同步，由独立收敛门 reviewer 在评审中人工抓到后修复——评审漏看即静默合入。
 
 **根因**：节标题内嵌计数与表行是手工维护的两份事实（第二事实源形态），[test_directing_craft.py](../../tests/test_directing_craft.py) 此前只断言文档行数上限（`MAX_LINES=500`），对「标题计数 == 表内 `| A-` 行数」无任何机器断言——漏报的门等于没门。
 
 **定性**：门覆盖缺口 · 非阻断（漂移只损知识库可读性与可信度，不影响流水线行为）。
 
-**处理方式**：[tests/test_directing_craft.py](../../tests/test_directing_craft.py) 新增 `test_section_count_matches_table`——从文本两侧各自解析（标题「反模式表（NN 条…」中的计数、`^\| A-\d+` 表行）后断言相等；不硬编码具体条数（与并行条目 A-29/A-30 的合并顺序无关）；标题计数锚失配或表零数据行同样判红（防格式断裂后静默通过）。验证三态：现状（28/28）绿、人为篡改计数为 27 红（验证后还原）、全量 pytest 无回归。
+**处理方式**：PR [#51](https://github.com/ThreeFish-AI/vibe-video/pull/51)（分支 `ThreeFish-AI/rsi-067-count-gate`）。[tests/test_directing_craft.py](../../tests/test_directing_craft.py) 新增 `test_section_count_matches_table`——从文本两侧各自解析（标题「反模式表（NN 条…」中的计数、`^\| A-\d+` 表行）后断言相等；不硬编码具体条数（与并行条目 A-29/A-30 的合并顺序无关）；标题计数锚失配或表零数据行同样判红（防格式断裂后静默通过）。验证三态：现状（28/28）绿、人为篡改计数为 27 红（验证后还原）、全量 pytest 无回归。
 
 **后续防范**：反模式表条目增删（含后续制片经验攒批回流）落地时计数一致性由机器门执法，不再依赖评审人眼；文档内嵌计数/汇总数字凡与可机器解析的行集并存，登记时一律补同构一致性门。
 
