@@ -994,7 +994,7 @@
 
 **定性**：非阻断改进 · 评估存证（本 PR 零机制改动、零依赖、零 vendor；五项借鉴全部待信号，不落规格/手册正文——零锚点违伪锚禁令与不变量 8「先有数据再有门」）。
 
-**处理方式**：评估存证 [docs/research/opus5-video-techniques.md](../research/opus5-video-techniques.md)（五仓钉版事实快照 + 逐仓净增量判定 + 引入形态七案比选 + 采纳/不采纳/待信号三档清单 + cue 系统路线图输入 §五）；PR 待回填。
+**处理方式**：评估存证 [docs/research/opus5-video-techniques.md](../research/opus5-video-techniques.md)（五仓钉版事实快照 + 逐仓净增量判定 + 引入形态七案比选 + 采纳/不采纳/待信号三档清单 + cue 系统路线图输入 §五）；PR [#50](https://github.com/ThreeFish-AI/vibe-video/pull/50)（commit adbb6cf）。
 
 **后续防范**：外部工具/方法引入一律走「钉版取证（raw @ sha）→ 许可核实（NC/无许可禁代码与文本级复用，只提炼归纳性规则要点）→ 净增量判定 → 引入形态比选」四步（对齐 RSI-060 UA 评估先例）；无锚点概念一律待信号清单管理（每项带触发条件），不入手册条目与规格正文。
 
@@ -1008,7 +1008,7 @@
 
 **定性**：非阻断改进 · T2（本机以 `DUB_HOME` 指向更名前 commit `5cf2ab8` 解堵，回归 108 passed；CI/新机冷启动会命中）。
 
-**处理方式**：登记排队。候选方向：resolve 兼容双名（`dub.py` ∨ `vibe_tts.py`，报错指引随实况列出两代安装法）或本仓随上游更名整体迁移——须先确认上游 `dub_paths.find_dub_root` 与 SKILL 名的实际现状再裁决，攒批与其他 dub 联动项同批走。
+**处理方式**：PR [#50](https://github.com/ThreeFish-AI/vibe-video/pull/50) 登记。候选方向：resolve 兼容双名（`dub.py` ∨ `vibe_tts.py`，报错指引随实况列出两代安装法）或本仓随上游更名整体迁移——须先确认上游 `dub_paths.find_dub_root` 与 SKILL 名的实际现状再裁决，攒批与其他 dub 联动项同批走。
 
 **后续防范**：跨仓依赖（dub ↔ vibe-video）的 resolve 契约变更属上游 breaking，上游 PR 描述须显式列出下游仓清单或随 PR 同步回流下游；下游的硬依赖护栏测试应在上游 main 上例行对拍（当前仅本机手动触发）。
 
