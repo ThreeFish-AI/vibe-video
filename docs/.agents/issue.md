@@ -999,3 +999,17 @@
 **后续防范**：跨仓命名契约（入口脚本 `vibe_tts.py`、模块前缀 `vibe_tts_*`、六个 `VIBE_TTS_*` 环境变量、skill 目录名）以 vibe-tts 仓为 SSOT，上游再有更名或契约变化时本仓须同步一次；委托发现逻辑内联在 `_find_vibe_tts_scripts`（不 import 兄弟模块，test_tts_lang_mirror 钉死），与上游 `vibe_tts_paths.find_vibe_tts_root` 同构可对照。
 
 **同类问题影响**：缓存摘要 `digest_indextts` 更名前后逐字节相同（上游黄金哈希测试钉值零改动、经本仓委托继承），15 集存量缓存零失效；vibe-tts 仓自己的数据目录从 `Application Support/dub` 迁至 `Application Support/vibe-tts`，属上游仓内部迁移，本仓 `VIBE_VIDEO_TTS_STORE` 不受影响。分集 `scripts/tts.py` 薄包装（15 份逐字节相同）不动，委托发生在其转调的本仓 `scripts/tts.py` 内部。本条目之前的存量登记（RSI-065 等）为冻结历史，不再改写。
+
+## RSI-067 评估类条目「待信号/路线图须在规格层铺运行时指针」纪律化
+
+**表因**（2026-10-14，用户点名立项）：外部生态评估（Opus 5.5 视频生态五仓评估，[PR #50](https://github.com/ThreeFish-AI/vibe-video/pull/50)，存证 `docs/research/opus5-video-techniques.md`）产出的待信号候选与 cue 技术路线图曾全部住 docs/research/——流水线运行时只加载 references/ 规格，触发场景无锚可循，触发条件形同虚设；后人工补 5 处触发场景指针（DIRECTING-CRAFT×2、09、PIPELINE、10）方才可达。
+
+**根因**：RSI.md 对评估类条目只约束「钉版取证 → 许可核实 → 净增量判定 → 引入形态比选」四步（该纪律本身也仅住 ledger 条目后效防范，无 RSI.md 层条款），未约束产物的运行时可达性——评估者把待信号/路线图写进研究文档即视为交付完成。
+
+**定性**：非阻断改进 · 流程纪律增补（统一分级 T2）。
+
+**处理方式**：[RSI.md](../../RSI.md) 第四节「仓内附加执法资产」后追加评估类条目 G3 自查项——待信号候选与技术路线图不得仅住流水线运行时不加载的文档，须在每个触发场景对应的规格文件（references/NN-*.md 等）铺一行指针（SSOT 留研究文档），正例即 PR #50 的 5 处指针实践。落位比选：门禁节 vs PR 规范节 vs 触发分流表——取门禁节（「统一协议无此仓内资产 → 触发条件住本节」的定位先例见 commit ec986b2〔RSI-059 追记二〕的 evals 对拍句；G3 判据语义归位，PR 规范节已引用统一 G0–G4 回执、不另设第二定义点）。编号注：本条与在途 PR #50（占 067/068）、PR #51（占 067）三向撞号，合并时按「首创得号 + 单遍重编号」处置。
+
+**后续防范**：评估类条目（text-to-cad / UA / HyperFrames 先例族）核验时按自查项逐场景核对指针覆盖；研究文档新增触发条件或待信号项时，同步自查其触发场景在规格层是否有锚。
+
+**同类问题影响**：既有评估先例大体合规——RSI-016 依赖评估的再评估触发器在 [PIPELINE](../../references/PIPELINE.md) §九与 [08](../../references/08-remotion-implementation.md) 均有复述/指针，RSI-060 在 [01](../../references/01-source-extraction.md) 铺研究文档 §七指针；本条把隐性实践显式化为条款，防 RSI-068 形态复发。
