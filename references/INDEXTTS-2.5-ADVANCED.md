@@ -588,8 +588,8 @@ s2mel 权重截至 2026-08-20 未公开发布。
 §6.4–6.5 解决的是**耗时**可测量性。**内容**侧是另一回事，且结论更省钱：
 
 **前提**：固定 `--seed` 后音频内容是确定性的——同参数两次合成 sha256 逐字节相同（本轮实测，
-与路线图 #3 一致；机制是 `tts_server.py:343-347` 每次 infer 前 `set_seed`、`:357`
-`use_random=False`）。热节流污染耗时，**不污染采样轨迹**。⇒ **内容指标的 A/B 不需要 75 s
+与路线图 #3 一致；机制是 dub 仓 `dub_tts_server.py` 的 `_infer_sync` 每次 infer 前
+`set_seed`、同函数内 `use_random=False`）。热节流污染耗时，**不污染采样轨迹**。⇒ **内容指标的 A/B 不需要 75 s
 冷却、不需要交替顺序**，可以连续跑完。这把一轮 35 次合成的预算从数小时压到约 18 分钟。
 
 **但确定性 ≠ 低方差**。种子换一条（`--seed-offset 1`）就是另一条 take，而 take 间的韵律
@@ -652,7 +652,7 @@ TensorRT-LLM）。仓库内**无 vLLM 后端**，README 只给外链 recipe。
    "MPS backend out of memory (…)" 报错的尾句即是：*"Use
    PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0 to disable upper limit for memory allocations
    (may cause system failure)"*（libtorch 二进制实串）；但默认水位高于物理内存，系统
-   换页先于水位 OOM，故表现为卡顿而非报错）。tts_server.py finally 注释与
+   换页先于水位 OOM，故表现为卡顿而非报错）。dub 仓 dub_tts_server.py 的 finally 注释与
    VOICE-CLONING §七 记录的「~40 分钟击穿 30 GiB」即此水位线，非巧合而是
    1.7×recommended 的必然；
 3. 上游 indextts 全仓**无任何** MPS 内存限制（`set_per_process_memory_fraction` 0 命中；

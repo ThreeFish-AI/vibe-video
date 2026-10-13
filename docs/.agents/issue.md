@@ -919,7 +919,7 @@
 
 **定性**：非阻断改进 · 结构性重构（行为等价：缓存摘要逐字节不变，存量缓存零失效）。
 
-**处理方式**：机制原语上收 [ThreeFish-AI/dub](https://github.com/ThreeFish-AI/dub)，本仓 `tts.py` 经 `DUB_HOME` / `~/.claude/skills/dub` / `~/.agents/skills/dub` 定位后 import 并再导出（`tts.X` 命名空间不变，故 `tts_sample.py`、`tts_resume.py` 与另 5 个依赖 `tts` 的测试文件（136 个用例）零改动）；`tts.py` 2366 → 1729 行，`tts_server.py` 删除（git 历史保留）。留在本仓的是视频特定编排：narration 循环、manifest、`.engine` 标记与 RSI-040 门、`plan_blocks` / `sentence_weight` / `block_synth_text`（硬依赖台本的 `blockStart` / `scene`）、argparse 面。`pron_marks.py` 与 `tts_sample.py` 不动（前者是 narration 管道策略，后者 16 处文档引用且 import 全部经再导出解析）。`dub` 缺位即大声退出，列出候选与安装命令，禁止静默降级到内联副本。同批顺手收紧：`DUB_HOME` 入环境变量注册表、文档约 6 处服务端路径改指 dub、RSI.md 增不变量 16。
+**处理方式**：PR [#48](https://github.com/ThreeFish-AI/vibe-video/pull/48)（分支 `feat/dub-delegation`，commit 36d082c、0bccc49、e0105e2、3a056db）。机制原语上收 [ThreeFish-AI/dub](https://github.com/ThreeFish-AI/dub)，本仓 `tts.py` 按 [PIPELINE.md「环境变量」节](../../references/PIPELINE.md)的定位顺序定位后 import 并再导出（`tts.X` 命名空间不变，`tts_sample.py`、`tts_resume.py` 依赖面零改动；测试面 `test_tts_resume.py` 41 例零改动，`test_digest.py` 17 例与纯 dub 用例迁出 dub，`test_tts_blocks.py` 67→54 例、`test_tts_store.py` 13→5 例、`test_tts_lang_mirror.py` 9→8 例瘦身，新增 `test_dub_delegation.py` 27 例与 `test_tts_resolve.py` 4 例）；`tts.py` 2366 → 1728 行，`tts_server.py` 删除（git 历史保留）。留在本仓的是视频特定编排：narration 循环、manifest、`.engine` 标记与 RSI-040 门、`plan_blocks` / `sentence_weight` / `block_synth_text`（硬依赖台本的 `blockStart` / `scene`）、argparse 面。`pron_marks.py` 与 `tts_sample.py` 不动（前者是 narration 管道策略，后者 16 处文档引用且 import 全部经再导出解析）。`dub` 缺位即大声退出，列出候选与安装命令，禁止静默降级到内联副本。同批配套收紧（均属本条登记的处理面）：`DUB_HOME` 入环境变量注册表、文档约 6 处服务端路径改指 dub、RSI.md 增不变量 16。
 
 **后续防范**：
 

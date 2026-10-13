@@ -84,7 +84,7 @@ uv run --no-project --with pytest --with numpy --with pillow --with mutagen --wi
 13. 声音样本生物特征纪律：不入库只存指纹；RSI 材料与示例不得引导样本路径进仓。
 14. 许可与依赖纪律：pyproject 刻意无 `[project]`（依赖走 `--with`）；不引入未审计第三方依赖或新许可冲突。
 15. 建模手册有界：预算与条目规则唯一实现于 [check_playbook.py](scripts/check_playbook.py)；超限只许按第十节压缩阶梯逐级压缩，禁整文件重写与「搬进规格正文腾预算」（执法：[test_modeling_playbook](tests/test_modeling_playbook.py)）。
-16. TTS 机制 SSOT 在 [dub 仓](https://github.com/ThreeFish-AI/dub)：风格预设、摘要、HTTP 客户端、版本库原语与服务端只住 dub，本仓 `tts.py` 经 `DUB_HOME` / `~/.claude/skills/dub` 定位后 import 并再导出，不得再内联或另拷副本；dub 缺位即大声退出，禁静默降级（执法：[test_tts_lang_mirror](tests/test_tts_lang_mirror.py) 与两仓同值的 `test_digest.py` 黄金哈希）。
+16. TTS 机制 SSOT 在 [dub 仓](https://github.com/ThreeFish-AI/dub)：风格预设、摘要、HTTP 客户端、版本库原语与服务端只住 dub，本仓 `tts.py` 按 [PIPELINE.md「环境变量」节](references/PIPELINE.md)的定位顺序（`DUB_HOME` 优先）定位后 import 并再导出，不得再内联或另拷副本；dub 缺位即大声退出，禁静默降级（执法：[test_dub_delegation](tests/test_dub_delegation.py) 的 `__module__`/AST 双面扫描；缓存摘要黄金哈希测试只住 dub 仓的 `tests/test_digest.py`，本仓经委托继承）。
 
 ## 十、建模经验分支（有界经验库的策展协议）
 
