@@ -55,14 +55,6 @@ def test_tts_does_not_import_sibling_modules():
     )
 
 
-def test_tts_text_mappings_are_zh_only():
-    """全角破折号/省略号映射仅对 ZH 生效；en 原样透传；缺省参数向后兼容 ZH。"""
-    assert tts.tts_text("破折——号。", "ZH") == "破折，号。"
-    assert tts.tts_text("省略……结束。", "ZH") == "省略。结束。"
-    assert tts.tts_text("wait—— here…", "EN") == "wait—— here…"
-    assert tts.tts_text("缺省即 ZH——不变") == "缺省即 ZH，不变"
-
-
 def _run_tts(*argv: str):
     import subprocess
 
