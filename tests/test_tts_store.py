@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import asyncio
+import shutil
 from pathlib import Path
 
 import tts  # noqa: E402
@@ -121,7 +122,7 @@ def test_store_restore_error_degrades_to_miss(monkeypatch, tmp_path):
     digest = "a" * 40
     store_deposit(src, "p2-02", digest, store, "ep")
     monkeypatch.setattr(
-        tts.shutil,
+        shutil,
         "copyfile",
         lambda _src, _dst: (_ for _ in ()).throw(OSError("read failed")),
     )
@@ -141,7 +142,7 @@ def test_deposit_failure_does_not_replace_published_entry(monkeypatch, tmp_path)
         Path(target).write_bytes(b"partial")
         raise OSError("disk full")
 
-    monkeypatch.setattr(tts.shutil, "copyfile", broken_copy)
+    monkeypatch.setattr(shutil, "copyfile", broken_copy)
     store_deposit(new, "p3-02", digest, store, "ep")
 
     assert dst.read_bytes() == before
