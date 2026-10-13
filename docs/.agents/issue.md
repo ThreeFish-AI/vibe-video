@@ -910,3 +910,59 @@
 **同类问题影响**：A/C 型集与已交付「站点+仓库」混合 B 集（claude-code-explained-video）不追溯——骨架节按 01 验收「纯代码仓集」判定触发（判据以 01 为准，本条不复述），纯文档 B 集写明不适用；首个纯代码仓集交付后走 ⑩ 复盘定级（D9）；UA 再评估触发器与撤销条件住研究文档 §七。
 
 **复盘点 2026-10-12（人工占位纪律）**：实施期按 Learning 输出风格在 02「前置概念」列注下留了 `TODO(human)` 占位等用户填写，用户否决这一做法——仓库产物里的占位会被当作现行态合入、阻塞后续读者，且与「交付前验证」相悖。处置：名称对齐句由主代理按 SSOT 纪律定稿（单向派生、以 narration.md 为准）；新增全仓机器门 [test_skill_spec](../../tests/test_skill_spec.py)::`test_repo_free_of_human_placeholders`（`TODO(human|user)` 形态即红，Markdown 行内代码与围栏除外），顺带清除 test_subtitle_single_line 断言消息中失效的占位引用；规约上提为全局协作规约 ThreeFish-AI/agents.md「Human-in-the-Loop」条（[PR #9](https://github.com/ThreeFish-AI/agents.md/pull/9) 已合入 master `7f5a072`，措辞已回扫对齐：Operational Excellence 第 7 条与本仓机器门同义）。后续防范：需人工决策的环节一律以交互请求（事中不阻塞时并行推进其余工作，或事后集中提问）发起，产物落地完整现行态，禁在仓库文件中留人工占位。
+
+## RSI-061 check_archify 对损坏 sidecar JSON 裸 traceback：门脚本读路径无容错
+
+**表因**（2026-10-13，整仓第二轮 preening 测绘/复核发现）：Group B 探针实证——向任一章 sidecar 写入损坏 JSON 后跑 `check_archify.py --project <集>`，rc=1 且裸 traceback（`JSONDecodeError` 未捕获直穿栈）；同场景录制器侧 `record_archify_all.py` 的 `chapter_fps()` 是优雅降级（捕获后按空表跳过）。
+
+**根因**：录制器已构造性保证 sidecar 合法（写路径单一、进程内序列化），但门脚本读的是落盘产物——手改与磁盘损坏不经过该保证路径；「生产者保证合法」被外推成了「消费者可假设合法」，读路径裸 `json.loads` 无兜底。
+
+**定性**：非阻断改进 · T2（排队待议；损坏仅致门以裸 traceback 失败退出，不产生误放行；但裸栈形态违反门脚本输出纪律，且 rc=1 会被上层编排误读为「图不合规」而非「产物损坏」）。
+
+**处理方式**：已复现（锚点 `scripts/check_archify.py:131` 的裸 `json.loads(sc.read_text(...))`，对照 `scripts/record_archify_all.py:174-177` 同场景 `except (json.JSONDecodeError, OSError): return {}` 优雅降级），修复排期待办（preening 第二轮 Next Best Action 登记 2026-10-13）。候选方向：按 record_archify_all 同款降级——损坏 sidecar 打裸串 WARN 并跳过该章判分（或并入既有 skip 三分），让失败形态可读、可归因。
+
+**后续防范**：门脚本读外部落盘产物一律容错降级，裸 traceback 视为门自身缺陷；「写路径构造性保证」不得外推为读路径豁免——读面按不可信输入对待。
+
+**同类问题影响**：`check_archify.py` 同文件其余裸 `json.loads` 读点（manifest 模板字面量、audio 清单、vids 清单）同族；一切以「生产者已保证合法」为前提的脚本读面。
+
+## RSI-062 parse_annotation 以「章」单字切分图名：图名含「章」字即静默截断丢字
+
+**表因**（2026-10-13，整仓第二轮 preening 测绘/复核发现）：Group B 探针 CASE7——storyboard 图名含「章」字（如「他章」）时，图名部分被在首个「章」处截断，解析出的图名只剩「他」；`parse_board_annotations` 的计数断言只对账标注条数、不对账图名完整性，丢字全程零告警。
+
+**根因**：图名与章 token 以「章」单字为分隔符的解析约定，对「图名本身含该字」不健壮——分隔语义靠内容字符集里的常用汉字承载，显式 token 边界缺失；解析器与命名约定之间没有「内容含分隔符」的反例防护。
+
+**定性**：非阻断改进 · T2（排队待议；当前资产图名无含「章」实例，触发面为命名约定级；但一旦触发是静默丢字——按名对账的覆盖映射随之失配而计数仍绿，恰是 `parse_board_annotations` 计数断言想防的「静默缩小」的反面形态）。
+
+**处理方式**：已复现（锚点 `scripts/check_archify_coverage.py:158` 的 `body.split("章", 1)[0]`），修复排期待办（preening 第二轮 Next Best Action 登记 2026-10-13）。候选方向：改显式分隔——章 token 首次出现后的完整剩余串归图名，或标注段引入显式 token 边界符；放宽图名命名约定前须先修解析。
+
+**后续防范**：解析器分隔符不得复用内容字符集中的常用单字；新解析约定落地前先扫「内容含分隔符」反例；对账断言从「条数」扩到「字段完整性」当解析产物参与后续映射时。
+
+**同类问题影响**：一切「以内容字符当分隔符」的解析点；图名/章节命名约定与解析器的耦合面（约定放宽 = 解析器同批改）。
+
+## RSI-063 cmd_tts 不透传 tts.server：doctor 探活地址与合成地址可分叉
+
+**表因**（2026-10-13，整仓第二轮 preening 测绘/复核发现）：Group A 复核 + C13 常量收拢后裂缝显性化——`pipeline.py doctor` 探活读 `tts.server`（`INDEXTTS_SERVER` env 覆盖生效），而 `cmd_tts` 组装 tts.py 命令从不传 `--server`；`pipeline.toml` 配非默认 `tts.server`（或 env 覆盖非默认值）时，doctor 探 A 地址、合成仍打 tts.py argparse 缺省 8766——探活绿不保证打的是同一服务。[VOICE-CLONING.md](../../references/VOICE-CLONING.md)「端口取自 `tts.server`」的口径对合成路径不成立。
+
+**根因**：`INDEXTTS_SERVER`/`tts.server` 到 `tts.py --server` 的传递链断裂——该配置在编排器内只有 doctor 探活一个消费者，合成命令未透传；文档「端口取自 tts.server」描述的探活与人工启动口径，被顺带当成了全链口径。C13 把缺省值收拢为单点常量后，两处读点的不对称反而显性化。
+
+**定性**：非阻断改进 · T2（排队待议；默认部署单实例 8766 下两地址恒同值，分叉仅出现在非默认 `tts.server` 部署；但一旦发生是「探活绿、合成打错实例」的静默错位，且发生在小时级长跑开头）。
+
+**处理方式**：已复现（锚点 `scripts/pipeline.py:664` 的 cmd_tts——indextts 分支 720–753 组装命令全程无 `--server`；探活读点 `scripts/pipeline.py:541`；合成侧 argparse 缺省 `scripts/tts.py:1636`；文档口径 [VOICE-CLONING.md:100](../../references/VOICE-CLONING.md)），修复排期待办（preening 第二轮 Next Best Action 登记 2026-10-13）。候选方向：cmd_tts 从 cfg 读 `tts.server` 透传 `--server`（键为缺省值时不加 token，保持命令字节与缓存摘要现状一致），或文档明示「合成地址不随 tts.server」的限制——二选一，禁止探活与实跑长期异址共存。
+
+**后续防范**：配置键新增消费者时对账「同键所有读点口径一致」；探活与实跑必须同址——探活的价值 = 预检实跑路径，异址探活是负资产。
+
+**同类问题影响**：与 RSI-035/RSI-036 同族不同面（那两条是 tts_resume 编排器的服务 argv 与 MPS flag 口径，本条是 cmd_tts 的 `--server` 传递）；一切「env/config 覆盖只被部分消费者读取」的分叉面。
+
+## RSI-064 capture_fps 回退用 or 链把 0.0 当缺失：与录制器 is-None 语义分叉
+
+**表因**（2026-10-13，整仓第二轮 preening 测绘/复核发现）：C11 三处口径对照——门侧逐章回退用 or 链（`capture_fps or measured_fps`），录制器 `eff` 用 is-None 链（`capture_fps if capture_fps is not None else fps`）；手改 sidecar 章 `capture_fps=0.0` 时，门把 0.0 当缺失回退到 measured（CFR 档恒 25 → 放行），录制器语义下 0.0 是有效值（< min_fps → 低帧率告警）——同一 sidecar 两处判定分叉。现状已由特征测试 `test_zero_capture_fps_treated_as_missing_by_or_chain` 钉住（[PR #46](https://github.com/ThreeFish-AI/vibe-video/pull/46) 分支，main 尚无此测试）。
+
+**根因**：or 链是「falsy 即缺失」语义、is-None 链是「显式缺键才缺失」语义——同一字段在门侧与生产侧的回退语义不同源；录制器在 sidecar 构造侧结构性排除 0.0（采集帧率不可能合法为 0），但门读的是外部可手改的落盘产物，「生产者不产生 0.0」不构成读侧安全边界。
+
+**定性**：非阻断改进 · T3（排队待议；现状由特征测试显式钉住——or 链行为是已声明的现状而非无意识 bug，统一为 is-None 属行为变更（0.0 章将触发告警而非静默回退），需单独裁决；风险面仅在「录制器构造性保证被绕过」的手改 sidecar 场景）。
+
+**处理方式**：已复现（锚点 `scripts/check_archify.py:135` 的 or 链，对照 `scripts/record_archify.py:904` 的 is-None 链；特征测试钉现状于 [PR #46](https://github.com/ThreeFish-AI/vibe-video/pull/46) 分支 `tests/test_check_archify.py`），修复排期待办（preening 第二轮 Next Best Action 登记 2026-10-13）。候选方向：统一 is-None 语义（行为变更），建议随 RSI-056 的门档位裁决一并走——两处同改一次真树误报面实测，省一轮重复验证。
+
+**后续防范**：回退链语义（falsy-vs-is-None）作为可数口径显式对账——同一字段的门侧回退与生产侧回退必须同源；特征测试钉住的是「现状」不是「正确」，钉住只为让裁决显式。
+
+**同类问题影响**：与 RSI-002（字段选择）、RSI-056（门档位）同域不同面——三者在同一判据表达式上叠加，任一改动须三面对账；一切 `x or fallback` 与 `x if x is not None else fallback` 混用的回退链。
