@@ -919,7 +919,7 @@
 
 **定性**：非阻断改进 · T2（排队待议；损坏仅致门以裸 traceback 失败退出，不产生误放行；但裸栈形态违反门脚本输出纪律，且 rc=1 会被上层编排误读为「图不合规」而非「产物损坏」）。
 
-**处理方式**：已复现（锚点 `scripts/check_archify.py:131` 的裸 `json.loads(sc.read_text(...))`，对照 `scripts/record_archify_all.py:174-177` 同场景 `except (json.JSONDecodeError, OSError): return {}` 优雅降级），修复排期待办（preening 第二轮 Next Best Action 登记 2026-10-13）。候选方向：按 record_archify_all 同款降级——损坏 sidecar 输出一行点名 WARN 并跳过该图的帧率判分，让失败形态可读、可归因（原措辞「并入既有 skip 三分」指向有误——「skip 三分」是 check_archify_coverage.py 文件头的 skip 语义，check_archify.py 并无此物；同文件 rate 预演门的「跳过 rate 预演门」点名 WARN 是既有先例）。
+**处理方式**：已复现（锚点 `scripts/check_archify.py:131` 的裸 `json.loads(sc.read_text(...))`，对照 `scripts/record_archify_all.py:174-177` 同场景 `except (json.JSONDecodeError, OSError): return {}` 优雅降级），修复排期待办（[PR #47](https://github.com/ThreeFish-AI/vibe-video/pull/47) 登记，2026-10-13；线索出自整仓第二轮 preening 收尾建议）。候选方向：按 record_archify_all 同款降级——损坏 sidecar 输出一行点名 WARN 并跳过该图的帧率判分，让失败形态可读、可归因（原措辞「并入既有 skip 三分」指向有误——「skip 三分」是 check_archify_coverage.py 文件头的 skip 语义，check_archify.py 并无此物；同文件 rate 预演门的「跳过 rate 预演门」点名 WARN 是既有先例）。
 
 **后续防范**：门脚本读外部落盘产物一律容错降级，裸 traceback 视为门自身缺陷；「写路径构造性保证」不得外推为读路径豁免——读面按不可信输入对待。
 
@@ -933,7 +933,7 @@
 
 **定性**：非阻断改进 · T2（排队待议；当前资产图名无含「章」实例，触发面为命名约定级；但一旦触发是静默丢字——截断后的图名解析不到任何 slug，`parse_board_annotations` 下游的「图名与章 token 不符」WARN 随之静默失效（该检查是标注 names 的唯一下游），token 驱动的声明对账与计数断言均不受影响——计数断言防的是「行数静默缩小」，字段级静默截断正是它看不见的另一面）。
 
-**处理方式**：已复现（锚点 `scripts/check_archify_coverage.py:158` 的 `body.split("章", 1)[0]`），修复排期待办（preening 第二轮 Next Best Action 登记 2026-10-13）。候选方向：改显式分隔——只有紧跟反引号 token 的「章」才视作分隔符，其余「章」一律归图名（原措辞「章 token 首次出现后的完整剩余串归图名」方向写反：`图名 章id+章id` 格式下图名在「章」之前），或标注段引入显式 token 边界符；放宽图名命名约定前须先修解析。
+**处理方式**：已复现（锚点 `scripts/check_archify_coverage.py:158` 的 `body.split("章", 1)[0]`），修复排期待办（[PR #47](https://github.com/ThreeFish-AI/vibe-video/pull/47) 登记，2026-10-13；线索出自整仓第二轮 preening 收尾建议）。候选方向：改显式分隔——只有紧跟反引号 token 的「章」才视作分隔符，其余「章」一律归图名（原措辞「章 token 首次出现后的完整剩余串归图名」方向写反：`图名 章id+章id` 格式下图名在「章」之前），或标注段引入显式 token 边界符；放宽图名命名约定前须先修解析。
 
 **后续防范**：解析器分隔符不得复用内容字符集中的常用单字；新解析约定落地前先扫「内容含分隔符」反例；对账断言从「条数」扩到「字段完整性」当解析产物参与后续映射时。
 
@@ -947,7 +947,7 @@
 
 **定性**：非阻断改进 · T2（排队待议；默认部署单实例 8766 下两地址恒同值，分叉仅出现在非默认 `tts.server` 部署；但一旦发生是「探活绿、合成打错实例」的静默错位，且发生在小时级长跑开头）。
 
-**处理方式**：已复现（锚点 `scripts/pipeline.py:664` 的 cmd_tts——indextts 分支 720–753 组装命令全程无 `--server`；探活读点 `scripts/pipeline.py:541`；合成侧 argparse 缺省 `scripts/tts.py:1636`；env 覆盖注册点 `scripts/config.py:276`（`ENV_OVERRIDES`）；文档口径同款句两处：[VOICE-CLONING.md:100](../../references/VOICE-CLONING.md) 与 [07-tts-voice.md:77](../../references/07-tts-voice.md)），修复排期待办（preening 第二轮 Next Best Action 登记 2026-10-13）。候选方向：cmd_tts 从 cfg 读 `tts.server` 透传 `--server`（`--server` 不进 `digest_indextts` 缓存摘要，透传不影响存量缓存；键为缺省值时不加 token 保持命令字节现状一致，且只在 indextts 分支透传，避免 edge 引擎误带时落进「仅对 indextts 生效已忽略」提示），或文档明示「合成地址不随 tts.server」的限制——二选一，禁止探活与实跑长期异址共存。
+**处理方式**：已复现（锚点 `scripts/pipeline.py:664` 的 cmd_tts——indextts 分支 720–753 组装命令全程无 `--server`；探活读点 `scripts/pipeline.py:541`；合成侧 argparse 缺省 `scripts/tts.py:1636`；env 覆盖注册点 `scripts/config.py:276`（`ENV_OVERRIDES`）；文档口径同款句两处：[VOICE-CLONING.md:100](../../references/VOICE-CLONING.md) 与 [07-tts-voice.md:77](../../references/07-tts-voice.md)），修复排期待办（[PR #47](https://github.com/ThreeFish-AI/vibe-video/pull/47) 登记，2026-10-13；线索出自整仓第二轮 preening 收尾建议）。候选方向：cmd_tts 从 cfg 读 `tts.server` 透传 `--server`（`--server` 不进 `digest_indextts` 缓存摘要，透传不影响存量缓存；键为缺省值时不加 token 保持命令字节现状一致，且只在 indextts 分支透传，避免 edge 引擎误带时落进「仅对 indextts 生效已忽略」提示），或文档明示「合成地址不随 tts.server」的限制——二选一，禁止探活与实跑长期异址共存。
 
 **后续防范**：配置键新增消费者时对账「同键所有读点口径一致」；健康检查与实跑必须同址——健康检查的价值 = 预检实跑路径，异址检查给出的是假安心。
 
@@ -961,7 +961,7 @@
 
 **定性**：非阻断改进 · T3（排队待议；现状由特征测试显式钉住——or 链行为是已声明的现状而非无意识 bug，统一为 is-None 属行为变更（0.0 章将触发告警而非静默回退），需单独裁决；风险面仅在「录制器构造性保证被绕过」的手改 sidecar 场景）。
 
-**处理方式**：已复现（锚点 `scripts/check_archify.py:135` 的 or 链，对照 `scripts/record_archify.py:904` 的 is-None 链与 `scripts/record_archify_all.py:181` 的同款 or 链（chapter_fps）；特征测试钉现状于 [PR #46](https://github.com/ThreeFish-AI/vibe-video/pull/46) 分支 `tests/test_check_archify.py`），修复排期待办（preening 第二轮 Next Best Action 登记 2026-10-13）。候选方向：统一 is-None 语义（行为变更），建议随 RSI-056 的门档位裁决一并走——`:135`、`:181` 与 RSI-056 三处同批改，一次真树误报面实测，省一轮重复验证。
+**处理方式**：已复现（锚点 `scripts/check_archify.py:135` 的 or 链，对照 `scripts/record_archify.py:904` 的 is-None 链与 `scripts/record_archify_all.py:181` 的同款 or 链（chapter_fps）；特征测试钉现状于 [PR #46](https://github.com/ThreeFish-AI/vibe-video/pull/46) 分支 `tests/test_check_archify.py`），修复排期待办（[PR #47](https://github.com/ThreeFish-AI/vibe-video/pull/47) 登记，2026-10-13；线索出自整仓第二轮 preening 收尾建议）。候选方向：统一 is-None 语义（行为变更），建议随 RSI-056 的门档位裁决一并走——`:135`、`:181` 与 RSI-056 三处同批改，一次真树误报面实测，省一轮重复验证。
 
 **后续防范**：回退链语义（falsy-vs-is-None）作为可数口径显式对账——同一字段的门侧、基线与写入侧回退必须同源；特征测试钉住的是「现状」不是「正确」，钉住只为让裁决显式。
 
