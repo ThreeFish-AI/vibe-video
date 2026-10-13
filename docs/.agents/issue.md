@@ -985,3 +985,31 @@
 - SKILL.md 正文预算仅余 3 字符，再加内容须先等价压缩旧文案。
 
 **同类问题影响**：分集 `scripts/tts.py` 薄包装（15 份逐字节相同）不动——它们转调本仓 `scripts/tts.py`，委托发生在其内部；`VIBE_VIDEO_TTS_STORE` 默认目录与摘要格式均不变，零重合成。dub 自己的版本库 `DUB_STORE` 是独立的，不与本仓共享。
+
+## RSI-066 Opus 5.5 视频生态五仓评估：概念借鉴存证与引入形态裁决
+
+**表因**（2026-10-13，用户点名评估）：用户提供微信文章《用 Claude Opus 5.5 做视频堪称一绝》，问其中工具与方法是否有值得本 Skill 学习、借鉴、引入的。文章提及五仓（onetake / lemo-opuscar / remotion-dev/skills / opus-video-prompts / awesome-opus5-5-videos）全部核实存在并钉版取证，但本仓对外部方法论生态的映射此前无存证。
+
+**根因**：非缺陷登记，属外部生态扫描的评估存证。映射缺口三处——① onetake carry score（元素级加权 Jaccard 连续性 oracle，`probe.py::continuity()`）恰落在 qa_frames 像素级判据「FAIL 0 ≠ 视觉正确」的语义盲区（转场交换 vs 物体位移不可分）；② lemo-opuscar STYLE.md 11 节固定骨架证明「风格 = 生产约束文档」形态可行，本仓建模手册只管「画什么」不管「什么画风」；③ 02 留白 cue 系统在 opuscar（CC0 音源 + Karplus–Strong + `window.EV` 事件驱动音效 + −14 LUFS）与 onetake（实测峰值对齐事件、−16 LUFS）有双仓已验证路线。
+
+**定性**：非阻断改进 · 评估存证（本 PR 零机制改动、零依赖、零 vendor；五项借鉴全部待信号，不落规格/手册正文——零锚点违伪锚禁令与不变量 8「先有数据再有门」）。
+
+**处理方式**：评估存证 [docs/research/opus5-video-techniques.md](../research/opus5-video-techniques.md)（五仓钉版事实快照 + 逐仓净增量判定 + 引入形态七案比选 + 采纳/不采纳/待信号三档清单 + cue 系统路线图输入 §五）；PR 待回填。
+
+**后续防范**：外部工具/方法引入一律走「钉版取证（raw @ sha）→ 许可核实（NC/无许可禁代码与文本级复用，只提炼归纳性规则要点）→ 净增量判定 → 引入形态比选」四步（对齐 RSI-060 UA 评估先例）；无锚点概念一律待信号清单管理（每项带触发条件），不入手册条目与规格正文。
+
+**同类问题影响**：RSI-060（UA 融入评估）同范式先例；待信号五项（carry score 语义连续性判据 / 风格库 11 节骨架 / 反模式三条〔等长镜头·镜头抖动·背景噪声〕/ 循环末帧=首帧逐像素口径 / 禁 CSS transition 条款）住研究文档 §四；cue 系统后续 RSI 立项时以研究文档 §五为路线图输入。
+
+## RSI-067 dub 上游 breaking 更名 vibe-tts：本仓 resolve 契约断裂
+
+**表因**（2026-10-13，RSI-066 评估任务跑全量回归时实证）：按 `tts.py` 报错指引 clone ThreeFish-AI/dub main 后 pytest 仍在收集阶段大声退出——上游 commit `2be1c43`（`refactor(vibe-tts)!: 更名 dub → vibe-tts (#2)`）把 `scripts/dub.py` / `dub_*.py` 全量更名 `vibe_tts.py` / `vibe_tts_*.py`，本仓 `_find_dub_scripts()` 的候选检查（`SKILL.md + scripts/dub.py`）对新版恒假。
+
+**根因**：跨仓版本契约无锚——本仓 resolve 检查硬编码旧名 `dub.py`，上游 breaking 更名无兼容窗口；「大声退出」护栏工作正常（未静默降级），但报错指引自身指向已失效的安装路径（clone main = clone 新名），按指引操作无法解堵。
+
+**定性**：非阻断改进 · T2（本机以 `DUB_HOME` 指向更名前 commit `5cf2ab8` 解堵，回归 108 passed；CI/新机冷启动会命中）。
+
+**处理方式**：登记排队。候选方向：resolve 兼容双名（`dub.py` ∨ `vibe_tts.py`，报错指引随实况列出两代安装法）或本仓随上游更名整体迁移——须先确认上游 `dub_paths.find_dub_root` 与 SKILL 名的实际现状再裁决，攒批与其他 dub 联动项同批走。
+
+**后续防范**：跨仓依赖（dub ↔ vibe-video）的 resolve 契约变更属上游 breaking，上游 PR 描述须显式列出下游仓清单或随 PR 同步回流下游；下游的硬依赖护栏测试应在上游 main 上例行对拍（当前仅本机手动触发）。
+
+**同类问题影响**：RSI-065（机制上收 dub）的「缺位大声退出」设计本身工作正常；`tts.py:66` 报错文案、README 安装节若有 dub clone 指引同病（修复时同批扫）。
