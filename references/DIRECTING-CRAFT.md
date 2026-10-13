@@ -28,7 +28,7 @@
 | 14 | Misconception-First + 要点硬帽 ≤3 | [02 钩子矩阵](./02-planning.md)（对齐） | ④ 易懂性判据（既有） |
 | 15 | 导演级评审回路（结构化 notes） | §六 | note 纪律（镜号+帧锚+指向） |
 | 16 | 冗余与装饰禁令 | §5.3 | 复述口播门（既有）+ §六语义维 |
-| 17 | 声音结构通道（cue 同帧锚定） | §5.1（时点侧） | BGM 留空轨是 [02](./02-planning.md) 既有边界——cue 系统属后续 RSI |
+| 17 | 声音结构通道（cue 同帧锚定） | §5.1（时点侧） | BGM 留空轨是 [02](./02-planning.md) 既有边界——cue 系统属后续 RSI，立项技术路线已存证（CC0 音源/事件驱动音效/画面推导音效与空间属性，[opus5-video-techniques §五](../docs/research/opus5-video-techniques.md)） |
 
 ## 一、镜头语言
 
@@ -228,3 +228,5 @@
 | A-28 | 事实核查缺席 | 未过 ④ 校验的稿子进 TTS | 一个错误事实报废整片说服力 | ④ 门既有（本表仅存目提醒全链路位置） |
 | A-29 | metronome 等长镜头 | 相邻镜头时长近似相等、无长短交替 | 节拍均匀即幻灯片感，节奏通道零信息（Murch 节奏律；onetake 硬规则「禁 metronome 剪辑」实证，RSI-068 引入） | 相邻镜时长比 <1.4 连续 ≥3 镜即自查节奏动机 |
 | A-30 | 硬交换冒充承接 | 交接处整组元素 display:none/条件渲染换血、无共同主体存活 | 承接被读成「另起一页」，连续性断言为假（onetake「Never replace a beat — carry it」，RSI-068 引入；[06 Morph Continuity](./06-storyboard.md) 反指征） | 交接前后帧共同元素清点，零存活即回退 cut 或 morph |
+
+> 表外待信号候选（镜头抖动、背景噪声动画、carry score 语义连续性判据、风格库、案例拆解档案等）的完整清单与触发条件 SSOT：[opus5-video-techniques §四](../docs/research/opus5-video-techniques.md)——成片出现对应病灶或触发条件成立时先查该清单再立项。
