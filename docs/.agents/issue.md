@@ -927,7 +927,7 @@
 
 ## RSI-062 parse_annotation 以「章」单字切分图名：图名含「章」字即静默截断丢字
 
-**表因**（2026-10-13，整仓第二轮 preening 测绘/复核发现）：Group B 探针 CASE7——storyboard 图名含「章」字（如「他章」）时，图名部分被在首个「章」处截断，解析出的图名只剩「他」；`parse_board_annotations` 的计数断言只对账标注条数、不对账图名完整性，丢字全程零告警。
+**表因**（2026-10-13，整仓第二轮 preening 测绘/复核发现）：探针实证——storyboard 图名含「章」字（如「他章」）时，图名部分被在首个「章」处截断，解析出的图名只剩「他」；`parse_board_annotations` 的计数断言只对账标注条数、不对账图名完整性，丢字全程零告警。
 
 **根因**：图名与章 token 以「章」单字为分隔符的解析约定，对「图名本身含该字」不健壮——分隔语义靠内容字符集里的常用汉字承载，显式 token 边界缺失；解析器与命名约定之间没有「内容含分隔符」的反例防护。
 
@@ -939,17 +939,17 @@
 
 **同类问题影响**：一切「以内容字符当分隔符」的解析点；图名/章节命名约定与解析器的耦合面（约定放宽 = 解析器同批改）；与 RSI-037 同门不同面——同在覆盖门：037 是场景代码 cue 提取正则，本条是 storyboard 标注解析；「当前资产无含『章』实例」是对集工作区资产的判定，本仓内不可复核，修复排期时宜对真实语料再扫一遍。
 
-## RSI-063 cmd_tts 不透传 tts.server：doctor 探活地址与合成地址可分叉
+## RSI-063 cmd_tts 不透传 tts.server：doctor 健康检查地址与合成地址可分叉
 
-**表因**（2026-10-13，整仓第二轮 preening 测绘/复核发现）：Group A 复核 + C13 常量收拢后裂缝显性化——`pipeline.py doctor` 探活读 `tts.server`（`INDEXTTS_SERVER` env 覆盖生效），而 `cmd_tts` 组装 tts.py 命令从不传 `--server`；`pipeline.toml` 配非默认 `tts.server`（或 env 覆盖非默认值）时，doctor 探 A 地址、合成仍打 tts.py argparse 缺省 8766——探活绿不保证打的是同一服务。[VOICE-CLONING.md](../../references/VOICE-CLONING.md)「端口取自 `tts.server`」的口径对合成路径不成立。
+**表因**（2026-10-13，整仓第二轮 preening 测绘/复核发现）：复核发现——`pipeline.py doctor` 健康检查读 `tts.server`（`INDEXTTS_SERVER` env 覆盖生效），而 `cmd_tts` 组装 tts.py 命令从不传 `--server`；`INDEXTTS_SERVER` 覆盖为非默认地址时（`tts.server` 属机器属性，约定不进 toml——[PIPELINE.md](../../references/PIPELINE.md) §字段表），doctor 探 A 地址、合成仍打 tts.py argparse 缺省 8766——健康检查绿不保证打的是同一服务。[VOICE-CLONING.md](../../references/VOICE-CLONING.md)「端口取自 `tts.server`」的口径对合成路径不成立。
 
-**根因**：`INDEXTTS_SERVER`/`tts.server` 到 `tts.py --server` 的传递链断裂——该配置在编排器内只有 doctor 探活一个消费者，合成命令未透传；文档「端口取自 tts.server」描述的探活与人工启动口径，被顺带当成了全链口径。C13 把缺省值收拢为单点常量后，两处读点的不对称反而显性化。
+**根因**：`INDEXTTS_SERVER`/`tts.server` 到 `tts.py --server` 的传递链断裂——该配置在编排器内只有 doctor 探活一个消费者，合成命令未透传；文档「端口取自 tts.server」描述的探活与人工启动口径，被顺带当成了全链口径。两处读点的不对称在整仓第二轮 preening 复核中暴露——该轮把缺省地址收拢为 `tts.DEFAULT_SERVER` 单点常量（PR #46，tests/test_tts_lang_mirror.py「服务地址常量对账」小节）。
 
 **定性**：非阻断改进 · T2（排队待议；默认部署单实例 8766 下两地址恒同值，分叉仅出现在非默认 `tts.server` 部署；但一旦发生是「探活绿、合成打错实例」的静默错位，且发生在小时级长跑开头）。
 
 **处理方式**：已复现（锚点 `scripts/pipeline.py:664` 的 cmd_tts——indextts 分支 720–753 组装命令全程无 `--server`；探活读点 `scripts/pipeline.py:541`；合成侧 argparse 缺省 `scripts/tts.py:1636`；env 覆盖注册点 `scripts/config.py:276`（`ENV_OVERRIDES`）；文档口径同款句两处：[VOICE-CLONING.md:100](../../references/VOICE-CLONING.md) 与 [07-tts-voice.md:77](../../references/07-tts-voice.md)），修复排期待办（preening 第二轮 Next Best Action 登记 2026-10-13）。候选方向：cmd_tts 从 cfg 读 `tts.server` 透传 `--server`（`--server` 不进 `digest_indextts` 缓存摘要，透传不影响存量缓存；键为缺省值时不加 token 保持命令字节现状一致，且只在 indextts 分支透传，避免 edge 引擎误带时落进「仅对 indextts 生效已忽略」提示），或文档明示「合成地址不随 tts.server」的限制——二选一，禁止探活与实跑长期异址共存。
 
-**后续防范**：配置键新增消费者时对账「同键所有读点口径一致」；探活与实跑必须同址——探活的价值 = 预检实跑路径，异址探活是负资产。
+**后续防范**：配置键新增消费者时对账「同键所有读点口径一致」；健康检查与实跑必须同址——健康检查的价值 = 预检实跑路径，异址检查给出的是假安心。
 
 **同类问题影响**：与 RSI-035/RSI-036 同族不同面（那两条是 tts_resume 编排器的服务 argv 与 MPS flag 口径，本条是 cmd_tts 的 `--server` 传递）；同族实锤两处独立缺省（均不读 `tts.server`/env）：`tts_resume.py` 自身 `--server`（健康检查/冷重启端口判据，`scripts/tts_resume.py:389`，且不转发进 tts.py——长跑推荐路径经 tts_resume 而非 cmd_tts；经代码走读核实、未实跑复现）与 `tts_sample.py`（`scripts/tts_sample.py:359`）；一切「env/config 覆盖只被部分消费者读取」的分叉面。
 
