@@ -39,7 +39,7 @@ def _read(name: str) -> str:
 
 def test_subtitle_single_line_contract_anchors():
     """三层契约 needle 就位：文档缺任一指纹串即红（防规格回退/漂移）。"""
-    assert NEEDLES, "NEEDLES 未配置（见 TODO(human)）——空映射会让本测试平凡通过"
+    assert NEEDLES, "NEEDLES 未配置——空映射会让本测试平凡通过"
     for name, needles in NEEDLES.items():
         text = _read(name)
         for needle in needles:

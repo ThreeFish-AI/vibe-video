@@ -14,6 +14,7 @@ YAML 解析失败会静默丢弃全部 frontmatter（description 退化为正文
   4. 长参考文档（>100 行）须有目录行
   5. evals/ 结构合法
   6. 全仓 Markdown 相对链接可达（迁移安全网，补 test_docs_paths 受检面之外的文档）
+  6b. 全仓文本产物无人工占位（需人工决策走交互请求，不在产物里留占位，RSI-060 追记）
 """
 
 from __future__ import annotations
@@ -343,6 +344,60 @@ def test_repo_markdown_free_of_merge_conflict_markers():
                 rel = doc.relative_to(SKILL_ROOT).as_posix()
                 offenders.append(f"{rel}:{i}: {line[:50]}")
     assert not offenders, "Markdown 残留 git 冲突标记：\n  " + "\n  ".join(offenders)
+
+
+# ── 6b. 全仓文本产物无人工占位 ────────────────────────────────────────────────
+
+#: 人工占位标记（RSI-060 追记）：需用户决策的环节走交互请求，不在仓库产物里留占位。
+HUMAN_PLACEHOLDER_RE = re.compile(r"TODO\((?:human|user)\)", re.IGNORECASE)
+#: 受检的文本产物后缀（含模板与骨架源码）。
+PLACEHOLDER_SUFFIXES = {
+    ".md",
+    ".py",
+    ".ts",
+    ".tsx",
+    ".mjs",
+    ".toml",
+    ".json",
+    ".tmpl",
+    ".sh",
+}
+INLINE_CODE_RE = re.compile(r"`[^`]*`")
+
+
+def test_repo_free_of_human_placeholders():
+    """全仓文本产物不得残留人工占位（TODO(human|user) 形态，RSI-060 追记）。
+
+    需人工决策的环节由 Agent 以交互请求发起，交付物须是可合入的完整现行态；规约上提为
+    ThreeFish-AI/agents.md Operational Excellence「Human-in-the-Loop」条（PR #9 已合入
+    master），本门是该条的机器执法。Markdown 的行内代码与围栏内容不计（允许以代码
+    形态讨论该标记）；node_modules 与隐藏目录（docs/.agents 除外）不扫。
+    """
+    offenders = []
+    for path in sorted(SKILL_ROOT.rglob("*")):
+        parts = path.relative_to(SKILL_ROOT).parts
+        if "node_modules" in parts or any(
+            s.startswith(".") and s != ".agents" for s in parts
+        ):
+            continue
+        if not path.is_file() or path.suffix not in PLACEHOLDER_SUFFIXES:
+            continue
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        lines = (
+            [INLINE_CODE_RE.sub("", ln) for ln in _outside_fences(text)]
+            if path.suffix == ".md"
+            else text.splitlines()
+        )
+        rel = path.relative_to(SKILL_ROOT).as_posix()
+        offenders += [
+            f"{rel}: {ln.strip()[:60]}"
+            for ln in lines
+            if HUMAN_PLACEHOLDER_RE.search(ln)
+        ]
+    assert not offenders, (
+        "仓库产物残留人工占位（改为向用户发起交互请求，落地完整现行态）：\n  "
+        + "\n  ".join(offenders)
+    )
 
 
 # ── 7. 开篇钩子规范跨文档一致性（RSI-039） ────────────────────────────────────

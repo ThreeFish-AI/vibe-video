@@ -8,6 +8,9 @@
      （防第二事实源，同 archify 覆盖门「docstring SSOT、分镜侧摘要同构」纪律）；
   4. 免费护栏钉：@shot 在动效列得「不在词表」WARN 是预期行为（在 test_check_script）；
   5. 路由可达：SKILL.md 按需加载表含 DIRECTING-CRAFT 行（②⑥⑧⑨ 设计时读）。
+
+RSI-060 追加：§4.1 回看密度规则的回拉层级澄清锚（「最近一级全景」——依据与 IEEE
+引用住 docs/research/directing-craft.md；研究文档侧暂无内容门，链接门仅保文件可达）。
 """
 
 from __future__ import annotations
@@ -84,6 +87,16 @@ def test_prose_refinement_freeze_list_covers_shot_tag():
     text = _read(REFERENCES / "05-prose-refinement.md")
     assert "`@shot`" in text, (
         "05 冻结清单缺 `@shot`——成文优化会把画面列镜头标注当散文改写"
+    )
+
+
+def test_pullback_level_clause():
+    """RSI-060：§4.1 回看密度规则须带回拉层级——「最近一级全景」（父层），
+    仅幕首/换层回根全景；不澄清则回拉档位无判据（回全图=噪声，回同层=迷航）。"""
+    text = _read(CRAFT)
+    assert "最近一级全景" in text, (
+        "DIRECTING-CRAFT §4.1 回看密度规则缺回拉层级澄清（「最近一级全景」）——"
+        "依据（Shneiderman mantra + semantic zoom）见 docs/research/directing-craft.md"
     )
 
 
