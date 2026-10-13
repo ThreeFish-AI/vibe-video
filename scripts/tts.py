@@ -283,6 +283,8 @@ ENGINE_MARKER = ".engine"
 
 #: 服务端脚本住在 dub 仓（机制 SSOT）；启动命令的唯一生成处是下面的 server_launch_hint，
 #: tts_sample.py、tts_resume.py 与 VOICE-CLONING.md 皆由它派生或对它钉死。
+#: 与 config.SCHEMA 的 tts.server 缺省互为镜像；单一来源对账由 test_tts_lang_mirror 执法
+DEFAULT_SERVER = "http://127.0.0.1:8766"
 SERVER_SCRIPT = _DUB_SCRIPTS / "dub_tts_server.py"
 
 
@@ -994,9 +996,7 @@ async def main() -> None:
         help="[indextts] 期望的参考样本 sha1 前 12 位，不符即硬失败——pipeline.py 从"
         "各集 pipeline.toml 自动带上，防「换样本静默重录整集」（指纹清单见 voices/refs.toml）",
     )
-    idx.add_argument(
-        "--server", default="http://127.0.0.1:8766", help="[indextts] 服务地址"
-    )
+    idx.add_argument("--server", default=DEFAULT_SERVER, help="[indextts] 服务地址")
     idx.add_argument(
         "--style",
         default="neutral",
@@ -1265,7 +1265,7 @@ async def main() -> None:
             flag
             for flag, val in {
                 "--steady-beams": args.steady_beams != 3,
-                "--server": args.server != "http://127.0.0.1:8766",
+                "--server": args.server != DEFAULT_SERVER,
                 "--engine-tag": args.engine_tag != "indextts",
                 # --seed-offset 单独给值而没给 --seed 时无任何效果（见 resolve_sampling）
                 "--seed-offset": args.seed_offset != 0 and args.seed is None,

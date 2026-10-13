@@ -166,31 +166,3 @@ def test_default_server_literal_single_source():
         if hits != want:
             offenders.append(f"{p.name}: {hits} 处（期望 {want}）")
     assert not offenders, "服务地址字面量偏离单一事实源：\n  " + "\n  ".join(offenders)
-
-
-def test_tts_server_imports_resolve_and_passthrough_keys():
-    """tts_server 对 tts 的依赖契约（AST 钉子）：① `from tts import X` 的每个 X
-    必须在 tts 模块真实存在；② `SAMPLING_PASSTHROUGH_DEFAULTS[...]` 的字符串键
-    ⊆ tts 的 7 键透传字典（防服务端取默认值时 KeyError / 拼错静默失效）。"""
-    src = (SCRIPTS / "tts_server.py").read_text(encoding="utf-8")
-    tree = ast.parse(src)
-    imported: set[str] = set()
-    subscript_keys: list[str] = []
-    for node in ast.walk(tree):
-        if isinstance(node, ast.ImportFrom) and node.module == "tts":
-            imported.update(a.name for a in node.names)
-        elif (
-            isinstance(node, ast.Subscript)
-            and isinstance(node.value, ast.Name)
-            and node.value.id == "SAMPLING_PASSTHROUGH_DEFAULTS"
-            and isinstance(node.slice, ast.Constant)
-            and isinstance(node.slice.value, str)
-        ):
-            subscript_keys.append(node.slice.value)
-    missing = sorted(imported - set(dir(tts)))
-    assert not missing, f"tts_server 从 tts 导入了不存在的符号：{missing}"
-    unknown = sorted(set(subscript_keys) - set(tts.SAMPLING_PASSTHROUGH_DEFAULTS))
-    assert not unknown, (
-        f"tts_server 的 SAMPLING_PASSTHROUGH_DEFAULTS[...] 出现未知键：{unknown}"
-    )
-    assert imported, "tts_server 的 from tts import 形态变了，检测器该更新"
