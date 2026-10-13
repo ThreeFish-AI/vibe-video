@@ -10,7 +10,7 @@
   5. 路由可达：SKILL.md 按需加载表含 DIRECTING-CRAFT 行（②⑥⑧⑨ 设计时读）。
 
 RSI-060 追加：§4.1 回看密度规则的回拉层级澄清锚（「最近一级全景」——依据与 IEEE
-引用住 docs/research/directing-craft.md，研究文档侧同步由链接门间接执法）。
+引用住 docs/research/directing-craft.md；研究文档侧暂无内容门，链接门仅保文件可达）。
 """
 
 from __future__ import annotations

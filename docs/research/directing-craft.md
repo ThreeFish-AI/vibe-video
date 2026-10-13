@@ -27,8 +27,7 @@
 **回拉层级澄清（RSI-060 补）**：§4.1 回看密度规则的回拉目标定为「能同时看清当前焦点及其
 直接上下文的最近一级全景（层级结构即父层）」，仅幕首或换层（§1.3 语义断裂）回到全片根
 全景——依据是信息检索 mantra 的「overview 先行、zoom and filter 按需下钻」[10] 与
-semantic zoom 文献的多层抽象按需切换 [11]（全图常驻反而是噪声）；Understand-Anything
-dashboard 的概览/下钻两级导航是工程佐证（评估见 [understand-anything 研究文档](./understand-anything.md)）。
+semantic zoom 文献的多层抽象按需切换 [11]（全图常驻反而是噪声）。
 
 ## 三、方案比选（G2）
 

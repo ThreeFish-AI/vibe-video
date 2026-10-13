@@ -7,7 +7,7 @@ C 型（guided-learn 精读产物）落地后的纪律：**文件名清单只在
 合法形态，一刀切禁词会把它们误判成漂移。
 
 RSI-060 追加：B 型纯代码仓库「结构骨架与素材映射」节（骨架是派生视图非证据）与
-Understand-Anything 按集 opt-in 子节的桥接锚，下游 02/03/05/06 同步指针——跨文件指针
+Understand-Anything 按集 opt-in 子节的桥接锚，下游 02/03/04/05/06/09 同步指针——跨文件指针
 按节名断言、不带节号（01 自身标题除外），防节号顺移再复制一份脆锚。
 """
 
@@ -106,7 +106,7 @@ def test_guided_learn_process_concretization_bridges():
 
 
 def test_b_type_structure_skeleton_bridge():
-    """RSI-060：B 型纯代码仓库结构骨架节 + UA 按集 opt-in 纪律在位，下游四规格同步指针。
+    """RSI-060：B 型纯代码仓库结构骨架节 + UA 按集 opt-in 纪律在位，下游六规格同步指针。
 
     跨文件断言一律按节名（「结构骨架与素材映射」）、不带节号——01 节号再顺移不破此门；
     01 自身的「六、结构骨架与素材映射」标题是唯一带节号锚（目录行 TOC 门另案执法）。
@@ -122,7 +122,9 @@ def test_b_type_structure_skeleton_bridge():
     assert "前置概念" in s02, (
         "02 分幕表缺可选「前置概念」列（幕级先释后用，RSI-015 承接）"
     )
-    assert "结构骨架与素材映射" in s02, "02 记忆点括注缺 B 型骨架指针（01/02 双处同步）"
+    assert any(
+        "60–90 秒" in ln and "结构骨架与素材映射" in ln for ln in s02.splitlines()
+    ), "02 记忆点括注缺 B 型骨架指针（01/02 双处同步；行级共现，防同名他处代偿）"
     assert "**名称对齐**（单向派生）" in s02, (
         "02 前置概念列缺名称对齐规则（④B --terms 取名方向与回改责任，防两份概念名清单漂移）"
     )
@@ -138,8 +140,18 @@ def test_b_type_structure_skeleton_bridge():
         "05 §六冻结清单缺结构骨架节三要素（层名/节点名/走查链输入值）"
     )
 
+    s04 = (REFERENCES / "04-verification.md").read_text(encoding="utf-8")
+    assert "前置概念" in s04, (
+        "04 缺 `--terms` 从「前置概念」列逐字取的指针（02 名称对齐单向派生）"
+    )
+
     s06 = (REFERENCES / "06-storyboard.md").read_text(encoding="utf-8")
     assert any(
         ("四定式" in ln and "B 型" in ln and "结构骨架与素材映射" in ln)
         for ln in s06.splitlines()
     ), "06 四定式引导句未泛化到 B 型结构骨架（按节名指针，不带节号）"
+
+    s09 = (REFERENCES / "09-render-qa.md").read_text(encoding="utf-8")
+    assert "上屏结构回溯" in s09, (
+        "09 缺上屏结构回溯目检指针（06/09 单指针，判据以 06 为准）"
+    )
