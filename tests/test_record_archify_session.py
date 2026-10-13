@@ -63,6 +63,42 @@ def test_close_ctx_quietly_swallows_already_closed():
     assert ctx.close.call_count == 2
 
 
+def test_record_story_wiring_and_return_contract(tmp_path, monkeypatch):
+    """story 模式特征化：mock 浏览器会话，钉住 record_story 的返回 dict 键集、
+    产物复制与 context 关闭——签名演化（如死形参清除）的最小护栏（preening R2）。"""
+    browser, ctx = MagicMock(), MagicMock()
+    browser.new_context.return_value = ctx
+    page = ctx.new_page.return_value
+    page.get_attribute.side_effect = ["true", "false"]  # 激活 → 回落即停轮询
+    src_webm = tmp_path / "src.webm"
+    src_webm.write_bytes(b"webm-bytes")
+    page.video.path.return_value = src_webm
+    dst = tmp_path / "out.webm"
+    monkeypatch.setattr(ra, "new_ctx", lambda b, d: ctx)
+    monkeypatch.setattr(ra, "open_page", lambda c, p: page)
+    monkeypatch.setattr(ra, "measure_fps", lambda p: 25.0)
+    a = SimpleNamespace(settle_ms=10, out_webm=str(dst))
+    sidecar = ra.record_story(browser, tmp_path / "src.html", tmp_path, a)
+    assert set(sidecar) == {
+        "schema",
+        "mode",
+        "lead_sec",
+        "story_sec",
+        "total_wall_sec",
+        "started_playback",
+        "measured_fps",
+    }
+    assert sidecar["mode"] == "story"
+    assert sidecar["started_playback"] is True
+    assert sidecar["measured_fps"] == 25.0
+    assert dst.read_bytes() == b"webm-bytes"  # 产物复制到 --out-webm
+    assert not (
+        tmp_path / "story" / "src.html"
+    ).exists()  # page_src 仅 materialize 到 tmp
+    # 现状契约：成功路径显式 ctx.close() 一次 + finally 兜底 _close_ctx_quietly 一次（幂等）
+    assert ctx.close.call_count == 2
+
+
 def test_record_chapters_activation_failure_closes_ctx(tmp_path):
     """激活失败路径的每章 context 兜底：手工 close 已收敛进 finally，仍必须关。"""
     browser, ctx = MagicMock(), MagicMock()

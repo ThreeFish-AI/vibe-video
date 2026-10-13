@@ -609,7 +609,7 @@ def record_one_diagram(
                 file=sys.stderr,
             )
         if mode == "story":
-            sidecar = record_story(browser, page_src, tmp, out_dir, opts)
+            sidecar = record_story(browser, page_src, tmp, opts)
         else:
             sidecar = record_chapters(
                 browser, page_src, tmp, out_dir, resolved_slug, views, opts
@@ -740,7 +740,7 @@ def main() -> None:
     print(json.dumps(sidecar, ensure_ascii=False))
 
 
-def record_story(browser, page_src, tmp, out_dir, a) -> dict:
+def record_story(browser, page_src, tmp, a) -> dict:
     """旧行为：键盘 P 播整故事，轮询 aria-pressed 回落。"""
     tmpvid = tmp / "story"
     tmpvid.mkdir()

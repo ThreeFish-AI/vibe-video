@@ -285,7 +285,8 @@ def stable_window(walls: list[float]) -> tuple[int, int, float, float, float]:
     return trip
 
 
-def _strip_punct(t: str) -> str:
+def _alnum_only(t: str) -> str:
+    """仅保留字母数字（含 CJK），供 CER/时长估算；与 build_narration 的台本标点归一无关。"""
     return "".join(c for c in t if c.isalnum())
 
 
@@ -306,7 +307,7 @@ def asr_metrics(model, wav: Path, ref: str) -> dict:
     # （仓库用的是 Remotion 内置那份）。直接喂 16 kHz float32 数组即可绕开。
     audio, _ = librosa.load(str(wav), sr=16000, mono=True)
     hyp = model.transcribe(audio, language="zh", fp16=False)["text"]
-    r, h = _strip_punct(ref), _strip_punct(hyp)
+    r, h = _alnum_only(ref), _alnum_only(hyp)
     if not r:
         return {"hyp": hyp}
     sm = difflib.SequenceMatcher(None, r, h, autojunk=False)
@@ -508,7 +509,7 @@ def main() -> None:
                 "value": val,
                 "audio": dur,
                 "synth": wall,
-                "sec_per_char": dur / max(1, len(_strip_punct(txt))),
+                "sec_per_char": dur / max(1, len(_alnum_only(txt))),
                 **stg,
                 **asr_metrics(model, tmp / f"{tag}.wav", txt),
             }

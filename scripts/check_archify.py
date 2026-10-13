@@ -1,4 +1,4 @@
-"""archify 回放的结构性体检（qa_frames.py 是 frozen 档，故另起本脚本）。
+"""archify 回放的结构性体检（与 qa_frames.py 的像素 QA 判据面正交：本脚本只查结构）。
 
 只查**结构**，不查画面语义 —— 画面正确性只能靠 `remotion still` 逐帧目视
 （`qa_frames --check` 对图层遮挡与时序错位全盲，见 issue.md ISSUE-167/170/177）。

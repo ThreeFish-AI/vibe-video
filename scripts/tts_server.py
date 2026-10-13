@@ -21,7 +21,7 @@
 - 采样参数族（temperature/top_p/top_k/length_penalty/repetition_penalty/max_mel_tokens）：
   上游经 **generation_kwargs 透传给 HF generate，全部生效（唯一例外是 do_sample——上游
   infer_v2_5.py:780 用字面量 True 覆盖，故本服务不暴露它）。缺省一律取上游默认值，
-  见 SAMPLING_DEFAULTS。
+  见 tts.SAMPLING_PASSTHROUGH_DEFAULTS。
 - seed：上游全链路无种子且 do_sample 恒 True，同句每次合成韵律都不同；给 seed 即可复现，
   这是任何参数 A/B 可信的前提。
 - 安全：仅监听 127.0.0.1，无鉴权，勿暴露公网；ref_path / emo_ref_path 为服务端本地绝对路径。
@@ -54,7 +54,7 @@ from pydantic import BaseModel, field_validator
 # 客户端 tts.py 与本服务分属两个运行环境（skill 侧轻依赖 vs index-tts venv），但服务启动
 # 脚本就是从 skill 仓拷贝/引用这份 tts_server.py —— 采样默认值等共享常量以 tts.py 为 SSOT。
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from tts import SAMPLING_PASSTHROUGH_DEFAULTS as SAMPLING_DEFAULTS  # noqa: E402
+from tts import SAMPLING_PASSTHROUGH_DEFAULTS  # noqa: E402
 
 
 def ensure_indextts_import(index_tts_root: Path) -> None:
@@ -184,7 +184,7 @@ EMO_LABELS = "happy,angry,sad,afraid,disgusted,melancholic,surprised,calm"
 
 # 上游自回归采样参数的默认值 —— SSOT 在客户端 tts.py（SAMPLING_PASSTHROUGH_DEFAULTS，
 # 锚点 indextts/infer_v2_5.py:731-739（HEAD 4f8792f），与 infer_v2.py:536-544 完全一致），
-# 本文件经文件头 import 引用（别名 SAMPLING_DEFAULTS 供下方请求模型取默认值）。
+# 本文件经文件头 import 引用。
 # 此前这里持有一份手抄副本、靠注释约束「逐字一致」——两份 7/9 键字典已经漂移过一次
 # （服务端缺 text_normalization/seed 两键），现改为运行时导入，改一处两端同步。
 # 注意 SSOT 只覆盖 7 个**透传 generation_kwargs** 的键；text_normalization（v2.5 独立形参）
@@ -253,16 +253,16 @@ class SynthesizeRequest(BaseModel):
     # 块切分（story 档专用）：给出即走 JSON 响应（clips 数组），不再返回单个 mp3。
     block: BlockSpec | None = None
     # ---- 采样参数族：缺省即上游默认，取值域对齐 webui.py:901-910 的滑杆区间 ----
-    temperature: float = SAMPLING_DEFAULTS["temperature"]
-    top_p: float = SAMPLING_DEFAULTS["top_p"]
-    top_k: int = SAMPLING_DEFAULTS["top_k"]
-    length_penalty: float = SAMPLING_DEFAULTS["length_penalty"]
-    repetition_penalty: float = SAMPLING_DEFAULTS["repetition_penalty"]
-    max_mel_tokens: int = SAMPLING_DEFAULTS["max_mel_tokens"]
+    temperature: float = SAMPLING_PASSTHROUGH_DEFAULTS["temperature"]
+    top_p: float = SAMPLING_PASSTHROUGH_DEFAULTS["top_p"]
+    top_k: int = SAMPLING_PASSTHROUGH_DEFAULTS["top_k"]
+    length_penalty: float = SAMPLING_PASSTHROUGH_DEFAULTS["length_penalty"]
+    repetition_penalty: float = SAMPLING_PASSTHROUGH_DEFAULTS["repetition_penalty"]
+    max_mel_tokens: int = SAMPLING_PASSTHROUGH_DEFAULTS["max_mel_tokens"]
     # 段间静音（毫秒）：仅作用于**单请求内**因超 max_text_tokens_per_segment 而被上游切开的分段
     # 之间。本管线逐句合成、单句远低于分段预算，故默认路径下不生效；句间停顿由时间轴常数
     # video/src/timing.json 的 sentenceGapSec 提供，二者不是同一件事。
-    interval_silence: int = SAMPLING_DEFAULTS["interval_silence"]
+    interval_silence: int = SAMPLING_PASSTHROUGH_DEFAULTS["interval_silence"]
     # 中文文本归一化（数字/百分号/量词 → 口语读法）。保持 True：实测 % / 小数 / 量词 / 月日 /
     # 章节的读法都正确，关掉会把全部读法责任推给逐字稿。发音标注 <字|读音> 由上游占位符机制
     # 保护、天然免疫归一化，故**不需要**为保标记而关它。v2.5 专属参数。

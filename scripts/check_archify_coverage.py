@@ -62,7 +62,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import config
 import timeline
-from check_script import parse_storyboard, parse_storyboard_visual
+from storyboard import parse_storyboard, parse_storyboard_visual
 
 # ---------------- cue 提取（单一事实源，episode check_archify 反向 import） ----------------
 
@@ -268,99 +268,27 @@ def resolve_name(name: str, views: dict[str, list[dict]]) -> set[str]:
 # ---------------- 主流程 ----------------
 
 
-def main() -> None:
-    ap = argparse.ArgumentParser(description="archify 覆盖门（覆盖度/丰富度/匹配度）")
-    ap.add_argument("--project", required=True)
-    args = ap.parse_args()
-    root = Path(args.project).resolve()
-
-    cfg, _origin, cfg_fails, cfg_warns = config.load(
-        root, required=False, scope={"archify"}
-    )
-    arch = cfg.get("archify", {})
-    min_diagrams = arch.get("min_diagrams", config.default("archify.min_diagrams"))
-    min_cues = arch.get("min_cues", config.default("archify.min_cues"))
-    min_anchor = arch.get(
-        "min_anchor_ratio", config.default("archify.min_anchor_ratio")
-    )
-    min_chapter = arch.get(
-        "min_chapter_ratio", config.default("archify.min_chapter_ratio")
-    )
-    per_scene_min = arch.get(
-        "per_scene_min_anchors", config.default("archify.per_scene_min_anchors")
-    )
-    exempt = arch.get("exempt_scenes", config.default("archify.exempt_scenes"))
-    max_run = arch.get(
-        "max_unanchored_run", config.default("archify.max_unanchored_run")
-    )
-    min_scene_ratio = arch.get(
-        "min_scene_anchor_ratio", config.default("archify.min_scene_anchor_ratio")
-    )
-    min_cpm = arch.get(
-        "min_cues_per_minute", config.default("archify.min_cues_per_minute")
-    )
-    min_types = arch.get(
-        "min_diagram_types", config.default("archify.min_diagram_types")
-    )
-    forbid_inset = arch.get("forbid_inset", config.default("archify.forbid_inset"))
-    cue_exclusive = arch.get(
-        "cue_sentence_exclusive", config.default("archify.cue_sentence_exclusive")
-    )
-
-    archify_dir = root / "video" / "public" / "archify"
-    views_dir = archify_dir / "views"
-    manifest_ts = root / "video" / "src" / "archify.manifest.ts"
-    scenes_dir = root / "video" / "src" / "scenes"
-    sidecars = sorted(archify_dir.glob("*.json")) if archify_dir.is_dir() else []
-    views_files = sorted(views_dir.glob("*.json")) if views_dir.is_dir() else []
-
-    # ---- skip 三分（点名，绝不静默） ----
-    if not views_files and not sidecars and not manifest_ts.is_file():
-        print(f">> archify 覆盖门 · {root.name} · 无 archify 资产，跳过")
-        sys.exit(0)
-    if not views_files:
-        print(f">> archify 覆盖门 · {root.name}")
-        if sidecars:
-            print(
-                f"  WARN 检测到 {len(sidecars)} 个 archify sidecar 但无 views"
-                "（旧形态 ArchifyClip 直接消费）——跳过 archify 覆盖门"
-            )
-        sys.exit(0)
-
-    fails: list[str] = []
-    warns: list[str] = []
-    infos: list[str] = []
-    for f in cfg_fails:
-        fails.append(f"配置：{f}")
-    for w in cfg_warns:
-        warns.append(f"配置：{w}")
-
-    views, id_map, label_map, v_fails = load_views(views_dir)
-    fails.extend(v_fails)
-
-    manifest: dict | None = None
-    if manifest_ts.is_file():
-        manifest = load_manifest_ts(manifest_ts)
-        if manifest is None:
-            warns.append(
-                "archify.manifest.ts 解析失败——跳过章口径（录制后重跑 archify_manifest.py）"
-            )
-    else:
-        warns.append("archify.manifest.ts 未生成——跳过章归属与丰富度章口径")
-
-    # ---- cue 提取 ----
+def _collect_cues(
+    scenes_dir: Path, n_views: int, fails: list[str], warns: list[str]
+) -> tuple[list[Cue], bool]:
+    """cue 提取段：scenes 在则提取（零 cue 即 FAIL 图例组不足），不在则 WARN 跳过。"""
     cues: list[Cue] = []
     have_cues = scenes_dir.is_dir()
     if have_cues:
         cues = extract_cues(scenes_dir)
         if not cues:
             fails.append(
-                f"有 {len(views_files)} 张 archify 图但场景零 cue——图例组不足的核心症状"
+                f"有 {n_views} 张 archify 图但场景零 cue——图例组不足的核心症状"
             )
     else:
         warns.append("video/src/scenes 不存在（场景未写）——跳过锚定率/对账/单调性")
+    return cues, have_cues
 
-    # ---- narration ----
+
+def _collect_narration(
+    root: Path, warns: list[str]
+) -> tuple[bool, dict[str, int], dict[str, str], list[str]]:
+    """narration 段：→ (have_narr, idx, scene_of, scene_order)；缺失点名 WARN。"""
     narration_f = root / "script" / "narration.json"
     have_narr = narration_f.is_file()
     idx: dict[str, int] = {}
@@ -376,115 +304,174 @@ def main() -> None:
                 scene_order.append(scn)
     else:
         warns.append("script/narration.json 缺失——跳过锚定率/分幕/声明镜判定")
+    return have_narr, idx, scene_of, scene_order
 
-    anchored: set[str] = set()
-    max_run_seen: int | None = None
 
-    # ---- 布局：forbid_inset（全屏切换集的策略声明，防画中画回退） ----
-    if forbid_inset and scenes_dir.is_dir():
-        for f in sorted(scenes_dir.glob("P*.tsx")):
-            n = len(re.findall(r'variant="inset"', f.read_text(encoding="utf-8")))
-            if n:
-                fails.append(
-                    f'{f.name}: 残留 {n} 处 variant="inset"'
-                    "（forbid_inset 已开——全屏切换集不得回退画中画）"
-                )
-
-    # ---- 匹配度：同句排他（全屏独占下一句一图） ----
-    if have_cues and cue_exclusive:
-        seen_sid: dict[str, str] = {}
-        for _f, slug, cid, sid, _fit in cues:
-            if sid in seen_sid:
-                fails.append(
-                    f"同锚句双 cue：{sid} 同时被 {seen_sid[sid]} 与 {slug}/{cid} 占用"
-                    "——全屏独占下一句一图，请挪章或拆句"
-                )
-            else:
-                seen_sid[sid] = f"{slug}/{cid}"
-
-    # ---- 匹配度：章归属 + 锚句存在（同时收集 anchored） ----
-    if have_cues and have_narr:
-        for _f, slug, cid, sid, _fit in cues:
-            chapters = views.get(slug)
-            if chapters is None:
-                fails.append(f"{slug}/{cid}: 场景引用了 views 里不存在的图")
-                continue
-            if not any(ch["id"] == cid for ch in chapters):
-                fails.append(f"{slug}/{cid}: 场景引用了 views 里不存在的章节")
-            if manifest is not None:
-                mch = manifest.get(slug, {}).get("chapters", [])
-                if not any(ch.get("id") == cid for ch in mch):
-                    fails.append(
-                        f"{slug}/{cid}: 章不在 archify.manifest.ts（重跑 archify_manifest.py）"
-                    )
-            if sid not in idx:
-                fails.append(f"{slug}/{cid}: 锚句 {sid} 不在 narration")
-            else:
-                anchored.add(sid)
-
-    # ---- 覆盖度（scenes 缺失时随上方 WARN 一并跳过——说了跳过就不能照样判死） ----
-    if have_narr and have_cues:
-        n_total = len(idx)
-        ratio = len(anchored) / n_total if n_total else 0.0
-        n_of_scene: dict[str, int] = {}
-        for scn in scene_of.values():
-            n_of_scene[scn] = n_of_scene.get(scn, 0) + 1
-        per_scene: dict[str, int] = {s: 0 for s in scene_order}
-        for sid in anchored:
-            per_scene[scene_of[sid]] = per_scene.get(scene_of[sid], 0) + 1
-        stat = " · ".join(
-            f"{s} {per_scene.get(s, 0)}/{n_of_scene[s]}" for s in scene_order
-        )
-        for s in scene_order:
-            n_scene = n_of_scene[s]
-            if per_scene.get(s, 0) < per_scene_min:
-                if s in exempt:
-                    infos.append(
-                        f"{s} 豁免零锚判定（pipeline.toml [archify] exempt_scenes）"
-                    )
-                else:
-                    fails.append(
-                        f"{s}：整幕 {n_scene} 句锚定 {per_scene.get(s, 0)} < {per_scene_min}"
-                        "（豁免须在 pipeline.toml [archify] exempt_scenes 显式声明）"
-                    )
-            elif n_scene and per_scene[s] / n_scene < min_scene_ratio:
-                if s in exempt:
-                    infos.append(
-                        f"{s} 豁免分幕锚定率判定"
-                        f"（{per_scene[s]}/{n_scene}，pipeline.toml exempt_scenes）"
-                    )
-                else:
-                    fails.append(
-                        f"{s}：分幕锚定率 {per_scene[s]}/{n_scene}"
-                        f"（{per_scene[s] / n_scene:.0%}）< 下限 {min_scene_ratio:.0%}"
-                    )
-        if ratio < min_anchor:
-            need = int(min_anchor * n_total) - len(anchored)
-            fails.append(
-                f"锚定率 {len(anchored)}/{n_total}（{ratio:.1%}）< 下限 {min_anchor:.0%}：还差 {need} 句"
-            )
-        # 最长连续无锚 run：幕边界不重置（观众体验不分幕）；豁免幕句子视为已锚断 run
-        order = [sid for sid, _i in sorted(idx.items(), key=lambda kv: kv[1])]
-        best_run = best_start = cur_run = cur_start = 0
-        for pos, sid in enumerate(order):
-            if sid in anchored or scene_of[sid] in exempt:
-                cur_run = 0
-                continue
-            if cur_run == 0:
-                cur_start = pos
-            cur_run += 1
-            if cur_run > best_run:
-                best_run, best_start = cur_run, cur_start
-        max_run_seen = best_run
-        if best_run > max_run:
-            fails.append(
-                f"最长连续无锚 {best_run} 句（{order[best_start]} 起）> 上限 {max_run}"
-                "——该段文案没有任何动效图例演示"
+def _load_assets(
+    views_dir: Path, manifest_ts: Path, fails: list[str], warns: list[str]
+) -> tuple[
+    dict[str, list[dict]], dict[str, set[str]], dict[str, set[str]], dict | None
+]:
+    """views + manifest.ts 加载段：views 计数断言入 fails，manifest 损坏/缺失入 WARN。"""
+    views, id_map, label_map, v_fails = load_views(views_dir)
+    fails.extend(v_fails)
+    manifest: dict | None = None
+    if manifest_ts.is_file():
+        manifest = load_manifest_ts(manifest_ts)
+        if manifest is None:
+            warns.append(
+                "archify.manifest.ts 解析失败——跳过章口径（录制后重跑 archify_manifest.py）"
             )
     else:
-        stat = "—"
+        warns.append("archify.manifest.ts 未生成——跳过章归属与丰富度章口径")
+    return views, id_map, label_map, manifest
 
-    # ---- storyboard 声明镜锚定 + 双向对账 ----
+
+def _check_inset_layout(scenes_dir: Path, fails: list[str]) -> None:
+    """布局：forbid_inset（全屏切换集的策略声明，防画中画回退）。"""
+    for f in sorted(scenes_dir.glob("P*.tsx")):
+        n = len(re.findall(r'variant="inset"', f.read_text(encoding="utf-8")))
+        if n:
+            fails.append(
+                f'{f.name}: 残留 {n} 处 variant="inset"'
+                "（forbid_inset 已开——全屏切换集不得回退画中画）"
+            )
+
+
+def _check_cue_exclusive(cues: list[Cue], fails: list[str]) -> None:
+    """匹配度：同句排他（全屏独占下一句一图）。"""
+    seen_sid: dict[str, str] = {}
+    for _f, slug, cid, sid, _fit in cues:
+        if sid in seen_sid:
+            fails.append(
+                f"同锚句双 cue：{sid} 同时被 {seen_sid[sid]} 与 {slug}/{cid} 占用"
+                "——全屏独占下一句一图，请挪章或拆句"
+            )
+        else:
+            seen_sid[sid] = f"{slug}/{cid}"
+
+
+def _check_chapter_refs(
+    cues: list[Cue],
+    views: dict[str, list[dict]],
+    manifest: dict | None,
+    idx: dict[str, int],
+    anchored: set[str],
+    fails: list[str],
+) -> None:
+    """匹配度：章归属 + 锚句存在（anchored 就地收集，供覆盖度段消费）。"""
+    for _f, slug, cid, sid, _fit in cues:
+        chapters = views.get(slug)
+        if chapters is None:
+            fails.append(f"{slug}/{cid}: 场景引用了 views 里不存在的图")
+            continue
+        if not any(ch["id"] == cid for ch in chapters):
+            fails.append(f"{slug}/{cid}: 场景引用了 views 里不存在的章节")
+        if manifest is not None:
+            mch = manifest.get(slug, {}).get("chapters", [])
+            if not any(ch.get("id") == cid for ch in mch):
+                fails.append(
+                    f"{slug}/{cid}: 章不在 archify.manifest.ts（重跑 archify_manifest.py）"
+                )
+        if sid not in idx:
+            fails.append(f"{slug}/{cid}: 锚句 {sid} 不在 narration")
+        else:
+            anchored.add(sid)
+
+
+def _check_anchor_coverage(
+    arch: dict,
+    anchored: set[str],
+    idx: dict[str, int],
+    scene_of: dict[str, str],
+    scene_order: list[str],
+    fails: list[str],
+    infos: list[str],
+) -> tuple[str, int]:
+    """覆盖度段：分幕零锚 / 分幕锚定率 / 总体下限 / 最长连续无锚 run。
+
+    → (stat 各幕锚定摘要, max_run_seen)。阈值按本消费者就地读（单行
+    `.get(key, config.default(...))`——test_config 的逐行 regex 门据此验证兜底）。"""
+    per_scene_min = arch.get("per_scene_min_anchors", config.default("archify.per_scene_min_anchors"))  # fmt: skip
+    exempt = arch.get("exempt_scenes", config.default("archify.exempt_scenes"))
+    min_anchor = arch.get("min_anchor_ratio", config.default("archify.min_anchor_ratio"))  # fmt: skip
+    min_scene_ratio = arch.get("min_scene_anchor_ratio", config.default("archify.min_scene_anchor_ratio"))  # fmt: skip
+    max_run = arch.get("max_unanchored_run", config.default("archify.max_unanchored_run"))  # fmt: skip
+    n_total = len(idx)
+    ratio = len(anchored) / n_total if n_total else 0.0
+    n_of_scene: dict[str, int] = {}
+    for scn in scene_of.values():
+        n_of_scene[scn] = n_of_scene.get(scn, 0) + 1
+    per_scene: dict[str, int] = {s: 0 for s in scene_order}
+    for sid in anchored:
+        per_scene[scene_of[sid]] = per_scene.get(scene_of[sid], 0) + 1
+    stat = " · ".join(f"{s} {per_scene.get(s, 0)}/{n_of_scene[s]}" for s in scene_order)
+    for s in scene_order:
+        n_scene = n_of_scene[s]
+        if per_scene.get(s, 0) < per_scene_min:
+            if s in exempt:
+                infos.append(
+                    f"{s} 豁免零锚判定（pipeline.toml [archify] exempt_scenes）"
+                )
+            else:
+                fails.append(
+                    f"{s}：整幕 {n_scene} 句锚定 {per_scene.get(s, 0)} < {per_scene_min}"
+                    "（豁免须在 pipeline.toml [archify] exempt_scenes 显式声明）"
+                )
+        elif n_scene and per_scene[s] / n_scene < min_scene_ratio:
+            if s in exempt:
+                infos.append(
+                    f"{s} 豁免分幕锚定率判定"
+                    f"（{per_scene[s]}/{n_scene}，pipeline.toml exempt_scenes）"
+                )
+            else:
+                fails.append(
+                    f"{s}：分幕锚定率 {per_scene[s]}/{n_scene}"
+                    f"（{per_scene[s] / n_scene:.0%}）< 下限 {min_scene_ratio:.0%}"
+                )
+    if ratio < min_anchor:
+        need = int(min_anchor * n_total) - len(anchored)
+        fails.append(
+            f"锚定率 {len(anchored)}/{n_total}（{ratio:.1%}）< 下限 {min_anchor:.0%}：还差 {need} 句"
+        )
+    # 最长连续无锚 run：幕边界不重置（观众体验不分幕）；豁免幕句子视为已锚断 run
+    order = [sid for sid, _i in sorted(idx.items(), key=lambda kv: kv[1])]
+    best_run = best_start = cur_run = cur_start = 0
+    for pos, sid in enumerate(order):
+        if sid in anchored or scene_of[sid] in exempt:
+            cur_run = 0
+            continue
+        if cur_run == 0:
+            cur_start = pos
+        cur_run += 1
+        if cur_run > best_run:
+            best_run, best_start = cur_run, cur_start
+    if best_run > max_run:
+        fails.append(
+            f"最长连续无锚 {best_run} 句（{order[best_start]} 起）> 上限 {max_run}"
+            "——该段文案没有任何动效图例演示"
+        )
+    return stat, best_run
+
+
+def _check_board(
+    arch: dict,
+    root: Path,
+    cues: list[Cue],
+    views: dict[str, list[dict]],
+    id_map: dict[str, set[str]],
+    label_map: dict[str, set[str]],
+    idx: dict[str, int],
+    anchored: set[str],
+    have_cues: bool,
+    have_narr: bool,
+    fails: list[str],
+    warns: list[str],
+) -> None:
+    """storyboard 声明镜锚定 + 双向对账（原 main 段整块直移，零逻辑改动）。
+
+    forbid_inset 按本消费者就地读（单行 .get + config.default，regex 门可验证）。"""
+    forbid_inset = arch.get("forbid_inset", config.default("archify.forbid_inset"))
     board = root / "script" / "storyboard.md"
     declared_pairs: set[tuple[str, str]] = set()  # (slug, chapterId) 已声明
     if board.is_file():
@@ -577,30 +564,54 @@ def main() -> None:
     elif cues:
         warns.append("storyboard.md 缺失——跳过声明镜锚定与双向对账")
 
-    # ---- 匹配度：同 slug 章节播放顺序单调性（WARN） ----
-    if have_cues and have_narr and views:
-        by_slug: dict[str, list[tuple[int, int, str, str]]] = {}
-        for _f, slug, cid, sid, _fit in cues:
-            chapters = views.get(slug, [])
-            pos = next((i for i, ch in enumerate(chapters) if ch["id"] == cid), -1)
-            if sid in idx and pos >= 0:
-                by_slug.setdefault(slug, []).append((idx[sid], pos, cid, sid))
-        for slug, rows in by_slug.items():
-            rows.sort()
-            for (i1, p1, c1, s1), (_i2, p2, c2, s2) in zip(rows, rows[1:]):  # noqa: RUF007
-                if p1 > p2:
-                    l1 = next(
-                        ch.get("label", c1) for ch in views[slug] if ch["id"] == c1
-                    )
-                    l2 = next(
-                        ch.get("label", c2) for ch in views[slug] if ch["id"] == c2
-                    )
-                    warns.append(
-                        f"{slug}: 章播放顺序 {c1}({l1})→{c2}({l2}) 逆序"
-                        f"（锚句 {s1}→{s2}；叙事重组请人工确认）"
-                    )
 
-    # ---- 丰富度 ----
+def _check_monotonic(
+    cues: list[Cue],
+    views: dict[str, list[dict]],
+    idx: dict[str, int],
+    warns: list[str],
+) -> None:
+    """匹配度：同 slug 章节播放顺序单调性（WARN——合法叙事重组存在）。"""
+    by_slug: dict[str, list[tuple[int, int, str, str]]] = {}
+    for _f, slug, cid, sid, _fit in cues:
+        chapters = views.get(slug, [])
+        pos = next((i for i, ch in enumerate(chapters) if ch["id"] == cid), -1)
+        if sid in idx and pos >= 0:
+            by_slug.setdefault(slug, []).append((idx[sid], pos, cid, sid))
+    for slug, rows in by_slug.items():
+        rows.sort()
+        for (i1, p1, c1, s1), (_i2, p2, c2, s2) in zip(rows, rows[1:]):  # noqa: RUF007
+            if p1 > p2:
+                l1 = next(ch.get("label", c1) for ch in views[slug] if ch["id"] == c1)
+                l2 = next(ch.get("label", c2) for ch in views[slug] if ch["id"] == c2)
+                warns.append(
+                    f"{slug}: 章播放顺序 {c1}({l1})→{c2}({l2}) 逆序"
+                    f"（锚句 {s1}→{s2}；叙事重组请人工确认）"
+                )
+
+
+def _check_richness(
+    arch: dict,
+    root: Path,
+    cues: list[Cue],
+    have_cues: bool,
+    views_files: list[Path],
+    sidecars: list[Path],
+    views: dict[str, list[dict]],
+    manifest: dict | None,
+    fails: list[str],
+    warns: list[str],
+    infos: list[str],
+) -> tuple[float | None, int]:
+    """丰富度段：图数 / cue 数 / cue 密度 / 图型多样性 / lead 全 0 / 被引用章比 / 白录。
+
+    → (cpm_seen, n_types)——输出行「密度 X/分」「图型 N 种」附注的取值。
+    阈值按本消费者就地读（单行 `.get(key, config.default(...))`，regex 门可验证）。"""
+    min_diagrams = arch.get("min_diagrams", config.default("archify.min_diagrams"))
+    min_cues = arch.get("min_cues", config.default("archify.min_cues"))
+    min_chapter = arch.get("min_chapter_ratio", config.default("archify.min_chapter_ratio"))  # fmt: skip
+    min_cpm = arch.get("min_cues_per_minute", config.default("archify.min_cues_per_minute"))  # fmt: skip
+    min_types = arch.get("min_diagram_types", config.default("archify.min_diagram_types"))  # fmt: skip
     if len(views_files) < min_diagrams:
         fails.append(f"图数 {len(views_files)} < 下限 {min_diagrams}（图例组不足）")
     if have_cues and len(cues) < min_cues:
@@ -713,6 +724,114 @@ def main() -> None:
                 f"{slug}: {'manifest' if manifest is not None else 'views'} 有此图但无任何 cue 引用"
                 f"（{n} 章白录）——接进场景或从 manifest 摘掉"
             )
+    return cpm_seen, n_types
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description="archify 覆盖门（覆盖度/丰富度/匹配度）")
+    ap.add_argument("--project", required=True)
+    args = ap.parse_args()
+    root = Path(args.project).resolve()
+
+    cfg, _origin, cfg_fails, cfg_warns = config.load(
+        root, required=False, scope={"archify"}
+    )
+    arch = cfg.get("archify", {})
+
+    archify_dir = root / "video" / "public" / "archify"
+    views_dir = archify_dir / "views"
+    manifest_ts = root / "video" / "src" / "archify.manifest.ts"
+    scenes_dir = root / "video" / "src" / "scenes"
+    sidecars = sorted(archify_dir.glob("*.json")) if archify_dir.is_dir() else []
+    views_files = sorted(views_dir.glob("*.json")) if views_dir.is_dir() else []
+
+    # ---- skip 三分（点名，绝不静默） ----
+    if not views_files and not sidecars and not manifest_ts.is_file():
+        print(f">> archify 覆盖门 · {root.name} · 无 archify 资产，跳过")
+        sys.exit(0)
+    if not views_files:
+        print(f">> archify 覆盖门 · {root.name}")
+        if sidecars:
+            print(
+                f"  WARN 检测到 {len(sidecars)} 个 archify sidecar 但无 views"
+                "（旧形态 ArchifyClip 直接消费）——跳过 archify 覆盖门"
+            )
+        sys.exit(0)
+
+    fails: list[str] = []
+    warns: list[str] = []
+    infos: list[str] = []
+    for f in cfg_fails:
+        fails.append(f"配置：{f}")
+    for w in cfg_warns:
+        warns.append(f"配置：{w}")
+
+    views, id_map, label_map, manifest = _load_assets(
+        views_dir, manifest_ts, fails, warns
+    )
+
+    # ---- cue 提取 ----
+    cues, have_cues = _collect_cues(scenes_dir, len(views_files), fails, warns)
+
+    # ---- narration ----
+    have_narr, idx, scene_of, scene_order = _collect_narration(root, warns)
+
+    anchored: set[str] = set()
+    max_run_seen: int | None = None
+
+    # ---- 布局：forbid_inset（全屏切换集的策略声明，防画中画回退） ----
+    if arch.get("forbid_inset", config.default("archify.forbid_inset")) and scenes_dir.is_dir():  # fmt: skip
+        _check_inset_layout(scenes_dir, fails)
+
+    # ---- 匹配度：同句排他（全屏独占下一句一图） ----
+    if have_cues and arch.get("cue_sentence_exclusive", config.default("archify.cue_sentence_exclusive")):  # fmt: skip
+        _check_cue_exclusive(cues, fails)
+
+    # ---- 匹配度：章归属 + 锚句存在（同时收集 anchored） ----
+    if have_cues and have_narr:
+        _check_chapter_refs(cues, views, manifest, idx, anchored, fails)
+
+    # ---- 覆盖度（scenes 缺失时随上方 WARN 一并跳过——说了跳过就不能照样判死） ----
+    stat = "—"
+    if have_narr and have_cues:
+        stat, max_run_seen = _check_anchor_coverage(
+            arch, anchored, idx, scene_of, scene_order, fails, infos
+        )
+
+    # ---- storyboard 声明镜锚定 + 双向对账 ----
+    _check_board(
+        arch,
+        root,
+        cues,
+        views,
+        id_map,
+        label_map,
+        idx,
+        anchored,
+        have_cues,
+        have_narr,
+        fails,
+        warns,
+    )
+
+    # ---- 匹配度：同 slug 章节播放顺序单调性（WARN） ----
+    if have_cues and have_narr and views:
+        _check_monotonic(cues, views, idx, warns)
+
+    # ---- 丰富度 ----
+    cpm_seen, n_types = _check_richness(
+        arch,
+        root,
+        cues,
+        have_cues,
+        views_files,
+        sidecars,
+        views,
+        manifest,
+        fails,
+        warns,
+        infos,
+    )
 
     # ---- 输出 ----
     n_ch_view = sum(len(v) for v in views.values())

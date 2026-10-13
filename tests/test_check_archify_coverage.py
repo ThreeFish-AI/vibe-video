@@ -679,3 +679,111 @@ def test_zero_lead_sec_warns_per_diagram(tmp_path):
     put("legacy", [0])  # 遗迹全 0 但无 cue 引用 → 不点名
     rc2, out2 = run_coverage_gate(root)
     assert "lead_sec == 0" not in out2, out2
+
+
+# ---------------- 零断言分支特征化（C9 拆分前置护栏：钉现有行为，含怪癖） ----------------
+
+
+def test_used_chapter_ratio_floor_fails(tmp_path):
+    """被引用章比下限：场景只引用 ch1/ch2（2/3）< 90% → FAIL（P1 零锚同报，rc 1）。"""
+    root = build(
+        tmp_path,
+        scenes={"P0X.tsx": SCENE_P0},
+        toml=TOML_OK + "\n[archify]\nmin_chapter_ratio = 0.9\n",
+    )
+    rc, out = run_coverage_gate(root)
+    assert rc == 1
+    assert "FAIL 被引用章 2/3（67%）< 下限 90%" in out, out
+
+
+def test_anchor_outside_declared_beat_range_warns(tmp_path):
+    """声明镜的锚句落在镜句区间之外 → WARN（错位或分镜滞后；并发的零锚 FAIL 不在此钉）。"""
+    board = BOARD_OK.replace(
+        "| 1-A | p1-01..03 | y ·**archify inset**：章 `三章` | z |",
+        "| 1-A | p1-01..03 | y ·**archify inset**：章 `三章` | z |\n"
+        "| 1-B | p1-03 | w ·**archify inset**：章 `首章` | v |",
+    )
+    root = build(tmp_path, board=board)
+    rc, out = run_coverage_gate(root)
+    assert rc == 1
+    assert (
+        "WARN 镜 1-B: 声明的 demo#首章 锚在 p0-01，落在镜区间之外——错位或分镜滞后"
+        in out
+    ), out
+
+
+def test_views_double_map_count_fails(tmp_path):
+    """views 双映射条目数 ≠ 章数×2（重复 id 占位去重后条目缩水）→ FAIL 暴露读取面。"""
+    root = build(
+        tmp_path,
+        views_files={
+            "demo.json": [{"id": "ch1", "label": "甲"}, {"id": "ch1", "label": "乙"}]
+        },
+    )
+    rc, out = run_coverage_gate(root)
+    assert rc == 1
+    assert "FAIL views 双映射条目数 3 ≠ 章数×2（2×2）——章对象缺 id/label" in out, out
+
+
+def test_manifest_parse_failure_warns_and_skips_chapter_gate(tmp_path):
+    """manifest.ts 字面量损坏 → WARN 跳过章口径（不 FAIL 不炸），其余门照跑 rc 0。"""
+    root = build(tmp_path, manifest="export const ARCHIFY = {broken as const;\n")
+    rc, out = run_coverage_gate(root)
+    assert rc == 0, out
+    assert (
+        "WARN archify.manifest.ts 解析失败——跳过章口径（录制后重跑 archify_manifest.py）"
+        in out
+    ), out
+    assert ">> FAIL 0 · WARN 1" in out
+
+
+def test_chapter_missing_from_manifest_fails(tmp_path):
+    """cue 引用的章未落到 manifest.ts（录了未生成）→ 点名 FAIL。"""
+    manifest = (
+        'export const ARCHIFY = {"demo": {"chapters": '
+        '[{"id": "ch1"}, {"id": "ch2"}]}} as const;\n'
+    )
+    root = build(tmp_path, manifest=manifest)
+    rc, out = run_coverage_gate(root)
+    assert rc == 1
+    assert (
+        "FAIL demo/ch3: 章不在 archify.manifest.ts（重跑 archify_manifest.py）" in out
+    ), out
+
+
+def test_density_calculation_failure_warns(tmp_path):
+    """timing.json 损坏 → 密度计算失败点名 WARN 跳过（JSONDecodeError ⊂ ValueError）。"""
+    root = build(tmp_path, audio=True)
+    (root / "video" / "src" / "timing.json").write_text("not json", encoding="utf-8")
+    rc, out = run_coverage_gate(root)
+    assert rc == 0, out
+    assert "WARN cue 密度计算失败" in out and "——跳过密度门" in out, out
+
+
+def test_name_token_mismatch_warns(tmp_path):
+    """图名与章 token 解析到不同 slug → WARN（图名-章 token 一致性正控）。"""
+    root = build(
+        tmp_path,
+        views_files={
+            "demo.json": VIEWS_DEMO,
+            "other.json": [{"id": "o1", "label": "流程图"}],
+        },
+        board=BOARD_OK.replace("演示图 章", "流程图 章"),
+    )
+    rc, out = run_coverage_gate(root)
+    assert rc == 0, out
+    assert "WARN 镜 0-A: 图名「流程图」解析为 other，与章 token 的 demo 不符" in out, (
+        out
+    )
+
+
+def test_sidecar_without_views_full_output(tmp_path):
+    """仅 sidecar 无 views：头行 + WARN 两行干净退出（rc 0），输出全文黄金合同。"""
+    root = build(tmp_path, views_files=None, manifest=None, sidecar=True)
+    rc, out = run_coverage_gate(root)
+    assert rc == 0
+    assert out == (
+        ">> archify 覆盖门 · fixture-archify\n"
+        "  WARN 检测到 1 个 archify sidecar 但无 views"
+        "（旧形态 ArchifyClip 直接消费）——跳过 archify 覆盖门\n"
+    ), out

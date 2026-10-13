@@ -52,7 +52,8 @@ PINYIN_SYLLABLE_RE = re.compile(r"^[A-Z]+[1-5]$")
 #: jqx + ü 必须写 V（vocab 中 ^[JQX]U 零命中）
 PINYIN_JQXU_RE = re.compile(r"^[JQX]U")
 
-#: 汉字（用于判定走哪个通道——与上游 `:66` 的判据一致）
+#: 汉字（用于判定走哪个通道——与上游 `:66` 的判据一致）；check_script 的读法门
+#: 与 en 稿门共用本定义
 HAN_RE = re.compile(r"[一-鿿]")
 
 #: ARPAbet 音素集（CMU 词典 39 音素），元音可带重音数字 0/1/2

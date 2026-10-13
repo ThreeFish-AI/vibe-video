@@ -95,13 +95,19 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))  # noqa: E402
 import config  # noqa: E402 - 同目录模块，须在 sys.path 注入之后
 import langs  # noqa: E402
 from build_narration import read_lock, stale_ids  # noqa: E402
-from pron_marks import scan_candidates, semantic_missing, strip_marks, validate  # noqa: E402
+from pron_marks import (  # noqa: E402 - 同目录模块，须在 sys.path 注入之后
+    HAN_RE,
+    scan_candidates,
+    semantic_missing,
+    strip_marks,
+    validate,
+)
+from storyboard import (  # noqa: E402 - 分镜表行解析唯一实现；第二解析器即 split-brain
+    SCENE_OF_RE,
+    parse_storyboard,
+)
 from timeline import load_constants, total_duration_in_frames  # noqa: E402
 
-#: 分镜表行：| 镜号 | 句区间 | 画面 | 动效 |。镜号形如 `0-A`/`2-B2`。
-ROW_RE = re.compile(r"^\|\s*(\d+-[A-Z]\d*)[^|]*\|([^|]*)\|([^|]*)\|")
-#: 句区间单元格：`p0-01..03`（右端可为裸编号，须补幕前缀）、`p6-06a..06d`、单句 `p6-07`。
-SPAN_RE = re.compile(r"^\s*(p\d+-[0-9a-z-]+(?:\.\.[0-9a-z-]+)?)\s*([^|]*)$")
 #: 场景组件里的 beat 调用。实际形如 `w('p0-01', 'p0-04')`（各场景统一先定义
 #: `const w = (fromId, toId?) => beatWindow(scene.sentences, scene.from, …)` 再使用），
 #: 故匹配任意 `\w(...)` 调用并要求参数为 1–2 个单引号句 id。
@@ -111,8 +117,6 @@ SCENE_CALL_RE = re.compile(r"\bw\(\s*'([a-z0-9-]+)'(?:\s*,\s*'([a-z0-9-]+)')?\s*
 #: at()/dur() 引用不在任何形态断言内——p1-23 跳号句嵌套窗 tsc 与覆盖门全放行、
 #: 渲染期才抛。此正则把那类引用拉进同一存在性门。
 SCENE_ANCHOR_RE = re.compile(r"\b(?:at|dur)\(\s*'([a-z0-9-]+)'\s*\)")
-#: 幕名（P0/P1/…）从句 id 前缀还原
-SCENE_OF_RE = re.compile(r"^(p\d+)-")
 
 
 def fail(msgs: list[str], text: str) -> None:
@@ -121,48 +125,6 @@ def fail(msgs: list[str], text: str) -> None:
 
 def warn(msgs: list[str], text: str) -> None:
     msgs.append(f"WARN {text}")
-
-
-def _rows(path: Path) -> list[tuple[str, str, str]]:
-    """→ [(镜号, 句区间单元格, 画面单元格)]。行集 = 镜号/句区间/画面三列齐全的行。
-
-    画面列在此一并取出：覆盖门（check_archify_coverage）的分镜声明对账要读它，
-    单独再写一个行正则就是第二解析器——分叉即 split-brain。"""
-    out: list[tuple[str, str, str]] = []
-    for raw in path.read_text(encoding="utf-8").splitlines():
-        if m := ROW_RE.match(raw):
-            out.append((m.group(1), m.group(2), m.group(3)))
-    return out
-
-
-def parse_storyboard(path: Path) -> list[tuple[str, str, str, str]]:
-    """返回 [(镜号, 起句id, 止句id, 区间单元格原文)]。单元格原文含「尾」= 刻意压尾标注。"""
-    beats: list[tuple[str, str, str, str]] = []
-    for beat_id, span_cell, _visual in _rows(path):
-        sm = SPAN_RE.match(span_cell)
-        if not sm:
-            continue
-        span, cell = sm.group(1), (sm.group(1) + sm.group(2))
-        if ".." in span:
-            left, _, right = span.partition("..")
-            # 右端可为裸编号（p0-01..03）——须补幕前缀，否则永远匹配不到句子
-            if not right.startswith("p"):
-                scene = SCENE_OF_RE.match(left).group(1)  # type: ignore[union-attr]
-                right = f"{scene}-{right}"
-        else:
-            left = right = span
-        beats.append((beat_id, left, right, cell))
-    return beats
-
-
-def parse_storyboard_visual(path: Path) -> list[tuple[str, str]]:
-    """→ [(镜号, 画面列原文)]。行集与 parse_storyboard 完全一致（同一 _rows + SPAN_RE
-    过滤，索引按序对齐）——覆盖门从画面列抽 `·**archify …**` 声明。"""
-    out: list[tuple[str, str]] = []
-    for beat_id, span_cell, visual in _rows(path):
-        if SPAN_RE.match(span_cell):
-            out.append((beat_id, visual))
-    return out
 
 
 def check_coverage(
@@ -362,12 +324,6 @@ READING_TRAPS_COMPILED = tuple(
     (re.compile(p), level, msg) for p, level, msg, *_ in READING_TRAPS
 )
 
-#: 汉字。整句无汉字时上游按 `use_chinese()`（front.py:106-114）逐句嗅探路由到**英文**
-#: normalizer：实测 `IndexTTS 2.5`→`IndexTTS two point five`、`RTF 0.2065`→
-#: `RTF oh point two oh six five`。逐字稿为字幕可读性把句子拆到 ≤43 字，反而**提高**了
-#: 出现纯 ASCII 短句的概率——两个既有约束的隐性冲突，故必须成门。
-HAN_RE = re.compile(r"[一-鿿]")
-
 
 def check_reading_traps(items: list[dict], msgs: list[str]) -> None:
     """逐句扫描已知会被读错的写法（上游归一化的实测行为）。
@@ -393,6 +349,11 @@ def check_reading_traps(items: list[dict], msgs: list[str]) -> None:
                 (fail if level == "FAIL" else warn)(
                     msgs, f"句 {it['id']}{where} 命中读法陷阱 {m.group(0)!r}：{why}"
                 )
+        # 汉字判定（HAN_RE 定义上收 pron_marks，与 en 稿门共用）。整句无汉字时上游按
+        # `use_chinese()`（front.py:106-114）逐句嗅探路由到**英文**normalizer：实测
+        # `IndexTTS 2.5`→`IndexTTS two point five`、`RTF 0.2065`→`RTF oh point two oh six
+        # five`。逐字稿为字幕可读性把句子拆到 ≤43 字，反而**提高**了出现纯 ASCII 短句
+        # 的概率——两个既有约束的隐性冲突，故必须成门。
         if not HAN_RE.search(text):
             hits += 1
             fail(
@@ -1085,7 +1046,7 @@ def check_quoted_theme_literals(root: Path, msgs: list[str]) -> None:
                     seen_lits.add(lit)
 
 
-def main() -> None:
+def _build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description="④⑥ 内容门：覆盖性/预算/淡入不变式")
     ap.add_argument("--project", default=".", help="视频工程根目录")
     ap.add_argument(
@@ -1136,7 +1097,13 @@ def main() -> None:
     ap.add_argument(
         "--json", action="store_true", help="以 JSON 输出结果（供 pipeline.py 汇总）"
     )
-    args = ap.parse_args()
+    return ap
+
+
+def _validate_flags(
+    args: argparse.Namespace, ap: argparse.ArgumentParser
+) -> tuple[str, bool]:
+    """flag 互斥与语言校验（报错按实际触发的 flag 点名）。→ (受检语言, 发音面)。"""
     try:
         lang = langs.validate(args.lang)
     except ValueError as e:
@@ -1170,114 +1137,142 @@ def main() -> None:
             "--json/--check-scenes/--check-motion 属内容门面，"
             "与 --pron-candidates/--pron-gate 互斥"
         )
+    return lang, pron_face
 
-    root = Path(args.project).resolve()
-    # required=False：内容门在没有 pipeline.toml 时仍应能跑（如新集脚手架期）。
-    # 但受影响的门必须点名 WARN（见 check_budget）——静默跳过的门是 config.py
-    # 存在的首要原因。schema/默认值与 pipeline.py 共用同一事实源。
-    cfg, _origin, cfg_fails, cfg_warns = config.load(
-        root, required=False, scope={"narration"}
-    )
-    items = json.loads(langs.narration_json(root, lang).read_text(encoding="utf-8"))
 
-    if pron_face:
-        # 「已标注 = 作者显式接管」只对合法标注成立：非法标注（拼音无声调/
-        # 未成对尖括号）是必然读错，比门要拦的漏标更严重，先于语义判定收口
-        # （评审回归 D2-1）。报告面按「退出码恒 0」契约只点名不判死。
-        illegal = []
-        for it in items:
-            errs, _warns = validate(it.get("ttsText") or it["text"])
-            if errs:
-                illegal.append((it["id"], errs[0]))
-        hits = scan_candidates(items)
-        print(f">> 多音字候选 · {root.name} · {len(items)} 句（候选 ≠ 台账，非门）")
-        for sid, char, risk, advice in hits:
-            print(f"  {sid}  {char}  {risk}  → 若听出错读：{advice}")
-        missing = semantic_missing(items)
-        if missing:
-            print(
-                f">> 语义规则命中而未标注 {len(missing)} 处"
-                "（字典级确定读音，写稿阶段就该标注——RSI-014）"
-            )
-            for sid, char, reading, mark, ctx in missing:
-                print(f"  {sid}  {char} → {reading}（{ctx}）  建议标注 {mark}")
-        tail = f">> 候选命中 {len(hits)} 处 · 语义规则未标注 {len(missing)} 处"
-        if args.pron_gate:
-            for sid, err in illegal:
-                print(f"  FAIL 句 {sid} 发音标注非法：{err}")
-            for sid, char, reading, mark, ctx in missing:
-                print(
-                    f"  FAIL 句 {sid} 高危多音字 {char!r} 语境「{ctx}」应读 {reading} "
-                    f"而句中无标注：加 {mark}（语义规则命中即建议标注，RSI-014）"
-                )
-            print(tail + "（--pron-gate 门）")
-            sys.exit(1 if (missing or illegal) else 0)
-        for sid, err in illegal:
-            print(
-                f"  ⚠ 句 {sid} 发音标注非法：{err}"
-                "（本面退出码恒 0，合法性执法在 --pre-tts 面）"
-            )
-        print(tail + "（语义规则命中处写稿即标注；其余候选确认读错才写台账）")
-        return
+def _run_pron_face(args: argparse.Namespace, root: Path, items: list[dict]) -> None:
+    """--pron-candidates 报告面 / --pron-gate 门：多音字候选 + 语义规则未标注。
 
-    board = root / "script" / "storyboard.md"
-    # storyboard 只在主稿完整门被消费；en 门集与 --pre-tts 均不要求分镜存在
-    if not args.pre_tts and lang == langs.PRIMARY and not board.is_file():
-        sys.exit(f"storyboard.md 不存在: {board}")
-
-    msgs: list[str] = []
-    for f in cfg_fails:
-        fail(msgs, f"配置：{f}")
-    for w in cfg_warns:
-        warn(msgs, f"配置：{w}")
-    if args.pre_tts:
-        # 两遍法草稿遍的形态：稿已定、分镜未写。只跑「文本自身」可判定的门——
-        # 分镜覆盖性/淡入不变式/场景互比都依赖 storyboard 或 timing 常数随分镜
-        # 联动，此时跳过并**点名**（静默跳过的门比没有门更糟）。
+    报告面按「退出码恒 0」契约只点名不判死；--pron-gate 把语义规则命中而
+    该 occurrence 无任何标注升为 FAIL。"""
+    # 「已标注 = 作者显式接管」只对合法标注成立：非法标注（拼音无声调/
+    # 未成对尖括号）是必然读错，比门要拦的漏标更严重，先于语义判定收口
+    # （评审回归 D2-1）。报告面按「退出码恒 0」契约只点名不判死。
+    illegal = []
+    for it in items:
+        errs, _warns = validate(it.get("ttsText") or it["text"])
+        if errs:
+            illegal.append((it["id"], errs[0]))
+    hits = scan_candidates(items)
+    print(f">> 多音字候选 · {root.name} · {len(items)} 句（候选 ≠ 台账，非门）")
+    for sid, char, risk, advice in hits:
+        print(f"  {sid}  {char}  {risk}  → 若听出错读：{advice}")
+    missing = semantic_missing(items)
+    if missing:
         print(
-            f">> pre-TTS 前置门 · {root.name} · {len(items)} 句（分镜未写，跳过覆盖性/淡入/场景互比）"
+            f">> 语义规则命中而未标注 {len(missing)} 处"
+            "（字典级确定读音，写稿阶段就该标注——RSI-014）"
         )
-        if lang != langs.PRIMARY:
-            check_translation(root, lang, items, msgs)
-        check_budget(root, items, cfg, msgs, lang)
-        if lang == langs.PRIMARY:
-            check_reading_traps(items, msgs)
-            check_subtitle_width(root, items, msgs)
-        check_pron_marks(items, msgs)
-        check_opening_hook(items, lang, msgs)
-        if args.term_density:
-            check_term_density(items, args.terms.split(","), msgs)
-    elif lang != langs.PRIMARY:
-        # en 完整门：语言无关门（覆盖/淡入/场景互比/动效互比）只在主稿执法——
-        # 分镜与场景代码是 zh 主稿的派生物，en 按句 id 复用，重复执法只会双报
-        # 同源错。跳过必须说出来，不能静默。
-        print("  语言无关门（覆盖性/淡入/场景互比/动效互比）在主稿执法——en 模式跳过")
+        for sid, char, reading, mark, ctx in missing:
+            print(f"  {sid}  {char} → {reading}（{ctx}）  建议标注 {mark}")
+    tail = f">> 候选命中 {len(hits)} 处 · 语义规则未标注 {len(missing)} 处"
+    if args.pron_gate:
+        for sid, err in illegal:
+            print(f"  FAIL 句 {sid} 发音标注非法：{err}")
+        for sid, char, reading, mark, ctx in missing:
+            print(
+                f"  FAIL 句 {sid} 高危多音字 {char!r} 语境「{ctx}」应读 {reading} "
+                f"而句中无标注：加 {mark}（语义规则命中即建议标注，RSI-014）"
+            )
+        print(tail + "（--pron-gate 门）")
+        sys.exit(1 if (missing or illegal) else 0)
+    for sid, err in illegal:
+        print(
+            f"  ⚠ 句 {sid} 发音标注非法：{err}"
+            "（本面退出码恒 0，合法性执法在 --pre-tts 面）"
+        )
+    print(tail + "（语义规则命中处写稿即标注；其余候选确认读错才写台账）")
+
+
+def _collect_gates_pre_tts(
+    args: argparse.Namespace,
+    root: Path,
+    items: list[dict],
+    cfg: dict,
+    lang: str,
+    msgs: list[str],
+) -> None:
+    """--pre-tts 前置门集（两遍法草稿遍：只跑不需要分镜的门，跳过必点名）。"""
+    # 两遍法草稿遍的形态：稿已定、分镜未写。只跑「文本自身」可判定的门——
+    # 分镜覆盖性/淡入不变式/场景互比都依赖 storyboard 或 timing 常数随分镜
+    # 联动，此时跳过并**点名**（静默跳过的门比没有门更糟）。
+    print(
+        f">> pre-TTS 前置门 · {root.name} · {len(items)} 句（分镜未写，跳过覆盖性/淡入/场景互比）"
+    )
+    if lang != langs.PRIMARY:
         check_translation(root, lang, items, msgs)
-        check_budget(root, items, cfg, msgs, lang)
-        check_pron_marks(items, msgs)
-        check_opening_hook(items, lang, msgs)
-        check_caption_duplication(root, items, msgs)
-        if args.check_scenes:
-            report_untranslated_scene_text(root, msgs)
-    else:
-        beats = parse_storyboard(board)
-        if not beats:
-            fail(msgs, f"未能从 {board.name} 解析出任何 beat 行（格式变化？）")
-        check_coverage(items, beats, msgs)
-        check_budget(root, items, cfg, msgs)
+    check_budget(root, items, cfg, msgs, lang)
+    if lang == langs.PRIMARY:
         check_reading_traps(items, msgs)
         check_subtitle_width(root, items, msgs)
-        check_opening_hook(items, lang, msgs)
-        check_fade_invariant(root, msgs)
-        check_caption_duplication(root, items, msgs)
-        check_quoted_theme_literals(root, msgs)
-        if args.term_density:
-            check_term_density(items, args.terms.split(","), msgs)
-        if args.check_scenes:
-            check_scenes(root, beats, msgs, known_ids={i["id"] for i in items})
-        if args.check_motion:
-            check_motion(root, msgs)
+    check_pron_marks(items, msgs)
+    check_opening_hook(items, lang, msgs)
+    if args.term_density:
+        check_term_density(items, args.terms.split(","), msgs)
 
+
+def _collect_gates_translation(
+    args: argparse.Namespace,
+    root: Path,
+    items: list[dict],
+    cfg: dict,
+    lang: str,
+    msgs: list[str],
+) -> None:
+    """en 完整门集（语言无关门只在主稿执法——跳过必须说出来）。"""
+    # en 完整门：语言无关门（覆盖/淡入/场景互比/动效互比）只在主稿执法——
+    # 分镜与场景代码是 zh 主稿的派生物，en 按句 id 复用，重复执法只会双报
+    # 同源错。跳过必须说出来，不能静默。
+    print("  语言无关门（覆盖性/淡入/场景互比/动效互比）在主稿执法——en 模式跳过")
+    check_translation(root, lang, items, msgs)
+    check_budget(root, items, cfg, msgs, lang)
+    check_pron_marks(items, msgs)
+    check_opening_hook(items, lang, msgs)
+    check_caption_duplication(root, items, msgs)
+    if args.check_scenes:
+        report_untranslated_scene_text(root, msgs)
+
+
+def _collect_gates_full_zh(
+    args: argparse.Namespace,
+    root: Path,
+    items: list[dict],
+    cfg: dict,
+    board: Path,
+    msgs: list[str],
+) -> list[tuple[str, str, str, str]]:
+    """zh 完整门集（门调用顺序即输出顺序，不可重排）。→ 分镜 beats（汇总行计数用）。"""
+    beats = parse_storyboard(board)
+    if not beats:
+        fail(msgs, f"未能从 {board.name} 解析出任何 beat 行（格式变化？）")
+    check_coverage(items, beats, msgs)
+    check_budget(root, items, cfg, msgs)
+    check_reading_traps(items, msgs)
+    check_subtitle_width(root, items, msgs)
+    check_opening_hook(items, langs.PRIMARY, msgs)
+    check_fade_invariant(root, msgs)
+    check_caption_duplication(root, items, msgs)
+    check_quoted_theme_literals(root, msgs)
+    if args.term_density:
+        check_term_density(items, args.terms.split(","), msgs)
+    if args.check_scenes:
+        check_scenes(root, beats, msgs, known_ids={i["id"] for i in items})
+    if args.check_motion:
+        check_motion(root, msgs)
+    return beats
+
+
+def _emit_report(
+    args: argparse.Namespace,
+    root: Path,
+    items: list[dict],
+    lang: str,
+    beats: list[tuple[str, str, str, str]],
+    msgs: list[str],
+) -> int:
+    """汇总输出：--json 机读面 / 人读混排（各门直印行先于头行的既有形态不变）。
+
+    → 退出码（1 = 有 FAIL；WARN 不影响）。"""
     fails = [m for m in msgs if m.startswith("FAIL")]
     warns = [m for m in msgs if m.startswith("WARN")]
     if args.json:
@@ -1293,7 +1288,48 @@ def main() -> None:
         for m in msgs:
             print(f"  {m}")
         print(f">> FAIL {len(fails)} · WARN {len(warns)}")
-    sys.exit(1 if fails else 0)
+    return 1 if fails else 0
+
+
+def main() -> None:
+    ap = _build_parser()
+    args = ap.parse_args()
+    lang, pron_face = _validate_flags(args, ap)
+
+    root = Path(args.project).resolve()
+    # required=False：内容门在没有 pipeline.toml 时仍应能跑（如新集脚手架期）。
+    # 但受影响的门必须点名 WARN（见 check_budget）——静默跳过的门是 config.py
+    # 存在的首要原因。schema/默认值与 pipeline.py 共用同一事实源。
+    cfg, _origin, cfg_fails, cfg_warns = config.load(
+        root, required=False, scope={"narration"}
+    )
+    items = json.loads(langs.narration_json(root, lang).read_text(encoding="utf-8"))
+
+    if pron_face:
+        _run_pron_face(args, root, items)
+        return
+
+    board = root / "script" / "storyboard.md"
+    # storyboard 只在主稿完整门被消费；en 门集与 --pre-tts 均不要求分镜存在
+    if not args.pre_tts and lang == langs.PRIMARY and not board.is_file():
+        sys.exit(f"storyboard.md 不存在: {board}")
+
+    # beats 只在 zh 完整门路径被赋值与消费（_emit_report 的镜数计数按
+    # pre_tts/en 路径短路或绕开，此处预置空表仅为形参求值安全）。
+    beats: list[tuple[str, str, str, str]] = []
+    msgs: list[str] = []
+    for f in cfg_fails:
+        fail(msgs, f"配置：{f}")
+    for w in cfg_warns:
+        warn(msgs, f"配置：{w}")
+    if args.pre_tts:
+        _collect_gates_pre_tts(args, root, items, cfg, lang, msgs)
+    elif lang != langs.PRIMARY:
+        _collect_gates_translation(args, root, items, cfg, lang, msgs)
+    else:
+        beats = _collect_gates_full_zh(args, root, items, cfg, board, msgs)
+
+    sys.exit(_emit_report(args, root, items, lang, beats, msgs))
 
 
 if __name__ == "__main__":

@@ -133,3 +133,72 @@ def test_tts_progress_word_regex_matches_langs():
     assert _re.compile(eval(m.group(1))).pattern == langs._WORD_RE.pattern, (
         "tts_progress 词计数正则与 langs._WORD_RE 漂移"
     )
+
+
+# ---------------- 服务地址常量对账（C13） ----------------
+
+
+def test_default_server_mirrors_config_schema():
+    """tts.DEFAULT_SERVER 与 config SCHEMA 的 tts.server 缺省互为镜像
+    （tts.py 受导入边界约束不 import config，一致性由此钉住）。"""
+    import config
+
+    assert tts.DEFAULT_SERVER == config.default("tts.server")
+
+
+def test_default_server_port_matches_launch_hint():
+    """DEFAULT_SERVER 的端口与 server_launch_hint 缺省 port 形参一致
+    （提示命令与客户端缺省地址必须指向同一服务实例）。"""
+    import inspect
+    import urllib.parse
+
+    assert (
+        urllib.parse.urlsplit(tts.DEFAULT_SERVER).port
+        == inspect.signature(tts.server_launch_hint).parameters["port"].default
+    )
+
+
+def test_default_server_literal_single_source():
+    """字面量 "http://127.0.0.1:8766" 全 scripts 只许出现两处：tts.py 的
+    常量定义与 config.py 的 SCHEMA 缺省；其余调用点一律引用常量（引用方
+    字面量漏改会静默指向错误端口）。"""
+    expected = {"tts.py": 1, "config.py": 1}
+    offenders = []
+    for p in sorted(SCRIPTS.glob("*.py")):
+        tree = ast.parse(p.read_text(encoding="utf-8"))
+        hits = sum(
+            isinstance(n, ast.Constant) and n.value == "http://127.0.0.1:8766"
+            for n in ast.walk(tree)
+        )
+        want = expected.get(p.name, 0)
+        if hits != want:
+            offenders.append(f"{p.name}: {hits} 处（期望 {want}）")
+    assert not offenders, "服务地址字面量偏离单一事实源：\n  " + "\n  ".join(offenders)
+
+
+def test_tts_server_imports_resolve_and_passthrough_keys():
+    """tts_server 对 tts 的依赖契约（AST 钉子）：① `from tts import X` 的每个 X
+    必须在 tts 模块真实存在；② `SAMPLING_PASSTHROUGH_DEFAULTS[...]` 的字符串键
+    ⊆ tts 的 7 键透传字典（防服务端取默认值时 KeyError / 拼错静默失效）。"""
+    src = (SCRIPTS / "tts_server.py").read_text(encoding="utf-8")
+    tree = ast.parse(src)
+    imported: set[str] = set()
+    subscript_keys: list[str] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) and node.module == "tts":
+            imported.update(a.name for a in node.names)
+        elif (
+            isinstance(node, ast.Subscript)
+            and isinstance(node.value, ast.Name)
+            and node.value.id == "SAMPLING_PASSTHROUGH_DEFAULTS"
+            and isinstance(node.slice, ast.Constant)
+            and isinstance(node.slice.value, str)
+        ):
+            subscript_keys.append(node.slice.value)
+    missing = sorted(imported - set(dir(tts)))
+    assert not missing, f"tts_server 从 tts 导入了不存在的符号：{missing}"
+    unknown = sorted(set(subscript_keys) - set(tts.SAMPLING_PASSTHROUGH_DEFAULTS))
+    assert not unknown, (
+        f"tts_server 的 SAMPLING_PASSTHROUGH_DEFAULTS[...] 出现未知键：{unknown}"
+    )
+    assert imported, "tts_server 的 from tts import 形态变了，检测器该更新"

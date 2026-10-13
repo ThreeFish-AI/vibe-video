@@ -63,6 +63,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import config  # noqa: E402
 import langs  # noqa: E402
+from storyboard import (  # noqa: E402 - 分镜行文法唯一实现；第二解析器即 split-brain
+    parse_storyboard,
+)
 from timeline import blend, compute, js_round, load_constants  # noqa: E402
 
 #: theme.ts 中颜色令牌（'#RRGGBB' 字面量）；bg 单独作为对比基准
@@ -100,11 +103,9 @@ _DEF_CHARS_PER_SEC = {lang: spec.stills_rate for lang, spec in langs.LANGS.items
 def stills_plan(root: Path, chars_per_sec: float | None, lang: str) -> None:
     """按分镜每镜中点打印 `remotion still` 命令行（混合部分 manifest 的时间轴）。
 
-    复用 check_script 的分镜解析（BEAT_ROW_RE 形态同源）而不是再写一份——两个
-    消费者读同一个 storyboard.md，解析规则分叉即 split-brain。
+    分镜解析复用 storyboard 模块的行文法唯一实现——两个消费者读同一个
+    storyboard.md，解析规则分叉即 split-brain。
     """
-    from check_script import parse_storyboard
-
     board = root / "script" / "storyboard.md"
     if not board.is_file():
         sys.exit(f"storyboard.md 不存在: {board} —— 分镜复检的前置是分镜本身")
@@ -743,7 +744,7 @@ def _check_blank_runs(
 # ---------------- main ----------------
 
 
-def main() -> None:
+def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="按句 id 抽帧视觉 QA + 自动体检",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -829,31 +830,277 @@ def main() -> None:
     )
     parser.add_argument("video", nargs="?", help="渲染产物 mp4 路径")
     parser.add_argument("ids", nargs="*", help="句 id 列表")
-    args = parser.parse_args()
+    return parser
 
-    root = Path(args.project).resolve()
 
-    if (args.transition or args.loop) and (args.stills_plan or args.check_theme):
-        parser.error("--transition/--loop 不能与 --stills-plan/--check-theme 组合")
+def _run_check_theme(root: Path) -> None:
+    msgs: list[str] = []
+    check_theme(root, msgs)
+    for m in msgs:
+        print(f"  {m}")
+    print(f">> --check-theme · FAIL {sum(m.startswith('FAIL') for m in msgs)}")
+    sys.exit(1 if any(m.startswith("FAIL") for m in msgs) else 0)
 
-    # --compare 自带两个视频路径，不消费普通模式的 <video> 位置参数；argparse 仍会
-    # 把 compare 后的首个裸句 id 填进 video，须在选择器计数前归还给 ids。
-    if args.compare and args.video:
-        args.ids.insert(0, args.video)
-        args.video = None
 
-    if args.stills_plan:
-        stills_plan(root, args.chars_per_sec, args.lang)
-        return
+def _select_ids(
+    args: argparse.Namespace, tl: dict[str, tuple[float, float]]
+) -> list[str]:
+    """默认路径的句 id 选择：--scene 多幕 / --last-n 末 N 句 / 显式句 id 列表。"""
+    if args.scene:
+        # 每幕**独立**抽样再拼接：抽样步长按各幕自身句数算，否则多幕合并后
+        # 步长被总数放大，句少的幕会被整幕跳过（静默漏检，与 --scene 单值那个
+        # 坑同族）。幕序按 tl 的出现顺序，与传参顺序无关。
+        ids = []
+        for scene in args.scene:
+            prefix = scene.lower() + "-"
+            scene_ids = [k for k in tl if k.startswith(prefix)]
+            if not scene_ids:
+                print(f"跳过无匹配句的幕: {scene}")
+                continue
+            ids += scene_ids[:: max(1, len(scene_ids) // 8)]  # 每幕最多抽 ~8 帧
+    elif args.last_n:
+        ids = list(tl)[-args.last_n :]
+    else:
+        ids = args.ids
+    return ids
 
-    if args.check_theme:
+
+def _extract_samples(
+    ffmpeg: list[str],
+    video: Path,
+    root: Path,
+    out: Path,
+    ids: list[str],
+    tl: dict[str, tuple[float, float]],
+    offset: float,
+) -> list[str]:
+    """句中点抽帧（含 offset）；未知句 id 点名跳过。→ 已抽出的句 id。"""
+    extracted: list[str] = []
+    for sid in ids:
+        if sid not in tl:
+            print(f"跳过未知句 id: {sid}")
+            continue
+        start, dur = tl[sid]
+        ts = start + dur / 2 - offset
+        dst = out / f"{sid}.png"
+        extract_frame(ffmpeg, video, root / "video", ts, dst)
+        extracted.append(sid)
+        print(f"{sid} @ {ts:.2f}s -> {dst.relative_to(root)}")
+    return extracted
+
+
+def _run_default_check(
+    args: argparse.Namespace,
+    root: Path,
+    out: Path,
+    extracted: list[str],
+    tl: dict[str, tuple[float, float]],
+) -> None:
+    """默认路径 --check 尾段：渐黑豁免判定 + 带病配置拒跑 + 逐帧体检与汇总。"""
+    # 末 beat 渐黑豁免：分镜**末两个表格行**的**前 4 列**含「渐黑」字样时，最后一个
+    # 抽帧允许黑（列范围与行窗口的判据 SSOT 在 tail_row_has_fade docstring）。
+    # 按表格行而非文件末行——分镜表末尾常跟「字幕规范/实现映射」散文节，文件末行
+    # 判定会让豁免永不命中（EP1/EP2 实测如此）。
+    board = root / "script" / "storyboard.md"
+    fade_tail = tail_row_has_fade(board)
+    msgs: list[str] = []
+    # 纯底色段阈值走 config（toml 可覆写，默认 8s）；缺 pipeline.toml 时 load
+    # 返回 {}，兜底即 SCHEMA 默认（缺文件时也无 tts.style，档位分层不适用）。
+    qa_cfg, _origin, qa_fails, _warns = config.load(root, required=False, scope={"qa"})
+    if qa_fails:
+        # validate 的 FAIL 不许被静默丢弃（config.py 自述存在的首要理由就是
+        # 消灭「你以为开着其实关着的门」）：字符串值会在阈值比较处裸
+        # traceback、负值会借「0=关闭」分支无声关门——独立直调本命令正是
+        # 09 ⑨ 必做路径，不能赌 pipeline.py check 先跑过全量 validate。
+        sys.exit(
+            "FAIL: qa 配置校验失败，自动体检拒绝带病运行"
+            "（0 = 关闭纯底色段门是唯一合法关闭形态）：\n      "
+            + "\n      ".join(qa_fails)
+        )
+    max_dark = qa_cfg.get("qa", {}).get(
+        "max_dark_sec", config.default("qa.max_dark_sec")
+    )
+    check_frames(
+        out,
+        extracted,
+        args.scale,
+        fade_tail,
+        msgs,
+        timeline=tl,
+        max_dark_sec=max_dark,
+    )
+    for m in msgs:
+        print(f"  {m}")
+    n_fail = sum(m.startswith("FAIL") for m in msgs)
+    print(
+        f">> 自动体检 · FAIL {n_fail} · WARN {sum(m.startswith('WARN') for m in msgs)}"
+    )
+    sys.exit(1 if n_fail else 0)
+
+
+def _run_beat_heads(
+    args: argparse.Namespace,
+    root: Path,
+    tl: dict[str, tuple[float, float]],
+    offset: float,
+    parser: argparse.ArgumentParser,
+) -> None:
+    """每 beat 头部连抽 N 帧（ISSUE-170 补盲）；此模式 --check 关闭冻帧判定。"""
+    video = Path(args.video).resolve()
+    out = langs.frames_dir(root, args.lang)
+    board = root / "script" / "storyboard.md"
+    if not board.is_file():
+        sys.exit(f"storyboard.md 不存在: {board} —— --beat-heads 需要分镜表")
+    samples = beat_head_samples(
+        parse_storyboard(board),
+        tl,
+        load_constants(root)["fps"],
+        args.beat_heads,
+        offset,
+        args.scene,
+    )
+    if not samples:
+        parser.error("--beat-heads 未选中任何可抽取 beat")
+    out.mkdir(parents=True, exist_ok=True)
+    ffmpeg = ["pnpm", "exec", "remotion", "ffmpeg"]
+    extracted: list[str] = []
+    for name, ts in samples:
+        dst = out / f"{name}.png"
+        extract_frame(ffmpeg, video, root / "video", ts, dst)
+        extracted.append(name)
+        print(f"{name} @ {ts:.2f}s -> {dst.relative_to(root)}")
+    if args.check:
+        board_fade = tail_row_has_fade(board)
         msgs: list[str] = []
-        check_theme(root, msgs)
+        check_frames(
+            out,
+            extracted,
+            args.scale,
+            board_fade,
+            msgs,
+            freeze_check=False,
+            subtitle_check=False,
+        )
         for m in msgs:
             print(f"  {m}")
-        print(f">> --check-theme · FAIL {sum(m.startswith('FAIL') for m in msgs)}")
-        sys.exit(1 if any(m.startswith("FAIL") for m in msgs) else 0)
+        n_fail = sum(m.startswith("FAIL") for m in msgs)
+        print(
+            f">> beat 头部体检 · FAIL {n_fail} ·"
+            f" WARN {sum(m.startswith('WARN') for m in msgs)}（冻帧判定已关闭）"
+        )
+        sys.exit(1 if n_fail else 0)
 
+
+def _run_custom_sampling(
+    args: argparse.Namespace,
+    root: Path,
+    tl: dict[str, tuple[float, float]],
+    offset: float,
+    parser: argparse.ArgumentParser,
+) -> None:
+    """--transition/--loop 自定义边界帧抽样 + 可选体检（黑帧与字幕安全区）。"""
+    video = Path(args.video).resolve()
+    out = langs.frames_dir(root, args.lang)
+    constants = load_constants(root)
+    samples = _custom_samples(
+        tl,
+        args.transition or [],
+        args.loop or [],
+        args.scene,
+        constants["fps"],
+        offset,
+        parser,
+        js_round(constants["tailSec"] * constants["fps"]),
+    )
+    out.mkdir(parents=True, exist_ok=True)
+    ffmpeg = ["pnpm", "exec", "remotion", "ffmpeg"]
+    extracted: list[str] = []
+    for name, timestamp in samples:
+        dst = out / f"{name}.png"
+        extract_frame(ffmpeg, video, root / "video", timestamp, dst, precise=True)
+        extracted.append(name)
+        print(f"{name} @ {timestamp:.2f}s -> {dst.relative_to(root)}")
+    if args.check:
+        # 渐黑豁免按帧位判定（_fade_exempt_last）：请求集不覆盖片尾时末位只是
+        # 普通边界帧，不得豁免；缺分镜表时 tail_row_has_fade 返回 False，不炸不豁免。
+        board_fade = tail_row_has_fade(root / "script" / "storyboard.md")
+        fade_exempt = _fade_exempt_last(
+            board_fade, samples, tl, constants["fps"], offset
+        )
+        msgs: list[str] = []
+        check_frames(
+            out,
+            extracted,
+            args.scale,
+            fade_exempt,
+            msgs,
+            freeze_check=False,
+            subtitle_check=False,
+        )
+        for message in msgs:
+            print(f"  {message}")
+        failures = sum(message.startswith("FAIL") for message in msgs)
+        print(
+            f">> 过渡/loop 抽帧体检 · FAIL {failures} · "
+            f"WARN {sum(message.startswith('WARN') for message in msgs)}"
+            "（仅检查黑帧与字幕安全区；morph/loop 连续性须人工验收）"
+        )
+        sys.exit(1 if failures else 0)
+    print("（morph/loop 连续性与速度须人工验收；本次未启用自动像素门）")
+
+
+def _run_compare(
+    args: argparse.Namespace,
+    root: Path,
+    tl: dict[str, tuple[float, float]],
+    parser: argparse.ArgumentParser,
+) -> None:
+    """A/B 对拍：同帧号抽两版，差异摘要按占比降序（advisory，退出码恒 0）。"""
+    va, vb = (Path(x).resolve() for x in args.compare)
+    ids = (
+        [k for sc in args.scene for k in tl if k.startswith(sc.lower() + "-")]
+        if args.scene
+        else (list(tl)[-args.last_n :] if args.last_n else args.ids)
+    )
+    if not ids:
+        parser.error("--compare 未选中任何可对拍句")
+    out_ab = root / "out" / "frames-ab"
+    out_ab.mkdir(parents=True, exist_ok=True)
+    ffmpeg = ["pnpm", "exec", "remotion", "ffmpeg"]
+    rows: list[tuple[str, dict]] = []
+    for sid in ids:
+        if sid not in tl:
+            print(f"跳过未知句 id: {sid}")
+            continue
+        ts = tl[sid][0] + tl[sid][1] / 2 - args.offset
+        fa, fb = out_ab / f"{sid}.a.png", out_ab / f"{sid}.b.png"
+        extract_frame(ffmpeg, va, root / "video", ts, fa)
+        extract_frame(ffmpeg, vb, root / "video", ts, fb)
+        rows.append((sid, frame_diff(fa, fb)))
+        print(f"{sid} @ {ts:.2f}s 已对拍")
+    if not rows:
+        parser.error("--compare 未抽取到任何有效帧")
+    rows.sort(key=lambda r: r[1]["frac"], reverse=True)
+    print()
+    for sid, d in rows:
+        bbox = d["bbox"]
+        print(
+            f"  {sid}: meanΔ {d['mean']:6.2f} · 差异像素 {d['frac'] * 100:5.1f}%"
+            + (f" · bbox {bbox}" if bbox else "")
+        )
+    hot = sum(1 for _, d in rows if d["frac"] > 0.05)
+    print(
+        f">> A/B 对拍 {len(rows)} 帧 · 差异像素 >5% 共 {hot} 帧"
+        "（差异帧须逐一归因后才能接受；工具不替人判定「变好还是变坏」）"
+    )
+
+
+def _validate_selectors(
+    args: argparse.Namespace, parser: argparse.ArgumentParser
+) -> bool:
+    """选择器互斥校验（elif 链整块搬移，分支顺序即报错优先级，不可重排）。
+
+    → custom_sampling：--transition/--loop 自定义采样形态（后续分派据此走）。"""
     custom_sampling = bool(args.transition or args.loop)
     selectors = sum(bool(x) for x in (args.scene, args.last_n, args.ids))
     if custom_sampling:
@@ -884,221 +1131,57 @@ def main() -> None:
         parser.error(
             "需要 <video> 且 --scene / --last-n / ids 三选一（或用 --check-theme）"
         )
+    return custom_sampling
+
+
+def main() -> None:
+    parser = _build_parser()
+    args = parser.parse_args()
+
+    root = Path(args.project).resolve()
+
+    if (args.transition or args.loop) and (args.stills_plan or args.check_theme):
+        parser.error("--transition/--loop 不能与 --stills-plan/--check-theme 组合")
+
+    # --compare 自带两个视频路径，不消费普通模式的 <video> 位置参数；argparse 仍会
+    # 把 compare 后的首个裸句 id 填进 video，须在选择器计数前归还给 ids。
+    if args.compare and args.video:
+        args.ids.insert(0, args.video)
+        args.video = None
+
+    if args.stills_plan:
+        stills_plan(root, args.chars_per_sec, args.lang)
+        return
+
+    if args.check_theme:
+        _run_check_theme(root)
+        return
+
+    custom_sampling = _validate_selectors(args, parser)
 
     tl = resolve_timeline(root, args.lang)
     offset = args.offset
 
     if args.compare:
-        # A/B 对拍：同帧号抽两版，差异摘要按占比降序（advisory，退出码恒 0）
-        from check_script import parse_storyboard  # noqa: PLC0415 - 同目录模块
-
-        va, vb = (Path(x).resolve() for x in args.compare)
-        ids = (
-            [k for sc in args.scene for k in tl if k.startswith(sc.lower() + "-")]
-            if args.scene
-            else (list(tl)[-args.last_n :] if args.last_n else args.ids)
-        )
-        if not ids:
-            parser.error("--compare 未选中任何可对拍句")
-        out_ab = root / "out" / "frames-ab"
-        out_ab.mkdir(parents=True, exist_ok=True)
-        ffmpeg = ["pnpm", "exec", "remotion", "ffmpeg"]
-        rows: list[tuple[str, dict]] = []
-        for sid in ids:
-            if sid not in tl:
-                print(f"跳过未知句 id: {sid}")
-                continue
-            ts = tl[sid][0] + tl[sid][1] / 2 - offset
-            fa, fb = out_ab / f"{sid}.a.png", out_ab / f"{sid}.b.png"
-            extract_frame(ffmpeg, va, root / "video", ts, fa)
-            extract_frame(ffmpeg, vb, root / "video", ts, fb)
-            rows.append((sid, frame_diff(fa, fb)))
-            print(f"{sid} @ {ts:.2f}s 已对拍")
-        if not rows:
-            parser.error("--compare 未抽取到任何有效帧")
-        rows.sort(key=lambda r: r[1]["frac"], reverse=True)
-        print()
-        for sid, d in rows:
-            bbox = d["bbox"]
-            print(
-                f"  {sid}: meanΔ {d['mean']:6.2f} · 差异像素 {d['frac'] * 100:5.1f}%"
-                + (f" · bbox {bbox}" if bbox else "")
-            )
-        hot = sum(1 for _, d in rows if d["frac"] > 0.05)
-        print(
-            f">> A/B 对拍 {len(rows)} 帧 · 差异像素 >5% 共 {hot} 帧"
-            "（差异帧须逐一归因后才能接受；工具不替人判定「变好还是变坏」）"
-        )
+        _run_compare(args, root, tl, parser)
         return
 
     video = Path(args.video).resolve()
     out = langs.frames_dir(root, args.lang)
     if custom_sampling:
-        constants = load_constants(root)
-        samples = _custom_samples(
-            tl,
-            args.transition or [],
-            args.loop or [],
-            args.scene,
-            constants["fps"],
-            offset,
-            parser,
-            js_round(constants["tailSec"] * constants["fps"]),
-        )
-        out.mkdir(parents=True, exist_ok=True)
-        ffmpeg = ["pnpm", "exec", "remotion", "ffmpeg"]
-        extracted: list[str] = []
-        for name, timestamp in samples:
-            dst = out / f"{name}.png"
-            extract_frame(ffmpeg, video, root / "video", timestamp, dst, precise=True)
-            extracted.append(name)
-            print(f"{name} @ {timestamp:.2f}s -> {dst.relative_to(root)}")
-        if args.check:
-            # 渐黑豁免按帧位判定（_fade_exempt_last）：请求集不覆盖片尾时末位只是
-            # 普通边界帧，不得豁免；缺分镜表时 tail_row_has_fade 返回 False，不炸不豁免。
-            board_fade = tail_row_has_fade(root / "script" / "storyboard.md")
-            fade_exempt = _fade_exempt_last(
-                board_fade, samples, tl, constants["fps"], offset
-            )
-            msgs: list[str] = []
-            check_frames(
-                out,
-                extracted,
-                args.scale,
-                fade_exempt,
-                msgs,
-                freeze_check=False,
-                subtitle_check=False,
-            )
-            for message in msgs:
-                print(f"  {message}")
-            failures = sum(message.startswith("FAIL") for message in msgs)
-            print(
-                f">> 过渡/loop 抽帧体检 · FAIL {failures} · "
-                f"WARN {sum(message.startswith('WARN') for message in msgs)}"
-                "（仅检查黑帧与字幕安全区；morph/loop 连续性须人工验收）"
-            )
-            sys.exit(1 if failures else 0)
-        print("（morph/loop 连续性与速度须人工验收；本次未启用自动像素门）")
+        _run_custom_sampling(args, root, tl, offset, parser)
         return
     if args.beat_heads:
-        from check_script import parse_storyboard  # noqa: PLC0415 - 同目录模块
-
-        board = root / "script" / "storyboard.md"
-        if not board.is_file():
-            sys.exit(f"storyboard.md 不存在: {board} —— --beat-heads 需要分镜表")
-        samples = beat_head_samples(
-            parse_storyboard(board),
-            tl,
-            load_constants(root)["fps"],
-            args.beat_heads,
-            offset,
-            args.scene,
-        )
-        if not samples:
-            parser.error("--beat-heads 未选中任何可抽取 beat")
-        out.mkdir(parents=True, exist_ok=True)
-        ffmpeg = ["pnpm", "exec", "remotion", "ffmpeg"]
-        extracted: list[str] = []
-        for name, ts in samples:
-            dst = out / f"{name}.png"
-            extract_frame(ffmpeg, video, root / "video", ts, dst)
-            extracted.append(name)
-            print(f"{name} @ {ts:.2f}s -> {dst.relative_to(root)}")
-        if args.check:
-            board_fade = tail_row_has_fade(board)
-            msgs: list[str] = []
-            check_frames(
-                out,
-                extracted,
-                args.scale,
-                board_fade,
-                msgs,
-                freeze_check=False,
-                subtitle_check=False,
-            )
-            for m in msgs:
-                print(f"  {m}")
-            n_fail = sum(m.startswith("FAIL") for m in msgs)
-            print(
-                f">> beat 头部体检 · FAIL {n_fail} ·"
-                f" WARN {sum(m.startswith('WARN') for m in msgs)}（冻帧判定已关闭）"
-            )
-            sys.exit(1 if n_fail else 0)
+        _run_beat_heads(args, root, tl, offset, parser)
         return
-    if args.scene:
-        # 每幕**独立**抽样再拼接：抽样步长按各幕自身句数算，否则多幕合并后
-        # 步长被总数放大，句少的幕会被整幕跳过（静默漏检，与 --scene 单值那个
-        # 坑同族）。幕序按 tl 的出现顺序，与传参顺序无关。
-        ids = []
-        for scene in args.scene:
-            prefix = scene.lower() + "-"
-            scene_ids = [k for k in tl if k.startswith(prefix)]
-            if not scene_ids:
-                print(f"跳过无匹配句的幕: {scene}")
-                continue
-            ids += scene_ids[:: max(1, len(scene_ids) // 8)]  # 每幕最多抽 ~8 帧
-    elif args.last_n:
-        ids = list(tl)[-args.last_n :]
-    else:
-        ids = args.ids
+    ids = _select_ids(args, tl)
 
     out.mkdir(parents=True, exist_ok=True)
     ffmpeg = ["pnpm", "exec", "remotion", "ffmpeg"]
-    extracted: list[str] = []
-    for sid in ids:
-        if sid not in tl:
-            print(f"跳过未知句 id: {sid}")
-            continue
-        start, dur = tl[sid]
-        ts = start + dur / 2 - offset
-        dst = out / f"{sid}.png"
-        extract_frame(ffmpeg, video, root / "video", ts, dst)
-        extracted.append(sid)
-        print(f"{sid} @ {ts:.2f}s -> {dst.relative_to(root)}")
+    extracted = _extract_samples(ffmpeg, video, root, out, ids, tl, offset)
 
     if args.check:
-        # 末 beat 渐黑豁免：分镜**末两个表格行**的**前 4 列**含「渐黑」字样时，最后一个
-        # 抽帧允许黑（列范围与行窗口的判据 SSOT 在 tail_row_has_fade docstring）。
-        # 按表格行而非文件末行——分镜表末尾常跟「字幕规范/实现映射」散文节，文件末行
-        # 判定会让豁免永不命中（EP1/EP2 实测如此）。
-        board = root / "script" / "storyboard.md"
-        fade_tail = tail_row_has_fade(board)
-        msgs: list[str] = []
-        # 纯底色段阈值走 config（toml 可覆写，默认 8s）；缺 pipeline.toml 时 load
-        # 返回 {}，兜底即 SCHEMA 默认（缺文件时也无 tts.style，档位分层不适用）。
-        qa_cfg, _origin, qa_fails, _warns = config.load(
-            root, required=False, scope={"qa"}
-        )
-        if qa_fails:
-            # validate 的 FAIL 不许被静默丢弃（config.py 自述存在的首要理由就是
-            # 消灭「你以为开着其实关着的门」）：字符串值会在阈值比较处裸
-            # traceback、负值会借「0=关闭」分支无声关门——独立直调本命令正是
-            # 09 ⑨ 必做路径，不能赌 pipeline.py check 先跑过全量 validate。
-            sys.exit(
-                "FAIL: qa 配置校验失败，自动体检拒绝带病运行"
-                "（0 = 关闭纯底色段门是唯一合法关闭形态）：\n      "
-                + "\n      ".join(qa_fails)
-            )
-        max_dark = qa_cfg.get("qa", {}).get(
-            "max_dark_sec", config.default("qa.max_dark_sec")
-        )
-        check_frames(
-            out,
-            extracted,
-            args.scale,
-            fade_tail,
-            msgs,
-            timeline=tl,
-            max_dark_sec=max_dark,
-        )
-        for m in msgs:
-            print(f"  {m}")
-        n_fail = sum(m.startswith("FAIL") for m in msgs)
-        print(
-            f">> 自动体检 · FAIL {n_fail} · WARN {sum(m.startswith('WARN') for m in msgs)}"
-        )
-        sys.exit(1 if n_fail else 0)
+        _run_default_check(args, root, out, extracted, tl)
 
 
 if __name__ == "__main__":
