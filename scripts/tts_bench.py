@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""IndexTTS 合成耗时基准与**测量环境体检**——运行于 index-tts 工程环境内（同 tts_server.py）。
+"""IndexTTS 合成耗时基准与**测量环境体检**——运行于 index-tts 工程环境内（同 dub 的 dub_tts_server.py）。
 
 ## 为什么需要这个工具
 

@@ -5,7 +5,7 @@
   适合本集」只需一句话即可判定。本脚本把 tts.py 的合成路径剥出单句版，用于试听收敛。
 - 一致性：风格预设、口播文本预处理、HTTP 契约全部复用 tts.py（单一事实源），小样与
   成片走完全相同的合成路径，听感可直接外推。
-- 前置：参考音色样本（prepare_ref.py 产出）+ 已启动的 tts_server.py。
+- 前置：参考音色样本（prepare_ref.py 产出）+ 已启动的 dub 服务（dub_tts_server.py）。
 - 纪律（RSI-040 人为触发原则）：本脚本直调服务、不经 tts.py 主闸，但与全量合成同
   纪律——仅在用户已显式要求终声（IndexTTS）的上下文内使用，不得用于日常草声迭代。
 
@@ -137,11 +137,11 @@ def check_server(
         sys.exit(
             "当前服务不支持采样参数（temperature/top_p/top_k/length_penalty/"
             "repetition_penalty/max_mel_tokens/interval_silence）：\n"
-            f"  服务端代码过旧，请用本 skill 当前 tts_server.py 重启服务：\n{server_launch_hint()}"
+            f"  服务端代码过旧，请用 dub 当前 dub_tts_server.py 重启服务：\n{server_launch_hint()}"
         )
     if "seed" in sampling and not health.get("supports_seed"):
         sys.exit(
-            "当前服务不支持 --seed：服务端代码过旧，请用本 skill 当前 tts_server.py 重启服务：\n"
+            "当前服务不支持 --seed：服务端代码过旧，请用 dub 当前 dub_tts_server.py 重启服务：\n"
             f"{server_launch_hint()}"
         )
     if sampling.get("text_normalization") is False and not health.get(

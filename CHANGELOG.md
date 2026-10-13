@@ -54,6 +54,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- **TTS 机制上收独立 Skill dub**（RSI-065）：风格预设、摘要、HTTP 客户端、版本库原语与服务端住 [ThreeFish-AI/dub](https://github.com/ThreeFish-AI/dub)，`tts.py` 按 [references/PIPELINE.md](references/PIPELINE.md)「环境变量」节的定位顺序定位 dub 后 import 并再导出，`tts.X` 命名空间不变；`tts_server.py` 删除，服务脚本改为 dub 的 `dub_tts_server.py`；缓存摘要逐字节不变、存量缓存零失效，缓存摘要黄金哈希测试只住 dub（本仓 `tests/test_digest.py` 迁出，经委托继承）。**dub 缺位即大声退出**，本仓 pytest 现硬依赖 dub 已挂载。新增环境变量 `DUB_HOME`，RSI.md 增不变量 16。
 - **RSI 协议上收统一仓库 ThreeFish-AI/rsi**（RSI-059）：[RSI.md](RSI.md) 的通用协议节（四道门判据、两种处理模式、失败出路、通用派发与降级）改为指向统一协议 [references/protocol.md](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md) 的指针（旧 G1–G4 → 统一 G0–G4 逐门映射见统一协议附录A；pytest 命令保留一行作 `machine_checks` 引用），仓内保留触发分流表、台账纪律、子代理仓内附加纪律（worktree 话题分支、`$W/$P/$V` 只读、声音样本脱敏、分级双代理）、15 条不变量清单与建模经验分支；[SKILL.md](SKILL.md) 两处「四道门」措辞同步改「统一 G0–G4 门禁」；[知识索引](docs/.agents/knowledge-map.md)描述同步；台账登记 [RSI-059](docs/.agents/issue.md)。
 - **整仓 preening 结构性熵减**（14 项行为等价微手术 + 独立盲审收敛）：tests 样板收敛至新增 [tests/helpers.py](tests/helpers.py)、同名异义样板语境化更名、scripts SSOT 收敛（`_status_lang`/`qa_frames` 走 langs 路径、指纹行去重）、`paths` 导入边界执法扩面；2 条预存红为语料侧既存（[RSI-046](docs/.agents/issue.md)）；原登记号 RSI-044 与 PR #36 撞号让位重编号。明细与盲审见 [台账](docs/.agents/issue.md)。
 - **⑦ 配音两档生命周期：edge 草声默认 + 评审后 IndexTTS-2.5 本人声音重配/追配**（RSI-034）：新集首轮 `tts` 从 2.5–3.5 小时降为秒级；整集评审后用户显式触发重配或英文追配（零改稿换声）；`tts.engine` SCHEMA 默认改 `edge`。机制三点与评审见 [台账](docs/.agents/issue.md)。

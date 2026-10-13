@@ -79,12 +79,14 @@ IndexTTS 服务端（端口取自 `tts.server`，默认 8766，下文命令以�
 1. **判在用**（多 Agent 同机互斥，两者皆空才可关）：
    ```bash
    lsof -nP -iTCP:8766 -sTCP:ESTABLISHED                          # 有非自己的连接 → 有人在用
-   pgrep -fl "scripts/tts.py|tts_sample.py|tts_bench.py" # 有他人的合成进程 → 有人在用
+   pgrep -fl "scripts/tts.py|tts_sample.py|tts_bench.py|dub.py" # dub 按挂载路径拉起，按文件名兜底
    ```
-2. **关闭**：`lsof -ti tcp:8766 -sTCP:LISTEN | xargs kill`——按端口只关判据所查的那一个实例；**勿用 `pkill -f tts_server.py`**，它会连带杀掉 8767 上他人的第二个 `tts_server.py` 实例（A/B 用）与改过端口的他人实例（判据面 ≠ 作用面；按端口而非扫 argv 的先例见 `tts_bench.py`）。服务是幂等拉起的——下次任何 tts 调用不可达时会自动打印启动命令，无需记忆。
+2. **关闭**：优先 `dub.py server stop`——按端口只停 cmdline 为 tts 服务的那一个监听者，且**连续空闲**（`/health` 的 synthesizing 与他人 ESTABLISHED 连接逐次采样皆空）才动手；忙则起有界 watchdog（缺省至多 2 小时）巡到空闲再停，不杀他人正用的实例。dub 未挂载时退回 `lsof -ti tcp:8766 -sTCP:LISTEN | xargs kill`，同样按端口只关判据所查的那一个实例；两种路径都**勿用 `pkill -f dub_tts_server.py`**——它会连带杀掉 8767 上他人的第二个服务实例（A/B 用）与改过端口的他人实例（判据面 ≠ 作用面；按端口而非扫 argv 的先例见 `tts_bench.py`）。服务是幂等拉起的——下次任何 tts 调用不可达时会自动打印启动命令，无需记忆。
 3. **不预启动**：不要为「可能要用」提前拉服务；`tts --plan` 不触网，`doctor` 对离线服务只报 ⚠️ 不计失败——关停是常态，不是待修的红灯。
 
 先完成者**不得**关闭他人正用的实例（以第 1 步判据为准）；适当重启本身即运维收益——清空累积态、归还显存。完整部署/启停命令见 [VOICE-CLONING.md §二](VOICE-CLONING.md)。
+
+> **机制住 dub**：服务脚本、风格预设、digest 与客户端原语都在 [dub 仓](https://github.com/ThreeFish-AI/dub)，本仓 `tts.py` 按 [PIPELINE.md「环境变量」节](PIPELINE.md)的定位顺序定位并委托。`dub.py server start|stop` 读 dub 侧环境变量 `DUB_INDEX_TTS_ROOT` / `DUB_INDEXTTS_SERVER`（与本仓 `VIBE_VIDEO_INDEX_TTS_ROOT` / `INDEXTTS_SERVER` 同义、各读各的，见 dub 仓 `references/ENV.md`），且 `start` **不接受 `--use-qwen-emo`**——需要 QwenEmotion 情感档的服务仍按 [VOICE-CLONING.md §二](VOICE-CLONING.md)的手工命令带 flag 拉起；8766 端口上的服务实例两边共用，判据以第 1 步为准。
 
 ## 完成门（交给 Stage ⑨ 前）
 

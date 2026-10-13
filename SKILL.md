@@ -20,15 +20,15 @@ allowed-tools: Read Write Edit Glob Grep Bash
 
 | 任务 | 走法 | 先读 |
 |---|---|---|
-| 全新制作一集 | 下节「工作流」逐步过门；进每阶段前读速查表对应规格 | 阶段规格 |
-| GL 精读产物成片 | 已有 /guided-learn 产物 → ① C 型（冻结快照+抽查），后续同主流水线 | [01](references/01-source-extraction.md) |
-| 改稿迭代（已有集改口播） | 只改 `narration.md` → `build` → `check` → `tts` → `render` + `qa`；只改画面跳过 `tts`；需交付接工作流第 7 步 | 速查表 ③④⑨ |
+| 全新制作一集 | 下节「工作流」逐步过门；进阶段前读速查表对应规格 | 阶段规格 |
+| GL 精读产物成片 | /guided-learn 产物 → ① C 型（冻结快照+抽查），后续同主流水线 | [01](references/01-source-extraction.md) |
+| 改稿迭代（已有集改口播） | 只改 `narration.md` → `build` → `check` → `tts` → `render` + `qa`；只改画面跳过 `tts`；交付接工作流第 7 步 | 速查表 ③④⑨ |
 | 润色成稿（语句断续、像 AI 写的） | 按 ⑤ 规格四层 pass 原地改稿，事实与句 id 冻结；独立子代理成文评审 → 改动句回 ④ 复核 → `build` → `check`（无分镜时改跑 `check_script.py --pre-tts`） | 速查表 ⑤ |
 | 出英文版 / 双语 | `pipeline.toml` 声明 `narration.langs = ["zh","en"]` + 句 id 对齐的译稿 `narration.en.md`；tts/render/captions/deliver 加 `--lang en`（build/check 缺省全覆盖） | [PIPELINE.md §五「双语渲染」](references/PIPELINE.md) |
 | 评审后重配音（本人声音） | 零改稿换声：toml 升 indextts＋填 ref 指纹 → tts --allow-voice-switch --final-voice → render → qa → check → captions → render --final；en 追配独立触发 | [07](references/07-tts-voice.md) |
 | 交付归档 | 终渲后显式 `deliver`；根路径 `--root`（一次性）或 env `VIBE_VIDEO_DELIVER_ROOT`（持久，不进 toml） | 速查表 ⑩ |
-| 环境 / 状态排障 | `pipeline.py doctor`（配置/时序/指纹/TTS/浏览器 `--clean-browsers`）/ `status` | [PIPELINE.md §三](references/PIPELINE.md) |
-| 本 Skill 自身缺陷或改进 | 走「自改进回路（RSI）」，不顺手改 `$T` | [RSI.md](RSI.md) |
+| 环境 / 状态排障 | `pipeline.py doctor`（配置/时序/指纹/TTS/浏览器）/ `status` | [PIPELINE.md §三](references/PIPELINE.md) |
+| 本 Skill 自身缺陷或改进 | 走 RSI 回路，不顺手改 `$T` | [RSI.md](RSI.md) |
 
 ## 工作流（全新制作）
 
@@ -100,10 +100,10 @@ uv run --no-project $T/scripts/pipeline.py --project $P deliver   # → <根>/<�
 ## 运行时陷阱
 
 - **Bash 调用间不保留 shell 变量**：`$T/$W/$P/$V` 是文档记号，命令写实际路径；工作目录保留，先 `cd` 进 `$W`。
-- **`$T` 锚定的命令须在工作区内执行**：脚本读 env `VIBE_VIDEO_WORKSPACE` 或自 CWD 向上找 `.vibe-video-root`，找不到即大声退出——照报错指引处置，绝不静默猜根；包装器缺 skill 同照其打印指引处置。
-- **脚本当黑盒**：优先走 `pipeline.py` 子命令；直调独立脚本先跑 `--help`，用途与调用形态查 [PIPELINE.md §三](references/PIPELINE.md)；不为使用通读源码。
-- **机器属性只走 env**：交付根、TTS 音频库、IndexTTS 服务地址等永不进版本控制的 toml，注册表见 [PIPELINE.md「环境变量」](references/PIPELINE.md)。
-- **浏览器任务一律 headless**：录制/渲染无头复用；孤儿回收走 `doctor --clean-browsers`，禁全局 pkill。
+- **`$T` 锚定的命令须在工作区内执行**：脚本读 env `VIBE_VIDEO_WORKSPACE` 或自 CWD 向上找 `.vibe-video-root`，找不到即大声退出——照报错指引处置，绝不静默猜根；包装器缺 skill 亦然。
+- **脚本当黑盒**：优先走 `pipeline.py` 子命令；直调独立脚本先跑 `--help`，调用形态查 [PIPELINE.md §三](references/PIPELINE.md)；不为使用通读源码。
+- **机器属性只走 env**：交付根、TTS 库、服务地址等永不进 toml，见 [PIPELINE.md「环境变量」](references/PIPELINE.md)。
+- **浏览器任务一律 headless**：无头复用；孤儿回收走 `doctor --clean-browsers`，禁全局 pkill。
 
 ## 按需加载
 
@@ -118,14 +118,15 @@ uv run --no-project $T/scripts/pipeline.py --project $P deliver   # → <根>/<�
 | [SERIES-INTRO.md](references/SERIES-INTRO.md) | 做系列片头时 |
 | [INDEXTTS-2.5-ADVANCED.md](references/INDEXTTS-2.5-ADVANCED.md) | 机制循证、配音调优 |
 | [RSI.md](RSI.md) | 发现本 Skill 自身缺陷或改进项时 |
-| [README.md](README.md) | 安装/更新/依赖版本 |
+| [README.md](README.md) | 安装/更新/依赖 |
 
 ## 相邻技能协作
 
-- **Stage ① 信源输入**：已有 /guided-learn 产出作 C 型信源直接成片（01「C 型」），不重新精读；无产物可先跑。
-- **Stage ⑥/⑧ 图示资产**：需要架构/流程类图解时调 `/archify` 出图，HTML 落 `$W` 下，`record_archify_all.py` 逐章录成动效素材；句级锚定覆盖门已串联进 `check`。
-- **Stage ⑧ 精确 3D 资产（可选）**：信源涉机械结构/硬件、示意级几何不够时，装 text-to-cad 的 **cad 单 skill** 出 GLB；安装命令与 3D 宪法见 [08「外部 CAD 资产」](references/08-remotion-implementation.md)。
+- **Stage ① 信源输入**：已有 /guided-learn 产出作 C 型信源直接成片（01「C 型」），不重新精读。
+- **Stage ⑥/⑧ 图示资产**：架构/流程类图解调 `/archify` 出图，HTML 落 `$W`，`record_archify_all.py` 逐章录成动效素材；句级锚定覆盖门已串联进 `check`。
+- **Stage ⑧ 精确 3D 资产（可选）**：信源涉机械结构/硬件、示意级几何不够时，装 text-to-cad 的 **cad 单 skill** 出 GLB；安装与 3D 宪法见 [08「外部 CAD 资产」](references/08-remotion-implementation.md)。
+- **Stage ⑦ 配音机制**住 [dub](https://github.com/ThreeFish-AI/dub)（缺位大声退出）；单段文本转 mp3 直接 `/dub`。
 
 ## 自改进回路（RSI）
 
-制片中发现**本 Skill 自身**缺陷或改进项走 RSI：登记 [ledger](docs/.agents/issue.md)，**另起子代理**调研并核验；视频内容问题走既有 QA 回路。G0–G4 门禁（统一协议）全过后发起 PR 并回报链接。内容侧例外：认可/否决的**动效建模方法**追加进有界的 [建模手册](references/MODELING-PLAYBOOK.md) 候选区。协议全文：[RSI.md](RSI.md)。
+制片中发现**本 Skill 自身**缺陷或改进项走 RSI：登记 [ledger](docs/.agents/issue.md)，**另起子代理**调研并核验；视频内容问题走既有 QA 回路。G0–G4 门禁全过后发起 PR 并回报链接。内容侧例外：认可/否决的**动效建模方法**追加进有界的 [建模手册](references/MODELING-PLAYBOOK.md) 候选区。协议全文：[RSI.md](RSI.md)。

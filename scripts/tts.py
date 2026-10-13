@@ -5,7 +5,7 @@
 - 输出：<工程>/video/public/audio/{id}.mp3 + <工程>/video/public/audio/manifest.json
 - 引擎：
   - edge（默认）：edge-tts 预置音色，免密钥，行为与历史版本完全一致；
-  - indextts：声音克隆（IndexTTS-2.5 本地服务），需先启动 tts_server.py，
+  - indextts：声音克隆（IndexTTS-2.5 本地服务），需先启动 dub 的 dub_tts_server.py，
     通过 --ref 提供参考音色样本、--style 选择风格（sunny 明快阳光为推荐位，
     sunny-steady 为其定稿档＝同参数 + 束宽 3；另有激情/轻快/自信/正能量）。
 - 幂等：参数与文本未变则跳过（SHA1 摘要 sidecar 缓存）。
@@ -37,32 +37,93 @@ import hashlib
 import json
 import math
 import os
-import shutil
 import sys
-import tempfile
-import urllib.error
-import urllib.request
 from pathlib import Path
+
+
+def _find_dub_scripts() -> Path:
+    """定位 dub skill 的 scripts/（TTS 机制原语的 SSOT）。
+
+    顺序：DUB_HOME → ~/.claude/skills/dub → ~/.agents/skills/dub；候选须同时含
+    SKILL.md 与入口脚本 dub.py。找不到即大声退出——绝不静默降级到内联副本。
+    本文件不 import 同目录兄弟模块（test_tts_lang_mirror 钉死），发现逻辑因此内联，
+    与 dub 仓 dub_paths.find_dub_root 同构。
+    """
+    candidates = []
+    if os.environ.get("DUB_HOME"):
+        candidates.append(Path(os.environ["DUB_HOME"]).expanduser())
+    candidates += [
+        Path("~/.claude/skills/dub").expanduser(),
+        Path("~/.agents/skills/dub").expanduser(),
+    ]
+    for c in candidates:
+        if (c / "SKILL.md").is_file() and (c / "scripts" / "dub.py").is_file():
+            return (c / "scripts").resolve()
+    sys.exit(
+        "找不到 dub skill（TTS 机制原语住在那里）。已检查：\n"
+        + "\n".join(f"  - {c}" for c in candidates)
+        + "\n安装：git clone https://github.com/ThreeFish-AI/dub ~/projects/dub"
+        " && ln -sfn ~/projects/dub ~/.claude/skills/dub（或设 DUB_HOME）"
+    )
+
+
+_DUB_SCRIPTS = _find_dub_scripts()
+# append 而非 insert(0)：dub 的库模块一律 dub_ 前缀，本仓兄弟模块优先解析，杜绝同名遮蔽
+sys.path.append(str(_DUB_SCRIPTS))
+
+# 机制原语（风格预设/摘要/HTTP 客户端/版本库/切分函数）全部来自 dub，在此再导出——
+# 本文件内的编排代码、tts_sample.py 与测试经 `tts.X` 取用，命名空间保持不变。
+from dub_audio import mp3_duration  # noqa: E402,F401
+from dub_engine_edge import RETRIES, digest_edge  # noqa: E402,F401
+from dub_engine_indextts import (  # noqa: E402,F401
+    CONCURRENCY_INDEXTTS,
+    HTTP_TIMEOUT,
+    SAMPLING_DEFAULTS,
+    SAMPLING_PASSTHROUGH_DEFAULTS,
+    SAMPLING_RANGES,
+    NonRetryableError,
+    _deterministic_mps_oom,
+    _http_error_detail,
+    block_digest_suffix,
+    digest_indextts,
+    http_json,
+    http_synthesize,
+    http_synthesize_block,
+    sampling_suffix,
+    store_deposit,
+    store_entry,
+    store_has,
+    store_restore,
+)
+from dub_profiles import (  # noqa: E402,F401
+    DEFAULT_RATE,
+    DEFAULT_VOICE,
+    EMO_KEYS,
+    STYLE_PRESETS,
+    parse_emo_vector,
+)
+from dub_textprep import tts_text  # noqa: E402,F401
+from dub_tts_blocks import (  # noqa: E402,F401
+    frame_db,
+    plan_block_cuts,
+    silence_runs,
+    split_block_pcm,
+)
 
 # edge_tts / mutagen 均惰性导入：克隆模式（indextts）无需 edge_tts；`--list-styles` 等本地操作零依赖。
 
-DEFAULT_VOICE = "zh-CN-YunxiNeural"
-DEFAULT_RATE = "+4%"
 
 #: 语言镜像表：narration-lang → (IndexTTS infer lang 码, edge 缺省音色)。
-#: ⚠️ 内联而非 import langs——本文件会被拷进 ~/tools/index-tts 的 venv 单独运行
-#: （paths.py「导入边界」），同目录依赖会断掉那条拷出路径；与 scripts/langs.py
-#: 的 LANGS 注册表的一致性由 tests/test_tts_lang_mirror.py 钉住（timing.json
-#: 「TS/Python 双语共读」的同构纪律）。路径后缀规则（zh 无后缀 / en 加 .en）
+#: ⚠️ 内联而非 import langs——本文件不 import 任何同目录模块（paths.py「导入边界」，
+#: test_tts_lang_mirror 的 AST 扫描执法），仅凭入参与环境变量运行、不需要工作区锚；
+#: 与 scripts/langs.py 的 LANGS 注册表的一致性由 tests/test_tts_lang_mirror.py 钉住
+#: （timing.json「TS/Python 双语共读」的同构纪律）。路径后缀规则（zh 无后缀 / en 加 .en）
 #: 同理内联，与 langs.narration_json / langs.audio_dir 同构。
 LANG_MIRROR: dict[str, tuple[str, str]] = {
     "zh": ("ZH", DEFAULT_VOICE),
     "en": ("EN", "en-US-AndrewNeural"),
 }
 CONCURRENCY_EDGE = 6
-CONCURRENCY_INDEXTTS = 1  # 服务端串行锁推理；>1 会在锁后排队，排队时长计入客户端超时
-RETRIES = 4
-HTTP_TIMEOUT = 600  # MPS fp32 长句可达数分钟；须覆盖队列等待
 MANUAL = str(
     Path(__file__).resolve().parents[1] / "references" / "VOICE-CLONING.md"
 )  # skill 根 references/
@@ -84,227 +145,6 @@ RTF_1BEAM = 13.0
 RTF_MULTIBEAM = 45.0
 AVG_SEC_PER_LINE = 4.2  # 三集每句音频均值
 
-# IndexTTS 8 维情感向量顺序（indextts/infer_v2_5.py 固定）：happy, angry, sad, afraid,
-# disgusted, melancholic, surprised, calm。
-#
-# 有效和护栏 Σ分量×emo_alpha ≤ 0.8 是**本管线自定的口径**，不是上游行为（2026-08-20 核验）：
-# 上游 infer() 从不归一化，normalize_emo_vec 全仓唯一调用点是 webui.py:665 的「自定义向量」
-# 分支，且那条的 0.8 作用在**已乘 emo_bias 的和**上、且在 alpha 之前。
-# emo_bias（infer_v2_5.py:493 硬编码）8 维严重不等权：
-#   sad/afraid=1.0 > happy/disgusted/melancholic=0.9375 > angry=0.875 > surprised=0.6875 > calm=0.5625
-# 后果：从社区/WebUI 抄来的 (vec, alpha) 经本管线复现实际**强 16%–33%**（含 calm 越重偏差越大，
-# confident 档最失真），跨来源参数迁移必须重新试听定档。详见 INDEXTTS-2.5-ADVANCED.md §3.2。
-#
-# 另注：alpha 恰好等于「替换掉本人语调的百分比」**仅当名义向量和 = 1.0** ——
-# sunny/passionate 刚好是 1.00，而 lively(0.85)/confident(0.90)/positive(0.95) 不是，
-# 其 alpha 跨预设不可直接比较。
-EMO_KEYS = [
-    "happy",
-    "angry",
-    "sad",
-    "afraid",
-    "disgusted",
-    "melancholic",
-    "surprised",
-    "calm",
-]
-
-# 风格预设 —— 数值为初值，可实测试听后微调。
-# 可选键 "beams"：预设自带的束搜索宽度（缺省 1）。束宽会改变韵律稳定度，属风格的一部分，
-# 故允许写进预设；命令行 --num-beams 显式给值时优先。束宽代价见下方 sunny-steady 注释
-# （MPS 上近乎免费，CUDA 上近线性）；机器忙时想只让关键句更稳，用 --steady 混合档。
-# 可选键 "sampling"：预设自带的采样参数覆盖（见 SAMPLING_DEFAULTS）。当前所有预设都不带 ——
-# 任何写进预设的值都会改缓存摘要 ⇒ 整集重录，故须先 A/B 拿到证据再定档。
-STYLE_PRESETS: dict[str, dict] = {
-    "neutral": {"label": "中性", "vec": None, "alpha": 1.0, "df": 1.0},
-    "passionate": {
-        "label": "激情",
-        # 高唤醒正价（happy 主载）+ 跳跃感（surprised）+ 少量 calm 锚定咬字；
-        # 有效和 1.00×0.7=0.70 ≤0.8。
-        # ⚠️ 校准（2026-08-20）：此处原注「df 0.97 护密集技术句清晰度」**方向写反了**。
-        # duration_factor 作用于 S2M 的时间轴重采样（infer_v2_5.py:832 target_lengths），
-        # df<1 → 梅尔帧更少 → 语速更快 → 每个音素分到的时间更短、咬字更紧，密集技术句
-        # 应当**更糊**而非更清。护清晰度的正确方向是 df>1。0.97 的实际效果是「略快」，
-        # 与本档「激情」的定位自洽，故数值保留、只更正因果表述。
-        "vec": [0.70, 0, 0, 0, 0, 0, 0.20, 0.10],
-        "alpha": 0.7,
-        "df": 0.97,
-    },
-    # 以下三档的名义向量已归一到 Σvec=1.0（2026-08-20）：只有 Σvec=1.0 时 alpha 才等于
-    # 「替换掉本人语调的百分比」，否则它被稀释成 α·Σvec、**跨预设不可比**。
-    # alpha 同步反向缩放（α_new = α_old × Σvec_old），故有效注入 w=vec×alpha 在数学上不变。
-    # **精确说法**：上游把 w 截断到 4 位小数（infer_v2_5.py:608 用 int() 截断而非四舍五入），
-    # 而 0.33/0.455 一类值恰落在截断边界上，故 21 个分量里有 3 个出现 1e-4 的差异
-    # （0.33→0.3299、0.455→0.4549、0.5249→0.525）。相对幅度 0.03%，远低于任何听感阈；
-    # 且这三档**未被任何已上线剧集使用**（三集用 sunny-steady / passionate），即便真有
-    # 差异也无影响。不要把它写成「逐项完全一致」——那是过度断言。
-    # 由 tests/test_digest.py::test_preset_normalization_preserves_injection 钉死 1e-4 界。
-    "lively": {
-        "label": "轻快",
-        "vec": [
-            0.6470588,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0.1764706,
-            0.1764706,
-        ],  # 原 .55/.15/.15 ÷ 0.85
-        "alpha": 0.51,  # 原 0.6 × 0.85
-        "df": 0.95,
-    },
-    "confident": {
-        "label": "自信",
-        "vec": [0.2777778, 0, 0, 0, 0, 0, 0, 0.7222222],  # 原 .25/.65 ÷ 0.90
-        "alpha": 0.63,  # 原 0.7 × 0.90
-        "df": 1.05,
-    },
-    "positive": {
-        "label": "正能量",
-        "vec": [0.7894737, 0, 0, 0, 0, 0, 0, 0.2105263],  # 原 .75/.20 ÷ 0.95
-        "alpha": 0.665,  # 原 0.7 × 0.95
-        "df": 1.0,
-    },
-    "sunny": {
-        "label": "明快阳光",
-        # 2026-08-19 试听定档（科普长视频推荐位）。方向由 QwenEmotion 对「轻快、爽朗、
-        # 自信、阳光」推出（happy 近乎独载），强度则**人工压到 0.35**——Qwen 原始输出会顶到
-        # Σ=0.8 上限，实测把克隆音高推到 199–223 Hz（说话人自然区间仅 142–163 Hz）而显假；
-        # 0.35 留 65% 给本人真实语调，配 df 0.95 取「明快但不飘」。
-        # 配套样本很关键：本档在 voices/me-bright.wav（me-1.mp3 --start 0.36 --duration 12）
-        # 上定档，换回更闷的样本会失去明快感——见 VOICE-CLONING.md §3.3。
-        "vec": [0.95, 0, 0, 0, 0, 0, 0.02, 0.03],
-        "alpha": 0.35,
-        "df": 0.95,
-    },
-    "sunny-steady": {
-        "label": "明快稳健",
-        # = sunny 同方向同强度同语速，只把束宽提到 3：GPT 段搜索更宽 → 韵律更收敛。
-        # 实测（同文本同样本）：语调起伏 48.4 → 43.5、音节率 4.10 → 4.55，亮度基本不掉
-        # （质心 1245 → 1223）——是唯一「不牺牲明快度就让语气更稳」的旋钮。
-        # 代价高度依赖硬件，**不是无条件的「线性放大」**：束宽只作用于 T2S（S2M 入口的
-        # codes 形状与束宽无关），而 MPS 上 T2S 只占三段耗时的 18–46%（2026-08-20 本机
-        # 13 样本分段 profile：s2mel 反而占 45–73%）。整集实测 1→3 束仅 +4%
-        # （EP1 v3 两遍法 1.9h → 1.98h）。故：CUDA 上近线性放大，MPS 上近乎免费。
-        # 机器忙/热节流时仍可能出现数倍差，此时用 `--steady` 混合档只升关键句。
-        "vec": [0.95, 0, 0, 0, 0, 0, 0.02, 0.03],
-        "alpha": 0.35,
-        "df": 0.95,
-        "beams": 3,
-    },
-    # ── 以下两档是**候选**，尚未定档：新增而非改动生产档，故对三集缓存零影响。
-    #    定档前必须按 INDEXTTS-2.5-ADVANCED.md §6.5 的测量协议做 A/B + 人工试听定档。
-    "sunny-pure": {
-        "label": "明快纯载",
-        # 候选（路线图 #10）：砍掉 sunny 里的配料维度，使 Σvec=1.0 与「happy 单载」
-        # 同时成立 ⇒ alpha 语义最干净（它就是被替换掉的本人语调比例）。
-        # ⚠️ 立论勘误（2026-09-02）：本档原注以 emo_bias「surprised 只兑付 69%、
-        # calm 56%」为依据——该折扣**在本管线不生效**。施加 bias 的 normalize_emo_vec
-        # （infer_v2_5.py:488）全仓唯一调用点是 webui.py:665；infer() 内对 emo_vector
-        # 的唯一变换是 :605-607 的 int(x*alpha*10000)/10000，无 bias 相乘。故本管线
-        # 名义权重即实际权重，「配料维度不划算」这条理由作废，本档退回纯 alpha 语义论证。
-        # 顺带：surprised 的原型数是 10（happy 只有 3，emo_num=[3,17,2,8,4,5,10,24]），
-        # 表达基底并不贫乏——砍它的代价可能比原注设想的大，定档须以试听为准。
-        "vec": [1.0, 0, 0, 0, 0, 0, 0, 0],
-        "alpha": 0.35,
-        "df": 0.95,
-    },
-    "sunny-clear": {
-        "label": "明快清晰",
-        # 候选（路线图 #11）：= sunny-steady 但 df 1.05。依据是 df 方向的勘误——
-        # df<1 = 更快 = 每音素分到的时间更短 = 咬字更紧更糊，护术语密集句的清晰度
-        # 正确方向是 df>1（§3.4）。明快感仍由 happy/alpha 承担，与语速正交。
-        # 代价：拉长时长 ⇒ 牵动 beat 与片尾渐黑窗口，定档后须重渲。
-        "vec": [0.95, 0, 0, 0, 0, 0, 0.02, 0.03],
-        "alpha": 0.35,
-        "df": 1.05,
-        "beams": 3,
-    },
-    "story": {
-        "label": "段落演绎",
-        # 2026-09-25 第三轮试听定档（#07，试听页 .context/voice-audition/v3/）：合成单位从
-        # 「句」升为「故事块」——同幕连续句拼一次请求，上游 front.py 合并短句为单段 ⇒
-        # 句间韵律连续 + 自然停顿，替代逐句合成的「朗读感」（逐句/单一情绪/恒定句距
-        # 三者叠加是根因，见 issue.md RSI-011）。
-        # - vec/alpha 取 #07 g2 方向（surprised 主载 + happy）×0.28 有效注入；无台本块/
-        #   未覆盖块用它，块情绪可被 script/narration.cues.toml 逐块覆盖（§4.5）。
-        # - seed 固定 4242：试听定档 take 可复现；单块换 take 用台本 [take]（--seed-offset 是整集口径）。
-        # - block: 块上限与切分参数；perform_punct 开表演标点（……→…，tts_text）。
-        "vec": [1 / 3, 0, 0, 0, 0, 0, 2 / 3, 0],
-        "alpha": 0.28,
-        "df": 1.0,
-        "beams": 1,
-        "seed": 4242,
-        "block": {
-            "max_sentences": 3,
-            "max_chars": 90,
-            "tail_pad_sec": 0.18,
-            "perform_punct": True,
-        },
-    },
-}
-
-
-# 上游自回归采样参数的默认值 —— 已知副本，锚点 indextts/infer_v2_5.py:731-739（HEAD 4f8792f）；
-# 与 infer_v2.py:536-544 完全一致，两版共享同一组默认。
-#
-# **分层 SSOT**：`SAMPLING_PASSTHROUGH_DEFAULTS`（7 个经 **generation_kwargs 透传给 HF
-# generate 的参数）是唯一的数据副本，服务端 tts_server.py 运行时从本模块导入它（那个进程
-# 不受本 skill 版本控制之外的依赖影响——导入是纯常量读取）；本字典在其上追加两个
-# **非透传**键：text_normalization（v2.5 infer() 的独立形参）与 seed（本服务自己 set_seed），
-# 它们不进 SAMPLING_RANGES/SAMPLING_CLI 的透传校验路径。
-#
-# 本副本只有一个用途：判定「这一项是否被显式改过」，从而决定**要不要进缓存摘要**。
-# 摘要沿用「未使用即省略」规则（同 |beams=N），故全部取默认时摘要与历史逐字节相同 ——
-# 这是已上线三集近 600 句缓存零失效的前提，由 tests/test_digest.py 黄金哈希钉死。
-SAMPLING_PASSTHROUGH_DEFAULTS: dict[str, float | int] = {
-    "temperature": 0.8,
-    "top_p": 0.8,
-    "top_k": 30,
-    "length_penalty": 0.0,
-    "repetition_penalty": 10.0,
-    "max_mel_tokens": 1500,
-    "interval_silence": 200,
-}
-SAMPLING_DEFAULTS: dict[str, float | int | bool | None] = {
-    **SAMPLING_PASSTHROUGH_DEFAULTS,
-    "text_normalization": True,
-    "seed": None,
-}
-
-#: 采样参数的合法区间（对齐上游 webui.py:901-910 的滑杆），用于长跑前提前失败。
-#: max_mel_tokens 上限 1815 = config.yaml 的 gpt.max_mel_tokens（mel 位置嵌入容量 ≈36.2 s）。
-SAMPLING_RANGES: dict[str, tuple[float, float]] = {
-    "temperature": (0.1, 2.0),
-    "top_p": (0.0, 1.0),
-    "top_k": (0, 100),
-    "length_penalty": (-2.0, 2.0),
-    "repetition_penalty": (0.1, 20.0),
-    "max_mel_tokens": (50, 1815),
-    "interval_silence": (0, 2000),
-}
-
-
-def tts_text(text: str, lang: str = "ZH", perform: bool = False) -> str:
-    """口播文本微调：破折号换为逗号停顿，避免 TTS 念成怪音。
-
-    全角映射仅对主语言（ZH）生效：en 稿经 check_script 禁全角标点门，此处原样
-    透传是纵深防御——`——` 会被换成全角逗号混进英文文本。
-
-    perform=True（段落演绎档）：`……` 保留为单个 `…` 而非压成 `。`——上游把 `…`
-    当独立 token 并给拖长停顿（front.py 标点表），是「表演标点」的一部分；默认
-    映射不动（存量 2 集含 `……`，改全局会令其重合成出不同音频而摘要不变）。
-
-    注意这是**唯一**的程序化文本预处理：数字/百分号/量词的读法由上游中文归一化
-    （wetext）承担，多音字与英文专名读音由逐字稿里的发音标注 `<字|读音>` 承担。
-    归一化的已知陷阱（4 位年份与「年」之间不能有空格）由 check_script.py 的写稿 lint 拦。
-    """
-    if lang != "ZH":
-        return text
-    text = text.replace("——", "，")
-    return text.replace("……", "…") if perform else text.replace("……", "。")
-
 
 def synth_source_text(item: dict) -> str:
     """取该句真正送去合成的文本：优先 `ttsText`（含发音标注），否则 `text`。
@@ -316,37 +156,7 @@ def synth_source_text(item: dict) -> str:
     return item.get("ttsText") or item["text"]
 
 
-def mp3_duration(path: Path) -> float:
-    """mutagen 实测 MP3 时长（两引擎共用）。"""
-    from mutagen.mp3 import MP3
-
-    return MP3(str(path)).info.length
-
-
 # ---------------- 风格解析 ----------------
-
-
-def parse_emo_vector(spec: str) -> list[float]:
-    """`happy:0.6,calm:0.2` → 8 维向量；未知键/负值/空集报错。"""
-    vec = [0.0] * 8
-    seen: set[str] = set()
-    for part in spec.split(","):
-        key, _, val = part.partition(":")
-        key, val = key.strip().lower(), val.strip()
-        if key not in EMO_KEYS:
-            raise ValueError(f"未知情感键 {key!r}（可用：{','.join(EMO_KEYS)}）")
-        if key in seen:
-            raise ValueError(f"情感键重复：{key}")
-        if not val:
-            raise ValueError(f"情感权重缺失：{key}（格式如 happy:0.6）")
-        weight = float(val)
-        if not math.isfinite(weight) or weight < 0:  # isfinite 显式拦 NaN/Inf
-            raise ValueError(f"情感权重必须为非负有限数值：{key}")
-        vec[EMO_KEYS.index(key)] = weight
-        seen.add(key)
-    if not seen:
-        raise ValueError("--emo-vector 不能为空")
-    return vec
 
 
 def resolve_style(
@@ -421,16 +231,6 @@ def resolve_sampling(args: argparse.Namespace) -> dict[str, float | int | bool]:
     return out
 
 
-def sampling_suffix(sampling: dict | None) -> str:
-    """采样参数 → 缓存摘要后缀。空 dict 返回空串（存量缓存零失效的关键）。
-
-    键按字母序，值用 repr()（防 0.7 → 0.70 之类的表示漂移，与 alpha/df 同口径）。
-    """
-    if not sampling:
-        return ""
-    return "".join(f"|{k}={sampling[k]!r}" for k in sorted(sampling))
-
-
 # ---------------- 混合档：整集低束宽 + 指定句高束宽 ----------------
 #
 # 动机（实测）：3 束把语调起伏收窄约 10–20%、听感更「稳/可信」，但短句 RTF 从 6–7 涨到
@@ -481,13 +281,9 @@ def steady_match(
 #: 与本次不一致时硬失败，要求显式 --allow-voice-switch。不参与逐句摘要，故零缓存影响。
 ENGINE_MARKER = ".engine"
 
-#: IndexTTS 服务默认地址——与 config.py SCHEMA 的 tts.server 缺省互为镜像（不 import
-#: 兄弟模块，见 LANG_MIRROR 同款边界），对账测试在 tests/test_tts_lang_mirror.py。
-DEFAULT_SERVER = "http://127.0.0.1:8766"
-
-#: tts_server.py 的启动命令此前有三份副本（本文件、tts_sample.py、VOICE-CLONING.md），
-#: 其中一份还留着 `<仓库路径>` 占位符——粘贴即错。收敛为唯一生成处。
-SERVER_SCRIPT = Path(__file__).resolve().parent / "tts_server.py"
+#: 服务端脚本住在 dub 仓（机制 SSOT）；启动命令的唯一生成处是下面的 server_launch_hint，
+#: tts_sample.py、tts_resume.py 与 VOICE-CLONING.md 皆由它派生或对它钉死。
+SERVER_SCRIPT = _DUB_SCRIPTS / "dub_tts_server.py"
 
 
 def server_launch_hint(port: int = 8766) -> str:
@@ -558,10 +354,6 @@ def enforce_final_voice_gate(
 # ---------------- 引擎一：edge-tts（历史路径，保持字节级一致） ----------------
 
 
-def digest_edge(voice: str, rate: str, text: str) -> str:
-    return hashlib.sha1(f"{voice}|{rate}|{text}".encode()).hexdigest()
-
-
 async def synth_edge(
     sem: asyncio.Semaphore,
     item: dict,
@@ -609,146 +401,6 @@ async def synth_edge(
     return {**item, "durationSec": round(duration, 3)}
 
 
-# ---------------- 引擎二：IndexTTS 声音克隆（本地 HTTP 服务） ----------------
-
-
-class NonRetryableError(Exception):
-    """重试无意义的错误（4xx 类 / 确定性 MPS OOM 签名）：直接失败并携带服务端错误详情。"""
-
-
-def _http_error_detail(e: urllib.error.HTTPError) -> str:
-    try:
-        parsed = json.loads(e.read())
-        if isinstance(parsed, dict):
-            return str(parsed.get("detail", parsed))
-        if isinstance(parsed, list) and parsed and isinstance(parsed[0], dict):
-            return str(parsed[0].get("msg", parsed[0]))  # FastAPI 422 校验数组
-        return str(parsed)
-    except Exception:  # noqa: BLE001 - 详情解析失败退化为字符串
-        return str(e)
-
-
-def _deterministic_mps_oom(detail: str) -> bool:
-    """上限在场时的确定性 MPS 水位线 OOM（服务端 tts_server remedy 的「上限不足」分支
-    以「MPS 显存上限不足」开头）：该句/块内在需求超上限，重试只是分钟级空跑（手册 §七）
-    ——转 NonRetryableError 短路。**只匹配该分支**：未设上限时默认水位 1.7×recommended
-    极高，OOM 为本进程缓存累积或极端峰值（超限只计本进程分配，服务端 finally 已归还
-    缓存），重试仍可能自愈，须留在 5xx 重试桶；文案失配时自然回退可重试（fail-safe 方向）。"""
-    return detail.startswith("MPS 显存上限不足")
-
-
-def http_json(
-    method: str, url: str, payload: dict | None = None, timeout: int = HTTP_TIMEOUT
-) -> dict:
-    """同步 urllib 调用（调用方需置于 asyncio.to_thread）；4xx → NonRetryableError。"""
-    data = json.dumps(payload).encode() if payload is not None else None
-    req = urllib.request.Request(
-        url, data=data, method=method, headers={"Content-Type": "application/json"}
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            body = resp.read()
-            ctype = resp.headers.get("Content-Type", "")
-    except urllib.error.HTTPError as e:
-        detail = _http_error_detail(e)
-        if 400 <= e.code < 500:
-            raise NonRetryableError(f"HTTP {e.code}: {detail}") from e
-        raise RuntimeError(f"HTTP {e.code}: {detail}") from e
-    except urllib.error.URLError as e:
-        raise RuntimeError(f"连接失败: {e.reason}") from e
-    if "application/json" not in ctype:
-        raise NonRetryableError(f"响应 Content-Type 异常: {ctype}")
-    return json.loads(body)
-
-
-def http_synthesize(
-    server: str,
-    text: str,
-    ref: str,
-    vec: list[float] | None,
-    alpha: float,
-    df: float,
-    lang: str,
-    num_beams: int = 1,
-    emo_ref: str | None = None,
-    emo_text: str | None = None,
-    headers_out: dict | None = None,
-    sampling: dict | None = None,
-) -> tuple[bytes, str]:
-    """POST /synthesize → (mp3 bytes, X-Audio-Format)。4xx 与确定性 MPS OOM 不可重试。
-
-    headers_out：可选出参，传入 dict 时回填全部响应头（如 emo_text 模式的 X-Emo-Vector），
-    供试听工具回显；管线主路径不需要，故保持返回值签名不变。
-    **键统一小写**——urllib 的 HTTPMessage 查找不分大小写，但拷进普通 dict 后会变成
-    大小写敏感，而 Starlette 下发的响应头名是小写的，故此处归一避免调用方取不到值。
-    """
-    payload: dict = {
-        "text": text,
-        "ref_path": ref,
-        "emo_alpha": alpha,
-        "duration_factor": df,
-        "lang": lang,
-        "num_beams": num_beams,
-    }
-    if vec is not None:
-        payload["emo_vector"] = vec
-    if emo_ref:  # 情感参考音频：音色仍取 ref，语调迁移自 emo_ref（服务端与向量互斥）
-        payload["emo_ref_path"] = emo_ref
-    if emo_text:  # 自然语言情感描述（服务端 QwenEmotion 转向量）
-        payload["emo_text"] = emo_text
-    if sampling:  # 只发被显式改过的采样参数，其余由服务端取上游默认
-        payload.update(sampling)
-    req = urllib.request.Request(
-        f"{server}/synthesize",
-        data=json.dumps(payload).encode(),
-        method="POST",
-        headers={"Content-Type": "application/json"},
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as resp:
-            if headers_out is not None:
-                headers_out.update({k.lower(): v for k, v in resp.headers.items()})
-            return resp.read(), resp.headers.get("X-Audio-Format", "unknown")
-    except urllib.error.HTTPError as e:
-        detail = _http_error_detail(e)
-        if 400 <= e.code < 500 or _deterministic_mps_oom(detail):
-            raise NonRetryableError(f"HTTP {e.code}: {detail}") from e
-        raise RuntimeError(f"HTTP {e.code}: {detail}") from e
-    except urllib.error.URLError as e:
-        raise RuntimeError(f"连接失败: {e.reason}") from e
-
-
-def digest_indextts(
-    ref_sha1: str,
-    style: str,
-    vec: list[float] | None,
-    alpha: float,
-    df: float,
-    lang: str,
-    engine_tag: str,
-    text: str,
-    num_beams: int = 1,
-    emo_ref_sha1: str | None = None,
-    emo_text: str | None = None,
-    sampling: dict | None = None,
-    block: str | None = None,
-    pos: str | None = None,
-) -> str:
-    vec_str = ",".join(repr(x) for x in vec) if vec else "none"
-    # 束宽/情感来源/采样参数改变合成结果，须入键；未使用时省略字段——沿用历史摘要格式，
-    # 存量缓存不失效。新增字段一律追加在**末尾**且默认省略，故摘要格式可持续扩展。
-    beams_part = "" if num_beams == 1 else f"|beams={num_beams}"
-    emo_part = f"|emoref={emo_ref_sha1}" if emo_ref_sha1 else ""
-    emo_part += f"|emotext={emo_text}" if emo_text else ""
-    # 块模式（story 档）：块=缓存单位——block 后缀由成员文本+切分参数派生，改任一句
-    # 即整块换摘要；pos 区分块内句位。仅块模式追加，逐句口径逐字节不变。
-    block_part = f"|block={block}|{pos}" if block else ""
-    return hashlib.sha1(
-        f"indextts|{engine_tag}|{ref_sha1}|{lang}|{style}|{vec_str}|{alpha!r}|{df!r}|{text}"
-        f"{beams_part}{emo_part}{sampling_suffix(sampling)}{block_part}".encode()
-    ).hexdigest()
-
-
 # ---------------- 音频版本库（内容寻址持久库，仅 indextts） ----------------
 #
 # 集内 audio/ 是 gitignored 本地产物 ⇒ 换 worktree / 清盘即丢整集合成成果
@@ -785,92 +437,6 @@ def store_root(disabled: bool) -> Path | None:
     if env:
         return Path(env).expanduser()
     return Path(DEFAULT_STORE).expanduser()
-
-
-def store_entry(store: Path | None, slug: str, sid: str, digest: str) -> Path | None:
-    """库内条目路径：<root>/<集 slug>/<sid>.<digest12>.mp3（同名 .sha 邻档存全量 digest）。"""
-    if store is None:
-        return None
-    return store / slug / f"{sid}.{digest[:12]}.mp3"
-
-
-def store_has(store: Path | None, slug: str, sid: str, digest: str) -> bool:
-    """--plan 用：库内是否存在该 digest 的句子（校验 .sha 邻档，防 12 位前缀巧合）。"""
-    if store is None:
-        return False
-    mp3 = store_entry(store, slug, sid, digest)
-    assert mp3 is not None
-    sha = mp3.with_suffix(".sha")
-    try:
-        return (
-            mp3.is_file()
-            and mp3.stat().st_size > 0
-            and sha.is_file()
-            and sha.read_text(encoding="utf-8") == digest
-        )
-    except (OSError, UnicodeError) as e:
-        print(f"WARN 版本库读取失败（{sid}）：{e}", file=sys.stderr)
-        return False
-
-
-def store_deposit(
-    mp3: Path, sid: str, digest: str, store: Path | None, slug: str
-) -> None:
-    """合成成功后入库。失败只 WARN 不断长跑——库是加速器，不是门。"""
-    if store is None:
-        return
-    dst = store_entry(store, slug, sid, digest)
-    assert dst is not None
-    sha = dst.with_suffix(".sha")
-    tmp_mp3: Path | None = None
-    tmp_sha: Path | None = None
-    try:
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        with tempfile.NamedTemporaryFile(
-            dir=dst.parent, prefix=f".{dst.name}.", suffix=".tmp", delete=False
-        ) as f:
-            tmp_mp3 = Path(f.name)
-        shutil.copyfile(mp3, tmp_mp3)
-        with tempfile.NamedTemporaryFile(
-            mode="w",
-            encoding="utf-8",
-            dir=dst.parent,
-            prefix=f".{sha.name}.",
-            suffix=".tmp",
-            delete=False,
-        ) as f:
-            tmp_sha = Path(f.name)
-            f.write(digest)
-        os.replace(tmp_mp3, dst)
-        tmp_mp3 = None
-        os.replace(tmp_sha, sha)
-        tmp_sha = None
-    except (OSError, UnicodeError) as e:
-        print(f"WARN 版本库入库失败（{sid}）：{e}", file=sys.stderr)
-    finally:
-        for tmp in (tmp_mp3, tmp_sha):
-            if tmp is not None:
-                try:
-                    tmp.unlink(missing_ok=True)
-                except OSError:
-                    pass
-
-
-def store_restore(
-    sid: str, digest: str, out_dir: Path, store: Path | None, slug: str
-) -> bool:
-    """集内缓存 miss 时先向库回收；命中则 mp3 + .sha 落位，等价集内缓存命中。"""
-    if not store_has(store, slug, sid, digest):
-        return False
-    src = store_entry(store, slug, sid, digest)
-    assert src is not None
-    try:
-        shutil.copyfile(src, out_dir / f"{sid}.mp3")
-        (out_dir / f"{sid}.sha").write_text(digest, encoding="utf-8")
-        return True
-    except (OSError, UnicodeError) as e:
-        print(f"WARN 版本库回收失败（{sid}）：{e}", file=sys.stderr)
-        return False
 
 
 async def synth_indextts(
@@ -975,59 +541,6 @@ async def synth_indextts(
 # ---------------- 段落演绎（story 档）：块请求与块合成 ----------------
 
 
-def http_synthesize_block(
-    server: str,
-    text: str,
-    ref: str,
-    vec: list[float],
-    alpha: float,
-    df: float,
-    lang: str,
-    num_beams: int,
-    weights: list[float],
-    discard_sec: float,
-    tail_pad_sec: float,
-    sampling: dict | None = None,
-) -> dict:
-    """块模式 POST /synthesize → JSON {clips:[{audio,durationSec,format}], cuts, seams, split}。
-
-    块音频在服务端按句界切回 N 个 mp3（b64）。超时 1800 s：块 ≈3 句音频 12–18 s，
-    忙时热节流可把单块推理推过逐句口径的 600 s。
-    """
-    payload: dict = {
-        "text": text,
-        "ref_path": ref,
-        "emo_vector": vec,
-        "emo_alpha": alpha,
-        "duration_factor": df,
-        "lang": lang,
-        "num_beams": num_beams,
-        "block": {
-            "weights": weights,
-            "discard_sec": discard_sec,
-            "tail_pad_sec": tail_pad_sec,
-        },
-    }
-    if sampling:
-        payload.update(sampling)
-    req = urllib.request.Request(
-        f"{server}/synthesize",
-        data=json.dumps(payload).encode(),
-        method="POST",
-        headers={"Content-Type": "application/json"},
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=1800) as resp:
-            return json.loads(resp.read())
-    except urllib.error.HTTPError as e:
-        detail = _http_error_detail(e)
-        if 400 <= e.code < 500 or _deterministic_mps_oom(detail):
-            raise NonRetryableError(f"HTTP {e.code}: {detail}") from e
-        raise RuntimeError(f"HTTP {e.code}: {detail}") from e
-    except urllib.error.URLError as e:
-        raise RuntimeError(f"连接失败: {e.reason}") from e
-
-
 def resolve_block_vec(
     block_items: list[dict], preset_vec: list[float], preset_alpha: float
 ) -> tuple[list[float], float, str | None]:
@@ -1086,8 +599,8 @@ def blocks_unsupported_hint(health: dict) -> str:
     fallback = '；或本集改用逐句档（pipeline.toml [tts] style = "sunny"，直调 tts.py 用 --style sunny）'
     if "supports_blocks" not in health:
         return (
-            "当前服务不支持块合成（story 档需要）：服务端代码过旧，请用本 skill"
-            f" 当前 tts_server.py 重启服务，见 {MANUAL} §二"
+            "当前服务不支持块合成（story 档需要）：服务端代码过旧，请用 dub"
+            f" 当前 dub_tts_server.py 重启服务，见 {MANUAL} §二"
         )
     if health.get("version") == "2":
         return (
@@ -1102,7 +615,7 @@ def blocks_unsupported_hint(health: dict) -> str:
         )
     return (
         "当前服务报告不支持块合成（supports_blocks=false，未回报原因）"
-        f"——请用本 skill 当前 tts_server.py 重启服务（见 {MANUAL} §二）{fallback}"
+        f"——请用 dub 当前 dub_tts_server.py 重启服务（见 {MANUAL} §二）{fallback}"
     )
 
 
@@ -1254,7 +767,7 @@ async def synth_block_indextts(
         if fmts != {"mp3"}:  # 同逐句路径的编码器守卫：WAV 字节不得落成 .mp3
             raise NonRetryableError(
                 f"服务端编码器不可用（format={','.join(sorted(map(str, fmts)))}）"
-                f"—— 按 {MANUAL} §七 检查 soundfile/lameenc，或用当前 tts_server.py 重启服务"
+                f"—— 按 {MANUAL} §七 检查 soundfile/lameenc，或用 dub 当前 dub_tts_server.py 重启服务"
             )
         for k, clip in enumerate(clips):
             item = block_items[k]
@@ -1289,9 +802,9 @@ async def synth_block_indextts(
 #
 # 机制：同幕连续句拼成一次 /synthesize（块文本 ≤118 token 时上游单段连续生成，
 # 句间是模型自带的自然停顿）；响应在服务端按句界切回 N 个 mp3。切分/划块的本体
-# 是下面的纯函数——numpy 惰性 import，唯一执行者是 tts_server.py（它本就从本模块
-# 导入常量，且持有 mp3 编码前的 float32 PCM）；客户端 tts.py 只有 mutagen、
-# 不 import 兄弟模块（test_tts_lang_mirror 钉死），永不触碰这些函数。
+# 是 dub 仓 dub_tts_blocks 里的纯函数——numpy 惰性 import，唯一执行者是 dub 的服务端
+# dub_tts_server.py（它持有 mp3 编码前的 float32 PCM）；本文件只负责「划块」（plan_blocks）
+# 与请求编排，不触碰切分函数。
 #
 # 实测定档依据（2026-09-25，dream-rsi P0）：
 # - 句界自然停顿 0.31–0.55 s 与句内逗号停顿 0.14–0.42 s 区间重叠 ⇒ 不能「取最长
@@ -1425,165 +938,10 @@ def block_synth_text(items: list[dict]) -> str:
     return "".join(parts)
 
 
-def block_digest_suffix(
-    member_texts: list[str], discard: float, tail_pad: float
-) -> str:
-    """块缓存后缀（仅块模式追加）：改任一句/切分参数 ⇒ 整块换 digest 重录。
-
-    `split=vN` 版本化块文本拼接与切分算法（v2：软停顿结尾不再补 `。`；v3：收引号前
-    的标点计入末字、逐句兜底仅末句补尾垫）——算法改变合成结果而成员文本不变时，靠它换键。
-    换键口径：改了送合成文本或切段时长（⇒ 时间轴）才递增；静音内的样本级淡变（如末段
-    补 5ms 淡入）时长不变、听感不可辨，不换键——否则存量音频会为不可听差异整块重录。
-    """
-    payload = "\x1f".join(member_texts) + f"\x1f{discard!r}\x1f{tail_pad!r}\x1fsplit=v3"
-    return hashlib.sha1(payload.encode()).hexdigest()[:12]
-
-
-def frame_db(pcm, sr: int, hop_sec: float = 0.01, win_sec: float = 0.025):
-    """帧 RMS → dB（10 ms hop / 25 ms win，与实测标定一致）。pcm: float32 1-D。"""
-    import numpy as np
-
-    hop, win = int(sr * hop_sec), int(sr * win_sec)
-    n = 1 + max(0, (len(pcm) - win) // hop)
-    idx = np.arange(win)[None, :] + hop * np.arange(n)[:, None]
-    frames = pcm[idx]
-    rms = np.sqrt(np.mean(frames * frames, axis=1))
-    return 20 * np.log10(np.maximum(rms, 1e-9))
-
-
-def silence_runs(
-    db, sr: int, hop_sec: float = 0.01, min_sec: float = 0.12, below_db: float = 35.0
-):
-    """低于 p95−below_db 的连续帧 → (内部静音段列表, 语音起, 语音止)。
-
-    只保留首尾语音之间的内部段（块首/块尾静音不是切点候选）；返回三元组，
-    语音起止供 plan_block_cuts 内插期望位置。
-    """
-    import numpy as np
-
-    thr = np.percentile(db, 95) - below_db
-    quiet = db < thr
-    idx = np.flatnonzero(np.diff(quiet.astype(int)) != 0) + 1
-    bounds = np.concatenate(([0], idx, [len(quiet)]))
-    runs = [
-        (bounds[k] * hop_sec, bounds[k + 1] * hop_sec)
-        for k in range(len(bounds) - 1)
-        if quiet[bounds[k]] and bounds[k + 1] - bounds[k] >= min_sec / hop_sec
-    ]
-    speech = np.flatnonzero(~quiet)
-    if not len(speech):
-        return [], 0.0, len(db) * hop_sec
-    on, off = speech[0] * hop_sec, (speech[-1] + 1) * hop_sec
-    return [(s, e) for s, e in runs if s > on and e < off], float(on), float(off)
-
-
-def plan_block_cuts(
-    runs, weights: list[float], total_sec: float, speech_on: float, speech_off: float
-):
-    """在候选静音里为 N−1 个句界各选一个切点。
-
-    期望位置 exp_k 按累计权重占比内插；DP 选严格递增候选最小化
-    Σ((mid−exp)/σ)² − 0.3·ln(段长/0.1)（长静音略优先）；门：|mid−exp| ≤ max(1.0, 0.15T)
-    且各句语音占比 ∈[0.5,1.8]×期望。返回 (mid_1..mid_{N-1}, cut_runs) 或 None。
-    """
-    import math
-
-    n = len(weights)
-    if n < 2:
-        return None
-    total_w = sum(weights)
-    cum = [sum(weights[:k]) / total_w for k in range(1, n)]
-    exp = [speech_on + (speech_off - speech_on) * c for c in cum]
-    sigma = max(0.35, 0.06 * total_sec)
-    tol = max(1.0, 0.15 * total_sec)
-
-    INF = float("inf")
-    m = len(runs)
-    # dp[j][k]：第 k 个界用候选 j 的最小代价
-    dp = [[INF] * (n - 1) for _ in range(m)]
-    par = [[-1] * (n - 1) for _ in range(m)]
-    for j, (s, e) in enumerate(runs):
-        mid = (s + e) / 2
-        cost = ((mid - exp[0]) / sigma) ** 2 - 0.3 * math.log((e - s) / 0.1)
-        if abs(mid - exp[0]) <= tol:
-            dp[j][0] = cost
-    for k in range(1, n - 1):
-        best = INF
-        best_j = -1
-        for j, (s, e) in enumerate(runs):
-            if best_j >= 0:
-                mid = (s + e) / 2
-                if abs(mid - exp[k]) <= tol:
-                    cost = (
-                        best
-                        + ((mid - exp[k]) / sigma) ** 2
-                        - 0.3 * math.log((e - s) / 0.1)
-                    )
-                    if cost < dp[j][k]:
-                        dp[j][k] = cost
-                        par[j][k] = best_j
-            if dp[j][k - 1] < best:
-                best, best_j = dp[j][k - 1], j
-    end_j = min(range(m), key=lambda j: dp[j][n - 2]) if m else -1
-    if m == 0 or dp[end_j][n - 2] == INF:
-        return None
-    chosen = [0] * (n - 1)
-    j = end_j
-    for k in range(n - 2, -1, -1):
-        chosen[k] = j
-        j = par[j][k]
-    picked = [runs[j] for j in chosen]
-    # 语音占比门：切后各段语音时长与期望占比偏离 ∈[0.5,1.8]
-    spans = []
-    prev = speech_on
-    for s, e in picked + [(speech_off, speech_off)]:
-        spans.append((prev, s))
-        prev = e
-    for k, (a, b) in enumerate(spans):
-        share = (b - a) / (speech_off - speech_on)
-        want = weights[k] / total_w
-        if not 0.5 <= share / want <= 1.8:
-            return None
-    return picked
-
-
-def split_block_pcm(pcm, sr: int, runs, discard_sec: float, tail_pad_sec: float = 0.0):
-    """按切点把块 PCM 切成 N 段：每界从静音正中丢弃 discard_sec，每段两端 5ms 淡入淡出。
-
-    discard 的语义：时间轴随后会加回 sentenceGapSec ⇒ 听感＝自然停顿原值；
-    静音不足 gap+2m 时退化为丢 S−2m（下限 0.06 s 余量）。末段统一补尾垫。
-    返回 [(clip_pcm, 自然停顿 S_k)]。
-    """
-    import numpy as np
-
-    margin = 0.03
-    fade = int(sr * 0.005)
-    out = []
-    cursor = 0
-    for s, e in runs:
-        nat = e - s
-        d = min(discard_sec, max(0.0, nat - 2 * margin))
-        cut_start = s + (nat - d) / 2
-        clip = pcm[int(cursor * sr) : int(cut_start * sr)].copy()
-        if len(clip) > 2 * fade:
-            clip[:fade] *= np.linspace(0, 1, fade)
-            clip[-fade:] *= np.linspace(1, 0, fade)
-        out.append((clip, nat))
-        cursor = cut_start + d
-    clip = pcm[int(cursor * sr) :].copy()
-    if len(clip) > 2 * fade:  # 末段起点即末个切点（静音≠零值）：与中间段同口径两端淡变
-        clip[:fade] *= np.linspace(0, 1, fade)
-        clip[-fade:] *= np.linspace(1, 0, fade)
-    if tail_pad_sec > 0:
-        clip = np.concatenate([clip, np.zeros(int(tail_pad_sec * sr), np.float32)])
-    out.append((clip, 0.0))
-    return out
-
-
 # ---------------- 主流程 ----------------
 
 
-def _build_parser() -> argparse.ArgumentParser:
+async def main() -> None:
     parser = argparse.ArgumentParser(
         description="逐句 TTS 合成 + 时长 manifest（双引擎）"
     )
@@ -1636,7 +994,9 @@ def _build_parser() -> argparse.ArgumentParser:
         help="[indextts] 期望的参考样本 sha1 前 12 位，不符即硬失败——pipeline.py 从"
         "各集 pipeline.toml 自动带上，防「换样本静默重录整集」（指纹清单见 voices/refs.toml）",
     )
-    idx.add_argument("--server", default=DEFAULT_SERVER, help="[indextts] 服务地址")
+    idx.add_argument(
+        "--server", default="http://127.0.0.1:8766", help="[indextts] 服务地址"
+    )
     idx.add_argument(
         "--style",
         default="neutral",
@@ -1798,47 +1158,13 @@ def _build_parser() -> argparse.ArgumentParser:
         help="[indextts] 与 --seed 相加（默认 0）。固定种子会把某句锁死在一条可能不佳的"
         "采样结果上，偏移一位即可换一条 take 而仍然可复现",
     )
-    return parser
+    args = parser.parse_args()
+    args.server = args.server.rstrip(
+        "/"
+    )  # 尾斜杠归一：health/synthesize 两处拼 URL 前收口
 
-
-def _print_styles() -> None:
-    print(
-        "风格            说明      情感向量（happy,angry,sad,afraid,disgusted,melancholic,surprised,calm）"
-        "  alpha  有效注入  语速  束宽"
-    )
-    for name, p in STYLE_PRESETS.items():
-        vec = ",".join(f"{x:g}" for x in p["vec"]) if p["vec"] else "—（不注入情感）"
-        eff = (sum(p["vec"]) * p["alpha"]) if p["vec"] else 0.0
-        smp_note = (
-            ""
-            if not p.get("sampling")
-            else "  采样 "
-            + ",".join(f"{k}={v!r}" for k, v in sorted(p["sampling"].items()))
-        )
-        # 预设自带种子/块合成同样改合成口径（进摘要），不能只在表外隐身
-        if p.get("seed") is not None:
-            smp_note += f"  seed={p['seed']}"
-        if blk := p.get("block"):
-            smp_note += f"  块合成（≤{blk['max_sentences']} 句/≤{blk['max_chars']} 字）"
-        print(
-            f"{name:<14}  {p['label']:<6}  {vec:<62}  {p['alpha']:<5}  "
-            f"{eff:<8.3g}  {p['df']:<4}  {p.get('beams', 1)}{smp_note}"
-        )
-    print(
-        "\n采样参数（temperature/top_p/top_k/length_penalty/repetition_penalty/"
-        "max_mel_tokens/interval_silence）未在任何预设中覆盖，"
-        "均取上游默认："
-        + ", ".join(f"{k}={v!r}" for k, v in SAMPLING_DEFAULTS.items())
-        + "；行尾标 seed= 的预设自带种子（覆盖 seed=None），标「块合成」的按故事块合成"
-        f"（{MANUAL} §4.5）"
-    )
-
-
-def _resolve_lang_voice(
-    parser: argparse.ArgumentParser, args: argparse.Namespace
-) -> tuple[str, str]:
-    """语言解析：--lang/--voice 未显式给出时按 --narration-lang 从镜像表取缺省——
-    `--narration-lang en` 下绝不能静默回落 ZH/中文音色（digest 与音色都会错槽位）。"""
+    # 语言解析：--lang/--voice 未显式给出时按 --narration-lang 从镜像表取缺省——
+    # `--narration-lang en` 下绝不能静默回落 ZH/中文音色（digest 与音色都会错槽位）。
     want_lang, want_voice = LANG_MIRROR[args.narration_lang]
     # 显式 --lang 与镜像解析值冲突即拦（两引擎统一）：错语言 take 的 digest 自洽，
     # 后续会当缓存命中，事后只能靠听发现。
@@ -1849,12 +1175,44 @@ def _resolve_lang_voice(
         )
     tts_lang = want_lang  # 冲突已拦：显式值若给出必与镜像解析值相等
     voice = args.voice if args.voice is not None else want_voice
-    return tts_lang, voice
 
+    if args.list_styles:
+        print(
+            "风格            说明      情感向量（happy,angry,sad,afraid,disgusted,melancholic,surprised,calm）"
+            "  alpha  有效注入  语速  束宽"
+        )
+        for name, p in STYLE_PRESETS.items():
+            vec = (
+                ",".join(f"{x:g}" for x in p["vec"]) if p["vec"] else "—（不注入情感）"
+            )
+            eff = (sum(p["vec"]) * p["alpha"]) if p["vec"] else 0.0
+            smp_note = (
+                ""
+                if not p.get("sampling")
+                else "  采样 "
+                + ",".join(f"{k}={v!r}" for k, v in sorted(p["sampling"].items()))
+            )
+            # 预设自带种子/块合成同样改合成口径（进摘要），不能只在表外隐身
+            if p.get("seed") is not None:
+                smp_note += f"  seed={p['seed']}"
+            if blk := p.get("block"):
+                smp_note += (
+                    f"  块合成（≤{blk['max_sentences']} 句/≤{blk['max_chars']} 字）"
+                )
+            print(
+                f"{name:<14}  {p['label']:<6}  {vec:<62}  {p['alpha']:<5}  "
+                f"{eff:<8.3g}  {p['df']:<4}  {p.get('beams', 1)}{smp_note}"
+            )
+        print(
+            "\n采样参数（temperature/top_p/top_k/length_penalty/repetition_penalty/"
+            "max_mel_tokens/interval_silence）未在任何预设中覆盖，"
+            "均取上游默认："
+            + ", ".join(f"{k}={v!r}" for k, v in SAMPLING_DEFAULTS.items())
+            + "；行尾标 seed= 的预设自带种子（覆盖 seed=None），标「块合成」的按故事块合成"
+            f"（{MANUAL} §4.5）"
+        )
+        return
 
-def _guard_edge_args(parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
-    """edge 引擎的克隆专属参数闸（--plan 硬失败 + clone-only 族拦截 + benign 提示）；
-    indextts 不适用，含 if 判定一并抽入。"""
     if args.engine == "edge":
         # --plan 语义是「只看不跑」，而 edge 无束宽/无估时口径。若沿用「提示后照跑」的处理，
         # 漏写 --engine indextts 时会静默全量合成，把整集克隆音频改写成 edge 预置音色
@@ -1907,7 +1265,7 @@ def _guard_edge_args(parser: argparse.ArgumentParser, args: argparse.Namespace) 
             flag
             for flag, val in {
                 "--steady-beams": args.steady_beams != 3,
-                "--server": args.server != DEFAULT_SERVER,
+                "--server": args.server != "http://127.0.0.1:8766",
                 "--engine-tag": args.engine_tag != "indextts",
                 # --seed-offset 单独给值而没给 --seed 时无任何效果（见 resolve_sampling）
                 "--seed-offset": args.seed_offset != 0 and args.seed is None,
@@ -1920,11 +1278,10 @@ def _guard_edge_args(parser: argparse.ArgumentParser, args: argparse.Namespace) 
                 file=sys.stderr,
             )
 
+    # ── 人为触发原则（RSI-040）：先于一切工程文件读取 ──────────────────
+    # 缺 --final-voice 的 indextts 实跑在此硬失败（见上方函数 docstring）。
+    enforce_final_voice_gate(parser, args)
 
-def _load_episode(
-    args: argparse.Namespace,
-) -> tuple[Path, Path, list[dict], Path | None, str]:
-    """读工程：narration json（缺则大声退出）→ 输出目录 mkdir → 版本库与集 slug。"""
     root = Path(args.project).resolve()
     # 后缀规则内联（与 langs.narration_json / langs.audio_dir 同构，见 LANG_MIRROR 注）：
     # 主语言 zh 路径逐字节等于旧版，非主语言加 .<lang> 后缀 / 子目录。
@@ -1943,33 +1300,414 @@ def _load_episode(
     out_dir.mkdir(parents=True, exist_ok=True)
     store = store_root(args.no_store)
     slug = root.name
-    return root, out_dir, items, store, slug
 
-
-async def _run_edge(
-    args: argparse.Namespace,
-    *,
-    voice: str,
-    tts_lang: str,
-    out_dir: Path,
-    items: list[dict],
-) -> tuple[list[dict], str]:
-    signature = f"edge|{voice}|{args.rate}"
-    check_voice_marker(out_dir, signature, args.allow_voice_switch)
-    sem = asyncio.Semaphore(CONCURRENCY_EDGE)
-    results = await asyncio.gather(
-        *(
-            synth_edge(sem, i, args.force, voice, args.rate, out_dir, tts_lang)
-            for i in items
+    if args.engine == "edge":
+        signature = f"edge|{voice}|{args.rate}"
+        check_voice_marker(out_dir, signature, args.allow_voice_switch)
+        sem = asyncio.Semaphore(CONCURRENCY_EDGE)
+        results = await asyncio.gather(
+            *(
+                synth_edge(sem, i, args.force, voice, args.rate, out_dir, tts_lang)
+                for i in items
+            )
         )
-    )
-    return results, signature
+    else:
+        # 情感三来源互斥：显式向量 / 情感参考音频 / 自然语言描述（服务端亦校验，此处提前失败）
+        emo_sources = [
+            f
+            for f, v in (
+                ("--emo-vector", args.emo_vector),
+                ("--emo-ref", args.emo_ref),
+                ("--emo-text", args.emo_text),
+            )
+            if v
+        ]
+        if len(emo_sources) > 1:
+            parser.error(f"情感来源互斥，只能给一个：{' '.join(emo_sources)}")
+        if args.style != "neutral" and emo_sources:
+            parser.error(f"--style 非默认值与 {emo_sources[0]} 互斥")
+        if args.emo_ref or args.emo_text:
+            # 音频/文本驱动情感时不注入向量；alpha 默认 1.0（完全采用该情感来源）
+            style_name = "emoref" if args.emo_ref else "emotext"
+            vec = None
+            alpha = args.emo_alpha if args.emo_alpha is not None else 1.0
+            df = args.duration_factor if args.duration_factor is not None else 1.0
+            beams = args.num_beams if args.num_beams is not None else 1
+        else:
+            try:
+                style_name, vec, alpha, df, beams = resolve_style(args)
+            except ValueError as e:
+                parser.error(str(e))
+        try:
+            sampling = resolve_sampling(args)
+        except ValueError as e:
+            parser.error(str(e))
+        if not args.ref:
+            parser.error(
+                "--engine indextts 需要 --ref 参考音色样本（见 " + MANUAL + " §三）"
+            )
+        ref_path = Path(args.ref).expanduser().resolve()
+        if not ref_path.is_file():
+            parser.error(f"参考样本不存在: {ref_path}")
+        if args.emo_alpha is not None and not 0.0 <= args.emo_alpha <= 1.0:
+            parser.error("--emo-alpha 必须在 [0, 1]")
+        if (
+            vec is not None and sum(vec) * alpha > 0.8
+        ):  # infer 内部以 alpha 缩放，校验有效和
+            parser.error(
+                f"情感向量有效和 {sum(vec) * alpha:.3f}（Σvec×alpha）超过 0.8 上限"
+            )
+        if args.duration_factor is not None and not 0.5 <= args.duration_factor <= 2.0:
+            parser.error("--duration-factor 必须在 [0.5, 2.0]")
 
+        emo_ref_path = emo_ref_sha1 = None
+        if args.emo_ref:
+            p = Path(args.emo_ref).expanduser().resolve()
+            if not p.is_file():
+                parser.error(f"情感参考音频不存在: {p}")
+            emo_ref_path = str(p)
+            # 情感样本按内容入摘要：换情感录音必须失效缓存（与 ref 同口径）
+            emo_ref_sha1 = hashlib.sha1(p.read_bytes()).hexdigest()[:12]
+        ref_sha1 = hashlib.sha1(ref_path.read_bytes()).hexdigest()[:12]
+        # 指纹硬校验：样本即音色。换样本 = 整集换音色，必须在长跑开始前失败
+        if args.expect_ref_sha1 and args.expect_ref_sha1 != ref_sha1:
+            parser.error(
+                f"参考样本指纹不符：期望 {args.expect_ref_sha1}，实得 {ref_sha1}"
+                f"（{ref_path}）——源录音或裁剪参数已变。"
+                f"勿在未核验音色上跑长合成；指纹清单见 $V/refs.toml（$W/voices/）"
+            )
 
-def _write_outputs(
-    out_dir: Path, results: list[dict], signature: str, steady_note: str | None
-) -> None:
-    """落盘 + 回执：manifest → .engine（成功收尾才落签名）→ 合成行 → 混合档行 → manifest 路径。"""
+        # 混合档：解析选择器并逐句定束宽（此处即失败，避免典型的「id 拼错→静默全按低束宽跑完」）
+        beams_of: dict[str, int] = dict.fromkeys((i["id"] for i in items), beams)
+        if args.steady:
+            if args.steady_beams <= beams:
+                parser.error(
+                    f"--steady-beams {args.steady_beams} 不高于基础束宽 {beams}，混合档无意义"
+                )
+            try:
+                sids, scenes, prefixes = parse_steady_selector(args.steady)
+            except ValueError as e:
+                parser.error(str(e))
+            for tok in sorted(sids | scenes) + [p + "*" for p in prefixes]:
+                one_id, one_scene, one_pre = parse_steady_selector(tok)
+                if not any(steady_match(i, one_id, one_scene, one_pre) for i in items):
+                    parser.error(
+                        f"--steady 的 {tok!r} 未命中任何句子（幕名/句 id 拼错？）"
+                    )
+            for i in items:
+                if steady_match(i, sids, scenes, prefixes):
+                    beams_of[i["id"]] = args.steady_beams
+
+        signature = f"indextts|{args.engine_tag}|{style_name}|{ref_sha1}"
+        # 在 --plan 之前检查：排期正是发现「这次长跑将整集换音色」的最佳时机
+        check_voice_marker(out_dir, signature, args.allow_voice_switch)
+
+        # ── 段落演绎（story 档）：块模式解析 ─────────────────────────────
+        # 块=同幕连续句一次合成（句间自然停顿），服务端切回逐句 mp3。仅预设声明 block
+        # 时启用；EN 未验证（07-tts-voice 跨语种须试听）回退逐句；--steady 的逐句升束
+        # 与「块=一个请求」冲突，硬拒。
+        block_cfg = (STYLE_PRESETS.get(style_name) or {}).get("block")
+        if block_cfg and tts_lang != "ZH":
+            print(
+                "提示：story 档块合成未在 EN 验证（跨语种须试听，见 references/07-tts-voice.md），"
+                "EN 本次回退逐句合成",
+                file=sys.stderr,
+            )
+            block_cfg = None
+        # 须排在 EN 回退之后：回退逐句的 EN 版与 --steady 并不冲突
+        if block_cfg and args.steady:
+            parser.error("--steady 的逐句升束与块合成（story 档）冲突：整块同一束宽")
+        perform_punct = bool(block_cfg and block_cfg.get("perform_punct"))
+        # 句界丢弃量＝时间轴句距（时间轴随后加回 ⇒ 听感＝自然停顿原值）。
+        # 直读 timing.json（不 import 兄弟模块），缺文件/缺键回退机制常数 0.32。
+        discard_sec = 0.32
+        if block_cfg:
+            timing_json = root / "video" / "src" / "timing.json"
+            if timing_json.is_file():
+                try:
+                    discard_sec = float(
+                        json.loads(timing_json.read_text(encoding="utf-8"))[
+                            "sentenceGapSec"
+                        ]
+                    )
+                except (ValueError, KeyError, TypeError):
+                    pass
+        blocks: list[list[dict]] = plan_blocks(items, block_cfg) if block_cfg else []
+        # 台本护栏提前到 --plan：长跑前发现 Σvec×alpha 超界、同块多条 [take]
+        if block_cfg:
+            for b in blocks:
+                _, _, bad_id = resolve_block_vec(b, vec, alpha)
+                if bad_id is not None:
+                    parser.error(
+                        f"{bad_id} 的台本情绪有效和超过 0.8 上限（见 {MANUAL} §4.2）"
+                    )
+                try:
+                    block_sampling(b, sampling)
+                except ValueError as e:
+                    parser.error(str(e))
+
+        if args.plan:  # 计划模式：纯本地计算，不连服务
+            print(
+                f">> 计划：{root.name} · 风格 {style_name} · alpha {alpha:g} · 语速 {df:g}"
+                + (
+                    ""
+                    if not sampling
+                    else " · 采样 "
+                    + ",".join(f"{k}={sampling[k]!r}" for k in sorted(sampling))
+                )
+            )
+            todo = {b: 0 for b in sorted(set(beams_of.values()))}
+            cached = dict(todo)
+            store_hits = dict(todo)
+            if block_cfg:
+                # 块=缓存单位：整块成员全部命中才算命中；改一句 ⇒ 整块重录
+                cached_blocks = recoverable_blocks = todo_blocks = todo_members = 0
+                recoverable_members = 0
+                for b in blocks:
+                    b_vec, b_alpha, _ = resolve_block_vec(b, vec, alpha)
+                    b_sampling = block_sampling(b, sampling)
+                    suffix = block_digest_suffix(
+                        [synth_source_text(i) for i in b],
+                        discard_sec,
+                        block_cfg.get("tail_pad_sec", 0.18),
+                    )
+                    n = len(b)
+                    all_local, all_recoverable = True, True
+                    for k, i in enumerate(b):
+                        d = digest_indextts(
+                            ref_sha1,
+                            style_name,
+                            b_vec,
+                            b_alpha,
+                            df,
+                            tts_lang,
+                            args.engine_tag,
+                            synth_source_text(i),
+                            beams,
+                            None,
+                            None,
+                            b_sampling,
+                            suffix,
+                            f"{k + 1}/{n}",
+                        )
+                        meta, mp3 = (
+                            out_dir / f"{i['id']}.sha",
+                            out_dir / f"{i['id']}.mp3",
+                        )
+                        local_ok = (
+                            not args.force
+                            and mp3.exists()
+                            and mp3.stat().st_size > 0
+                            and meta.exists()
+                            and meta.read_text() == d
+                        )
+                        if not local_ok:
+                            all_local = False
+                            if args.force or not store_has(store, slug, i["id"], d):
+                                all_recoverable = False
+                    if all_local:
+                        cached_blocks += 1
+                    elif all_recoverable:
+                        recoverable_blocks += 1
+                        recoverable_members += n
+                        todo_blocks += 1
+                        todo_members += n
+                    else:
+                        todo_blocks += 1
+                        todo_members += n
+                # 同逐句口径：版本库整块直收不占合成时间，不进估时
+                est = (
+                    (todo_members - recoverable_members)
+                    * AVG_SEC_PER_LINE
+                    * (RTF_1BEAM if beams == 1 else RTF_MULTIBEAM)
+                )
+                print(
+                    f"   块模式：{len(blocks)} 块 · 待合成 {todo_blocks} 块 / {todo_members} 句"
+                    f" · 已整块缓存 {cached_blocks} 块"
+                    + (
+                        f" · 版本库可整块回收 {recoverable_blocks} 块"
+                        if recoverable_blocks
+                        else ""
+                    )
+                    + "（块=缓存单位，改一句重录整块）"
+                )
+                print(
+                    f">> 待合成合计 {todo_members} 句（块口径）"
+                    + (
+                        f"（其中 {recoverable_blocks} 块 / {recoverable_members} 句由版本库整块直收，"
+                        "不占合成时间）"
+                        if recoverable_members
+                        else ""
+                    )
+                    + f"，估算墙钟约 {est / 3600:.1f} 小时"
+                    f"（长跑折算口径 RTF 1 束≈{RTF_1BEAM:g} / 高束宽≈{RTF_MULTIBEAM:g}，"
+                    f"机器负载会显著影响，仅作排期参考）"
+                )
+                return
+            for i in items:
+                b = beams_of[i["id"]]
+                d = digest_indextts(
+                    ref_sha1,
+                    style_name,
+                    vec,
+                    alpha,
+                    df,
+                    tts_lang,
+                    args.engine_tag,
+                    synth_source_text(i),
+                    b,
+                    emo_ref_sha1,
+                    args.emo_text,
+                    sampling,
+                )
+                meta, mp3 = out_dir / f"{i['id']}.sha", out_dir / f"{i['id']}.mp3"
+                hit = (
+                    not args.force
+                    and mp3.exists()
+                    and mp3.stat().st_size > 0
+                    and meta.exists()
+                    and meta.read_text() == d
+                )
+                (cached if hit else todo)[b] += 1
+                if not hit and not args.force and store_has(store, slug, i["id"], d):
+                    store_hits[b] += 1
+            # 估时用**整集长跑折算口径**（含降频、机器争用与逐句开销），不是单句空闲口径：
+            # 1 束 RTF≈13（三集 596 句实测 8.5 h 折算）、≥2 束≈45（短句 A/B 实测约 3.2 倍）；
+            # 每句音频按 4.2s（三集均值）。单句空闲时可快到 RTF 6–7，故本估算偏保守。
+            est = sum(
+                (n - store_hits[b])
+                * AVG_SEC_PER_LINE
+                * (RTF_1BEAM if b == 1 else RTF_MULTIBEAM)
+                for b, n in todo.items()
+            )
+            for b in sorted(todo):
+                print(
+                    f"   束宽 {b}：待合成 {todo[b]:>3} 句 · 已缓存 {cached[b]:>3} 句"
+                    + (
+                        f" · 版本库可回收 {store_hits[b]:>3} 句"
+                        if store_hits[b]
+                        else ""
+                    )
+                    + ("" if b == 1 else "（高束宽档）")
+                )
+            print(
+                f">> 待合成合计 {sum(todo.values())} 句"
+                + (
+                    f"（其中 {sum(store_hits.values())} 句由版本库直收，不占合成时间）"
+                    if sum(store_hits.values())
+                    else ""
+                )
+                + f"，估算墙钟约 {est / 3600:.1f} 小时"
+                f"（长跑折算口径 RTF 1 束≈{RTF_1BEAM:g} / 高束宽≈{RTF_MULTIBEAM:g}，"
+                f"机器负载会显著影响，仅作排期参考）"
+            )
+            return
+
+        try:
+            health = await asyncio.to_thread(
+                http_json, "GET", f"{args.server}/health", None, 10
+            )
+            if not health.get("ok"):
+                raise RuntimeError(f"health.ok=false: {health}")
+        except Exception as e:  # noqa: BLE001 - 服务未启动给出可操作指引
+            print(
+                f"IndexTTS 服务不可用（{e}）。请先启动：\n{server_launch_hint()}\n详见 {MANUAL} §二",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        if df != 1.0 and not health.get("supports_duration_factor"):
+            parser.error(
+                "当前服务为 IndexTTS-2（无语速控制）：去掉 --duration-factor，或风格选 neutral，见 "
+                + MANUAL
+            )
+        if args.emo_text and not health.get("supports_emo_text"):
+            parser.error(
+                "当前服务未加载 QwenEmotion：重启服务加 --use-qwen-emo，或改用 --emo-vector/--emo-ref，见 "
+                + MANUAL
+            )
+        # 采样参数/种子对旧服务是**静默丢弃**（Pydantic 默认忽略未声明字段），而摘要这边已经
+        # 按新参数变了 ⇒ 会产出「摘要说改过、音频其实没改」的假验证。故显式硬失败。
+        sampling_only = {k: v for k, v in sampling.items() if k != "seed"}
+        if sampling_only and not health.get("supports_sampling_params"):
+            parser.error(
+                f"当前服务不支持采样参数（{','.join(sorted(sampling_only))}）：服务端代码过旧，"
+                f"请用 dub 当前 dub_tts_server.py 重启服务，见 {MANUAL} §二"
+            )
+        if "seed" in sampling and not health.get("supports_seed"):
+            parser.error(
+                f"当前服务不支持 --seed：服务端代码过旧，请用 dub 当前 dub_tts_server.py 重启服务，见 {MANUAL} §二"
+            )
+        if sampling.get("text_normalization") is False and not health.get(
+            "supports_text_normalization"
+        ):
+            parser.error(
+                "当前服务为 IndexTTS-2（infer() 无 text_normalization 形参）："
+                "去掉 --no-text-normalization，或改用 v2.5 服务"
+            )
+        if block_cfg and not health.get("supports_blocks"):
+            parser.error(blocks_unsupported_hint(health))
+
+        sem = asyncio.Semaphore(CONCURRENCY_INDEXTTS)
+        if block_cfg:
+            # 段落演绎：块=合成与缓存单位；逐块并发=1（服务端串行锁），结果按原顺序展平
+            block_results = await asyncio.gather(
+                *(
+                    synth_block_indextts(
+                        sem,
+                        b,
+                        args.force,
+                        str(ref_path),
+                        ref_sha1,
+                        style_name,
+                        vec,
+                        alpha,
+                        df,
+                        tts_lang,
+                        args.engine_tag,
+                        args.server,
+                        out_dir,
+                        num_beams=beams,
+                        sampling=sampling,
+                        store=store,
+                        slug=slug,
+                        discard_sec=discard_sec,
+                        tail_pad_sec=block_cfg.get("tail_pad_sec", 0.18),
+                        perform_punct=perform_punct,
+                    )
+                    for b in blocks
+                )
+            )
+            results = [r for br in block_results for r in br]
+        else:
+            results = await asyncio.gather(
+                *(
+                    synth_indextts(
+                        sem,
+                        i,
+                        args.force,
+                        str(ref_path),
+                        ref_sha1,
+                        style_name,
+                        vec,
+                        alpha,
+                        df,
+                        tts_lang,
+                        args.engine_tag,
+                        args.server,
+                        out_dir,
+                        # 逐句束宽：基础值来自「命令行优先、否则取预设」，--steady 命中句再提高
+                        num_beams=beams_of[i["id"]],
+                        emo_ref=emo_ref_path,
+                        emo_ref_sha1=emo_ref_sha1,
+                        emo_text=args.emo_text,
+                        sampling=sampling,
+                        store=store,
+                        slug=slug,
+                    )
+                    for i in items
+                )
+            )
+
     manifest_path = out_dir / "manifest.json"
     manifest_path.write_text(
         json.dumps(results, ensure_ascii=False, indent=1) + "\n", encoding="utf-8"
@@ -1977,607 +1715,13 @@ def _write_outputs(
     write_voice_marker(out_dir, signature)  # 成功收尾才落签名，中途失败不改变基线
     total = sum(r["durationSec"] for r in results)
     print(f"合成 {len(results)} 句，纯语音总时长 {total / 60:.2f} 分钟")
-    if steady_note is not None:
-        print(steady_note)
-    print(f"manifest: {manifest_path}")
-
-
-def _resolve_clone_style(
-    parser: argparse.ArgumentParser, args: argparse.Namespace
-) -> tuple[str, list[float] | None, float, float, int, dict[str, float | int | bool]]:
-    """情感/风格/采样解析：三来源互斥校验 → style 预设或 emoref/emotext → 采样差异集。"""
-    # 情感三来源互斥：显式向量 / 情感参考音频 / 自然语言描述（服务端亦校验，此处提前失败）
-    emo_sources = [
-        f
-        for f, v in (
-            ("--emo-vector", args.emo_vector),
-            ("--emo-ref", args.emo_ref),
-            ("--emo-text", args.emo_text),
-        )
-        if v
-    ]
-    if len(emo_sources) > 1:
-        parser.error(f"情感来源互斥，只能给一个：{' '.join(emo_sources)}")
-    if args.style != "neutral" and emo_sources:
-        parser.error(f"--style 非默认值与 {emo_sources[0]} 互斥")
-    if args.emo_ref or args.emo_text:
-        # 音频/文本驱动情感时不注入向量；alpha 默认 1.0（完全采用该情感来源）
-        style_name = "emoref" if args.emo_ref else "emotext"
-        vec = None
-        alpha = args.emo_alpha if args.emo_alpha is not None else 1.0
-        df = args.duration_factor if args.duration_factor is not None else 1.0
-        beams = args.num_beams if args.num_beams is not None else 1
-    else:
-        try:
-            style_name, vec, alpha, df, beams = resolve_style(args)
-        except ValueError as e:
-            parser.error(str(e))
-    try:
-        sampling = resolve_sampling(args)
-    except ValueError as e:
-        parser.error(str(e))
-    return style_name, vec, alpha, df, beams, sampling
-
-
-def _resolve_clone_refs(
-    parser: argparse.ArgumentParser,
-    args: argparse.Namespace,
-    *,
-    vec: list[float] | None,
-    alpha: float,
-) -> tuple[Path, str, str | None, str | None]:
-    """参考样本校验与指纹：→ (ref_path, ref_sha1, emo_ref_path, emo_ref_sha1)。"""
-    if not args.ref:
-        parser.error(
-            "--engine indextts 需要 --ref 参考音色样本（见 " + MANUAL + " §三）"
-        )
-    ref_path = Path(args.ref).expanduser().resolve()
-    if not ref_path.is_file():
-        parser.error(f"参考样本不存在: {ref_path}")
-    if args.emo_alpha is not None and not 0.0 <= args.emo_alpha <= 1.0:
-        parser.error("--emo-alpha 必须在 [0, 1]")
-    if (
-        vec is not None and sum(vec) * alpha > 0.8
-    ):  # infer 内部以 alpha 缩放，校验有效和
-        parser.error(
-            f"情感向量有效和 {sum(vec) * alpha:.3f}（Σvec×alpha）超过 0.8 上限"
-        )
-    if args.duration_factor is not None and not 0.5 <= args.duration_factor <= 2.0:
-        parser.error("--duration-factor 必须在 [0.5, 2.0]")
-
-    emo_ref_path = emo_ref_sha1 = None
-    if args.emo_ref:
-        p = Path(args.emo_ref).expanduser().resolve()
-        if not p.is_file():
-            parser.error(f"情感参考音频不存在: {p}")
-        emo_ref_path = str(p)
-        # 情感样本按内容入摘要：换情感录音必须失效缓存（与 ref 同口径）
-        emo_ref_sha1 = hashlib.sha1(p.read_bytes()).hexdigest()[:12]
-    ref_sha1 = hashlib.sha1(ref_path.read_bytes()).hexdigest()[:12]
-    # 指纹硬校验：样本即音色。换样本 = 整集换音色，必须在长跑开始前失败
-    if args.expect_ref_sha1 and args.expect_ref_sha1 != ref_sha1:
-        parser.error(
-            f"参考样本指纹不符：期望 {args.expect_ref_sha1}，实得 {ref_sha1}"
-            f"（{ref_path}）——源录音或裁剪参数已变。"
-            f"勿在未核验音色上跑长合成；指纹清单见 $V/refs.toml（$W/voices/）"
-        )
-    return ref_path, ref_sha1, emo_ref_path, emo_ref_sha1
-
-
-def _resolve_steady_beams(
-    parser: argparse.ArgumentParser,
-    args: argparse.Namespace,
-    items: list[dict],
-    beams: int,
-) -> dict[str, int]:
-    """混合档：解析选择器并逐句定束宽（此处即失败，避免典型的「id 拼错→静默全按低束宽跑完」）。"""
-    beams_of: dict[str, int] = dict.fromkeys((i["id"] for i in items), beams)
-    if args.steady:
-        if args.steady_beams <= beams:
-            parser.error(
-                f"--steady-beams {args.steady_beams} 不高于基础束宽 {beams}，混合档无意义"
-            )
-        try:
-            sids, scenes, prefixes = parse_steady_selector(args.steady)
-        except ValueError as e:
-            parser.error(str(e))
-        for tok in sorted(sids | scenes) + [p + "*" for p in prefixes]:
-            one_id, one_scene, one_pre = parse_steady_selector(tok)
-            if not any(steady_match(i, one_id, one_scene, one_pre) for i in items):
-                parser.error(f"--steady 的 {tok!r} 未命中任何句子（幕名/句 id 拼错？）")
-        for i in items:
-            if steady_match(i, sids, scenes, prefixes):
-                beams_of[i["id"]] = args.steady_beams
-    return beams_of
-
-
-def _resolve_block_mode(
-    parser: argparse.ArgumentParser,
-    args: argparse.Namespace,
-    *,
-    root: Path,
-    items: list[dict],
-    style_name: str,
-    tts_lang: str,
-    vec: list[float] | None,
-    alpha: float,
-    sampling: dict[str, float | int | bool],
-) -> tuple[dict | None, bool, float, list[list[dict]]]:
-    """段落演绎（story 档）块模式解析 → (block_cfg, perform_punct, discard_sec, blocks)。"""
-    # ── 段落演绎（story 档）：块模式解析 ─────────────────────────────
-    # 块=同幕连续句一次合成（句间自然停顿），服务端切回逐句 mp3。仅预设声明 block
-    # 时启用；EN 未验证（07-tts-voice 跨语种须试听）回退逐句；--steady 的逐句升束
-    # 与「块=一个请求」冲突，硬拒。
-    block_cfg = (STYLE_PRESETS.get(style_name) or {}).get("block")
-    if block_cfg and tts_lang != "ZH":
-        print(
-            "提示：story 档块合成未在 EN 验证（跨语种须试听，见 references/07-tts-voice.md），"
-            "EN 本次回退逐句合成",
-            file=sys.stderr,
-        )
-        block_cfg = None
-    # 须排在 EN 回退之后：回退逐句的 EN 版与 --steady 并不冲突
-    if block_cfg and args.steady:
-        parser.error("--steady 的逐句升束与块合成（story 档）冲突：整块同一束宽")
-    perform_punct = bool(block_cfg and block_cfg.get("perform_punct"))
-    # 句界丢弃量＝时间轴句距（时间轴随后加回 ⇒ 听感＝自然停顿原值）。
-    # 直读 timing.json（不 import 兄弟模块），缺文件/缺键回退机制常数 0.32。
-    discard_sec = 0.32
-    if block_cfg:
-        timing_json = root / "video" / "src" / "timing.json"
-        if timing_json.is_file():
-            try:
-                discard_sec = float(
-                    json.loads(timing_json.read_text(encoding="utf-8"))[
-                        "sentenceGapSec"
-                    ]
-                )
-            except (ValueError, KeyError, TypeError):
-                pass
-    blocks: list[list[dict]] = plan_blocks(items, block_cfg) if block_cfg else []
-    # 台本护栏提前到 --plan：长跑前发现 Σvec×alpha 超界、同块多条 [take]
-    if block_cfg:
-        for b in blocks:
-            _, _, bad_id = resolve_block_vec(b, vec, alpha)
-            if bad_id is not None:
-                parser.error(
-                    f"{bad_id} 的台本情绪有效和超过 0.8 上限（见 {MANUAL} §4.2）"
-                )
-            try:
-                block_sampling(b, sampling)
-            except ValueError as e:
-                parser.error(str(e))
-    return block_cfg, perform_punct, discard_sec, blocks
-
-
-def _print_block_plan(
-    args: argparse.Namespace,
-    *,
-    out_dir: Path,
-    store: Path | None,
-    slug: str,
-    blocks: list[list[dict]],
-    block_cfg: dict,
-    style_name: str,
-    vec: list[float] | None,
-    alpha: float,
-    df: float,
-    beams: int,
-    sampling: dict[str, float | int | bool],
-    ref_sha1: str,
-    tts_lang: str,
-    discard_sec: float,
-) -> None:
-    """块口径 --plan：整块命中 / 可整块回收 / 待合成统计与估时（块=缓存单位）。"""
-    # 块=缓存单位：整块成员全部命中才算命中；改一句 ⇒ 整块重录
-    cached_blocks = recoverable_blocks = todo_blocks = todo_members = 0
-    recoverable_members = 0
-    for b in blocks:
-        b_vec, b_alpha, _ = resolve_block_vec(b, vec, alpha)
-        b_sampling = block_sampling(b, sampling)
-        suffix = block_digest_suffix(
-            [synth_source_text(i) for i in b],
-            discard_sec,
-            block_cfg.get("tail_pad_sec", 0.18),
-        )
-        n = len(b)
-        all_local, all_recoverable = True, True
-        for k, i in enumerate(b):
-            d = digest_indextts(
-                ref_sha1,
-                style_name,
-                b_vec,
-                b_alpha,
-                df,
-                tts_lang,
-                args.engine_tag,
-                synth_source_text(i),
-                beams,
-                None,
-                None,
-                b_sampling,
-                suffix,
-                f"{k + 1}/{n}",
-            )
-            meta, mp3 = (
-                out_dir / f"{i['id']}.sha",
-                out_dir / f"{i['id']}.mp3",
-            )
-            local_ok = (
-                not args.force
-                and mp3.exists()
-                and mp3.stat().st_size > 0
-                and meta.exists()
-                and meta.read_text() == d
-            )
-            if not local_ok:
-                all_local = False
-                if args.force or not store_has(store, slug, i["id"], d):
-                    all_recoverable = False
-        if all_local:
-            cached_blocks += 1
-        elif all_recoverable:
-            recoverable_blocks += 1
-            recoverable_members += n
-            todo_blocks += 1
-            todo_members += n
-        else:
-            todo_blocks += 1
-            todo_members += n
-    # 同逐句口径：版本库整块直收不占合成时间，不进估时
-    est = (
-        (todo_members - recoverable_members)
-        * AVG_SEC_PER_LINE
-        * (RTF_1BEAM if beams == 1 else RTF_MULTIBEAM)
-    )
-    print(
-        f"   块模式：{len(blocks)} 块 · 待合成 {todo_blocks} 块 / {todo_members} 句"
-        f" · 已整块缓存 {cached_blocks} 块"
-        + (f" · 版本库可整块回收 {recoverable_blocks} 块" if recoverable_blocks else "")
-        + "（块=缓存单位，改一句重录整块）"
-    )
-    print(
-        f">> 待合成合计 {todo_members} 句（块口径）"
-        + (
-            f"（其中 {recoverable_blocks} 块 / {recoverable_members} 句由版本库整块直收，"
-            "不占合成时间）"
-            if recoverable_members
-            else ""
-        )
-        + f"，估算墙钟约 {est / 3600:.1f} 小时"
-        f"（长跑折算口径 RTF 1 束≈{RTF_1BEAM:g} / 高束宽≈{RTF_MULTIBEAM:g}，"
-        f"机器负载会显著影响，仅作排期参考）"
-    )
-
-
-def _print_sentence_plan(
-    args: argparse.Namespace,
-    *,
-    items: list[dict],
-    out_dir: Path,
-    store: Path | None,
-    slug: str,
-    beams_of: dict[str, int],
-    style_name: str,
-    vec: list[float] | None,
-    alpha: float,
-    df: float,
-    sampling: dict[str, float | int | bool],
-    ref_sha1: str,
-    tts_lang: str,
-    emo_ref_sha1: str | None,
-) -> None:
-    """逐句口径 --plan：按束宽分桶统计已缓存 / 待合成 / 可回收与估时。"""
-    todo = {b: 0 for b in sorted(set(beams_of.values()))}
-    cached = dict(todo)
-    store_hits = dict(todo)
-    for i in items:
-        b = beams_of[i["id"]]
-        d = digest_indextts(
-            ref_sha1,
-            style_name,
-            vec,
-            alpha,
-            df,
-            tts_lang,
-            args.engine_tag,
-            synth_source_text(i),
-            b,
-            emo_ref_sha1,
-            args.emo_text,
-            sampling,
-        )
-        meta, mp3 = out_dir / f"{i['id']}.sha", out_dir / f"{i['id']}.mp3"
-        hit = (
-            not args.force
-            and mp3.exists()
-            and mp3.stat().st_size > 0
-            and meta.exists()
-            and meta.read_text() == d
-        )
-        (cached if hit else todo)[b] += 1
-        if not hit and not args.force and store_has(store, slug, i["id"], d):
-            store_hits[b] += 1
-    # 估时用**整集长跑折算口径**（含降频、机器争用与逐句开销），不是单句空闲口径：
-    # 1 束 RTF≈13（三集 596 句实测 8.5 h 折算）、≥2 束≈45（短句 A/B 实测约 3.2 倍）；
-    # 每句音频按 4.2s（三集均值）。单句空闲时可快到 RTF 6–7，故本估算偏保守。
-    est = sum(
-        (n - store_hits[b])
-        * AVG_SEC_PER_LINE
-        * (RTF_1BEAM if b == 1 else RTF_MULTIBEAM)
-        for b, n in todo.items()
-    )
-    for b in sorted(todo):
-        print(
-            f"   束宽 {b}：待合成 {todo[b]:>3} 句 · 已缓存 {cached[b]:>3} 句"
-            + (f" · 版本库可回收 {store_hits[b]:>3} 句" if store_hits[b] else "")
-            + ("" if b == 1 else "（高束宽档）")
-        )
-    print(
-        f">> 待合成合计 {sum(todo.values())} 句"
-        + (
-            f"（其中 {sum(store_hits.values())} 句由版本库直收，不占合成时间）"
-            if sum(store_hits.values())
-            else ""
-        )
-        + f"，估算墙钟约 {est / 3600:.1f} 小时"
-        f"（长跑折算口径 RTF 1 束≈{RTF_1BEAM:g} / 高束宽≈{RTF_MULTIBEAM:g}，"
-        f"机器负载会显著影响，仅作排期参考）"
-    )
-
-
-async def _require_server_ready(
-    parser: argparse.ArgumentParser,
-    args: argparse.Namespace,
-    *,
-    df: float,
-    sampling: dict[str, float | int | bool],
-    block_cfg: dict | None,
-) -> None:
-    """连服 /health + 六能力闸：服务不可用 sys.exit(1)，能力位缺失全 parser.error。"""
-    try:
-        health = await asyncio.to_thread(
-            http_json, "GET", f"{args.server}/health", None, 10
-        )
-        if not health.get("ok"):
-            raise RuntimeError(f"health.ok=false: {health}")
-    except Exception as e:  # noqa: BLE001 - 服务未启动给出可操作指引
-        print(
-            f"IndexTTS 服务不可用（{e}）。请先启动：\n{server_launch_hint()}\n详见 {MANUAL} §二",
-            file=sys.stderr,
-        )
-        sys.exit(1)
-    if df != 1.0 and not health.get("supports_duration_factor"):
-        parser.error(
-            "当前服务为 IndexTTS-2（无语速控制）：去掉 --duration-factor，或风格选 neutral，见 "
-            + MANUAL
-        )
-    if args.emo_text and not health.get("supports_emo_text"):
-        parser.error(
-            "当前服务未加载 QwenEmotion：重启服务加 --use-qwen-emo，或改用 --emo-vector/--emo-ref，见 "
-            + MANUAL
-        )
-    # 采样参数/种子对旧服务是**静默丢弃**（Pydantic 默认忽略未声明字段），而摘要这边已经
-    # 按新参数变了 ⇒ 会产出「摘要说改过、音频其实没改」的假验证。故显式硬失败。
-    sampling_only = {k: v for k, v in sampling.items() if k != "seed"}
-    if sampling_only and not health.get("supports_sampling_params"):
-        parser.error(
-            f"当前服务不支持采样参数（{','.join(sorted(sampling_only))}）：服务端代码过旧，"
-            f"请用本 skill 当前 tts_server.py 重启服务，见 {MANUAL} §二"
-        )
-    if "seed" in sampling and not health.get("supports_seed"):
-        parser.error(
-            f"当前服务不支持 --seed：服务端代码过旧，请用本 skill 当前 tts_server.py 重启服务，见 {MANUAL} §二"
-        )
-    if sampling.get("text_normalization") is False and not health.get(
-        "supports_text_normalization"
-    ):
-        parser.error(
-            "当前服务为 IndexTTS-2（infer() 无 text_normalization 形参）："
-            "去掉 --no-text-normalization，或改用 v2.5 服务"
-        )
-    if block_cfg and not health.get("supports_blocks"):
-        parser.error(blocks_unsupported_hint(health))
-
-
-async def _run_indextts(
-    parser: argparse.ArgumentParser,
-    args: argparse.Namespace,
-    *,
-    root: Path,
-    items: list[dict],
-    out_dir: Path,
-    tts_lang: str,
-    store: Path | None,
-    slug: str,
-) -> tuple[list[dict], str, str | None] | None:
-    """声音克隆主路径：克隆参数解析 → 签名护栏 → 块模式解析 → --plan（返回 None）
-    → 能力闸 → 两条 gather（块 / 逐句）。→ (results, signature, steady_note)。"""
-    style_name, vec, alpha, df, beams, sampling = _resolve_clone_style(parser, args)
-    ref_path, ref_sha1, emo_ref_path, emo_ref_sha1 = _resolve_clone_refs(
-        parser, args, vec=vec, alpha=alpha
-    )
-    beams_of = _resolve_steady_beams(parser, args, items, beams)
-
-    signature = f"indextts|{args.engine_tag}|{style_name}|{ref_sha1}"
-    # 在 --plan 之前检查：排期正是发现「这次长跑将整集换音色」的最佳时机
-    check_voice_marker(out_dir, signature, args.allow_voice_switch)
-
-    block_cfg, perform_punct, discard_sec, blocks = _resolve_block_mode(
-        parser,
-        args,
-        root=root,
-        items=items,
-        style_name=style_name,
-        tts_lang=tts_lang,
-        vec=vec,
-        alpha=alpha,
-        sampling=sampling,
-    )
-
-    if args.plan:  # 计划模式：纯本地计算，不连服务
-        print(
-            f">> 计划：{root.name} · 风格 {style_name} · alpha {alpha:g} · 语速 {df:g}"
-            + (
-                ""
-                if not sampling
-                else " · 采样 "
-                + ",".join(f"{k}={sampling[k]!r}" for k in sorted(sampling))
-            )
-        )
-        if block_cfg:
-            _print_block_plan(
-                args,
-                out_dir=out_dir,
-                store=store,
-                slug=slug,
-                blocks=blocks,
-                block_cfg=block_cfg,
-                style_name=style_name,
-                vec=vec,
-                alpha=alpha,
-                df=df,
-                beams=beams,
-                sampling=sampling,
-                ref_sha1=ref_sha1,
-                tts_lang=tts_lang,
-                discard_sec=discard_sec,
-            )
-            return None
-        _print_sentence_plan(
-            args,
-            items=items,
-            out_dir=out_dir,
-            store=store,
-            slug=slug,
-            beams_of=beams_of,
-            style_name=style_name,
-            vec=vec,
-            alpha=alpha,
-            df=df,
-            sampling=sampling,
-            ref_sha1=ref_sha1,
-            tts_lang=tts_lang,
-            emo_ref_sha1=emo_ref_sha1,
-        )
-        return None
-
-    await _require_server_ready(
-        parser, args, df=df, sampling=sampling, block_cfg=block_cfg
-    )
-
-    sem = asyncio.Semaphore(CONCURRENCY_INDEXTTS)
-    if block_cfg:
-        # 段落演绎：块=合成与缓存单位；逐块并发=1（服务端串行锁），结果按原顺序展平
-        block_results = await asyncio.gather(
-            *(
-                synth_block_indextts(
-                    sem,
-                    b,
-                    args.force,
-                    str(ref_path),
-                    ref_sha1,
-                    style_name,
-                    vec,
-                    alpha,
-                    df,
-                    tts_lang,
-                    args.engine_tag,
-                    args.server,
-                    out_dir,
-                    num_beams=beams,
-                    sampling=sampling,
-                    store=store,
-                    slug=slug,
-                    discard_sec=discard_sec,
-                    tail_pad_sec=block_cfg.get("tail_pad_sec", 0.18),
-                    perform_punct=perform_punct,
-                )
-                for b in blocks
-            )
-        )
-        results = [r for br in block_results for r in br]
-    else:
-        results = await asyncio.gather(
-            *(
-                synth_indextts(
-                    sem,
-                    i,
-                    args.force,
-                    str(ref_path),
-                    ref_sha1,
-                    style_name,
-                    vec,
-                    alpha,
-                    df,
-                    tts_lang,
-                    args.engine_tag,
-                    args.server,
-                    out_dir,
-                    # 逐句束宽：基础值来自「命令行优先、否则取预设」，--steady 命中句再提高
-                    num_beams=beams_of[i["id"]],
-                    emo_ref=emo_ref_path,
-                    emo_ref_sha1=emo_ref_sha1,
-                    emo_text=args.emo_text,
-                    sampling=sampling,
-                    store=store,
-                    slug=slug,
-                )
-                for i in items
-            )
-        )
-
-    steady_note = None
-    if args.steady:  # 混合档：回执两档各多少句，便于对账
+    if args.engine == "indextts" and args.steady:  # 混合档：回执两档各多少句，便于对账
         hi = sum(1 for i in items if beams_of[i["id"]] != beams)
-        steady_note = (
+        print(
             f"混合档：{len(items) - hi} 句按束宽 {beams}（{style_name}）+ "
             f"{hi} 句按束宽 {args.steady_beams}（--steady {args.steady}）"
         )
-    return results, signature, steady_note
-
-
-async def main() -> None:
-    parser = _build_parser()
-    args = parser.parse_args()
-    args.server = args.server.rstrip(
-        "/"
-    )  # 尾斜杠归一：health/synthesize 两处拼 URL 前收口
-
-    tts_lang, voice = _resolve_lang_voice(parser, args)
-
-    if args.list_styles:
-        _print_styles()
-        return
-
-    _guard_edge_args(parser, args)
-
-    # ── 人为触发原则（RSI-040）：先于一切工程文件读取 ──────────────────
-    # 缺 --final-voice 的 indextts 实跑在此硬失败（见上方函数 docstring）。
-    enforce_final_voice_gate(parser, args)
-
-    root, out_dir, items, store, slug = _load_episode(args)
-
-    steady_note = None
-    if args.engine == "edge":
-        results, signature = await _run_edge(
-            args, voice=voice, tts_lang=tts_lang, out_dir=out_dir, items=items
-        )
-    else:
-        r = await _run_indextts(
-            parser,
-            args,
-            root=root,
-            items=items,
-            out_dir=out_dir,
-            tts_lang=tts_lang,
-            store=store,
-            slug=slug,
-        )
-        if r is None:  # --plan：纯本地预演，不落 manifest/.engine
-            return
-        results, signature, steady_note = r
-    _write_outputs(out_dir, results, signature, steady_note)
+    print(f"manifest: {manifest_path}")
 
 
 if __name__ == "__main__":
