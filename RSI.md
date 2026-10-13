@@ -31,7 +31,7 @@
 通用派发与编排（Steward / Verifier / Context-Reviewer 三角色、隔离 clone、noreply 提交身份、限流背压）见[统一协议 §4 派发与编排](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#4-派发与编排)；仓内附加纪律：
 
 - 主代理只做三件事：**登记 ledger → 另起子代理 → 不顺手改**（制作过程中 `$T` 机制文件对主代理只读，例外仅两处**仅追加**的登记面：本 ledger、[建模手册](references/MODELING-PLAYBOOK.md)「候选区」——机制热修与手册条目增删改都走子代理，不在制片上下文里顺手落笔）。
-- 子代理只在 `$T` 的 git worktree 话题分支上工作（不占用户当前分支）；`$W`/`$P`/`$V` 一律只读——复现可读，绝不写；禁止 push 主分支、禁止 Rebase，commit 遵循仓库既有中文 conventional 风格。
+- 子代理只在隔离 clone 上工作（统一协议 §4；本仓实操 `<项目根>/.temp/rsi/<repo-key>/repo/<slug>`，不占用户当前检出）；`$W`/`$P`/`$V` 一律只读——复现可读，绝不写；禁止 push 默认分支、禁止 Rebase，commit 遵循仓库既有中文 conventional 风格。
 - 输入契约仓内脱敏加强：用户内容**脱敏摘录**不整搬——**声音样本是生物特征**，样本路径与音频一律不进材料。
 - 输入契约附改动面白名单：主代理派发时初步圈定允许触碰的文件，子代理可申请扩圈，但须在 PR 描述里说明理由——改动面裁量权锚在持制片上下文的主代理侧，不随 fresh context 子代理自定。
 - 分级线（仿 Stage ④「互不污染视角」）：触碰第九节不变量清单、或横跨 ≥3 文件的改动：**实施与核验须两个独立子代理**（核验方只拿 diff + ledger 条目，不拿实施方的推理过程）；一行 typo / 死链级修复：允许单代理自查过门。
@@ -49,7 +49,7 @@ uv run --no-project --with pytest --with numpy --with pillow --with mutagen --wi
 
 阻断性缺陷（立即快速通道、门禁一道不省）与非阻断改进（默认登记排队、收益证据门槛更高）的判据已上收[统一协议 §4](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#4-派发与编排)。
 
-仓内解堵纪律：阻断性缺陷修复期间，主代理可临时采用子代理分支上的修复继续制片（修复 worktree 挂 `$T` 侧检出），PR 与回归核验照常走完——制片不等合并。
+仓内解堵纪律：阻断性缺陷修复期间，主代理可临时采用隔离 clone 分支上的修复继续制片（把 clone 中的修复按需应用到本地检出），PR 与回归核验照常走完——制片不等合并。
 
 ## 六、PR 规范
 

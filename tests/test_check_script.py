@@ -1019,7 +1019,7 @@ def test_caption_duplication_opt_out_needs_reason(project):
 # ---------------- --lang en：译稿门集（RSI-004）----------------
 #
 # fixture 的 zh narration.json 有 4 句（p0-01/02 · P0，p1-01/02 · P1），en 侧
-# 镜像同 id 集。锁期望值按 zh fixture 文本现算（与 build_narration.zh_digest
+# 镜像同 id 集。锁期望值按 zh fixture 文本现算（与 build_narration.sentence_digest
 # 同口径），不复制 digest 字面——口径唯一。
 
 EN_ITEMS_OK = [

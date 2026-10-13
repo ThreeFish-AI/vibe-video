@@ -15,10 +15,10 @@ RSI-060 追加：§4.1 回看密度规则的回拉层级澄清锚（「最近一
 
 from __future__ import annotations
 
+from helpers import line_count, read_ref, read_skill_md  # noqa: E402
 from paths import skill_root  # noqa: E402
 
-REFERENCES = skill_root() / "references"
-CRAFT = REFERENCES / "DIRECTING-CRAFT.md"
+CRAFT = skill_root() / "references" / "DIRECTING-CRAFT.md"
 
 #: 行数上限（完整详解版 ~250 行档位 + 膨胀余量；知识库也要防 context rot）
 MAX_LINES = 500
@@ -27,19 +27,15 @@ MAX_LINES = 500
 SHOT_TIERS = ("ECU", "CU", "MS", "WS", "EWS")
 
 
-def _read(path) -> str:
-    return path.read_text(encoding="utf-8")
-
-
 def test_doc_exists_with_toc_and_budget():
     """DIRECTING-CRAFT.md 存在、带目录行、行数 ≤500。"""
     assert CRAFT.exists(), (
         "references/DIRECTING-CRAFT.md 不存在（RSI-048 知识 SSOT 缺失）"
     )
-    text = _read(CRAFT)
+    text = read_ref("DIRECTING-CRAFT.md")
     assert "**目录**" in text, "DIRECTING-CRAFT 缺目录行（按节查阅的导航面）"
-    assert text.count("\n") + 1 <= MAX_LINES, (
-        f"DIRECTING-CRAFT {text.count(chr(10)) + 1} 行 > {MAX_LINES}"
+    assert line_count(text) <= MAX_LINES, (
+        f"DIRECTING-CRAFT {line_count(text)} 行 > {MAX_LINES}"
         "——知识库膨胀会吃查阅 context，按节压缩或下沉研究文档"
     )
 
@@ -54,7 +50,7 @@ def test_stage_specs_inject_pointer_and_core_rule():
         "05-prose-refinement.md": ("`@shot`", None),  # 冻结清单只须含记号本身
     }
     for name, (needle, pointer) in checks.items():
-        text = _read(REFERENCES / name)
+        text = read_ref(name)
         assert needle in text, f"{name} 缺「{needle}」（RSI-048 核心规范注入）"
         if pointer:
             assert "](./DIRECTING-CRAFT.md)" in text, (
@@ -65,7 +61,7 @@ def test_stage_specs_inject_pointer_and_core_rule():
 
 def test_shot_enum_ssot_boundary():
     """五档景别完整枚举只在 DIRECTING-CRAFT；06 不得枚举 >2 档（防第二事实源）。"""
-    craft = _read(CRAFT)
+    craft = read_ref("DIRECTING-CRAFT.md")
     for tier in SHOT_TIERS:
         assert f"@shot:{tier}" in craft, (
             f"DIRECTING-CRAFT 缺 @shot:{tier} 档定义（词表 SSOT）"
@@ -74,7 +70,7 @@ def test_shot_enum_ssot_boundary():
     # 按裸名独立词统计档数（@shot:WS 与裸枚举 ECU/CU/MS/WS/EWS 都算——第二事实源的两种形态）
     import re
 
-    storyboard = _read(REFERENCES / "06-storyboard.md")
+    storyboard = read_ref("06-storyboard.md")
     present = [t for t in SHOT_TIERS if re.search(rf"\b{t}\b", storyboard)]
     assert len(present) <= 2, (
         f"06 出现了 {len(present)} 档景别名（{present}）——枚举 SSOT 在 DIRECTING-CRAFT §1.1，"
@@ -84,7 +80,7 @@ def test_shot_enum_ssot_boundary():
 
 def test_prose_refinement_freeze_list_covers_shot_tag():
     """05 §七.4 成文优化不动清单须含 @shot（防改写 pass 顺手改坏镜头标注）。"""
-    text = _read(REFERENCES / "05-prose-refinement.md")
+    text = read_ref("05-prose-refinement.md")
     assert "`@shot`" in text, (
         "05 冻结清单缺 `@shot`——成文优化会把画面列镜头标注当散文改写"
     )
@@ -93,7 +89,7 @@ def test_prose_refinement_freeze_list_covers_shot_tag():
 def test_pullback_level_clause():
     """RSI-060：§4.1 回看密度规则须带回拉层级——「最近一级全景」（父层），
     仅幕首/换层回根全景；不澄清则回拉档位无判据（回全图=噪声，回同层=迷航）。"""
-    text = _read(CRAFT)
+    text = read_ref("DIRECTING-CRAFT.md")
     assert "最近一级全景" in text, (
         "DIRECTING-CRAFT §4.1 回看密度规则缺回拉层级澄清（「最近一级全景」）——"
         "依据（Shneiderman mantra + semantic zoom）见 docs/research/directing-craft.md"
@@ -102,7 +98,7 @@ def test_pullback_level_clause():
 
 def test_skill_md_load_on_demand_row():
     """SKILL.md 按需加载表含 DIRECTING-CRAFT 行（②⑥⑧⑨ 设计时读）。"""
-    text = _read(skill_root() / "SKILL.md")
+    text = read_skill_md()
     assert "[DIRECTING-CRAFT.md](references/DIRECTING-CRAFT.md)" in text, (
         "SKILL.md 按需加载表缺 DIRECTING-CRAFT 行——Agent 无发现通道，知识库成孤岛（RSI-048）"
     )

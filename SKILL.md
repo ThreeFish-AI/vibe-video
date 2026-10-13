@@ -90,7 +90,7 @@ uv run --no-project $T/scripts/pipeline.py --project $P deliver   # → <根>/<�
 - 每集 `pipeline.toml` 是可执行参数唯一来源（默认值在 `config.py` SCHEMA，toml 只写偏离）；README 不复制命令行参数。
 - 时序常数只在 `video/src/timing.json`（TS 与 Python 双语共读同一 JSON）；运动语汇只在 `video/src/motion/`（frozen，改 = 模板 + 全集同步）。
 - 声音样本是生物特征：不入库（`voices/refs.toml` 只存指纹），试听后即删。
-- **配音人为触发**：IndexTTS 克隆仅本人显式点名时启用（实跑必带 `--final-voice`、zh/en 各算一次，`all` 永不透传；agent 不得主动建议，其余一律 edge 草声，终渲不自动升档）——见 [07](references/07-tts-voice.md)。
+- **配音人为触发**：IndexTTS 克隆仅本人显式点名启用（实跑必带 `--final-voice`、zh/en 各算一次；agent 不得主动建议）——细则与延续条款见 [07](references/07-tts-voice.md)；其余一律 edge 草声，终渲不自动升档。
 - **复用边界**：Python 脚本集中共享（SSOT）；Remotion 原语复制不共享——复制源头 `assets/video-skeleton/`，`scaffold.py` 实例化、`verify_skeleton.py` 字节级执法漂移。
 - **依赖版本策略**：优先最新稳定版（模板钉版/README 地板只是快照下限）；建集先 `npm view remotion version` 对照，Remotion 全家桶同 major 整组追新（drift 登记）、跨 major 走 RSI；细则见 [PIPELINE.md §九](references/PIPELINE.md)。
 - **双锚点**：skill 根随安装位置（脚本自 `__file__` 向上找 `SKILL.md`），工作区根由哨兵搜索定位——机制与内容物理分离，互不牵连。

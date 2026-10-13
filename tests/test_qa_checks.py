@@ -261,16 +261,17 @@ def test_multi_scene_sampling_is_per_scene(tmp_path):
     """多幕抽样按**各幕自身**句数定步长，句少的幕不会被整幕跳过。
 
     若用合并后的总数算步长，短幕（如 2 句）在长幕（如 30 句）面前会被
-    `[::N]` 直接跨过——又一次静默漏检。
+    `[::N]` 直接跨过——又一次静默漏检。直调 qa_frames._select_ids，
+    不在测试里复刻选择逻辑（第二事实源会与实现漂移）。
     """
+    from types import SimpleNamespace
+
     # 模拟 timeline：P0 三句、P6 两句
     tl = {f"p0-{i:02d}": (float(i), 1.0) for i in range(1, 4)}
     tl |= {f"p6-{i:02d}": (float(10 + i), 1.0) for i in range(1, 3)}
-    ids = []
-    for scene in ("P0", "P6"):
-        prefix = scene.lower() + "-"
-        scene_ids = [k for k in tl if k.startswith(prefix)]
-        ids += scene_ids[:: max(1, len(scene_ids) // 8)]
+    ids = qa_frames._select_ids(
+        SimpleNamespace(scene=["P0", "P6"], last_n=None, ids=[]), tl
+    )
     assert [i for i in ids if i.startswith("p0-")], "P0 必须有帧被抽到"
     assert [i for i in ids if i.startswith("p6-")], "P6 必须有帧被抽到"
     assert len(ids) == 5
@@ -511,3 +512,200 @@ def test_check_rejects_invalid_qa_config_loudly(
     # sys.exit(str) → code 即文案：点名病键与病因，而非笼统拒绝或裸 traceback
     assert isinstance(e.value.code, str), e.value.code
     assert "qa.max_dark_sec" in e.value.code and must_mention in e.value.code
+
+
+# ── main 路径特征化（C9 拆分前置护栏：两个零依赖面 + 三条 --check 的输出合同） ──
+
+
+def _mock_extract_solid(color: int):
+    """extract_frame 替身：向 dst 写纯色 1080p PNG（黑帧/普通帧两态可用）。"""
+
+    def fake_extract(_ffmpeg, _video, _cwd, _ts, dst, precise=False):
+        arr = np.full((1080, 1920), color, dtype=np.uint8)
+        dst.write_bytes(b"")
+        Image.fromarray(arr).save(dst)
+
+    return fake_extract
+
+
+def _mock_extract_content():
+    """extract_frame 替身：底色 + 字幕条 + 内容区亮块（句中点采样的全绿帧形态，
+    字幕带内有文字亮度像素，不触发字幕缺失 WARN）。"""
+
+    def fake_extract(_ffmpeg, _video, _cwd, _ts, dst, precise=False):
+        arr = np.full((1080, 1920), 17, dtype=np.uint8)
+        arr[1080 - 80 : 1080 - 20, (1920 - 600) // 2 : (1920 + 600) // 2] = 235
+        arr[360:560, (1920 - 500) // 2 : (1920 + 500) // 2] = 200
+        dst.write_bytes(b"")
+        Image.fromarray(arr).save(dst)
+
+    return fake_extract
+
+
+def test_stills_plan_golden_output(project, monkeypatch, capsys):
+    """--stills-plan 零依赖面：逐镜中点 remotion still 命令（frame 号由
+    manifest 实测 × timing.json 决定，输出全文即黄金合同）。"""
+    monkeypatch.setattr(
+        sys, "argv", ["qa_frames.py", "--project", str(project), "--stills-plan"]
+    )
+    qa_frames.main()
+    assert capsys.readouterr().out == (
+        ">> 抽帧计划 · fixture-video · 2 镜 · 实测 4/4 句（其余按 5 字/秒外推）\n"
+        "    在 video/ 目录下执行（首帧含打包 ~100s，之后每帧 4–5s）：\n"
+        "    ./node_modules/.bin/remotion still Main out/still-0-A.png --frame=69"
+        " --scale=0.4   # 镜 0-A（p0-01..p0-02）\n"
+        "    ./node_modules/.bin/remotion still Main out/still-1-A.png --frame=295"
+        " --scale=0.4   # 镜 1-A（p1-01..p1-02）\n"
+    )
+
+
+def test_check_theme_golden_output(project, monkeypatch, capsys):
+    """--check-theme 零依赖面：逐概念色 WCAG 行 + 汇总头，全文黄金合同、rc 0。"""
+    monkeypatch.setattr(
+        sys, "argv", ["qa_frames.py", "--project", str(project), "--check-theme"]
+    )
+    with pytest.raises(SystemExit) as e:
+        qa_frames.main()
+    assert e.value.code == 0
+    assert capsys.readouterr().out == (
+        ">> 主题对比度 · 基准 bg #0E1116\n"
+        "  ✅ text       #F2F5FA  对 bg 对比度 17.31:1\n"
+        "  ✅ dim        #9AA7B8  对 bg 对比度 7.74:1\n"
+        "  ✅ exp        #F5C542  对 bg 对比度 11.66:1\n"
+        "  ✅ harness    #2DD4BF  对 bg 对比度 10.16:1\n"
+        "  ✅ params     #B78CFF  对 bg 对比度 7.39:1\n"
+        "  ✅ danger     #FF5C5C  对 bg 对比度 6.25:1\n"
+        "  ✅ ok         #7ED321  对 bg 对比度 10.11:1\n"
+        ">> --check-theme · FAIL 0\n"
+    )
+
+
+def test_transition_check_golden_output(project, monkeypatch, capsys):
+    """--transition --check 全绿形态：5 个边界帧 + 汇总行，退出码 0。"""
+    monkeypatch.setattr(qa_frames, "extract_frame", _mock_extract_solid(17))
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "qa_frames.py",
+            "--project",
+            str(project),
+            "draft.mp4",
+            "--transition",
+            "p0-01:3",
+            "--check",
+        ],
+    )
+    with pytest.raises(SystemExit) as e:
+        qa_frames.main()
+    assert e.value.code == 0
+    assert capsys.readouterr().out == (
+        "p0-01-t3-before @ 0.57s -> out/frames/p0-01-t3-before.png\n"
+        "p0-01-t3-start @ 0.60s -> out/frames/p0-01-t3-start.png\n"
+        "p0-01-t3-mid @ 0.63s -> out/frames/p0-01-t3-mid.png\n"
+        "p0-01-t3-end @ 0.67s -> out/frames/p0-01-t3-end.png\n"
+        "p0-01-t3-after @ 0.70s -> out/frames/p0-01-t3-after.png\n"
+        ">> 过渡/loop 抽帧体检 · FAIL 0 · WARN 0"
+        "（仅检查黑帧与字幕安全区；morph/loop 连续性须人工验收）\n"
+    )
+
+
+def test_transition_check_black_frames_fail_exit_1(project, monkeypatch, capsys):
+    """--transition --check 黑帧形态：五帧全黑 → FAIL 5，退出码 1（黑帧门）。"""
+    monkeypatch.setattr(qa_frames, "extract_frame", _mock_extract_solid(0))
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "qa_frames.py",
+            "--project",
+            str(project),
+            "draft.mp4",
+            "--transition",
+            "p0-01:3",
+            "--check",
+        ],
+    )
+    with pytest.raises(SystemExit) as e:
+        qa_frames.main()
+    assert e.value.code == 1
+    out = capsys.readouterr().out
+    assert ">> 过渡/loop 抽帧体检 · FAIL 5 · WARN 0" in out
+    assert "（黑帧/渐黑过早）" in out
+
+
+def test_beat_heads_check_golden_output(project, monkeypatch, capsys):
+    """--beat-heads --check 全绿形态：beat 头帧抽帧行 + 汇总行（冻帧判定已关闭）。"""
+    monkeypatch.setattr(qa_frames, "extract_frame", _mock_extract_solid(17))
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "qa_frames.py",
+            "--project",
+            str(project),
+            "draft.mp4",
+            "--beat-heads",
+            "1",
+            "--scene",
+            "P0",
+            "--check",
+        ],
+    )
+    with pytest.raises(SystemExit) as e:
+        qa_frames.main()
+    assert e.value.code == 0
+    assert capsys.readouterr().out == (
+        "0-A-h0 @ 0.60s -> out/frames/0-A-h0.png\n"
+        ">> beat 头部体检 · FAIL 0 · WARN 0（冻帧判定已关闭）\n"
+    )
+
+
+def test_default_check_golden_output(project, monkeypatch, capsys):
+    """默认句中点采样 + --check 全绿形态：抽帧行 + `>> 自动体检` 汇总行。
+
+    此路径 subtitle_check=True，帧须带字幕条（无字幕帧会 WARN 字幕缺失，
+    见 test_subtitle_missing_warns_in_default_check）。"""
+    monkeypatch.setattr(qa_frames, "extract_frame", _mock_extract_content())
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "qa_frames.py",
+            "--project",
+            str(project),
+            "draft.mp4",
+            "--last-n",
+            "1",
+            "--check",
+        ],
+    )
+    with pytest.raises(SystemExit) as e:
+        qa_frames.main()
+    assert e.value.code == 0
+    assert capsys.readouterr().out == (
+        "p1-02 @ 13.07s -> out/frames/p1-02.png\n>> 自动体检 · FAIL 0 · WARN 0\n"
+    )
+
+
+def test_subtitle_missing_warns_in_default_check(project, monkeypatch, capsys):
+    """默认路径的 subtitle_check=True 面：字幕带零文字亮度像素 → WARN（不影响退出码）。"""
+    monkeypatch.setattr(qa_frames, "extract_frame", _mock_extract_solid(17))
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "qa_frames.py",
+            "--project",
+            str(project),
+            "draft.mp4",
+            "--last-n",
+            "1",
+            "--check",
+        ],
+    )
+    with pytest.raises(SystemExit) as e:
+        qa_frames.main()
+    assert e.value.code == 0
+    out = capsys.readouterr().out
+    assert "字幕缺失？" in out and ">> 自动体检 · FAIL 0 · WARN 1" in out

@@ -35,6 +35,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from tts import (  # noqa: E402 - 必须在 sys.path 注入之后导入
+    DEFAULT_SERVER,
     MANUAL,
     SAMPLING_CLI,
     STYLE_PRESETS,
@@ -356,7 +357,7 @@ def main() -> None:
         help="与 --seed 相加（默认 0），用于换一条 take",
     )
 
-    parser.add_argument("--server", default="http://127.0.0.1:8766", help="服务地址")
+    parser.add_argument("--server", default=DEFAULT_SERVER, help="服务地址")
     parser.add_argument(
         "--label",
         default=None,

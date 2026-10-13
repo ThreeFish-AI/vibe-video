@@ -15,9 +15,7 @@ from __future__ import annotations
 
 import re
 
-from paths import skill_root
-
-REFERENCES = skill_root() / "references"
+from helpers import lines_with, read_ref, read_skill_md
 
 
 def _type_table_rows(text: str) -> dict[str, str]:
@@ -32,9 +30,7 @@ def _type_table_rows(text: str) -> dict[str, str]:
 
 def test_source_type_table_lists_three_types():
     """01 顶部分流表须含 A/B/C 三行，C 行指向 research/gl-notes.md（型别判定 SSOT）。"""
-    rows = _type_table_rows(
-        (REFERENCES / "01-source-extraction.md").read_text(encoding="utf-8")
-    )
+    rows = _type_table_rows(read_ref("01-source-extraction.md"))
     assert set(rows) == {"A", "B", "C"}, (
         f"01 顶部分流表应含 A/B/C 三行，实际 {sorted(rows)}——"
         "新增信源形态先挂分流表，挂不进 = 规格缺口而非绕路理由"
@@ -47,7 +43,7 @@ def test_source_type_table_lists_three_types():
 
 def test_narration_fact_source_line_covers_three_types():
     """03 头部模板行的事实源指引覆盖三型文件名，或含指向 01 的判定指针。"""
-    text = (REFERENCES / "03-narration.md").read_text(encoding="utf-8")
+    text = read_ref("03-narration.md")
     src_lines = [ln for ln in text.splitlines() if "事实源：" in ln]
     assert src_lines, "03 头部模板行丢了「事实源：」指引（检测器失效？）"
     line = src_lines[0]
@@ -63,7 +59,7 @@ def test_narration_fact_source_line_covers_three_types():
 
 def test_verification_checklist_column_generalized():
     """04 核查表列名须为「事实源锚点」；旧「paper-notes 锚点」是 B/C 型失配形态（反控红面）。"""
-    text = (REFERENCES / "04-verification.md").read_text(encoding="utf-8")
+    text = read_ref("04-verification.md")
     assert "事实源锚点" in text, "04 核查表列名应为「事实源锚点」（三型泛引）"
     assert "paper-notes 锚点" not in text, (
         "04 核查表列名仍写「paper-notes 锚点」——B/C 型集按此列名找不到锚点落法"
@@ -72,7 +68,7 @@ def test_verification_checklist_column_generalized():
 
 def test_skill_router_has_c_type_entry():
     """SKILL.md 任务分流表须含 C 型入口（GL 精读产物成片）。"""
-    text = (skill_root() / "SKILL.md").read_text(encoding="utf-8")
+    text = read_skill_md()
     assert "GL 精读产物" in text, (
         "SKILL.md 任务表缺「GL 精读产物成片」入口——上游 guided-learn 产物无路由，"
         "Stage ① 会被迫重复精读（RSI-030 表因）"
@@ -81,12 +77,12 @@ def test_skill_router_has_c_type_entry():
 
 def test_guided_learn_process_concretization_bridges():
     """RSI-032：GL 伴生资产直通承接、五元过程具象化映射、被动收看双门、成文护栏与四大分镜/动效定式须在位。"""
-    s01 = (REFERENCES / "01-source-extraction.md").read_text(encoding="utf-8")
-    s02 = (REFERENCES / "02-planning.md").read_text(encoding="utf-8")
-    s04 = (REFERENCES / "04-verification.md").read_text(encoding="utf-8")
-    s05 = (REFERENCES / "05-prose-refinement.md").read_text(encoding="utf-8")
-    s06 = (REFERENCES / "06-storyboard.md").read_text(encoding="utf-8")
-    s08 = (REFERENCES / "08-remotion-implementation.md").read_text(encoding="utf-8")
+    s01 = read_ref("01-source-extraction.md")
+    s02 = read_ref("02-planning.md")
+    s04 = read_ref("04-verification.md")
+    s05 = read_ref("05-prose-refinement.md")
+    s06 = read_ref("06-storyboard.md")
+    s08 = read_ref("08-remotion-implementation.md")
 
     assert "GL 伴生资产直通承接" in s01 and "过程具象化" in s01
     assert "视觉母题全片统摄" in s02 and "Worked Example" in s02
@@ -111,47 +107,46 @@ def test_b_type_structure_skeleton_bridge():
     跨文件断言一律按节名（「结构骨架与素材映射」）、不带节号——01 节号再顺移不破此门；
     01 自身的「六、结构骨架与素材映射」标题是唯一带节号锚（目录行 TOC 门另案执法）。
     """
-    s01 = (REFERENCES / "01-source-extraction.md").read_text(encoding="utf-8")
+    s01 = read_ref("01-source-extraction.md")
     assert "## 六、结构骨架与素材映射" in s01, (
         "01 缺 B 型结构骨架节（RSI-060 主体收益）"
     )
     for anchor in ("派生视图，非证据", "按集 opt-in", "不进口播", "gitCommitHash"):
         assert anchor in s01, f"01 结构骨架节缺锚点：{anchor}"
 
-    s02 = (REFERENCES / "02-planning.md").read_text(encoding="utf-8")
+    s02 = read_ref("02-planning.md")
     assert "前置概念" in s02, (
         "02 分幕表缺可选「前置概念」列（幕级先释后用，RSI-015 承接）"
     )
-    assert any(
-        "60–90 秒" in ln and "结构骨架与素材映射" in ln for ln in s02.splitlines()
-    ), "02 记忆点括注缺 B 型骨架指针（01/02 双处同步；行级共现，防同名他处代偿）"
+    assert lines_with(s02, "60–90 秒", "结构骨架与素材映射"), (
+        "02 记忆点括注缺 B 型骨架指针（01/02 双处同步；行级共现，防同名他处代偿）"
+    )
     assert "**名称对齐**（单向派生）" in s02, (
         "02 前置概念列缺名称对齐规则（④B --terms 取名方向与回改责任，防两份概念名清单漂移）"
     )
 
-    s03 = (REFERENCES / "03-narration.md").read_text(encoding="utf-8")
+    s03 = read_ref("03-narration.md")
     assert "结构骨架与素材映射" in s03, (
         "03 术语降落括注缺 B 型骨架指针（02/03 双处同步）"
     )
 
-    s05 = (REFERENCES / "05-prose-refinement.md").read_text(encoding="utf-8")
+    s05 = read_ref("05-prose-refinement.md")
     assert "前置概念" in s05, "05 §五缺「前置概念列不改写」半句"
     assert "结构骨架" in s05, (
         "05 §六冻结清单缺结构骨架节三要素（层名/节点名/走查链输入值）"
     )
 
-    s04 = (REFERENCES / "04-verification.md").read_text(encoding="utf-8")
+    s04 = read_ref("04-verification.md")
     assert "前置概念" in s04, (
         "04 缺 `--terms` 从「前置概念」列逐字取的指针（02 名称对齐单向派生）"
     )
 
-    s06 = (REFERENCES / "06-storyboard.md").read_text(encoding="utf-8")
-    assert any(
-        ("四定式" in ln and "B 型" in ln and "结构骨架与素材映射" in ln)
-        for ln in s06.splitlines()
-    ), "06 四定式引导句未泛化到 B 型结构骨架（按节名指针，不带节号）"
+    s06 = read_ref("06-storyboard.md")
+    assert lines_with(s06, "四定式", "B 型", "结构骨架与素材映射"), (
+        "06 四定式引导句未泛化到 B 型结构骨架（按节名指针，不带节号）"
+    )
 
-    s09 = (REFERENCES / "09-render-qa.md").read_text(encoding="utf-8")
+    s09 = read_ref("09-render-qa.md")
     assert "上屏结构回溯" in s09, (
         "09 缺上屏结构回溯目检指针（06/09 单指针，判据以 06 为准）"
     )

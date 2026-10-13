@@ -12,8 +12,9 @@ schema 是「pipeline.py 与 check_script.py 里 `.get()` 调用的并集」：�
 
 全部脚本走 `uv run --no-project`，运行期依赖靠各调用点 `--with` 逐个声明；而
 三个薄包装用 `sys.executable` 再 exec，继承调用方的 uv 环境。新增一个运行期
-依赖要同步 pipeline.py 所有 `uv_no_project` 调用点 + 3 个薄包装的调用契约 +
-4 份 README。为 20 行 schema 付这个代价违反最小干预。纯声明式 dict 足够。
+依赖要同步 pipeline.py 内所有 `uv run` 子进程构造点（`uv_no_project` 辅助函数 +
+`cmd_tts`/`cmd_qa` 的内联 argv）+ 3 个薄包装的调用契约 + 4 份 README。为 20 行
+schema 付这个代价违反最小干预。纯声明式 dict 足够。
 
 ## 默认值放在代码、toml 只写偏离
 

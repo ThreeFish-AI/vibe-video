@@ -19,7 +19,7 @@ FIXTURES = Path(__file__).resolve().parent / "fixtures"
 
 
 def zh_digest(text: str) -> str:
-    """与 build_narration.zh_digest 同口径（sha1 前 12 位）——锁内容的期望值。"""
+    """与 build_narration.sentence_digest 同口径（sha1 前 12 位，zh/en 通用）——锁内容的期望值。"""
     return hashlib.sha1(text.encode("utf-8")).hexdigest()[:12]
 
 
@@ -33,6 +33,32 @@ def timing_constants() -> dict:
     """六键时序常数（与 fixtures/timing.json 同源）。写 timing.json 的用例统一
     从此取值，防第二事实源漂移。"""
     return json.loads((FIXTURES / "timing.json").read_text(encoding="utf-8"))
+
+
+def _paths():
+    import paths  # noqa: E402 - conftest 已把 scripts/ 注入 sys.path
+
+    return paths
+
+
+def read_ref(name: str) -> str:
+    """references/<name> 的 utf-8 全文——文档锚定测试的统一读取口。"""
+    return (_paths().skill_root() / "references" / name).read_text(encoding="utf-8")
+
+
+def read_skill_md() -> str:
+    """skill 根 SKILL.md 的 utf-8 全文。"""
+    return (_paths().skill_root() / "SKILL.md").read_text(encoding="utf-8")
+
+
+def line_count(text: str) -> int:
+    """行数 = 换行数 + 1——预算断言的唯一口径（各测试的 MAX_LINES 仍自持）。"""
+    return text.count("\n") + 1
+
+
+def lines_with(text: str, *needles: str) -> list[str]:
+    """同一行内共现全部子串的行——行锚防跨节无关命中拼合出假绿。"""
+    return [ln for ln in text.splitlines() if all(n in ln for n in needles)]
 
 
 def offline_doctor_project(tmp_path: Path, monkeypatch) -> dict:

@@ -140,14 +140,14 @@ def test_fences_are_balanced():
         assert n % 2 == 0, f"{p.name}: 围栏数 {n} 为奇数（悬空围栏）"
 
 
-def test_path_variables_defined_exactly_once_in_readme():
+def test_path_variables_defined_exactly_once_in_pipeline_md():
     """判据 1（SSOT 正向）：$T/$W/$P/$V 在 references/PIPELINE.md 各定义恰好一次。
 
     「机制在哪、内容在哪」两个事实只在 PIPELINE.md 落一次，其余文档全部引用；
     重复定义意味着搬迁/改名时要同步 N 处——上次迁移正是靠 N 处未同步暴露的。
     """
-    readme = PIPELINE_MD.read_text(encoding="utf-8")
-    defined = [m.group(1) for m in VAR_DEF_RE.finditer(readme)]
+    pipeline_md = PIPELINE_MD.read_text(encoding="utf-8")
+    defined = [m.group(1) for m in VAR_DEF_RE.finditer(pipeline_md)]
     for var in "TWPV":
         n = defined.count(var)
         assert n == 1, (
@@ -156,7 +156,7 @@ def test_path_variables_defined_exactly_once_in_readme():
         )
 
 
-def test_only_readme_defines_path_variables():
+def test_only_pipeline_md_defines_path_variables():
     """判据 1（SSOT 反向）：skills 与 SKILL.md 只引用不定义。"""
     for p in scanned_docs():
         if p == PIPELINE_MD:

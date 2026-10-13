@@ -47,7 +47,6 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import tts  # noqa: E402 - SERVER_SCRIPT/启动 hint 单一事实源；tts.py 顶层纯标准库
 
-DEFAULT_SERVER = "http://127.0.0.1:8766"
 KILL_GRACE_SEC = 10.0  # SIGTERM 后等端口释放的上限，逾期 SIGKILL
 POLL_SEC = 2.0  # 健康轮询间隔（上游 .sh 实证形态为 5s×60 次）
 #: 服务冷启动（模型加载）~1–2 分钟，对齐上游 .sh 的 60×5s 等待预算。
@@ -387,8 +386,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument(
         "--server",
-        default=DEFAULT_SERVER,
-        help=f"服务地址（缺省 {DEFAULT_SERVER}，与 tts.py 同款；冷重启端口从此解析）",
+        default=tts.DEFAULT_SERVER,
+        help=f"服务地址（缺省 {tts.DEFAULT_SERVER}，与 tts.py 同款；冷重启端口从此解析）",
     )
     p.add_argument(
         "--health-path", default="/health", help="健康检查端点路径（缺省 /health）"

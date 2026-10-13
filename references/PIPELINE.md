@@ -117,7 +117,7 @@ uv run --no-project $T/scripts/pipeline.py --project $P     {status|doctor|build
 | ⑨     | `render` + `qa`  | src + audio → draft.mp4 + 抽帧体检                  | 渲染否 / 抽帧是         |
 | ⑩     | `render --final` + `deliver` | 同上 → final.mp4 + 归档副本（前置：⑨ 零 FAIL）  | 否                      |
 
-`status` 为派生式新鲜度表（无状态文件——幂等已由内容摘要提供，再存阶段状态即第二事实源）；`doctor` 自检配置/时序 SSOT/样本指纹/IndexTTS 服务与自动化浏览器孤儿（`--clean-browsers` 回收）。`all` 一键链（build→check→tts→captions→render）是**草声链专用**：indextts 集在入口即拒（RSI-040——克隆只由本人显式触发，重配走 `tts --final-voice`，见 [07-tts-voice.md](./07-tts-voice.md)）。
+`status` 为派生式新鲜度表（无状态文件——幂等已由内容摘要提供，再存阶段状态即第二事实源）；`doctor` 自检配置/时序 SSOT/样本指纹/IndexTTS 服务与自动化浏览器孤儿（`--clean-browsers` 回收）。`all` 一键链（build→check→tts→captions→render）是**草声链专用**：indextts 集在入口即拒（RSI-040，规则见 [07-tts-voice.md](./07-tts-voice.md)）。
 
 | 脚本 | 用途 | 工程内等价调用 |
 | ---- | ---- | -------------- |
@@ -129,6 +129,7 @@ uv run --no-project $T/scripts/pipeline.py --project $P     {status|doctor|build
 | [scripts/prospect_ref.py](../scripts/prospect_ref.py) | 参考样本选段勘探（按 F0/起伏/音节率/限带质心筛「更亮更轻快」的候选起点）+ `--accept` **保真度验收**（削波/底噪/动态/有效带宽/超 15s，与风格分正交；损伤事后无法弥补故只否决不加权） | 无工程薄包装，从 $T 调用：`uv run --no-project --with soundfile --with numpy $T/scripts/prospect_ref.py <源音频…>`，见 [VOICE-CLONING.md §3.2](./VOICE-CLONING.md) |
 | [scripts/pipeline.py](../scripts/pipeline.py) | **单入口编排**（上表） | `uv run --no-project $T/scripts/pipeline.py --project $P tts` |
 | [scripts/timeline.py](../scripts/timeline.py) | 时间轴 Python 侧实现（与 timing.ts 同构，直读 timing.json） | 被 qa_frames/captions/check_script 复用 |
+| [scripts/storyboard.py](../scripts/storyboard.py) | 分镜表行文法唯一实现（镜号/句区间/画面三列行集 + beat 区间解析，纯函数库、无 IO） | 被 check_script/check_archify_coverage/qa_frames 复用 |
 | [scripts/check_script.py](../scripts/check_script.py) | ④⑥ 内容门：beat 覆盖性 / 时长预算双口径 / SceneFade 不变式 / 画面文字复述口播（缺省 FAIL）/ `--check-scenes` 分镜↔代码互比 / `--pron-gate` 语义读音门（FAIL，RSI-014）/ `--term-density` 术语密度预算（WARN，RSI-015，见 04 B 节） | `uv run --no-project scripts/check_script.py --check-scenes` |
 | [scripts/archify_lead.py](../scripts/archify_lead.py) | 场记板白闪**实测**回写各章真实 `lead_sec`（录制器恒写 0.0，漏跑＝白闪帧播进成片——全 0 由覆盖门点名 WARN）；webm 前段含页面加载非故事起点、墙钟估算带 ±0.3s，故只在像素上找白闪末帧 | `uv run --no-project --with pillow $T/scripts/archify_lead.py --project $P` |
 | [scripts/archify_manifest.py](../scripts/archify_manifest.py) | sidecar JSON → `video/src/archify.manifest.ts`（静态导入让章节 id 拼错在 `tsc` 就红，不等渲染才发现）；录制或重测 lead 后重跑 | `uv run --no-project $T/scripts/archify_manifest.py --project $P` |
@@ -160,7 +161,7 @@ schema、默认值与校验的单一事实源是 [scripts/config.py](../scripts/
 | `episode.slug`                  | ✅               | —                       | 须等于工程目录名（拦手抄来的陈旧 toml）；**是否登记进 series.json 不在此校验**，那归 `verify_skeleton.py` 的孤儿警告（非阻塞） |
 | `narration.target_minutes`      | ✅               | —                       | `[下限, 上限]` 分钟；缺失会让时长预算门**点名跳过**                                                                            |
 | `narration.chars_per_min`       |                 | `280`（story 档默认层 `254`） | 机制常数：含停顿等效语速，**默认层按 `tts.style` 分档**（`config.STYLE_CHARS_PER_MIN`，仅 story 有整集实测）；本集实测校准写 toml 覆写（references/07 完成门）                                             |
-| `tts.engine`                    |                 | `edge`                  | **策略声明**（草声 edge \| 终声 indextts 两档，受 `.engine` 签名护栏约束；indextts 实跑须 `--final-voice` 具名授权——RSI-040 人为触发），故保留在 toml |
+| `tts.engine`                    |                 | `edge`                  | **策略声明**（草声 edge \| 终声 indextts 两档，受 `.engine` 签名护栏约束；indextts 实跑须 `--final-voice` 具名授权（RSI-040）），故保留在 toml |
 | `tts.ref`                       | engine=indextts | —                       | **工作区根相对**（如 `voices/me-bright.wav`）；内容入缓存摘要（改拼法不失效缓存）                                             |
 | `tts.ref_sha1`                  | engine=indextts | —                       | 12 位，同 tts.py 口径                                                                                                          |
 | `tts.style`                     | engine=indextts | —                       | STYLE_PRESETS 档名（新集缺省 story＝段落演绎）；engine=edge 时兼作**终声档锚点**（估算口径分档＋实测门跳过，以 edge 为终声不得挂） |

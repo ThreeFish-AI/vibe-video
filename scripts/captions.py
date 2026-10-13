@@ -100,7 +100,7 @@ def main() -> None:
         renderer = {"srt": render_srt, "vtt": render_vtt}.get(fmt)
         if renderer is None:
             ap.error(f"不支持的字幕格式: {fmt}（可选 srt / vtt）")
-        dest = out_dir / f"captions{langs.suffix(args.lang)}.{fmt}"
+        dest = out_dir / langs.captions(root, args.lang, fmt).name
         dest.write_text(renderer(cues), encoding="utf-8")
         print(f"{len(cues)} cues -> {dest}")
 

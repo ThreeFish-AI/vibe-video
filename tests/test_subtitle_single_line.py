@@ -13,9 +13,7 @@
 
 from __future__ import annotations
 
-from paths import skill_root  # noqa: E402
-
-REFERENCES = skill_root() / "references"
+from helpers import read_ref  # noqa: E402
 
 #: 各文档的契约指纹串（doc → 必须命中的 needle 元组）。串取「本句独有指纹」：
 #: 独有到规格漂移即红，又不钉死标点级细节（取舍准则同 test_voice_tiers 锚串先例）。
@@ -33,15 +31,11 @@ NEEDLES: dict[str, tuple[str, ...]] = {
 }
 
 
-def _read(name: str) -> str:
-    return (REFERENCES / name).read_text(encoding="utf-8")
-
-
 def test_subtitle_single_line_contract_anchors():
     """三层契约 needle 就位：文档缺任一指纹串即红（防规格回退/漂移）。"""
     assert NEEDLES, "NEEDLES 未配置——空映射会让本测试平凡通过"
     for name, needles in NEEDLES.items():
-        text = _read(name)
+        text = read_ref(name)
         for needle in needles:
             assert needle in text, (
                 f"{name} 缺「{needle}」（RSI-049 单行契约锚——三层契约任一回退即红）"
@@ -51,7 +45,7 @@ def test_subtitle_single_line_contract_anchors():
 def test_en_two_line_fallback_term_not_generalized():
     """「两行回落」是 en 专属回落术语：06/08 跨层同词，zh 单行约束不得泛化到 en 实现。"""
     for name in ("06-storyboard.md", "08-remotion-implementation.md"):
-        assert "两行回落" in _read(name), (
+        assert "两行回落" in read_ref(name), (
             f"{name} 缺「两行回落」——en 冻结回落规则的跨层术语断裂"
             "（zh 单行契约与 en 两行回落是两条并行规则，不得互相吞并）"
         )
@@ -60,7 +54,7 @@ def test_en_two_line_fallback_term_not_generalized():
 def test_storyboard_old_vague_subtitle_spec_gone():
     """负例锚：06 不得回退到旧版模糊字幕规范（只声明结果形态、无长句切换语义）。"""
     old_spec = "底部单行、一句一条、字号、与配音同步"
-    assert old_spec not in _read("06-storyboard.md"), (
+    assert old_spec not in read_ref("06-storyboard.md"), (
         "06 回退到旧版一句话字幕规范——正是 RSI-049 表因"
         "「只声明结果形态，没有规定长句如何前后切换」"
     )

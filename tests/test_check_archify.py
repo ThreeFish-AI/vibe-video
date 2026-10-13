@@ -106,3 +106,42 @@ def test_cue_with_unknown_slug_fails_not_crashes(tmp_path):
     )
     assert rc == 1 and "ghost" in out and "不存在的图" in out, out
     assert "Traceback" not in out, out
+
+
+# ---------------- fps 口径边界（topology C11 特征加固：钉现状，非收编） ----------------
+
+
+def _sidecar(root: Path) -> Path:
+    return root / "video" / "public" / "archify" / "demo.json"
+
+
+def test_zero_capture_fps_treated_as_missing_by_or_chain(tmp_path):
+    """capture_fps=0.0 是 falsy——现状 `capture_fps or measured_fps` 把它当缺失
+    回退 measured_fps=25.0，门放行。录制器 encode_frames 已构造性排除 0.0，该
+    形态只在手改/损坏输入可达；本用例钉住现状语义，收编口径时不得静默变更。"""
+    rc, out = run_archify_gate(
+        build(tmp_path, chapter_fps={"capture_fps": 0.0, "measured_fps": 25.0})
+    )
+    assert rc == 0 and "录制帧率" not in out, out
+
+
+def test_chapter_without_id_still_enters_fps_min(tmp_path):
+    """章 dict 缺 `id` 键照常参与 min 判定——fps 提取不读章 id（id 只在
+    manifest×views 一致性面消费），缺 id 不会把该章静默滤出帧率门。"""
+    root = build(tmp_path, chapter_fps={"capture_fps": 25.0})
+    d = json.loads(_sidecar(root).read_text("utf-8"))
+    d["chapters"] = [{"id": "ch1", "capture_fps": 25.0}, {"measured_fps": 15.0}]
+    _sidecar(root).write_text(json.dumps(d), "utf-8")
+    rc, out = run_archify_gate(root)
+    assert rc == 0 and "录制帧率 15.0 < 18.0" in out, out
+
+
+def test_top_level_measured_fps_fallback_without_chapters(tmp_path):
+    """sidecar 无 `chapters` 键 → 逐章列表为空，回退顶层 measured_fps=9.0 判门。"""
+    root = build(tmp_path, chapter_fps={"capture_fps": 25.0})
+    d = json.loads(_sidecar(root).read_text("utf-8"))
+    d.pop("chapters")
+    d["measured_fps"] = 9.0
+    _sidecar(root).write_text(json.dumps(d), "utf-8")
+    rc, out = run_archify_gate(root)
+    assert rc == 0 and "录制帧率 9.0 < 18.0" in out, out

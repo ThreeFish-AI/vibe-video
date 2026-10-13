@@ -226,12 +226,8 @@ def run(cmd: list[str], cwd: Path | None = None) -> int:
     return subprocess.run(cmd, cwd=cwd, check=False).returncode
 
 
-def uv_no_project(
-    script: str, with_pkgs: list[str], *extra: str, project: Path
-) -> list[str]:
+def uv_no_project(script: str, *extra: str, project: Path) -> list[str]:
     cmd = ["uv", "run", "--no-project"]
-    for p in with_pkgs:
-        cmd += ["--with", p]
     cmd += [str(SCRIPTS / script), "--project", str(project), *extra]
     return cmd
 
@@ -620,7 +616,6 @@ def cmd_build(
         lambda lang: run(
             uv_no_project(
                 "build_narration.py",
-                [],
                 "--lang",
                 lang,
                 *(
@@ -649,7 +644,7 @@ def cmd_check(
 
     def per(lang: str) -> int:
         return run(
-            uv_no_project("check_script.py", [], *extra, "--lang", lang, project=root)
+            uv_no_project("check_script.py", *extra, "--lang", lang, project=root)
         )
 
     rc = per_lang("check", langs or declared_langs(_cfg), per)
@@ -658,7 +653,7 @@ def cmd_check(
     # archify 覆盖门紧随其后串联，不加 flag：忘带 flag = 检查面静默缩小（ISSUE-168
     # 失效形态）。无 archify 资产的集由脚本自身干净跳过。语言无关（按 storyboard
     # 句 id 执法），只跑一次。
-    return run(uv_no_project("check_archify_coverage.py", [], project=root))
+    return run(uv_no_project("check_archify_coverage.py", project=root))
 
 
 def cmd_tts(
@@ -683,7 +678,6 @@ def cmd_tts(
             rc = run(
                 uv_no_project(
                     "check_script.py",
-                    [],
                     "--pre-tts",
                     "--json",
                     "--lang",
@@ -758,9 +752,7 @@ def cmd_captions(root: Path, _cfg: dict, langs: list[str] | None = None) -> int:
     return per_lang(
         "captions",
         langs or declared_langs(_cfg),
-        lambda lang: run(
-            uv_no_project("captions.py", [], "--lang", lang, project=root)
-        ),
+        lambda lang: run(uv_no_project("captions.py", "--lang", lang, project=root)),
     )
 
 
@@ -785,7 +777,7 @@ def cmd_deliver(
         "deliver",
         langs or declared_langs(_cfg),
         lambda lang: run(
-            uv_no_project("deliver.py", [], "--lang", lang, *extra, project=root)
+            uv_no_project("deliver.py", "--lang", lang, *extra, project=root)
         ),
     )
 

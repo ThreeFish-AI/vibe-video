@@ -12,10 +12,10 @@
 
 from __future__ import annotations
 
+from helpers import line_count, read_ref, read_skill_md  # noqa: E402
 from paths import skill_root  # noqa: E402
 
-REFERENCES = skill_root() / "references"
-INTRO = REFERENCES / "SERIES-INTRO.md"
+INTRO = skill_root() / "references" / "SERIES-INTRO.md"
 
 #: 行数上限（资产契约 ~55 行档位 + 膨胀余量；知识库也要防 context rot）
 MAX_LINES = 500
@@ -24,17 +24,13 @@ MAX_LINES = 500
 CONTRACT_BODY_ANCHORS = ("恒单行", "全角当量")
 
 
-def _read(path) -> str:
-    return path.read_text(encoding="utf-8")
-
-
 def test_doc_exists_with_toc_and_budget():
     """SERIES-INTRO.md 存在、带目录行、行数 ≤500。"""
     assert INTRO.exists(), "references/SERIES-INTRO.md 不存在（RSI-051 资产 SSOT 缺失）"
-    text = _read(INTRO)
+    text = read_ref("SERIES-INTRO.md")
     assert "**目录**" in text, "SERIES-INTRO 缺目录行（按节查阅的导航面）"
-    assert text.count("\n") + 1 <= MAX_LINES, (
-        f"SERIES-INTRO {text.count(chr(10)) + 1} 行 > {MAX_LINES}"
+    assert line_count(text) <= MAX_LINES, (
+        f"SERIES-INTRO {line_count(text)} 行 > {MAX_LINES}"
         "——知识库膨胀会吃查阅 context，按节压缩或下沉研究文档"
     )
 
@@ -47,7 +43,7 @@ def test_stage_specs_inject_pointer():
         "08-remotion-implementation.md",
         "09-render-qa.md",
     ):
-        text = _read(REFERENCES / name)
+        text = read_ref(name)
         assert "](SERIES-INTRO.md)" in text or "](./SERIES-INTRO.md)" in text, (
             f"{name} 缺 SERIES-INTRO 可跳转链接（AGENTS.md 死文本禁令；"
             "规格只带指针，契约本体不复制）"
@@ -57,7 +53,7 @@ def test_stage_specs_inject_pointer():
 def test_subtitle_contract_pointer_only():
     """单行语义切换契约 SSOT 在 06/08/09（RSI-049）——SERIES-INTRO 只许指针，
     出现契约正文锚串即第二事实源。"""
-    text = _read(INTRO)
+    text = read_ref("SERIES-INTRO.md")
     # 指针断言限定在 §五：开篇分层导语本就带 06/09 链接，对全文件判恒真——
     # 把 §五 指针换成换措辞的契约正文，断言仍绿，防第二事实源的意图即失效。
     assert "## 五、" in text, "SERIES-INTRO 缺 §五（口播容器命名约定）"
@@ -76,7 +72,7 @@ def test_subtitle_contract_pointer_only():
 def test_spoken_container_naming_declared():
     """NARRATION/SUBS 命名约定（规则1 扩面的执法锚）须在册——文档—执法互锚：
     check_series.SPOKEN_CONTAINER_RE 硬编码这两个容器名，约定不立册即无发现通道。"""
-    text = _read(INTRO)
+    text = read_ref("SERIES-INTRO.md")
     assert "NARRATION" in text and "SUBS" in text, (
         "SERIES-INTRO 须声明 NARRATION/SUBS 口播容器命名约定"
     )
@@ -85,7 +81,7 @@ def test_spoken_container_naming_declared():
 
 def test_skill_md_load_on_demand_row():
     """SKILL.md 按需加载表含 SERIES-INTRO 行（做系列片头时读）。"""
-    text = _read(skill_root() / "SKILL.md")
+    text = read_skill_md()
     assert "[SERIES-INTRO.md](references/SERIES-INTRO.md)" in text, (
         "SKILL.md 按需加载表缺 SERIES-INTRO 行——Agent 无发现通道，资产契约成孤岛（RSI-051）"
     )

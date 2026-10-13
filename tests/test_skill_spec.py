@@ -26,6 +26,7 @@ from pathlib import Path
 import pytest
 
 from paths import skill_root
+from helpers import lines_with as _lines_with  # noqa: E402
 
 SKILL_ROOT = skill_root()
 SKILL_MD = SKILL_ROOT / "SKILL.md"
@@ -401,11 +402,6 @@ def test_repo_free_of_human_placeholders():
 
 
 # ── 7. 开篇钩子规范跨文档一致性（RSI-039） ────────────────────────────────────
-
-
-def _lines_with(text: str, *needles: str) -> list[str]:
-    """同一行内共现全部子串的行——行锚防跨节无关命中拼合出假绿。"""
-    return [ln for ln in text.splitlines() if all(n in ln for n in needles)]
 
 
 def test_opening_hook_discipline_cross_docs_consistency():
