@@ -467,7 +467,7 @@ uv run --no-project --with mutagen scripts/tts.py --engine indextts \
 cd video && pnpm run render:draft && pnpm run render   # render 脚本定义在 video/package.json
 ```
 
-引擎/风格/样本任一变化都会改写每句时长，合成后**必须重跑草渲**让 Remotion 时间轴重算。edge ↔ indextts 换档同理＝digest 全异、整集重录：**授权与变化是两道闸**——`--final-voice`（RSI-040 人为触发，每次实跑都在场）+ `.engine` 护栏（须显式 `--allow-voice-switch`），预算门实测口径在换档中间态自动让路、重配完成即恢复；完整重配流程见 [07-tts-voice.md](./07-tts-voice.md)「重配」。
+引擎/风格/样本任一变化都会改写每句时长，合成后**必须重跑草渲**让 Remotion 时间轴重算。edge ↔ indextts 换档同理＝digest 全异、整集重录：**授权与变化是两道闸**（`--final-voice` + `--allow-voice-switch`，分工见 [07-tts-voice.md](./07-tts-voice.md)「重配」）；预算门实测口径在换档中间态自动让路、重配完成即恢复，完整流程见同节。
 
 ### 5.4 take 验收与重掷协议（句尾英文词 · 标注 + 重掷 + 无偏验证）
 
