@@ -2,13 +2,13 @@
 """IndexTTS 长跑自愈编排：健康检查 → 按端口冷重启服务 → 客户端续跑（RSI-022）。
 
 - 定位：tts.py 只管单轮合成（幂等、逐句/逐块缓存续跑）；本脚本补**长跑编排**——
-  服务掉线或 MPS 挂死（/health 假绿）时按端口冷重启 dub 的 dub_tts_server.py，再以**真实
+  服务掉线或 MPS 挂死（/health 假绿）时按端口冷重启 vibe-tts 的 vibe_tts_server.py，再以**真实
   退出码**判定客户端成败；连续 N 轮失败（--max-restarts，默认 3）放弃并非零退出。
 - 退出码纪律：上游自制 .sh 曾踩 `cmd | tail; $?` 陷阱（取的是 tail 的退出码，
   失败检测恒失效）——本脚本用 subprocess.run(...).returncode 结构性消除该类陷阱
   （tests/test_tts_resume.py 钉住负例）。
 - 冷重启纪律：只杀 `--server` 解析出的那个端口的 LISTEN 进程（判据面=作用面），
-  绝不 `pkill -f dub_tts_server.py`——那会连带 8767 上他人的第二实例
+  绝不 `pkill -f vibe_tts_server.py`——那会连带 8767 上他人的第二实例
   （references/07「服务生命周期」第 2 步）。
 - 纯标准库（RSI 不变量 14）；服务启动命令从 tts.py 的 server_launch_hint 同构
   派生（--with 集合由测试对 hint 钉死防漂移，事实源仍在 tts.py）；长跑所需的
@@ -70,17 +70,17 @@ def port_from_server(server: str) -> int:
 def default_server_argv(
     port: int, use_qwen_emo: bool = False, mps_mem_limit_gib: float | None = None
 ) -> list[str]:
-    """dub_tts_server 启动命令的可执行形态——与 tts.server_launch_hint 同构。
+    """vibe_tts_server 启动命令的可执行形态——与 tts.server_launch_hint 同构。
 
     刻意不调用 hint 原文（含 cd ~/tools/index-tts 字面量与续行符，面向终端粘贴）；
     --with 集合与脚本路径的一致性由 tests/test_tts_resume.py 对 hint 钉死，事实源
     留在 tts.py（不另立第二事实源，RSI 不变量 10 同款纪律）。
 
-    use_qwen_emo：透传 dub_tts_server.py 同名 flag（RSI-035）——--emo-text 自然语言
+    use_qwen_emo：透传 vibe_tts_server.py 同名 flag（RSI-035）——--emo-text 自然语言
     情感的长跑必传（冷重启不带会静默降级服务能力、客户端在健康门硬失败）；
     **缺省不带**：story 档块情感走台本 cue 向量，无需 QwenEmotion，无条件开会
     +1.5 GB 且 qwen 权重未下载的机器直接起不来（VOICE-CLONING §2.4）。
-    mps_mem_limit_gib：透传 dub_tts_server.py 同名 flag（RSI-036）——缺省命令路径
+    mps_mem_limit_gib：透传 vibe_tts_server.py 同名 flag（RSI-036）——缺省命令路径
     服务端缺省即调 setter 设水位线、进程 env 注入被覆盖（实测无效），长跑调
     上限/禁用（0）只能走 flag 直传；缺省 None 不追加（服务端缺省
     min(0.90×recommended, 16) 即生效）。
@@ -126,7 +126,7 @@ def index_tts_root(override: str | None = None) -> Path:
 
 def mps_env(high: str | None, low: str | None) -> dict[str, str]:
     """MPS 水位线 env 兜底（可选）——**仅 --server-cmd 自定义命令路径**（调用点
-    reconcile_mps 已圈定）：缺省命令路径下 dub_tts_server.py 的 --mps-mem-limit-gib
+    reconcile_mps 已圈定）：缺省命令路径下 vibe_tts_server.py 的 --mps-mem-limit-gib
     缺省即调 setter 设进程水位线（RSI-017），继承的 env 被覆盖、注入无效
     （RSI-036 实测：HIGH=0.0 注入后 /health 仍 15.98）——该路径调上限一律走
     --mps-mem-limit-gib flag 透传。
@@ -166,7 +166,7 @@ def reconcile_mps(args: argparse.Namespace) -> dict[str, str]:
     """MPS 旋钮归位（RSI-036）：缺省命令路径只认 flag 透传，env 兜底圈定
     --server-cmd；返回注入 extra_env。
 
-    - --mps-mem-limit-gib：透传 dub_tts_server.py 同名 flag（0=禁用 high watermark）。
+    - --mps-mem-limit-gib：透传 vibe_tts_server.py 同名 flag（0=禁用 high watermark）。
       入口校验 ≥0 有限值——坏值若透传到服务端，冷重启会**先杀掉健康服务**、新
       进程才被服务端 argparse 拦下（起不来），自愈器必须先于杀服拦截。仅缺省
       启动命令可追加（--server-cmd 请把 flag 写进命令串）；与 env 旋钮互斥
@@ -199,7 +199,7 @@ def reconcile_mps(args: argparse.Namespace) -> dict[str, str]:
         # 补 high 后又被本门驳回——两步矛盾链把用户引上必然被拒的路。
         sys.exit(
             "--mps-high-ratio/--mps-low-ratio 的 env 兜底仅服务 --server-cmd 自定义"
-            "命令：缺省命令路径下 dub_tts_server 缺省已调 setter 设水位线、env 注入被"
+            "命令：缺省命令路径下 vibe_tts_server 缺省已调 setter 设水位线、env 注入被"
             "覆盖（RSI-036 实测无效）——调上限改用 --mps-mem-limit-gib 透传"
         )
     return mps_env(args.mps_high_ratio, args.mps_low_ratio)
@@ -418,7 +418,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--use-qwen-emo",
         action="store_true",
-        help="透传 dub_tts_server.py 同名 flag（加载 QwenEmotion，约 +1.5 GB）：--emo-text "
+        help="透传 vibe_tts_server.py 同名 flag（加载 QwenEmotion，约 +1.5 GB）：--emo-text "
         "自然语言情感的长跑必传——否则冷重启后服务静默降级、客户端在健康门硬失败"
         "（RSI-035）；story 档块情感走台本向量、无需此 flag；缺省不带，且仅作用于"
         "缺省启动命令（--server-cmd 时请把 flag 写进命令串）",
@@ -437,7 +437,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--mps-mem-limit-gib",
         type=float,
         default=None,
-        help="透传 dub_tts_server.py 同名 flag（GiB；0=禁用 high watermark；缺省"
+        help="透传 vibe_tts_server.py 同名 flag（GiB；0=禁用 high watermark；缺省"
         " min(0.90×recommended, 16) 即生效）——长跑调显存上限走 flag 直传：缺省命令"
         "路径 env 注入被服务端 setter 覆盖、实测无效（RSI-036）；与 --mps-high-ratio"
         " 互斥，仅缺省启动命令（--server-cmd 时写进命令串）",

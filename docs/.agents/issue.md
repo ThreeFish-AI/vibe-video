@@ -986,30 +986,30 @@
 
 **同类问题影响**：分集 `scripts/tts.py` 薄包装（15 份逐字节相同）不动——它们转调本仓 `scripts/tts.py`，委托发生在其内部；`VIBE_VIDEO_TTS_STORE` 默认目录与摘要格式均不变，零重合成。dub 自己的版本库 `DUB_STORE` 是独立的，不与本仓共享。
 
-## RSI-066 Opus 5.5 视频生态五仓评估：概念借鉴存证与引入形态裁决
+## RSI-066 上游配音仓更名 dub → vibe-tts：本仓委托层命名契约同步迁移
 
-**表因**（2026-10-13，用户点名评估）：用户提供微信文章《用 Claude Opus 5.5 做视频堪称一绝》，问其中工具与方法是否有值得本 Skill 学习、借鉴、引入的。文章提及五仓（onetake / lemo-opuscar / remotion-dev/skills / opus-video-prompts / awesome-opus5-5-videos）全部核实存在并钉版取证，但本仓对外部方法论生态的映射此前无存证。
+**表因**（2026-10-13，用户点名）：上游配音仓 ThreeFish-AI/dub 整体更名为 [ThreeFish-AI/vibe-tts](https://github.com/ThreeFish-AI/vibe-tts)（更名 commit 047b334 已入其 main），本仓 `feat/dub-delegation` 分支的委托层代码、测试与文档仍引用旧名——按 `dub.py` 入口、`dub_*` 模块名与 `DUB_HOME` 定位会在已更名的环境里立即失配（本仓 pytest 硬依赖 skill 已挂载，找不到即大声退出）。
 
-**根因**：非缺陷登记，属外部生态扫描的评估存证。映射缺口三处——① onetake carry score（元素级加权 Jaccard 连续性 oracle，`probe.py::continuity()`）恰落在 qa_frames 像素级判据「FAIL 0 ≠ 视觉正确」的语义盲区（转场交换 vs 物体位移不可分）；② lemo-opuscar STYLE.md 11 节固定骨架证明「风格 = 生产约束文档」形态可行，本仓建模手册只管「画什么」不管「什么画风」；③ 02 留白 cue 系统在 opuscar（CC0 音源 + Karplus–Strong + `window.EV` 事件驱动音效 + −14 LUFS）与 onetake（实测峰值对齐事件、−16 LUFS）有双仓已验证路线。
+**根因**：跨仓委托的命名契约（入口脚本名、库模块前缀、环境变量、skill 挂载目录）没有随上游 SSOT 自动同步的机制，上游更名后本仓需一次人工对齐。
+
+**定性**：机械更名同步 · 非阻断改进（不改任何行为逻辑；代码硬契约逐字跟随上游新名，黄金哈希与存量缓存零影响）。
+
+**处理方式**：本分支追加 commit（PR #48 已合并，基于其后分支续作）。改动面：① [scripts/tts.py](../../scripts/tts.py) 委托层——import 六模块改 `vibe_tts_audio` / `vibe_tts_engine_edge` / `vibe_tts_engine_indextts` / `vibe_tts_profiles` / `vibe_tts_textprep` / `vibe_tts_blocks`，`_find_dub_scripts` → `_find_vibe_tts_scripts`（定位顺序 `VIBE_TTS_HOME` → `~/.claude/skills/vibe-tts` → `~/.agents/skills/vibe-tts`，哨兵 `scripts/vibe_tts.py`），`SERVER_SCRIPT` → `vibe_tts_server.py`，安装命令与错误消息同步；② [tts_sample.py](../../scripts/tts_sample.py) / [tts_resume.py](../../scripts/tts_resume.py) / [tts_bench.py](../../scripts/tts_bench.py) / [paths.py](../../scripts/paths.py) 的注释与运行时提示；③ 测试面 `tests/test_dub_delegation.py` git mv 为 [test_vibe_tts_delegation.py](../../tests/test_vibe_tts_delegation.py)（`__module__` 前缀断言 `vibe_tts_*`、`SERVER_SCRIPT.name` 钉值同步），[test_tts_lang_mirror.py](../../tests/test_tts_lang_mirror.py) / [test_tts_mps_oom_contract.py](../../tests/test_tts_mps_oom_contract.py) / [test_tts_resolve.py](../../tests/test_tts_resolve.py) 引用与注释跟随；④ 文档 8 处（[README](../../README.md)、[CHANGELOG](../../CHANGELOG.md)、[RSI](../../RSI.md) 不变量 16、[SKILL.md](../../SKILL.md)、[PIPELINE](../../references/PIPELINE.md) 环境变量表、[VOICE-CLONING](../../references/VOICE-CLONING.md) 的 `$DUB` → `$VIBE_TTS`、[07-tts-voice](../../references/07-tts-voice.md)、[INDEXTTS-2.5-ADVANCED](../../references/INDEXTTS-2.5-ADVANCED.md)）。命名映射以 vibe-tts 仓更名 commit 为准：仓库 `ThreeFish-AI/vibe-tts`、skill 目录 `~/.claude/skills/vibe-tts`（`~/.agents/skills` 同）、数据目录 `~/Library/Application Support/vibe-tts`、输出目录 `~/Documents/vibe-tts-output`、六个环境变量 `VIBE_TTS_HOME` / `VIBE_TTS_OUTPUT_DIR` / `VIBE_TTS_DATA_DIR` / `VIBE_TTS_INDEXTTS_SERVER` / `VIBE_TTS_INDEX_TTS_ROOT` / `VIBE_TTS_STORE`。回归：pytest 全绿（含文档链接完整性测试）。
+
+**后续防范**：跨仓命名契约（入口脚本 `vibe_tts.py`、模块前缀 `vibe_tts_*`、六个 `VIBE_TTS_*` 环境变量、skill 目录名）以 vibe-tts 仓为 SSOT，上游再有更名或契约变化时本仓须同步一次；委托发现逻辑内联在 `_find_vibe_tts_scripts`（不 import 兄弟模块，test_tts_lang_mirror 钉死），与上游 `vibe_tts_paths.find_vibe_tts_root` 同构可对照。
+
+**同类问题影响**：缓存摘要 `digest_indextts` 更名前后逐字节相同（上游黄金哈希测试钉值零改动、经本仓委托继承），15 集存量缓存零失效；vibe-tts 仓自己的数据目录从 `Application Support/dub` 迁至 `Application Support/vibe-tts`，属上游仓内部迁移，本仓 `VIBE_VIDEO_TTS_STORE` 不受影响。分集 `scripts/tts.py` 薄包装（15 份逐字节相同）不动，委托发生在其转调的本仓 `scripts/tts.py` 内部。本条目之前的存量登记（RSI-065 等）为冻结历史，不再改写。
+
+## RSI-068 Opus 5.5 视频生态五仓评估：概念借鉴存证与引入形态裁决
+
+**表因**（2026-10-13，用户点名评估）：用户提供微信文章《用 Claude Opus 5.5 做视频堪称一绝》，问其中工具与方法是否有值得本 Skill 学习、借鉴、引入的。文章提及五仓（onetake / lemo-opuscar / remotion-dev/skills / opus-video-prompts / awesome-opus5-5-videos）全部核实存在并钉版取证，但本仓对外部方法论生态的映射此前无存证。（编号注：本条并行会话曾登记为 RSI-066，与上方更名随迁条撞号，合并时按「首创得号」重编号 068；原 RSI-067（dub resolve 断裂实证）与上方 RSI-066 为同一问题，按「同一问题只维护一处」并入该条，此处只留实证指针——评估任务按旧指引 clone dub main 即失配，随迁 PR #49 落地后闭环，本分支相应临时修复（精确诊断 + 测试 2 例）在合并中撤除。）
+
+**根因**：非缺陷登记，属外部生态扫描的评估存证。映射缺口三处——① onetake carry score（元素级加权 Jaccard 连续性 oracle，`probe.py::continuity()`）恰落在 qa_frames 像素级判据「FAIL 0 ≠ 视觉正确」的语义盲区（转场交换 vs 物体位移不可分）；② lemo-opuscar STYLE.md 11 节固定骨架证明「风格 = 生产约束文档」形态可行，本仓建模手册只管「画什么」不管「什么画风」；③ 02 留白 cue 系统在 opuscar（CC0 音源 + Karplus–Strong + `window.EV` 事件驱动音效 + −14 LUFS）、onetake（实测峰值对齐事件、−16 LUFS）与 Austerlitz 案例仓（`events.js` 画面事件推导音效 + 距离衰减/声像/343 m/s 声速延迟）有三源已验证路线。
 
 **定性**：非阻断改进 · 评估存证 + 规格落地（业界原理级四项二轮落地，见处理方式；carry score 与风格库两项待信号——实现路径未验证/零消费者，伪锚禁令只约束建模手册）。
 
-**处理方式**：评估存证 [docs/research/opus5-video-techniques.md](../research/opus5-video-techniques.md)（五仓钉版事实快照 + 逐仓净增量判定 + 引入形态七案比选 + 采纳/不采纳/待信号三档清单 + cue 系统路线图输入 §五）；PR [#50](https://github.com/ThreeFish-AI/vibe-video/pull/50)（commit adbb6cf）。二轮经用户复核校正归引（首轮误把建模手册伪锚禁令套到 DIRECTING-CRAFT——后者准入是业界已验证原理，RSI-048 先例），落地四项：反模式表 A-29（metronome 等长镜头）/A-30（硬交换冒充承接）、08 帧驱动条款 CSS transition/animation 禁令、08 Motion Blur 启用时机（>80px/帧，180° 快门法则）。
+**处理方式**：评估存证 [docs/research/opus5-video-techniques.md](../research/opus5-video-techniques.md)（五仓钉版事实快照 + 逐仓净增量判定 + 引入形态七案比选 + 采纳/不采纳/待信号三档清单 + cue 系统路线图输入 §五）；PR [#50](https://github.com/ThreeFish-AI/vibe-video/pull/50)（commit adbb6cf）。二轮经用户复核校正归引（首轮误把建模手册伪锚禁令套到 DIRECTING-CRAFT——后者准入是业界已验证原理，RSI-048 先例），落地四项：反模式表 A-29（metronome 等长镜头）/A-30（硬交换冒充承接）、08 帧驱动条款 CSS transition/animation 禁令、08 Motion Blur 启用时机（>80px/帧，180° 快门法则）。三轮复核补证 Austerlitz 案例仓（无 LICENSE，仅存证）入 §五路线图。
 
 **后续防范**：外部工具/方法引入一律走「钉版取证（raw @ sha）→ 许可核实（NC/无许可禁代码与文本级复用，只提炼归纳性规则要点）→ 净增量判定 → 引入形态比选」四步（对齐 RSI-060 UA 评估先例）；无锚点概念一律待信号清单管理（每项带触发条件），不入手册条目与规格正文。
 
 **同类问题影响**：RSI-060（UA 融入评估）同范式先例；待信号四项（carry score 语义连续性判据 / 风格库 11 节骨架 / 反模式两条〔镜头抖动·背景噪声〕/ 循环末帧=首帧逐像素口径）住研究文档 §四；cue 系统后续 RSI 立项时以研究文档 §五为路线图输入。
-
-## RSI-067 dub 上游 breaking 更名 vibe-tts：本仓 resolve 契约断裂
-
-**表因**（2026-10-13，RSI-066 评估任务跑全量回归时实证）：按 `tts.py` 报错指引 clone ThreeFish-AI/dub main 后 pytest 仍在收集阶段大声退出——上游 commit `2be1c43`（`refactor(vibe-tts)!: 更名 dub → vibe-tts (#2)`）把 `scripts/dub.py` / `dub_*.py` 全量更名 `vibe_tts.py` / `vibe_tts_*.py`，本仓 `_find_dub_scripts()` 的候选检查（`SKILL.md + scripts/dub.py`）对新版恒假。
-
-**根因**：跨仓版本契约无锚——本仓 resolve 检查硬编码旧名 `dub.py`，上游 breaking 更名无兼容窗口；「大声退出」护栏工作正常（未静默降级），但报错指引自身指向已失效的安装路径（clone main = clone 新名），按指引操作无法解堵。
-
-**定性**：非阻断改进 · T2（本机以 `DUB_HOME` 指向更名前 commit `5cf2ab8` 解堵，回归 108 passed；CI/新机冷启动会命中）。
-
-**处理方式**：已修（C 方案：精确诊断）。`_find_dub_scripts()` 对命中新版入口 `vibe_tts.py` 的候选给出精确诊断（上游更名 commit + RSI-067 + 临时解法「切回 5cf2ab8 或 DUB_HOME 指旧版」），旧名照常通过、新旧并存时旧名优先；测试 +2（诊断断言 + 并存回归）。完整随迁（`dub_*` → `vibe_tts_*` 全量改名：tts.py 6 处 import、测试、文档、15 集薄包装）另立项攒批。PR [#50](https://github.com/ThreeFish-AI/vibe-video/pull/50)。
-
-**后续防范**：跨仓依赖（dub ↔ vibe-video）的 resolve 契约变更属上游 breaking，上游 PR 描述须显式列出下游仓清单或随 PR 同步回流下游；下游的硬依赖护栏测试应在上游 main 上例行对拍（当前仅本机手动触发）。
-
-**同类问题影响**：RSI-065（机制上收 dub）的「缺位大声退出」设计本身工作正常；`tts.py:66` 报错文案、README 安装节若有 dub clone 指引同病（修复时同批扫）。

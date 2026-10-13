@@ -5,7 +5,7 @@
 - 输出：<工程>/video/public/audio/{id}.mp3 + <工程>/video/public/audio/manifest.json
 - 引擎：
   - edge（默认）：edge-tts 预置音色，免密钥，行为与历史版本完全一致；
-  - indextts：声音克隆（IndexTTS-2.5 本地服务），需先启动 dub 的 dub_tts_server.py，
+  - indextts：声音克隆（IndexTTS-2.5 本地服务），需先启动 vibe-tts 的 vibe_tts_server.py，
     通过 --ref 提供参考音色样本、--style 选择风格（sunny 明快阳光为推荐位，
     sunny-steady 为其定稿档＝同参数 + 束宽 3；另有激情/轻快/自信/正能量）。
 - 幂等：参数与文本未变则跳过（SHA1 摘要 sidecar 缓存）。
@@ -41,53 +41,41 @@ import sys
 from pathlib import Path
 
 
-def _find_dub_scripts() -> Path:
-    """定位 dub skill 的 scripts/（TTS 机制原语的 SSOT）。
+def _find_vibe_tts_scripts() -> Path:
+    """定位 vibe-tts skill 的 scripts/（TTS 机制原语的 SSOT）。
 
-    顺序：DUB_HOME → ~/.claude/skills/dub → ~/.agents/skills/dub；候选须同时含
-    SKILL.md 与入口脚本 dub.py（命中上游更名后入口 vibe_tts.py 时给出精确诊断，
-    契约随迁前不消费新版——RSI-067）。找不到即大声退出——绝不静默降级到内联副本。
+    顺序：VIBE_TTS_HOME → ~/.claude/skills/vibe-tts → ~/.agents/skills/vibe-tts；候选须同时含
+    SKILL.md 与入口脚本 vibe_tts.py。找不到即大声退出——绝不静默降级到内联副本。
     本文件不 import 同目录兄弟模块（test_tts_lang_mirror 钉死），发现逻辑因此内联，
-    与 dub 仓 dub_paths.find_dub_root 同构。
+    与 vibe-tts 仓 vibe_tts_paths.find_vibe_tts_root 同构。
     """
     candidates = []
-    if os.environ.get("DUB_HOME"):
-        candidates.append(Path(os.environ["DUB_HOME"]).expanduser())
+    if os.environ.get("VIBE_TTS_HOME"):
+        candidates.append(Path(os.environ["VIBE_TTS_HOME"]).expanduser())
     candidates += [
-        Path("~/.claude/skills/dub").expanduser(),
-        Path("~/.agents/skills/dub").expanduser(),
+        Path("~/.claude/skills/vibe-tts").expanduser(),
+        Path("~/.agents/skills/vibe-tts").expanduser(),
     ]
-    renamed: list[Path] = []
     for c in candidates:
-        if (c / "SKILL.md").is_file() and (c / "scripts" / "dub.py").is_file():
-            return (c / "scripts").resolve()
         if (c / "SKILL.md").is_file() and (c / "scripts" / "vibe_tts.py").is_file():
-            renamed.append(c)
-    if renamed:
-        sys.exit(
-            "dub 候选命中上游新版命名 vibe-tts（commit 2be1c43：dub.py → vibe_tts.py），"
-            "本仓 resolve 契约（RSI-067）随迁前只认旧名，无法消费：\n"
-            + "\n".join(f"  - {c}" for c in renamed)
-            + "\n临时解法：把该检出切回更名前版本（git -C <上述目录> checkout 5cf2ab8）"
-            "或设 DUB_HOME 指向旧版检出"
-        )
+            return (c / "scripts").resolve()
     sys.exit(
-        "找不到 dub skill（TTS 机制原语住在那里）。已检查：\n"
+        "找不到 vibe-tts skill（TTS 机制原语住在那里）。已检查：\n"
         + "\n".join(f"  - {c}" for c in candidates)
-        + "\n安装：git clone https://github.com/ThreeFish-AI/dub ~/projects/dub"
-        " && ln -sfn ~/projects/dub ~/.claude/skills/dub（或设 DUB_HOME）"
+        + "\n安装：git clone https://github.com/ThreeFish-AI/vibe-tts ~/projects/vibe-tts"
+        " && ln -sfn ~/projects/vibe-tts ~/.claude/skills/vibe-tts（或设 VIBE_TTS_HOME）"
     )
 
 
-_DUB_SCRIPTS = _find_dub_scripts()
-# append 而非 insert(0)：dub 的库模块一律 dub_ 前缀，本仓兄弟模块优先解析，杜绝同名遮蔽
-sys.path.append(str(_DUB_SCRIPTS))
+_VIBE_TTS_SCRIPTS = _find_vibe_tts_scripts()
+# append 而非 insert(0)：vibe-tts 的库模块一律 vibe_tts_ 前缀，本仓兄弟模块优先解析，杜绝同名遮蔽
+sys.path.append(str(_VIBE_TTS_SCRIPTS))
 
-# 机制原语（风格预设/摘要/HTTP 客户端/版本库/切分函数）全部来自 dub，在此再导出——
+# 机制原语（风格预设/摘要/HTTP 客户端/版本库/切分函数）全部来自 vibe-tts，在此再导出——
 # 本文件内的编排代码、tts_sample.py 与测试经 `tts.X` 取用，命名空间保持不变。
-from dub_audio import mp3_duration  # noqa: E402,F401
-from dub_engine_edge import RETRIES, digest_edge  # noqa: E402,F401
-from dub_engine_indextts import (  # noqa: E402,F401
+from vibe_tts_audio import mp3_duration  # noqa: E402,F401
+from vibe_tts_engine_edge import RETRIES, digest_edge  # noqa: E402,F401
+from vibe_tts_engine_indextts import (  # noqa: E402,F401
     CONCURRENCY_INDEXTTS,
     HTTP_TIMEOUT,
     SAMPLING_DEFAULTS,
@@ -107,15 +95,15 @@ from dub_engine_indextts import (  # noqa: E402,F401
     store_has,
     store_restore,
 )
-from dub_profiles import (  # noqa: E402,F401
+from vibe_tts_profiles import (  # noqa: E402,F401
     DEFAULT_RATE,
     DEFAULT_VOICE,
     EMO_KEYS,
     STYLE_PRESETS,
     parse_emo_vector,
 )
-from dub_textprep import tts_text  # noqa: E402,F401
-from dub_tts_blocks import (  # noqa: E402,F401
+from vibe_tts_textprep import tts_text  # noqa: E402,F401
+from vibe_tts_blocks import (  # noqa: E402,F401
     frame_db,
     plan_block_cuts,
     silence_runs,
@@ -293,11 +281,11 @@ def steady_match(
 #: 与本次不一致时硬失败，要求显式 --allow-voice-switch。不参与逐句摘要，故零缓存影响。
 ENGINE_MARKER = ".engine"
 
-#: 服务端脚本住在 dub 仓（机制 SSOT）；启动命令的唯一生成处是下面的 server_launch_hint，
+#: 服务端脚本住在 vibe-tts 仓（机制 SSOT）；启动命令的唯一生成处是下面的 server_launch_hint，
 #: tts_sample.py、tts_resume.py 与 VOICE-CLONING.md 皆由它派生或对它钉死。
 #: 与 config.SCHEMA 的 tts.server 缺省互为镜像；单一来源对账由 test_tts_lang_mirror 执法
 DEFAULT_SERVER = "http://127.0.0.1:8766"
-SERVER_SCRIPT = _DUB_SCRIPTS / "dub_tts_server.py"
+SERVER_SCRIPT = _VIBE_TTS_SCRIPTS / "vibe_tts_server.py"
 
 
 def server_launch_hint(port: int = 8766) -> str:
@@ -613,8 +601,8 @@ def blocks_unsupported_hint(health: dict) -> str:
     fallback = '；或本集改用逐句档（pipeline.toml [tts] style = "sunny"，直调 tts.py 用 --style sunny）'
     if "supports_blocks" not in health:
         return (
-            "当前服务不支持块合成（story 档需要）：服务端代码过旧，请用 dub"
-            f" 当前 dub_tts_server.py 重启服务，见 {MANUAL} §二"
+            "当前服务不支持块合成（story 档需要）：服务端代码过旧，请用 vibe-tts"
+            f" 当前 vibe_tts_server.py 重启服务，见 {MANUAL} §二"
         )
     if health.get("version") == "2":
         return (
@@ -629,7 +617,7 @@ def blocks_unsupported_hint(health: dict) -> str:
         )
     return (
         "当前服务报告不支持块合成（supports_blocks=false，未回报原因）"
-        f"——请用 dub 当前 dub_tts_server.py 重启服务（见 {MANUAL} §二）{fallback}"
+        f"——请用 vibe-tts 当前 vibe_tts_server.py 重启服务（见 {MANUAL} §二）{fallback}"
     )
 
 
@@ -781,7 +769,7 @@ async def synth_block_indextts(
         if fmts != {"mp3"}:  # 同逐句路径的编码器守卫：WAV 字节不得落成 .mp3
             raise NonRetryableError(
                 f"服务端编码器不可用（format={','.join(sorted(map(str, fmts)))}）"
-                f"—— 按 {MANUAL} §七 检查 soundfile/lameenc，或用 dub 当前 dub_tts_server.py 重启服务"
+                f"—— 按 {MANUAL} §七 检查 soundfile/lameenc，或用 vibe-tts 当前 vibe_tts_server.py 重启服务"
             )
         for k, clip in enumerate(clips):
             item = block_items[k]
@@ -816,8 +804,8 @@ async def synth_block_indextts(
 #
 # 机制：同幕连续句拼成一次 /synthesize（块文本 ≤118 token 时上游单段连续生成，
 # 句间是模型自带的自然停顿）；响应在服务端按句界切回 N 个 mp3。切分/划块的本体
-# 是 dub 仓 dub_tts_blocks 里的纯函数——numpy 惰性 import，唯一执行者是 dub 的服务端
-# dub_tts_server.py（它持有 mp3 编码前的 float32 PCM）；本文件只负责「划块」（plan_blocks）
+# 是 vibe-tts 仓 vibe_tts_blocks 里的纯函数——numpy 惰性 import，唯一执行者是 vibe-tts 的服务端
+# vibe_tts_server.py（它持有 mp3 编码前的 float32 PCM）；本文件只负责「划块」（plan_blocks）
 # 与请求编排，不触碰切分函数。
 #
 # 实测定档依据（2026-09-25，dream-rsi P0）：
@@ -1643,11 +1631,11 @@ async def main() -> None:
         if sampling_only and not health.get("supports_sampling_params"):
             parser.error(
                 f"当前服务不支持采样参数（{','.join(sorted(sampling_only))}）：服务端代码过旧，"
-                f"请用 dub 当前 dub_tts_server.py 重启服务，见 {MANUAL} §二"
+                f"请用 vibe-tts 当前 vibe_tts_server.py 重启服务，见 {MANUAL} §二"
             )
         if "seed" in sampling and not health.get("supports_seed"):
             parser.error(
-                f"当前服务不支持 --seed：服务端代码过旧，请用 dub 当前 dub_tts_server.py 重启服务，见 {MANUAL} §二"
+                f"当前服务不支持 --seed：服务端代码过旧，请用 vibe-tts 当前 vibe_tts_server.py 重启服务，见 {MANUAL} §二"
             )
         if sampling.get("text_normalization") is False and not health.get(
             "supports_text_normalization"

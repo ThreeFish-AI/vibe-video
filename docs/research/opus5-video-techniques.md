@@ -1,6 +1,6 @@
 # Opus 5.5 视频生态五仓评估：学习/借鉴/引入存证
 
-> **结论先行**：微信文章《用 Claude Opus 5.5 做视频堪称一绝》[1] 提及的五个开源仓全部核实存在并已钉版取证。**架构层面零引入必要**——文章主推的「单 HTML/Canvas + 截帧 + FFmpeg」临时路线在本仓已有 Remotion 确定性流水线面前全面处于劣势（[HyperFrames 否决同款论据](./dependency-policy-and-asset-tools.md)：第二渲染面）。**概念层借鉴分两轮落位**：首轮存证后经用户复核校正归引——[DIRECTING-CRAFT](../../references/DIRECTING-CRAFT.md) 反模式表的既有准入是「业界已验证原理」（RSI-048 先例：Murch/Disney/Mayer 来源），不适用建模手册的成片锚点伪锚禁令，故业界原理级四项**已落规格**：① onetake「禁 metronome 剪辑」「Never replace a beat — carry it」落反模式表 A-29/A-30；② onetake「>80px/帧须 shutter motion blur」（180° 快门法则）落 [08](../../references/08-remotion-implementation.md) Motion Blur 启用时机；③ 官方 skill 对读唯一实质缺口「禁 CSS transition/animation」落 08 帧驱动条款（规格条款非机器门，不违不变量 8）；④ opuscar 的 CC0 音源 + 程序化配乐/事件驱动音效存证为 02「留空轨」cue 系统后续 RSI 的技术路线参照（§五）。**维持待信号两项**：carry score 元素级连续性 oracle（QA 语义盲区的自动化候选——实现路径未验证、误报面未知，09 判据上架纪律硬约束）与风格库 11 节骨架（零消费者，首例风格化需求时按 §2.2 形态起库）。事实快照均为 2026-10-13 钉版口径（三路并行子代理只读取证，raw @ 钉版 sha，未 clone、未执行外部代码）。协议：RSI-066（[台账](../.agents/issue.md)）。
+> **结论先行**：微信文章《用 Claude Opus 5.5 做视频堪称一绝》[1] 提及的五个开源仓全部核实存在并已钉版取证。**架构层面零引入必要**——文章主推的「单 HTML/Canvas + 截帧 + FFmpeg」临时路线在本仓已有 Remotion 确定性流水线面前全面处于劣势（[HyperFrames 否决同款论据](./dependency-policy-and-asset-tools.md)：第二渲染面）。**概念层借鉴分两轮落位**：首轮存证后经用户复核校正归引——[DIRECTING-CRAFT](../../references/DIRECTING-CRAFT.md) 反模式表的既有准入是「业界已验证原理」（RSI-048 先例：Murch/Disney/Mayer 来源），不适用建模手册的成片锚点伪锚禁令，故业界原理级四项**已落规格**：① onetake「禁 metronome 剪辑」「Never replace a beat — carry it」落反模式表 A-29/A-30；② onetake「>80px/帧须 shutter motion blur」（180° 快门法则）落 [08](../../references/08-remotion-implementation.md) Motion Blur 启用时机；③ 官方 skill 对读唯一实质缺口「禁 CSS transition/animation」落 08 帧驱动条款（规格条款非机器门，不违不变量 8）；④ opuscar 的 CC0 音源 + 程序化配乐/事件驱动音效存证为 02「留空轨」cue 系统后续 RSI 的技术路线参照（§五）。**维持待信号两项**：carry score 元素级连续性 oracle（QA 语义盲区的自动化候选——实现路径未验证、误报面未知，09 判据上架纪律硬约束）与风格库 11 节骨架（零消费者，首例风格化需求时按 §2.2 形态起库）。事实快照均为 2026-10-13 钉版口径（三路并行子代理只读取证，raw @ 钉版 sha，未 clone、未执行外部代码）。协议：RSI-068（[台账](../.agents/issue.md)）。
 
 ## 一、事实快照（五仓钉版，2026-10-13）
 
@@ -11,6 +11,7 @@
 | [remotion-dev/skills](https://github.com/remotion-dev/skills) | `7ba4dcf` | **无 LICENSE** | 5108 | Remotion 官方 Agent Skills（12 个：best-practices/markup/render/captions/maps/…） |
 | [joeseesun/opus-video-prompts](https://github.com/joeseesun/opus-video-prompts) | `7977c80` | **无 LICENSE** | 306 | 18 个结构化 prompt + 54 案例索引 |
 | [yihui-dev/awesome-opus5-5-videos](https://github.com/yihui-dev/awesome-opus5-5-videos) | `e6c7eee` | MIT | 4755 | 853 个视频 prompt 索引（纯语料，无方法论） |
+| [WinterArc21/Battle-of-Austerlitz-Film](https://github.com/WinterArc21/Battle-of-Austerlitz-Film) | `HEAD`（单 commit 仓） | **无 LICENSE** | 24 | 5 分钟奥斯特里茨战役片：WebGL 程序化渲染 + 真实 SRTM 地形 + 画面推导音效（三轮补证） |
 
 **许可硬边界** [4]：onetake 原文「onetake is free for noncommercial use only」——禁商用，代码级复用被排除；两个无 LICENSE 仓按版权默认法保留所有权利，**其文本（prompt/skill 正文）不得转载进本仓文档**，本评估只提炼归纳性规则要点（子代理取证已按此纪律执行）。opuscar 的 MIT 只覆盖其代码与指南文本，风格样片为 Opus 5.5 调优产物，本仓 Claude 模型栈下可复现性存疑。
 
@@ -68,7 +69,7 @@ XML 分段范式（`inputs/direction/structure/build/gotchas/start`）[9] 与本
 
 ## 四、采纳 / 不采纳 / 待信号清单
 
-**采纳（已落地）**：研究文档存证（本文）+ RSI-066/067 ledger 登记 + [knowledge-map](../.agents/knowledge-map.md) 索引 + CHANGELOG；二轮规格落地四项——[DIRECTING-CRAFT](../../references/DIRECTING-CRAFT.md) 反模式表 A-29/A-30、[08](../../references/08-remotion-implementation.md) 帧驱动条款 CSS 禁令、08 Motion Blur 启用时机、`tts.py` resolve 上游更名精确诊断（RSI-067）。**零 vendor、零依赖。**
+**采纳（已落地）**：研究文档存证（本文）+ RSI-068 ledger 登记 + [knowledge-map](../.agents/knowledge-map.md) 索引 + CHANGELOG；二轮规格落地四项——[DIRECTING-CRAFT](../../references/DIRECTING-CRAFT.md) 反模式表 A-29/A-30、[08](../../references/08-remotion-implementation.md) 帧驱动条款 CSS 禁令、08 Motion Blur 启用时机、Austerlitz 画面推导音效补证 §五（三轮）。**零 vendor、零依赖。**
 
 **待信号（登记后按触发条件立项，均不入规格/手册正文）**：
 
@@ -88,6 +89,7 @@ XML 分段范式（`inputs/direction/structure/build/gotchas/start`）[9] 与本
 - **音源**：CC0/免费采样库（VSCO 2 CE、VCSL、FreePats、Karoryfer、Salamander）——零许可风险；
 - **合成**：Karplus–Strong 物理建模拨弦 + numpy 波形合成（chip tune/drone）+ 程序化音效（click/whoosh/thump）——确定性可复现，与本仓帧驱动哲学同构；
 - **驱动**：页面事件（`window.EV`）触发音效 → 本仓对应「句 id / 实测词窗 / beat 事件 → cue」，可复用 TTS manifest 词级时间戳；onetake 侧印证「音效按实测峰值对齐事件、剪点落重拍」；
+- **画面推导音效与空间属性**（Austerlitz [11]，三轮补证）：`events.js` 从画面事件派生音效 cue（每声炮、齐射、马蹄），并携带距离衰减、声像 pan 与 343 m/s 声速延迟——音效不仅按事件时间轴摆放，还能从「画面上发生了什么」推导，且带空间物理属性；作为 cue 粒度与属性设计的上限参照。其「阵型与粒子是 time 的纯函数、任意帧可独立渲染」与本仓确定性渲染哲学同构（验证收敛）；真实地形数据管线（SRTM 高程 → WebGL）与 [text-to-cad](./dependency-policy-and-asset-tools.md) 同属「数据驱动外部资产」先例，按集 opt-in 模式可平移；
 - **混音**：loudnorm 归一 + voice 高于 music 约 10dB；响度口径两仓不同（opuscar −14 LUFS ≈ YouTube 标准、onetake −16 LUFS ≈ 播客标准），立项时按分发平台定档。
 
 ## 引用
@@ -102,3 +104,4 @@ XML 分段范式（`inputs/direction/structure/build/gotchas/start`）[9] 与本
 [8] Remotion. skills `skills/remotion-markup/SKILL.md` @ `7ba4dcf`. <https://raw.githubusercontent.com/remotion-dev/skills/7ba4dcf8ebe1626b00baa41e1f2478113719b60b/skills/remotion-markup/SKILL.md>
 [9] joeseesun. opus-video-prompts `prompts/15-ui-morph-loop.md` 等 @ `7977c80`. <https://github.com/joeseesun/opus-video-prompts/tree/7977c807781d4ba7c235247b8899a72575a30d00/prompts>
 [10] yihui-dev. awesome-opus5-5-videos `README.md` @ `e6c7eee`. <https://github.com/yihui-dev/awesome-opus5-5-videos/blob/e6c7eee870cbd6d40825d6348a0c5782b3721fe9/README.md>
+[11] WinterArc21. Battle-of-Austerlitz-Film `README.md`（无 LICENSE，2026-10-13 检证）. <https://github.com/WinterArc21/Battle-of-Austerlitz-Film>
