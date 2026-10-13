@@ -125,7 +125,7 @@ uv run --no-project $T/scripts/pipeline.py --project $P deliver   # → <根>/<�
 - **Stage ① 信源输入**：已有 /guided-learn 产出作 C 型信源直接成片（01「C 型」），不重新精读。
 - **Stage ⑥/⑧ 图示资产**：架构/流程类图解调 `/archify` 出图，HTML 落 `$W`，`record_archify_all.py` 逐章录成动效素材；句级锚定覆盖门已串联进 `check`。
 - **Stage ⑧ 精确 3D 资产（可选）**：信源涉机械结构/硬件、示意级几何不够时，装 text-to-cad 的 **cad 单 skill** 出 GLB；安装与 3D 宪法见 [08「外部 CAD 资产」](references/08-remotion-implementation.md)。
-- **Stage ⑦ 配音机制**住 [dub](https://github.com/ThreeFish-AI/dub)（缺位大声退出）；单段文本转 mp3 直接 `/dub`。
+- **Stage ⑦ 配音机制**住 [vibe-tts](https://github.com/ThreeFish-AI/vibe-tts)（缺位大声退出）；单段文本转 mp3 直接 `/vibe-tts`。
 
 ## 自改进回路（RSI）
 

@@ -985,3 +985,17 @@
 - SKILL.md 正文预算仅余 3 字符，再加内容须先等价压缩旧文案。
 
 **同类问题影响**：分集 `scripts/tts.py` 薄包装（15 份逐字节相同）不动——它们转调本仓 `scripts/tts.py`，委托发生在其内部；`VIBE_VIDEO_TTS_STORE` 默认目录与摘要格式均不变，零重合成。dub 自己的版本库 `DUB_STORE` 是独立的，不与本仓共享。
+
+## RSI-066 上游配音仓更名 dub → vibe-tts：本仓委托层命名契约同步迁移
+
+**表因**（2026-10-13，用户点名）：上游配音仓 ThreeFish-AI/dub 整体更名为 [ThreeFish-AI/vibe-tts](https://github.com/ThreeFish-AI/vibe-tts)（更名 commit 047b334 已入其 main），本仓 `feat/dub-delegation` 分支的委托层代码、测试与文档仍引用旧名——按 `dub.py` 入口、`dub_*` 模块名与 `DUB_HOME` 定位会在已更名的环境里立即失配（本仓 pytest 硬依赖 skill 已挂载，找不到即大声退出）。
+
+**根因**：跨仓委托的命名契约（入口脚本名、库模块前缀、环境变量、skill 挂载目录）没有随上游 SSOT 自动同步的机制，上游更名后本仓需一次人工对齐。
+
+**定性**：机械更名同步 · 非阻断改进（不改任何行为逻辑；代码硬契约逐字跟随上游新名，黄金哈希与存量缓存零影响）。
+
+**处理方式**：本分支追加 commit（PR #48 已合并，基于其后分支续作）。改动面：① [scripts/tts.py](../../scripts/tts.py) 委托层——import 六模块改 `vibe_tts_audio` / `vibe_tts_engine_edge` / `vibe_tts_engine_indextts` / `vibe_tts_profiles` / `vibe_tts_textprep` / `vibe_tts_blocks`，`_find_dub_scripts` → `_find_vibe_tts_scripts`（定位顺序 `VIBE_TTS_HOME` → `~/.claude/skills/vibe-tts` → `~/.agents/skills/vibe-tts`，哨兵 `scripts/vibe_tts.py`），`SERVER_SCRIPT` → `vibe_tts_server.py`，安装命令与错误消息同步；② [tts_sample.py](../../scripts/tts_sample.py) / [tts_resume.py](../../scripts/tts_resume.py) / [tts_bench.py](../../scripts/tts_bench.py) / [paths.py](../../scripts/paths.py) 的注释与运行时提示；③ 测试面 `tests/test_dub_delegation.py` git mv 为 [test_vibe_tts_delegation.py](../../tests/test_vibe_tts_delegation.py)（`__module__` 前缀断言 `vibe_tts_*`、`SERVER_SCRIPT.name` 钉值同步），[test_tts_lang_mirror.py](../../tests/test_tts_lang_mirror.py) / [test_tts_mps_oom_contract.py](../../tests/test_tts_mps_oom_contract.py) / [test_tts_resolve.py](../../tests/test_tts_resolve.py) 引用与注释跟随；④ 文档 8 处（[README](../../README.md)、[CHANGELOG](../../CHANGELOG.md)、[RSI](../../RSI.md) 不变量 16、[SKILL.md](../../SKILL.md)、[PIPELINE](../../references/PIPELINE.md) 环境变量表、[VOICE-CLONING](../../references/VOICE-CLONING.md) 的 `$DUB` → `$VIBE_TTS`、[07-tts-voice](../../references/07-tts-voice.md)、[INDEXTTS-2.5-ADVANCED](../../references/INDEXTTS-2.5-ADVANCED.md)）。命名映射以 vibe-tts 仓更名 commit 为准：仓库 `ThreeFish-AI/vibe-tts`、skill 目录 `~/.claude/skills/vibe-tts`（`~/.agents/skills` 同）、数据目录 `~/Library/Application Support/vibe-tts`、输出目录 `~/Documents/vibe-tts-output`、六个环境变量 `VIBE_TTS_HOME` / `VIBE_TTS_OUTPUT_DIR` / `VIBE_TTS_DATA_DIR` / `VIBE_TTS_INDEXTTS_SERVER` / `VIBE_TTS_INDEX_TTS_ROOT` / `VIBE_TTS_STORE`。回归：pytest 全绿（含文档链接完整性测试）。
+
+**后续防范**：跨仓命名契约（入口脚本 `vibe_tts.py`、模块前缀 `vibe_tts_*`、六个 `VIBE_TTS_*` 环境变量、skill 目录名）以 vibe-tts 仓为 SSOT，上游再有更名或契约变化时本仓须同步一次；委托发现逻辑内联在 `_find_vibe_tts_scripts`（不 import 兄弟模块，test_tts_lang_mirror 钉死），与上游 `vibe_tts_paths.find_vibe_tts_root` 同构可对照。
+
+**同类问题影响**：缓存摘要 `digest_indextts` 更名前后逐字节相同（上游黄金哈希测试钉值零改动、经本仓委托继承），15 集存量缓存零失效；vibe-tts 仓自己的数据目录从 `Application Support/dub` 迁至 `Application Support/vibe-tts`，属上游仓内部迁移，本仓 `VIBE_VIDEO_TTS_STORE` 不受影响。分集 `scripts/tts.py` 薄包装（15 份逐字节相同）不动，委托发生在其转调的本仓 `scripts/tts.py` 内部。本条目之前的存量登记（RSI-065 等）为冻结历史，不再改写。

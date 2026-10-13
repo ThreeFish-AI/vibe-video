@@ -44,14 +44,14 @@ def _imported_top_levels(tree: ast.Module) -> set[str]:
 
 def test_tts_does_not_import_sibling_modules():
     """导入边界（承重）：tts.py 不得 import 同目录模块——它不持工作区锚，
-    仅凭入参与环境变量运行（dub 依赖经 _find_dub_scripts 单点定位）。AST 扫描
+    仅凭入参与环境变量运行（vibe-tts 依赖经 _find_vibe_tts_scripts 单点定位）。AST 扫描
     import 语句，同目录集合从 scripts/*.py 现存文件派生（新增脚本自动进执法面）。"""
     tree = ast.parse((SCRIPTS / "tts.py").read_text(encoding="utf-8"))
     siblings = {p.stem for p in SCRIPTS.glob("*.py")}
     offenders = _imported_top_levels(tree) & siblings
     assert not offenders, (
         f"tts.py 引入了同目录依赖 {sorted(offenders)}——违反 paths.py 导入边界"
-        "（同目录依赖一律迁 dub 或改走入参/env）"
+        "（同目录依赖一律迁 vibe-tts 或改走入参/env）"
     )
 
 

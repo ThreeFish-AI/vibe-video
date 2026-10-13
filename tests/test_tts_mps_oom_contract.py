@@ -1,9 +1,9 @@
-"""dub 服务端 remedy ↔ 客户端 _deterministic_mps_oom 的跨仓字符串契约执法。
+"""vibe-tts 服务端 remedy ↔ 客户端 _deterministic_mps_oom 的跨仓字符串契约执法。
 
 服务端把确认命中 MPS high watermark 的 OOM 转成以「MPS 显存上限不足」开头的
 500 detail，客户端按该前缀转 NonRetryableError 跳过 4 轮重试；未确认触顶和未设上限
 分支均以「MPS 显存耗尽」开头、留在 5xx 重试桶。契约是纯字符串约定
-（dub 仓 dub_tts_server.py / 本仓 tts.py / VOICE-CLONING §七三载体），任一侧改写措辞会静默改变
+（vibe-tts 仓 vibe_tts_server.py / 本仓 tts.py / VOICE-CLONING §七三载体），任一侧改写措辞会静默改变
 重试策略。此处用 AST 抽取 remedy 与纯函数 helper（不 import fastapi/torch），并以
 mock urlopen 验证两个 http_* 封装的分流及确定性失败的句 id 包装。
 """
@@ -25,8 +25,8 @@ import pytest
 
 import tts  # noqa: E402
 
-#: 服务端脚本住在 dub 仓（TTS 机制 SSOT）；经 tts.py 已解析好的 dub scripts 目录取得，
-#: 与运行时同一份发现逻辑，dub 缺位时 import tts 即大声退出。
+#: 服务端脚本住在 vibe-tts 仓（TTS 机制 SSOT）；经 tts.py 已解析好的 vibe-tts scripts 目录取得，
+#: 与运行时同一份发现逻辑，vibe-tts 缺位时 import tts 即大声退出。
 SERVER_PY = tts.SERVER_SCRIPT
 
 
@@ -42,7 +42,7 @@ def _expr_text(node: ast.expr) -> str:
 
 
 def _remedy_literals() -> tuple[list[str], list[str]]:
-    """AST 抽 dub_tts_server.py 三个 remedy 的隐式拼接全文。
+    """AST 抽 vibe_tts_server.py 三个 remedy 的隐式拼接全文。
 
     确认触顶分支应恰一处；未确认触顶与未设上限两个分支都必须保持可重试。
     """

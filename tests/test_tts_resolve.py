@@ -1,7 +1,7 @@
 """resolve_sampling 与 synth_source_text：本仓 CLI 层的采样参数解析与送合成文本选取。
 
 这两者是视频流水线的编排逻辑（argparse Namespace → 采样字典；narration 条目 → 送合成文本），
-留在 vibe-video。摘要格式、后缀规则与预设不变量属 dub 机制，其黄金值与不变量测试住 dub 仓。
+留在 vibe-video。摘要格式、后缀规则与预设不变量属 vibe-tts 机制，其黄金值与不变量测试住 vibe-tts 仓。
 """
 
 from __future__ import annotations
