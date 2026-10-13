@@ -1,6 +1,6 @@
 # Opus 5.5 视频生态五仓评估：学习/借鉴/引入存证
 
-> **结论先行**：微信文章《用 Claude Opus 5.5 做视频堪称一绝》[1] 提及的五个开源仓全部核实存在并已钉版取证。**架构层面零引入必要**——文章主推的「单 HTML/Canvas + 截帧 + FFmpeg」临时路线在本仓已有 Remotion 确定性流水线面前全面处于劣势（[HyperFrames 否决同款论据](./dependency-policy-and-asset-tools.md)：第二渲染面）；**概念层五项借鉴全部只作存证**，本评估不落任何机制改动：① [onetake](https://github.com/feitangyuan/onetake) 的 carry score 元素级连续性 oracle 是 QA 层「FAIL 0 ≠ 视觉正确」语义盲区的自动化候选，但其 PolyForm NC 许可只许借鉴思想；② [lemo-opuscar](https://github.com/lemomo-ai/lemo-opuscar) 最有价值的不是 43 种风格本身而是 STYLE.md 的 11 节固定骨架——「风格 = 生产约束文档」的条目形态，若未来建风格库按此形态；③ opuscar 的 CC0 音源 + 程序化配乐/事件驱动音效是 02「留空轨、cue 系统属后续 RSI」留白的现成技术路线参照；④ [remotion-dev/skills](https://github.com/remotion-dev/skills) 对读唯一实质规格缺口是「禁 CSS transition/animation」，属低频防御项（不变量 8：先有数据再有门），排队不上门；⑤ 28 条反模式表对读无实质遗漏（差异是哲学性的：本仓职能判据 vs 外部审美判据）。事实快照均为 2026-10-13 钉版口径（三路并行子代理只读取证，raw @ 钉版 sha，未 clone、未执行外部代码）。协议：RSI-066（[台账](../.agents/issue.md)）。
+> **结论先行**：微信文章《用 Claude Opus 5.5 做视频堪称一绝》[1] 提及的五个开源仓全部核实存在并已钉版取证。**架构层面零引入必要**——文章主推的「单 HTML/Canvas + 截帧 + FFmpeg」临时路线在本仓已有 Remotion 确定性流水线面前全面处于劣势（[HyperFrames 否决同款论据](./dependency-policy-and-asset-tools.md)：第二渲染面）。**概念层借鉴分两轮落位**：首轮存证后经用户复核校正归引——[DIRECTING-CRAFT](../../references/DIRECTING-CRAFT.md) 反模式表的既有准入是「业界已验证原理」（RSI-048 先例：Murch/Disney/Mayer 来源），不适用建模手册的成片锚点伪锚禁令，故业界原理级四项**已落规格**：① onetake「禁 metronome 剪辑」「Never replace a beat — carry it」落反模式表 A-29/A-30；② onetake「>80px/帧须 shutter motion blur」（180° 快门法则）落 [08](../../references/08-remotion-implementation.md) Motion Blur 启用时机；③ 官方 skill 对读唯一实质缺口「禁 CSS transition/animation」落 08 帧驱动条款（规格条款非机器门，不违不变量 8）；④ opuscar 的 CC0 音源 + 程序化配乐/事件驱动音效存证为 02「留空轨」cue 系统后续 RSI 的技术路线参照（§五）。**维持待信号两项**：carry score 元素级连续性 oracle（QA 语义盲区的自动化候选——实现路径未验证、误报面未知，09 判据上架纪律硬约束）与风格库 11 节骨架（零消费者，首例风格化需求时按 §2.2 形态起库）。事实快照均为 2026-10-13 钉版口径（三路并行子代理只读取证，raw @ 钉版 sha，未 clone、未执行外部代码）。协议：RSI-066（[台账](../.agents/issue.md)）。
 
 ## 一、事实快照（五仓钉版，2026-10-13）
 
@@ -22,7 +22,7 @@
 
 **与本仓 QA 的对照**：[qa_frames.py](../../scripts/qa_frames.py) 的冻帧检测是像素级 16×16 指纹，无法区分「转场交换」与「物体位移」——语义级连续性目前全靠人工门（导演级四维）。carry score 把「交接处什么活下来」变成了可计算判据，且其「确定性时间函数 + 元素采样」前提与本仓帧驱动渲染架构同构。**实现路径未验证**（Remotion 无「在屏元素清单」直接暴露，headless DOM 采样或像素差分退化方案的误报面未知），按 09 判据上架纪律（已知干净帧零误报）本期不动。
 
-**16 条硬规则** [3] 与 [DIRECTING-CRAFT](../../references/DIRECTING-CRAFT.md) 对照，三条本仓无等价物：「禁 metronome 剪辑」（等长镜头 = 幻灯片——A-10 只管静态 > 5s，不管节奏均匀）、「Never replace a beat — carry it」（display:none 交换 = 幻灯片——比 Morph Continuity 更锋利的同源表述）、「> 80px/帧必须 shutter motion blur」（本仓 Motion Blur opt-in 缺量化触发条件）。均为**无成片锚点的候选**（伪锚禁令），只登记待信号。
+**16 条硬规则** [3] 与 [DIRECTING-CRAFT](../../references/DIRECTING-CRAFT.md) 对照，三条本仓无等价物：「禁 metronome 剪辑」（等长镜头 = 幻灯片——A-10 只管静态 > 5s，不管节奏均匀）、「Never replace a beat — carry it」（display:none 交换 = 幻灯片——比 Morph Continuity 更锋利的同源表述）、「> 80px/帧必须 shutter motion blur」（本仓 Motion Blur opt-in 缺量化触发条件）。**三条均已二轮落地**：前两条落反模式表 A-29/A-30（业界原理级准入），第三条落 08 Motion Blur 启用时机；镜头抖动等其余禁项证据单薄（单仓禁令、无原理级支撑），维持待信号。
 
 ### 2.2 lemo-opuscar：风格条目骨架与原创配乐路线
 
@@ -36,7 +36,7 @@
 
 | 官方有 · 本仓无 | 判定 |
 |---|---|
-| 禁 CSS transition/animation 显式条款 | 唯一实质缺口；与「一律帧驱动」同向，堵 Studio 生成物漂移。低频防御 → 排队（不变量 8） |
+| 禁 CSS transition/animation 显式条款 | **已二轮落地**：08 帧驱动条款 +CSS 禁令（规格条款非机器门，不违不变量 8） |
 | `scale/translate/rotate` 独立 CSS 属性 | 可选回填，非红线级 |
 | blanket `premountFor={fps}` | 不回填——与本仓按镜显式控制相悖 |
 | Google Fonts / local fonts 加载 | **有意偏离**：08 钉 macOS 系统字体栈，内嵌子集字体已在 Remotion 5.0 触发器闭环 |
@@ -48,7 +48,7 @@
 
 ### 2.4 opus-video-prompts：结构范式与反模式对读
 
-XML 分段范式（`inputs/direction/structure/build/gotchas/start`）[9] 与本仓 [storyboard 四列 + Visual Lock](../../references/06-storyboard.md)、②钩子矩阵同构（规格先行、节拍表先行、禁项前置）——**验证了本仓范式与业界最佳实践的收敛，无增量**。禁用项清单（RGB 分离/镜头光晕/粒子爆发/弹跳缓动/镜头抖动/网格地面）与本仓 28 条反模式对读：**差异是哲学性的**——外部按审美一律禁，本仓 A-11 按「教学职能」条件禁（科普片定位下更优，Motion candy 有教学职能时合法）。真正未覆盖的三个候选（等长镜头、镜头抖动显式禁、背景噪声动画）并入 §2.1 待信号清单。正向吸收候选四条：音效按实测峰值对齐事件、contact sheet 逐拍预检、**循环末帧 = 首帧逐像素一致**（本仓 `--loop` 抽帧已是同族判据，可升级为逐像素口径，待信号）、响度归一口径。
+XML 分段范式（`inputs/direction/structure/build/gotchas/start`）[9] 与本仓 [storyboard 四列 + Visual Lock](../../references/06-storyboard.md)、②钩子矩阵同构（规格先行、节拍表先行、禁项前置）——**验证了本仓范式与业界最佳实践的收敛，无增量**。禁用项清单（RGB 分离/镜头光晕/粒子爆发/弹跳缓动/镜头抖动/网格地面）与本仓 28 条反模式对读：**差异是哲学性的**——外部按审美一律禁，本仓 A-11 按「教学职能」条件禁（科普片定位下更优，Motion candy 有教学职能时合法）。真正未覆盖的候选中，等长镜头已落 A-29；镜头抖动显式禁、背景噪声动画证据单薄，并入 §2.1 待信号清单。正向吸收候选四条：音效按实测峰值对齐事件、contact sheet 逐拍预检、**循环末帧 = 首帧逐像素一致**（本仓 `--loop` 抽帧已是同族判据，可升级为逐像素口径，待信号）、响度归一口径。
 
 ### 2.5 awesome-opus5-5-videos：纯语料不引入
 
@@ -61,14 +61,14 @@ XML 分段范式（`inputs/direction/structure/build/gotchas/start`）[9] 与本
 | 1 | vendor 任一仓代码/资产/文本 | **否决**：onetake NC 禁商用；两无许可仓文本受版权保护；opuscar 风格资产为 Opus 调优、跨模型可复现性存疑 |
 | 2 | 新增风格库（STYLE-PLAYBOOK 类，11 节骨架） | **否决（本期）**：零消费者零成片锚点，违「先有数据再有门」（不变量 8，ISSUE-167/188 先例）；骨架形态存证待信号，首个真实风格化需求出现时按 §2.2 骨架起库 |
 | 3 | qa_frames 加 carry score 类判据 | **否决（本期）**：实现路径未验证（Remotion 元素清单暴露方式）、误报面未知，违 09 判据上架纪律；登记待信号，首集出现「转场 vs 位移」人工误判时立项 |
-| 4 | 08 回填「禁 CSS transition/animation」 | **否决（本期）**：低频防御（本仓场景全手写帧驱动，无 Studio 编辑流）；首例污染出现时一行快速通道 |
-| 5 | DIRECTING-CRAFT 反模式表加条目（等长镜头/镜头抖动/背景噪声） | **否决（本期）**：伪锚禁令——须真实成片锚点方可入表；登记为候选区信号源 |
+| 4 | 08 回填「禁 CSS transition/animation」 | **采纳（二轮落地）**：规格条款非机器门，不违不变量 8；一行堵 Studio 生成物与外部代码携带路径（08 帧驱动条款） |
+| 5 | DIRECTING-CRAFT 反模式表加条目（等长镜头/硬交换/镜头抖动/背景噪声） | **部分采纳（二轮落地）**：A-29 metronome、A-30 硬交换落表——DIRECTING-CRAFT 准入是业界已验证原理（RSI-048 先例），伪锚禁令只约束建模手册；镜头抖动/背景噪声证据单薄维持待信号 |
 | 6 | cue 系统 RSI 吸收 CC0 音源 + 程序化合成 + 事件驱动音效路线 | **存证采纳**（路线图输入，非本期实现，见 §五） |
 | 7 | 本评估落研究文档 + ledger 登记 + 索引 | **采纳**（即本 PR 全部改动面） |
 
 ## 四、采纳 / 不采纳 / 待信号清单
 
-**采纳（本 PR 落地）**：研究文档存证（本文）+ RSI-066 ledger 登记 + [knowledge-map](../.agents/knowledge-map.md) 索引 + CHANGELOG。**零机制改动、零依赖、零 vendor。**
+**采纳（已落地）**：研究文档存证（本文）+ RSI-066/067 ledger 登记 + [knowledge-map](../.agents/knowledge-map.md) 索引 + CHANGELOG；二轮规格落地四项——[DIRECTING-CRAFT](../../references/DIRECTING-CRAFT.md) 反模式表 A-29/A-30、[08](../../references/08-remotion-implementation.md) 帧驱动条款 CSS 禁令、08 Motion Blur 启用时机、`tts.py` resolve 上游更名精确诊断（RSI-067）。**零 vendor、零依赖。**
 
 **待信号（登记后按触发条件立项，均不入规格/手册正文）**：
 
@@ -76,9 +76,8 @@ XML 分段范式（`inputs/direction/structure/build/gotchas/start`）[9] 与本
 |---|---|---|
 | carry score 类语义连续性判据 | 首集出现「转场交换 vs 物体位移」人工误判 | qa_frames `--check` 新判据（先零误报验证） |
 | 风格库（11 节骨架形态） | 首个真实风格化分集需求 | 独立 bounded 手册（对齐 MODELING-PLAYBOOK 治理） |
-| 反模式三条：等长镜头 / 镜头抖动 / 背景噪声动画 | 任一集成片出现对应病灶 | DIRECTING-CRAFT 反模式表（候选区先行） |
+| 反模式两条：镜头抖动 / 背景噪声动画 | 任一集成片出现对应病灶 | DIRECTING-CRAFT 反模式表（候选区先行） |
 | 循环判据升级为末帧 = 首帧逐像素 | loop 型内容出现指纹误放行 | qa_frames `--loop` 口径 |
-| 「禁 CSS transition/animation」显式条款 | 首例 Studio 生成物/外部 Remotion 代码引入 | 08 帧驱动条款旁一行 |
 
 **不采纳（全部，含理由）**：vendor 代码/资产/文本（许可 + 可复现性）；单 HTML 渲染路线（第二渲染面，[HyperFrames 先例](./dependency-policy-and-asset-tools.md)）；853 prompt 合集批量引入（无语料纪律）；图生视频/参考图扩展（超科普图解定位）；blanket premountFor / Studio 优先渲染 / composition 注册条款（见 §2.3 逐条判定）。
 

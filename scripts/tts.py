@@ -45,7 +45,8 @@ def _find_dub_scripts() -> Path:
     """定位 dub skill 的 scripts/（TTS 机制原语的 SSOT）。
 
     顺序：DUB_HOME → ~/.claude/skills/dub → ~/.agents/skills/dub；候选须同时含
-    SKILL.md 与入口脚本 dub.py。找不到即大声退出——绝不静默降级到内联副本。
+    SKILL.md 与入口脚本 dub.py（命中上游更名后入口 vibe_tts.py 时给出精确诊断，
+    契约随迁前不消费新版——RSI-067）。找不到即大声退出——绝不静默降级到内联副本。
     本文件不 import 同目录兄弟模块（test_tts_lang_mirror 钉死），发现逻辑因此内联，
     与 dub 仓 dub_paths.find_dub_root 同构。
     """
@@ -56,9 +57,20 @@ def _find_dub_scripts() -> Path:
         Path("~/.claude/skills/dub").expanduser(),
         Path("~/.agents/skills/dub").expanduser(),
     ]
+    renamed: list[Path] = []
     for c in candidates:
         if (c / "SKILL.md").is_file() and (c / "scripts" / "dub.py").is_file():
             return (c / "scripts").resolve()
+        if (c / "SKILL.md").is_file() and (c / "scripts" / "vibe_tts.py").is_file():
+            renamed.append(c)
+    if renamed:
+        sys.exit(
+            "dub 候选命中上游新版命名 vibe-tts（commit 2be1c43：dub.py → vibe_tts.py），"
+            "本仓 resolve 契约（RSI-067）随迁前只认旧名，无法消费：\n"
+            + "\n".join(f"  - {c}" for c in renamed)
+            + "\n临时解法：把该检出切回更名前版本（git -C <上述目录> checkout 5cf2ab8）"
+            "或设 DUB_HOME 指向旧版检出"
+        )
     sys.exit(
         "找不到 dub skill（TTS 机制原语住在那里）。已检查：\n"
         + "\n".join(f"  - {c}" for c in candidates)

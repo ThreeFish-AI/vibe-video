@@ -127,3 +127,29 @@ def test_dub_dir_without_sentinels_is_rejected(monkeypatch, tmp_path):
     monkeypatch.setenv("DUB_HOME", str(empty))
     with pytest.raises(SystemExit):
         tts._find_dub_scripts()
+
+
+def test_renamed_upstream_vibe_tts_exits_with_diagnosis(monkeypatch, tmp_path):
+    """上游 breaking 更名（RSI-067）：命中 vibe_tts.py 新版须给出可执行解堵指引，不得沉默或误装。"""
+    fake = tmp_path / "dub"
+    (fake / "scripts").mkdir(parents=True)
+    (fake / "SKILL.md").write_text("x")
+    (fake / "scripts" / "vibe_tts.py").write_text("x")
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("DUB_HOME", str(fake))
+    with pytest.raises(SystemExit) as e:
+        tts._find_dub_scripts()
+    msg = str(e.value)
+    assert "vibe-tts" in msg and "RSI-067" in msg and "5cf2ab8" in msg
+    assert str(fake) in msg
+
+
+def test_old_name_wins_when_both_present(monkeypatch, tmp_path):
+    """新旧入口并存时旧名 dub.py 仍可消费——契约随迁前的回归保障。"""
+    fake = tmp_path / "dub"
+    (fake / "scripts").mkdir(parents=True)
+    (fake / "SKILL.md").write_text("x")
+    (fake / "scripts" / "dub.py").write_text("x")
+    (fake / "scripts" / "vibe_tts.py").write_text("x")
+    monkeypatch.setenv("DUB_HOME", str(fake))
+    assert tts._find_dub_scripts() == (fake / "scripts").resolve()

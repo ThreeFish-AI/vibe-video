@@ -992,13 +992,13 @@
 
 **根因**：非缺陷登记，属外部生态扫描的评估存证。映射缺口三处——① onetake carry score（元素级加权 Jaccard 连续性 oracle，`probe.py::continuity()`）恰落在 qa_frames 像素级判据「FAIL 0 ≠ 视觉正确」的语义盲区（转场交换 vs 物体位移不可分）；② lemo-opuscar STYLE.md 11 节固定骨架证明「风格 = 生产约束文档」形态可行，本仓建模手册只管「画什么」不管「什么画风」；③ 02 留白 cue 系统在 opuscar（CC0 音源 + Karplus–Strong + `window.EV` 事件驱动音效 + −14 LUFS）与 onetake（实测峰值对齐事件、−16 LUFS）有双仓已验证路线。
 
-**定性**：非阻断改进 · 评估存证（本 PR 零机制改动、零依赖、零 vendor；五项借鉴全部待信号，不落规格/手册正文——零锚点违伪锚禁令与不变量 8「先有数据再有门」）。
+**定性**：非阻断改进 · 评估存证 + 规格落地（业界原理级四项二轮落地，见处理方式；carry score 与风格库两项待信号——实现路径未验证/零消费者，伪锚禁令只约束建模手册）。
 
-**处理方式**：评估存证 [docs/research/opus5-video-techniques.md](../research/opus5-video-techniques.md)（五仓钉版事实快照 + 逐仓净增量判定 + 引入形态七案比选 + 采纳/不采纳/待信号三档清单 + cue 系统路线图输入 §五）；PR [#50](https://github.com/ThreeFish-AI/vibe-video/pull/50)（commit adbb6cf）。
+**处理方式**：评估存证 [docs/research/opus5-video-techniques.md](../research/opus5-video-techniques.md)（五仓钉版事实快照 + 逐仓净增量判定 + 引入形态七案比选 + 采纳/不采纳/待信号三档清单 + cue 系统路线图输入 §五）；PR [#50](https://github.com/ThreeFish-AI/vibe-video/pull/50)（commit adbb6cf）。二轮经用户复核校正归引（首轮误把建模手册伪锚禁令套到 DIRECTING-CRAFT——后者准入是业界已验证原理，RSI-048 先例），落地四项：反模式表 A-29（metronome 等长镜头）/A-30（硬交换冒充承接）、08 帧驱动条款 CSS transition/animation 禁令、08 Motion Blur 启用时机（>80px/帧，180° 快门法则）。
 
 **后续防范**：外部工具/方法引入一律走「钉版取证（raw @ sha）→ 许可核实（NC/无许可禁代码与文本级复用，只提炼归纳性规则要点）→ 净增量判定 → 引入形态比选」四步（对齐 RSI-060 UA 评估先例）；无锚点概念一律待信号清单管理（每项带触发条件），不入手册条目与规格正文。
 
-**同类问题影响**：RSI-060（UA 融入评估）同范式先例；待信号五项（carry score 语义连续性判据 / 风格库 11 节骨架 / 反模式三条〔等长镜头·镜头抖动·背景噪声〕/ 循环末帧=首帧逐像素口径 / 禁 CSS transition 条款）住研究文档 §四；cue 系统后续 RSI 立项时以研究文档 §五为路线图输入。
+**同类问题影响**：RSI-060（UA 融入评估）同范式先例；待信号四项（carry score 语义连续性判据 / 风格库 11 节骨架 / 反模式两条〔镜头抖动·背景噪声〕/ 循环末帧=首帧逐像素口径）住研究文档 §四；cue 系统后续 RSI 立项时以研究文档 §五为路线图输入。
 
 ## RSI-067 dub 上游 breaking 更名 vibe-tts：本仓 resolve 契约断裂
 
@@ -1008,7 +1008,7 @@
 
 **定性**：非阻断改进 · T2（本机以 `DUB_HOME` 指向更名前 commit `5cf2ab8` 解堵，回归 108 passed；CI/新机冷启动会命中）。
 
-**处理方式**：PR [#50](https://github.com/ThreeFish-AI/vibe-video/pull/50) 登记。候选方向：resolve 兼容双名（`dub.py` ∨ `vibe_tts.py`，报错指引随实况列出两代安装法）或本仓随上游更名整体迁移——须先确认上游 `dub_paths.find_dub_root` 与 SKILL 名的实际现状再裁决，攒批与其他 dub 联动项同批走。
+**处理方式**：已修（C 方案：精确诊断）。`_find_dub_scripts()` 对命中新版入口 `vibe_tts.py` 的候选给出精确诊断（上游更名 commit + RSI-067 + 临时解法「切回 5cf2ab8 或 DUB_HOME 指旧版」），旧名照常通过、新旧并存时旧名优先；测试 +2（诊断断言 + 并存回归）。完整随迁（`dub_*` → `vibe_tts_*` 全量改名：tts.py 6 处 import、测试、文档、15 集薄包装）另立项攒批。PR [#50](https://github.com/ThreeFish-AI/vibe-video/pull/50)。
 
 **后续防范**：跨仓依赖（dub ↔ vibe-video）的 resolve 契约变更属上游 breaking，上游 PR 描述须显式列出下游仓清单或随 PR 同步回流下游；下游的硬依赖护栏测试应在上游 main 上例行对拍（当前仅本机手动触发）。
 
