@@ -122,6 +122,8 @@ md5 门执法——判据与「不读 theme token」约束见 tests/test_skeleto
 
 Motion Blur 只在场景明确 opt-in 时启用；本规格不新增依赖、不实现新的 blur backend，也不改变默认 `30fps` 或时间 SSOT。它只能作用于被明确隔离的运动视觉层，字幕、字幕背景、角标、关键文字和其他需清晰阅读的层必须保持 crisp，并在合成后置于 blur 层之上。禁止对整帧做 temporal mix（`tmix`）或把字幕一起模糊；Motion Blur 也不能替代 Morph Continuity 的建模与人工 QA。
 
+**启用时机建议**（180° 快门经验法则，onetake 硬规则实证 @RSI-068）：被隔离运动层的单帧位移超过约 `80px`（1080p 口径）时才值得 opt-in；慢速位移与静态层开了只会损失锐度。
+
 ## 3D 点缀（`@remotion/three`，2026-09 EP1 落地）
 
 **定位**（调研 §5.4 判 P2「轻量 3D 点缀」）：仅当平面表达不出「体积 / 内外 / 咬合」时才上。
@@ -218,7 +220,7 @@ export const P2FiveObjects: React.FC<{scene: SceneRange}> = ({scene}) => {
 
 - 一幕一文件 `P<n><Name>.tsx`；一「镜」一内部子组件；
 - `Sequence name` 与 storyboard 镜号一一对应（QA 时可对照）；
-- beat 内动画优先走 `src/motion/` 运动模型（见上节铁律）；裸 `interpolate`/`spring` 是逃生舱而非默认。一律帧驱动，禁 `Date.now()`/随机数——渲染必须确定。
+- beat 内动画优先走 `src/motion/` 运动模型（见上节铁律）；裸 `interpolate`/`spring` 是逃生舱而非默认。一律帧驱动，禁 `Date.now()`/随机数，禁 CSS `transition`/`animation`（Remotion 官方 skill 同款禁令，RSI-068 对读引入；不受帧时钟驱动、渲染不正确，Studio 生成物与外部代码最易携带，复制适配时先摘除）——渲染必须确定。
 - **过程具象化四大定式动效落地（RSI-032）**：对照 [06](./06-storyboard.md)「画面感与过程具象化四定式」——
   1. **全景坐标先行**：幕首镜或换焦点时以全景架构/因果图底图 + 高亮视框（Map-First Anchor），让观众瞬时建立宏观坐标；
   2. **机制必演单步流转**：核心机制通过 `rel(beat, '句id')` + `useTravel`/`useFlowDash` 驱动具象数据流经组件、逐拍改写状态标签（Animated State Trace），严禁静止文字卡片；
