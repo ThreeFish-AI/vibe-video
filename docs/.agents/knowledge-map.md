@@ -38,6 +38,7 @@
 | [motion-engineering.md](../research/motion-engineering.md) | Visual Lock、Morph Continuity、过渡/循环抽帧验收与 Motion Blur opt-in 的方案依据 |
 | [directing-craft.md](../research/directing-craft.md) | 导演手艺知识库的调研综合、方案比选（G2）、机械门族数据契约 roadmap（RSI-048）与回拉层级依据（RSI-060 补） |
 | [understand-anything.md](../research/understand-anything.md) | Understand-Anything 工程能力融入评估：事实快照（钉版）、图谱字段 S0/S1/L 定级、引入形态八案比选与概念移植采纳清单（RSI-060） |
+| [opus5-video-techniques.md](../research/opus5-video-techniques.md) | Opus 5.5 视频生态五仓评估：onetake carry score / lemo-opuscar 风格骨架与原创配乐路线 / Remotion 官方 skill 对读 / 反模式交叉核对，引入形态七案比选与待信号清单（RSI-068） |
 
 ## 资产
 

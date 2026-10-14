@@ -999,3 +999,17 @@
 **后续防范**：跨仓命名契约（入口脚本 `vibe_tts.py`、模块前缀 `vibe_tts_*`、六个 `VIBE_TTS_*` 环境变量、skill 目录名）以 vibe-tts 仓为 SSOT，上游再有更名或契约变化时本仓须同步一次；委托发现逻辑内联在 `_find_vibe_tts_scripts`（不 import 兄弟模块，test_tts_lang_mirror 钉死），与上游 `vibe_tts_paths.find_vibe_tts_root` 同构可对照。
 
 **同类问题影响**：缓存摘要 `digest_indextts` 更名前后逐字节相同（上游黄金哈希测试钉值零改动、经本仓委托继承），15 集存量缓存零失效；vibe-tts 仓自己的数据目录从 `Application Support/dub` 迁至 `Application Support/vibe-tts`，属上游仓内部迁移，本仓 `VIBE_VIDEO_TTS_STORE` 不受影响。分集 `scripts/tts.py` 薄包装（15 份逐字节相同）不动，委托发生在其转调的本仓 `scripts/tts.py` 内部。本条目之前的存量登记（RSI-065 等）为冻结历史，不再改写。
+
+## RSI-068 Opus 5.5 视频生态五仓评估：概念借鉴存证与引入形态裁决
+
+**表因**（2026-10-13，用户点名评估）：用户提供微信文章《用 Claude Opus 5.5 做视频堪称一绝》，问其中工具与方法是否有值得本 Skill 学习、借鉴、引入的。文章提及五仓（onetake / lemo-opuscar / remotion-dev/skills / opus-video-prompts / awesome-opus5-5-videos）全部核实存在并钉版取证，但本仓对外部方法论生态的映射此前无存证。（编号注：本条并行会话曾登记为 RSI-066，与上方更名随迁条撞号，合并时按「首创得号」重编号 068；原 RSI-067（dub resolve 断裂实证）与上方 RSI-066 为同一问题，按「同一问题只维护一处」并入该条，此处只留实证指针——评估任务按旧指引 clone dub main 即失配，随迁 PR #49 落地后闭环，本分支相应临时修复（精确诊断 + 测试 2 例）在合并中撤除。）
+
+**根因**：非缺陷登记，属外部生态扫描的评估存证。映射缺口三处——① onetake carry score（元素级加权 Jaccard 连续性 oracle，`probe.py::continuity()`）恰落在 qa_frames 像素级判据「FAIL 0 ≠ 视觉正确」的语义盲区（转场交换 vs 物体位移不可分）；② lemo-opuscar STYLE.md 11 节固定骨架证明「风格 = 生产约束文档」形态可行，本仓建模手册只管「画什么」不管「什么画风」；③ 02 留白 cue 系统在 opuscar（CC0 音源 + Karplus–Strong + `window.EV` 事件驱动音效 + −14 LUFS）、onetake（实测峰值对齐事件、−16 LUFS）与 Austerlitz 案例仓（`events.js` 画面事件推导音效 + 距离衰减/声像/343 m/s 声速延迟）有三源已验证路线。
+
+**定性**：非阻断改进 · 评估存证 + 规格落地（业界原理级四项二轮落规格 + cue 路线存证，见处理方式；待信号七项住研究文档 §四，核心两项 carry score/风格库——实现路径未验证/零消费者，伪锚禁令只约束建模手册）。
+
+**处理方式**：评估存证 [docs/research/opus5-video-techniques.md](../research/opus5-video-techniques.md)（五仓钉版事实快照 + 逐仓净增量判定 + 引入形态七案比选 + 采纳/不采纳/待信号三档清单 + cue 系统路线图输入 §五）；PR [#50](https://github.com/ThreeFish-AI/vibe-video/pull/50)（commit adbb6cf）。二轮经用户复核校正归引（首轮误把建模手册伪锚禁令套到 DIRECTING-CRAFT——后者准入是业界已验证原理，RSI-048 先例），落地四项：反模式表 A-29（metronome 等长镜头）/A-30（硬交换冒充承接）、08 帧驱动条款 CSS transition/animation 禁令、08 Motion Blur 启用时机（>80px/帧，180° 快门法则）。三轮复核补证 Austerlitz 案例仓（无 LICENSE，仅存证）入 §五路线图。
+
+**后续防范**：外部工具/方法引入一律走「钉版取证（raw @ sha）→ 许可核实（NC/无许可禁代码与文本级复用，只提炼归纳性规则要点）→ 净增量判定 → 引入形态比选」四步（对齐 RSI-060 UA 评估先例）；无锚点概念一律待信号清单管理（每项带触发条件），候选条目正文不入手册条目与规格正文——规格层仅许一行指针指向清单（指针不构成候选区，DIRECTING-CRAFT「不设候选区」纪律不变）。
+
+**同类问题影响**：RSI-060（UA 融入评估）同范式先例；待信号七项（carry score 语义连续性判据 / 风格库 11 节骨架 / 反模式两条〔镜头抖动·背景噪声〕/ 循环末帧=首帧逐像素口径 / contact sheet 逐拍预检 / 案例拆解档案形态）住研究文档 §四；cue 系统后续 RSI 立项时以研究文档 §五为路线图输入。
