@@ -1,6 +1,6 @@
 # Opus 5.5 视频生态五仓评估：学习/借鉴/引入存证
 
-> **结论先行**：微信文章《用 Claude Opus 5.5 做视频堪称一绝》[1] 提及的五个开源仓全部核实存在并已钉版取证。**架构层面零引入必要**——文章主推的「单 HTML/Canvas + 截帧 + FFmpeg」临时路线在本仓已有 Remotion 确定性流水线面前全面处于劣势（[HyperFrames 否决同款论据](./dependency-policy-and-asset-tools.md)：第二渲染面）。**概念层借鉴分两轮落位**：首轮存证后经用户复核校正归引——[DIRECTING-CRAFT](../../references/DIRECTING-CRAFT.md) 反模式表的既有准入是「业界已验证原理」（RSI-048 先例：Murch/Disney/Mayer 来源），不适用建模手册的成片锚点伪锚禁令，故业界原理级**四项落规格**（反模式表 A-29 metronome 等长镜头 / A-30 硬交换冒充承接、08 帧驱动条款 CSS transition/animation 禁令、08 Motion Blur 启用时机——180° 快门法则）；cue 路线为**存证另列**：opuscar 的 CC0 音源 + 程序化配乐/事件驱动音效是 02「留空轨」cue 系统后续 RSI 的技术路线参照（§五，三轮补证 Austerlitz「画面推导音效 + 空间音频属性」并入）。**待信号六项**住 §四，核心两项：carry score 元素级连续性 oracle（QA 语义盲区的自动化候选——实现路径未验证、误报面未知，09 判据上架纪律硬约束）与风格库 11 节骨架（零消费者，首例风格化需求时按 §2.2 形态起库）。事实快照均为 2026-10-13 钉版口径（三路并行子代理只读取证，raw @ 钉版 sha，未 clone、未执行外部代码）。协议：RSI-068（[台账](../.agents/issue.md)）。
+> **结论先行**：微信文章《用 Claude Opus 5.5 做视频堪称一绝》[1] 提及的五个开源仓全部核实存在并已钉版取证。**架构层面零引入必要**——文章主推的「单 HTML/Canvas + 截帧 + FFmpeg」临时路线在本仓已有 Remotion 确定性流水线面前全面处于劣势（[HyperFrames 否决同款论据](./dependency-policy-and-asset-tools.md)：第二渲染面）。**概念层借鉴分两轮落位**：首轮存证后经用户复核校正归引——[DIRECTING-CRAFT](../../references/DIRECTING-CRAFT.md) 反模式表的既有准入是「业界已验证原理」（RSI-048 先例：Murch/Disney/Mayer 来源），不适用建模手册的成片锚点伪锚禁令，故业界原理级**四项落规格**（反模式表 A-29 metronome 等长镜头 / A-30 硬交换冒充承接、08 帧驱动条款 CSS transition/animation 禁令、08 Motion Blur 启用时机——180° 快门法则）；cue 路线为**存证另列**：opuscar 的 CC0 音源 + 程序化配乐/事件驱动音效是 02「留空轨」cue 系统后续 RSI 的技术路线参照（§五，三轮补证 Austerlitz「画面推导音效 + 空间音频属性」并入）。**待信号七项**住 §四，核心两项：carry score 元素级连续性 oracle（QA 语义盲区的自动化候选——实现路径未验证、误报面未知，09 判据上架纪律硬约束）与风格库 11 节骨架（零消费者，首例风格化需求时按 §2.2 形态起库）。事实快照均为 2026-10-13 钉版口径（三路并行子代理只读取证，raw @ 钉版 sha，未 clone、未执行外部代码）。协议：RSI-068（[台账](../.agents/issue.md)）。
 
 ## 一、事实快照（五仓钉版 + Austerlitz 案例补证，2026-10-13）
 
@@ -23,7 +23,7 @@
 
 **与本仓 QA 的对照**：[qa_frames.py](../../scripts/qa_frames.py) 的冻帧检测是像素级 16×16 指纹，无法区分「转场交换」与「物体位移」——语义级连续性目前全靠人工门（导演级四维）。carry score 把「交接处什么活下来」变成了可计算判据，且其「确定性时间函数 + 元素采样」前提与本仓帧驱动渲染架构同构。**实现路径未验证**（Remotion 无「在屏元素清单」直接暴露，headless DOM 采样或像素差分退化方案的误报面未知），按 09 判据上架纪律（已知干净帧零误报）本期不动。
 
-**16 条硬规则** [3] 与 [DIRECTING-CRAFT](../../references/DIRECTING-CRAFT.md) 对照，三条本仓无等价物：「禁 metronome 剪辑」（等长镜头 = 幻灯片——A-10 只管静态 > 5s，不管节奏均匀）、「Never replace a beat — carry it」（display:none 交换 = 幻灯片——比 Morph Continuity 更锋利的同源表述）、「> 80px/帧必须 shutter motion blur」（本仓 Motion Blur opt-in 缺量化触发条件）。**三条均已二轮落地**：前两条落反模式表 A-29/A-30（业界原理级准入），第三条落 08 Motion Blur 启用时机；镜头抖动等其余禁项证据单薄（单仓禁令、无原理级支撑），维持待信号。另有一项**组织形态借鉴**：[cases/](https://github.com/feitangyuan/onetake/tree/415758128aa45cc54340df40d8109363447f582e/cases) 每案例存「成片 + 节拍表 + carry 量化分（v1 被否 0.00 / 发布片 0.83）+ **被否版本及否决理由**（四次配乐海选全被否的逐版记录）」——本仓 RSI 台账记机制缺陷、建模手册记手法，唯独没有每集交付复盘的量化档案形态，入待信号（§四）。
+**16 条硬规则** [3] 与 [DIRECTING-CRAFT](../../references/DIRECTING-CRAFT.md) 对照，三条本仓无等价物：「禁 metronome 剪辑」（等长镜头 = 幻灯片——A-10 只管静态 > 5s，不管节奏均匀）、「Never replace a beat — carry it」（display:none 交换 = 幻灯片——比 Morph Continuity 更锋利的同源表述）、「> 80px/帧必须 shutter motion blur」（本仓 Motion Blur opt-in 缺量化触发条件）。**三条均已二轮落地**：前两条落反模式表 A-29/A-30（业界原理级准入），第三条落 08 Motion Blur 启用时机；镜头抖动等其余禁项证据单薄（单仓禁令、无原理级支撑），维持待信号。另有一项**组织形态借鉴**：[cases/](https://github.com/feitangyuan/onetake/tree/415758128aa45cc54340df40d8109363447f582e/cases) 案例 README 以节拍表为骨、附验收数字（如 `continuity 1.00 over N boundaries`），部分案例留**被否版本及否决理由**（如 `domino-25s` 四次配乐试听全被否的逐版记录；`knockon-15s` 等首稿即通过的案例则没有）；carry 分的档案另住顶层 README 分数表（同一部片 v1 被否 0.00 → v2 0.40 → v3 通过 0.75，发布片 0.83）——本仓 RSI 台账记机制缺陷、建模手册记手法，唯独没有每集交付复盘的量化档案形态，入待信号（§四）。
 
 ### 2.2 lemo-opuscar：风格条目骨架与原创配乐路线
 
@@ -71,7 +71,7 @@ XML 分段范式（`inputs/direction/structure/build/gotchas/start`）[9] 与本
 
 **采纳（已落地）**：研究文档存证（本文）+ RSI-068 ledger 登记 + [knowledge-map](../.agents/knowledge-map.md) 索引 + CHANGELOG；二轮规格落地四项——[DIRECTING-CRAFT](../../references/DIRECTING-CRAFT.md) 反模式表 A-29/A-30、[08](../../references/08-remotion-implementation.md) 帧驱动条款 CSS 禁令、08 Motion Blur 启用时机；三轮补证 Austerlitz 画面推导音效入 §五（存证）。**零 vendor、零依赖。**
 
-**待信号（登记后按触发条件立项，均不入规格/手册正文）**：
+**待信号（登记后按触发条件立项；候选条目正文不入规格/手册，规格层仅许一行指针指向本清单，指针不是候选区）**：
 
 | 概念 | 触发条件 | 落位候选 |
 |---|---|---|
@@ -80,7 +80,8 @@ XML 分段范式（`inputs/direction/structure/build/gotchas/start`）[9] 与本
 | 反模式两条：镜头抖动 / 背景噪声动画 | 任一集成片出现对应病灶 | DIRECTING-CRAFT 反模式表（候选区先行） |
 | 循环判据升级为末帧 = 首帧逐像素 | loop 型内容出现指纹误放行 | qa_frames `--loop` 口径 |
 | contact sheet 逐拍预检（每拍一帧拼图，全量渲染前抽查） | 首集出现 beat 级预检需求（分幕复检粒度不足时） | qa_frames 抽帧模式扩展 |
-| 案例拆解档案形态（成片 + 节拍表 + 量化验收分 + 被否版本及理由，onetake cases/ 实证） | 首集交付复盘时人工档案成本显现、或相邻集复用节拍结构时 | deliver 归档旁约定 breakdown.md（节拍表照抄 + 否决记录） |
+| 渲染断点续跑（分块可恢复渲染，Austerlitz README 级线索） | 终渲因片长增长或中断而重跑成本显现时 | render/pipeline 的 chunk 化（先读其实现再设计，当前仅 README 自述） |
+| 案例拆解档案形态（节拍表 + 验收数字 + 被否版本及理由，onetake cases/ 实证；carry 分档案在顶层 README） | 首集交付复盘时人工档案成本显现、或相邻集复用节拍结构时 | deliver 归档旁约定 breakdown.md（节拍表照抄 + 否决记录） |
 
 **不采纳（全部，含理由）**：vendor 代码/资产/文本（许可 + 可复现性）；单 HTML 渲染路线（第二渲染面，[HyperFrames 先例](./dependency-policy-and-asset-tools.md)）；853 prompt 合集批量引入（无语料纪律）；图生视频/参考图扩展（超科普图解定位）；blanket premountFor / Studio 优先渲染 / composition 注册条款（见 §2.3 逐条判定）。
 
@@ -91,7 +92,7 @@ XML 分段范式（`inputs/direction/structure/build/gotchas/start`）[9] 与本
 - **音源**：CC0/免费采样库（VSCO 2 CE、VCSL、FreePats、Karoryfer、Salamander）——零许可风险；
 - **合成**：Karplus–Strong 物理建模拨弦 + numpy 波形合成（chip tune/drone）+ 程序化音效（click/whoosh/thump）——确定性可复现，与本仓帧驱动哲学同构；
 - **驱动**：页面事件（`window.EV`）触发音效 → 本仓对应「句 id / 实测词窗 / beat 事件 → cue」，可复用 TTS manifest 词级时间戳；onetake 侧印证「音效按实测峰值对齐事件、剪点落重拍」；
-- **画面推导音效与空间属性**（Austerlitz [11]，三轮补证）：`events.js` 从画面事件派生音效 cue（每声炮、齐射、马蹄），并携带距离衰减、声像 pan 与 343 m/s 声速延迟——音效不仅按事件时间轴摆放，还能从「画面上发生了什么」推导，且带空间物理属性；作为 cue 粒度与属性设计的上限参照。其「阵型与粒子是 time 的纯函数、任意帧可独立渲染」与本仓确定性渲染哲学同构（验证收敛）；真实地形数据管线（SRTM 高程 → WebGL）与 [text-to-cad](./dependency-policy-and-asset-tools.md) 同属「数据驱动外部资产」先例，按集 opt-in 模式可平移；**分块可恢复渲染**（`tools/render.mjs` resumable chunks）对照本仓：TTS 有 `tts_resume` 自愈续跑、渲染无断点续跑——当前分钟级渲染成本下可接受，长片或终渲中断场景立项时参照；
+- **画面推导音效与空间属性**（Austerlitz [11]，三轮补证）：`events.js` 从画面事件派生音效 cue（每声炮、齐射、马蹄），并携带距离衰减、声像 pan 与 343 m/s 声速延迟——音效不仅按事件时间轴摆放，还能从「画面上发生了什么」推导，且带空间物理属性；作为 cue 粒度与属性设计的上限参照。其「阵型与粒子是 time 的纯函数、任意帧可独立渲染」与本仓确定性渲染哲学同构（验证收敛）；真实地形数据管线（SRTM 高程 → WebGL）与 [text-to-cad](./dependency-policy-and-asset-tools.md) 同属「数据驱动外部资产」先例，按集 opt-in 模式可平移；**分块可恢复渲染**（README 级线索：`tools/render.mjs` 自述 resumable chunks，未读实现，无断点机制细节）对照本仓：TTS 有 `tts_resume` 自愈续跑、渲染无断点续跑——当前分钟级渲染成本下可接受，入待信号（§四）；
 - **混音**：loudnorm 归一 + voice 高于 music 约 10dB；响度口径两仓不同（opuscar −14 LUFS ≈ YouTube 标准、onetake −16 LUFS ≈ 播客标准），立项时按分发平台定档。
 
 ## 引用
