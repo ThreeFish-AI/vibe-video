@@ -33,7 +33,6 @@ cd $P/video
 
 即整片渲染是**分钟级**，远快于配音（同集 TTS 2.1 小时）。排期上「渲染慢」是错觉——
 真正的长尾在配音；渲染可以放心多轮迭代（改一处场景重渲全片只要 8 分钟）。
-片长显著增长或中断重跑经济性恶化时，「渲染断点续跑」为待信号候选（外部仅 README 级线索，无实现细节）：见[待信号清单](../docs/research/opus5-video-techniques.md)。
 
 渲染主机约束：**macOS + PingFang SC/Songti SC/SF Mono 系统字体**（三集未内嵌 CJK 字体，Linux/CI 渲染不在支持范围；重启触发器见 [08 事实条（字体可复现性）](./08-remotion-implementation.md)——渲染迁 Linux/CI，或 Remotion 5.0 将 validateFontIsLoaded 默认翻 true 时必须内嵌子集字体）。
 

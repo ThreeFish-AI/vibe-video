@@ -40,7 +40,7 @@ name = "策划案生成"
 skill = "references/02-planning.md"
 kind = "authored"
 commands = []
-gate = "planning.md 六节齐 + 钩子候选矩阵"
+gate = "planning.md 六节齐 + 钩子候选矩阵 + 档位声明"
 
 [[stage]]
 id = "narration"

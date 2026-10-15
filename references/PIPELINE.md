@@ -192,7 +192,7 @@ schema、默认值与校验的单一事实源是 [scripts/config.py](../scripts/
 
 ### 交付归档（deliver 子命令）
 
-终渲产物 `out/final.mp4` 是 gitignored 的**新鲜渲槽位**（每次重渲直接覆盖）；`deliver` 把成片复制进跨集统一归档根，按 `<根>/<系列 id>/<集标题> v<N>.mp4` 管理——系列 id 与集标题的唯一事实源是 `$W/series.json`（发布顺序 SSOT，此处不新增配置副本），版本号 N 实时扫描目标目录取既有最大号 +1（零状态文件，目录内容即事实源；不回填洞）。同字节重投自动跳过不升版；`.part` 原子落位；绝不覆写既有版本（大小写不敏感文件系统兜底，判据见脚本头）。交付复盘中「成片旁 breakdown 档案（节拍表/量化验收分/被否记录）」为待信号候选（形态实证见 [opus5-video-techniques §四](../docs/research/opus5-video-techniques.md)），触发条件成立时立项。
+终渲产物 `out/final.mp4` 是 gitignored 的**新鲜渲槽位**（每次重渲直接覆盖）；`deliver` 把成片复制进跨集统一归档根，按 `<根>/<系列 id>/<集标题> v<N>.mp4` 管理——系列 id 与集标题的唯一事实源是 `$W/series.json`（发布顺序 SSOT，此处不新增配置副本），版本号 N 实时扫描目标目录取既有最大号 +1（零状态文件，目录内容即事实源；不回填洞）。同字节重投自动跳过不升版；`.part` 原子落位；绝不覆写既有版本（大小写不敏感文件系统兜底，判据见脚本头）。
 
 ```bash
 uv run --no-project $T/scripts/pipeline.py --project $P deliver [--root ~/Documents/video] [--dry-run]

@@ -71,7 +71,7 @@ XML 分段范式（`inputs/direction/structure/build/gotchas/start`）[9] 与本
 
 **采纳（已落地）**：研究文档存证（本文）+ RSI-068 ledger 登记 + [knowledge-map](../.agents/knowledge-map.md) 索引 + CHANGELOG；二轮规格落地四项——[DIRECTING-CRAFT](../../references/DIRECTING-CRAFT.md) 反模式表 A-29/A-30、[08](../../references/08-remotion-implementation.md) 帧驱动条款 CSS 禁令、08 Motion Blur 启用时机；三轮补证 Austerlitz 画面推导音效入 §五（存证）。**零 vendor、零依赖。**
 
-**待信号（登记后按触发条件立项；候选条目正文不入规格/手册，规格层仅许一行指针指向本清单，指针不是候选区）**：
+**待信号（登记后按触发条件立项；候选条目正文不入规格/手册——2026-10-15 [RSI-070 修订](../../RSI.md)后跟踪一律住 ledger 暂缓跟踪表（RSI-068 项已全量迁入 RSI-071 W5–W12），Skill 工程文件不铺指针，本清单仅存证触发条件与落位候选）**：
 
 | 概念 | 触发条件 | 落位候选 |
 |---|---|---|
@@ -87,7 +87,7 @@ XML 分段范式（`inputs/direction/structure/build/gotchas/start`）[9] 与本
 
 ## 五、cue 系统路线图输入（02 留白的技术参照存证）
 
-02 阶段明确「BGM 留空轨」边界（[02-planning.md](../../references/02-planning.md)），[DIRECTING-CRAFT](../../references/DIRECTING-CRAFT.md) 原则表注明「cue 系统属后续 RSI」。本次取证给出该后续 RSI 的**已验证技术路线**（opuscar [6] + onetake [3] + Austerlitz [11] 三源实证）：
+02 阶段明确「BGM 留空轨」边界（[02-planning.md](../../references/02-planning.md)），DIRECTING-CRAFT 原则表曾注明「cue 系统属后续 RSI」（2026-10-15 RSI-070 修订后撤出规格，跟踪住 ledger RSI-071 暂缓跟踪表 W9）。本次取证给出该后续 RSI 的**已验证技术路线**（opuscar [6] + onetake [3] + Austerlitz [11] 三源实证）：
 
 - **音源**：CC0/免费采样库（VSCO 2 CE、VCSL、FreePats、Karoryfer、Salamander）——零许可风险；
 - **合成**：Karplus–Strong 物理建模拨弦 + numpy 波形合成（chip tune/drone）+ 程序化音效（click/whoosh/thump）——确定性可复现，与本仓帧驱动哲学同构；

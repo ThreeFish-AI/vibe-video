@@ -1,0 +1,12 @@
+%% source: docs/research/anatomy-skill.md — §2 全貌解剖（Anatomy 十步工作流图）
+%% slug: anatomy--workflow
+%% type: workflow
+%% derived: 新建文本源（精读笔记新图，无存量 mermaid 块可提取；archify 候选见 .temp lab，finalize showcase 四门回执同存 lab）
+flowchart LR
+    size["① 规模门\nFigure/Hero/Epic 三档"] --> truth["② 真实数字模型\n纯函数模块，一切输出从它现算"]
+    truth --> invent["③④ 发明实物与部件清单\n机制对应概念 · ≥40 项分组"]
+    invent --> world["⑤⑥ 世界与几何\n规划世界 · 一次构建静态几何"]
+    world --> live["⑦⑧⑨ 成帧与生命\n解深度键 · 成帧 · 缓动生命"]
+    live --> verify["⑩ 苛刻验证\n审计归零 · 逐图阅读"]
+    size -. "Epic 档" .-> epic["Epic 拒启\n报价 + Hero 替代"]
+    verify == "缺陷修回模型与几何" ==> truth

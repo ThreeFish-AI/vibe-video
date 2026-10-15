@@ -38,7 +38,7 @@
 
 ## 四、门禁（统一 G0–G4）
 
-判据、回执格式与反刷分规则以[统一协议 §5 核验门禁](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#5-核验门禁)为准（G0 预检去重 / G1 属实与正确性 / G2 方案比选与收益 / G3 非回归与不变量勾验 / G4 安全隐私）；旧 G1–G4 的逐门映射见[附录A](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#附录a-vibe-video-旧门禁映射)。仓内附加执法资产：改动 SKILL.md 描述或路由时按 [evals/](evals/README.md) 做新旧对拍（统一协议无此仓内资产，触发条件住本节）。评估类条目（外部能力/方法论评估，[RSI-060](docs/.agents/issue.md) 与 [PR #50](https://github.com/ThreeFish-AI/vibe-video/pull/50) 先例）另设 G3 自查项：产出的「待信号候选 / 技术路线图」不得仅住 docs/research/ 等流水线运行时不加载的文档——须在每个触发场景对应的规格文件（references/NN-*.md 等）铺一行指针，SSOT 留研究文档（正例：PR #50 在 DIRECTING-CRAFT、09、10、PIPELINE 铺 5 处触发场景指针）。仓内机器执法命令（统一适配档案 `machine_checks` 引用同一份；与 pyproject.toml 顶部注释由 `test_machine_checks_pinned` 锚定一致）：
+判据、回执格式与反刷分规则以[统一协议 §5 核验门禁](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#5-核验门禁)为准（G0 预检去重 / G1 属实与正确性 / G2 方案比选与收益 / G3 非回归与不变量勾验 / G4 安全隐私）；旧 G1–G4 的逐门映射见[附录A](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#附录a-vibe-video-旧门禁映射)。仓内附加执法资产：改动 SKILL.md 描述或路由时按 [evals/](evals/README.md) 做新旧对拍（统一协议无此仓内资产，触发条件住本节）。评估类条目（外部能力/方法论评估，[RSI-060](docs/.agents/issue.md) 与 [PR #50](https://github.com/ThreeFish-AI/vibe-video/pull/50) 先例）另设 G3 自查项：Skill 工程文件（SKILL.md、RSI.md、references/、scripts/、assets/）只承载已落地的现行规格；评估产出的「待信号 / 暂缓」项一律登记在 [ledger](docs/.agents/issue.md) 对应条目（每项写明触发条件与预期落位文件），不在 Skill 工程文件里铺指针，触发条件成立时再走 RSI 立项落规格。仓内机器执法命令（统一适配档案 `machine_checks` 引用同一份；与 pyproject.toml 顶部注释由 `test_machine_checks_pinned` 锚定一致）：
 
 ```bash
 # 命令与 pyproject.toml 顶部注释（折行快照）由 test_machine_checks_pinned 锚定一致；依赖漂移在 pytest 收集阶段即大声报错

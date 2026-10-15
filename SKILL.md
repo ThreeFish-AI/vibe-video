@@ -71,7 +71,7 @@ uv run --no-project $T/scripts/pipeline.py --project $P deliver   # → <根>/<�
 | Stage | 做什么 | 规格链接 | 工具/命令 | 通过门 |
 |---|---|---|---|---|
 | ① 信源精读取证 | A 型论文：并行逐章；B 型活信源：固定提交取证 + 证据三级；C 型 GL 产物：冻结快照 + 穿透抽查 | [01](references/01-source-extraction.md) | A 型 `paper_extract.py`；B 型 `source_ledger.py` | 全部断言可回溯；RISKY=0 |
-| ② 策划案 | 受众/结构/钩子候选矩阵/视觉契约（色彩语义映射核心概念） | [02](references/02-planning.md) | —（authored） | planning.md 六节齐 + 钩子候选矩阵 |
+| ② 策划案 | 受众/结构/钩子候选矩阵/视觉契约（色彩语义） | [02](references/02-planning.md) | —（authored） | planning.md 六节齐 + 钩子候选矩阵 + 档位声明 |
 | ③ 逐字稿 | `narration.md` ★单一事实源 | [03](references/03-narration.md) | `build` | build_narration.py 通过（narration.json 是派生物） |
 | ④ 双重校验 | 真实性回溯 + 易懂性 | [04](references/04-verification.md) | `check` | RISKY=0 且 REWRITE=0 |
 | ⑤ 成文优化 | 四稿按结构→衔接→句子→词句四层 pass 改成人写模样；只改表达不改事实 | [05](references/05-prose-refinement.md) | —（authored；改后 `build` + `check`，无分镜时 `check_script.py --pre-tts`） | 成文评审 REWRITE=0 且改动句复核 RISKY=0、REWRITE=0 |
