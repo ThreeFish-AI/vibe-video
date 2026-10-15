@@ -17,6 +17,8 @@
 
 **边界规则**：一次事故两层都有（内容写错 + 机制纵容了它）→ 内容当场修，机制的纵容登记为 RSI 改进项——RSI 不背内容的锅，内容不替机制挡枪。
 
+待信号（RSI-071）：[SKILL.md](SKILL.md) 结构性改版时评估增设一句话核心锚（对照 Anatomy "The object is the explanation"；存证见 [anatomy-skill-mapping](docs/research/anatomy-skill-mapping.md) 暂缓②）。
+
 ## 二、登记（ledger 是回路的入口）
 
 发现即登记 [docs/.agents/issue.md](docs/.agents/issue.md)（`$T` 非 git 仓时不落本地，登记改走第八节 GitHub Issue 草稿路径）；通用入账流程（入账硬条件、脱敏边界、条目状态机）见[统一协议 §3 旁路捕获](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#3-旁路捕获)。仓内 ledger 纪律：

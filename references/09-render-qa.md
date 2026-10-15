@@ -88,6 +88,8 @@ uv run --no-project --with pillow --with numpy $T/scripts/qa_frames.py \
 
 ## 自动体检判据与处置
 
+> 待信号（RSI-071）：`--check` 判据再漏抓新缺陷类别时，按漏抓类别补具名判据 + 合成坏例负例测试（对照 Anatomy 审计的具名失败类目枚举法，存证见 [anatomy-skill-mapping](../docs/research/anatomy-skill-mapping.md) M4）。
+
 | 判据 | 级别 | 处置 |
 |---|---|---|
 | 黑帧/早渐黑（均值 <0.02；末 beat 且分镜标「渐黑」豁免） | FAIL | 查尾幕渐黑是否从**末 beat** 而非末句推导（references/08 红线 4）；查 SceneFade 末幕是否误开淡出 |

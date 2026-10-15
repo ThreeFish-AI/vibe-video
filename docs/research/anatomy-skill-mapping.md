@@ -4,14 +4,14 @@
 
 ## 结论先行
 
-**两仓在「单一事实源 + 机器门执法 + 失败驱动沉淀」三层高度同构，10 条映射中 7 条已对齐（多数形态不同、强度不输）**；唯一干净的净增量是**规模/成本门控行为学**（Anatomy 的 Figure/Hero/Epic 三档 + Epic 拒启给替代）——1 条值得落地、0 条一句话成本级、4 条暂缓（各带触发条件）。Anatomy 的真正强项（等距几何审计的射线深度证明、墨量单调验收）依赖其「形状可登记、投影可解析」的技术前提，对 Remotion 像素级渲染管线**不构成可迁移机制**，其精神（判据数值化、归零放行）本仓已在 `--check` 系判据与对比度门中实践。学习方法论层面的收获已沉淀进[精读笔记](./anatomy-skill.md)。
+**两仓在「单一事实源 + 机器门执法 + 失败驱动沉淀」三层高度同构，10 条映射中 7 条已对齐（多数形态不同、强度不输）**；唯一干净的净增量——**规模/成本门控行为学**——**已在本分支落进 02 规格与 ② gate**（草集/正集/大集三档 + 大集拒启给替代 + 超时上报）；其余 2 条弱增量并入既有实践、4 条暂缓项已按 RSI-070 纪律铺运行时指针（09/01/PIPELINE/RSI.md 各一行——单句锚因 SKILL.md 正文预算红线驻触发改版必读的 RSI.md）。Anatomy 的真正强项（等距几何审计的射线深度证明、墨量单调验收）依赖其「形状可登记、投影可解析」的技术前提，对 Remotion 像素级渲染管线**不构成可迁移机制**，其精神（判据数值化、归零放行）本仓已在 `--check` 系判据与对比度门中实践。学习方法论层面的收获已沉淀进[精读笔记](./anatomy-skill.md)。
 
 ## 映射总表
 
 | # | 材料机制（出处） | 本仓对应 | 锚点 | 判定 |
 | :--- | :--- | :--- | :--- | :--- |
 | M1 | 单句核心锚 + 失败模式↔治愈对（SKILL.md「The object is the explanation」+ too abstract/too flat） | 16 条不变量清单 + 30 条反模式表（忌/因/验三字段） | [SKILL.md](../../SKILL.md) 不变量节；[DIRECTING-CRAFT.md:195](../../references/DIRECTING-CRAFT.md) | ✅已对齐（形态不同：清单锚 vs 单句锚） |
-| M2 | 规模三档 + Epic 拒启给替代 + 首小时可用页 + 每步 date 遥测超两倍上报（SKILL.md 工作流第 1 步） | 无规模档位、无全流程遥测；成本门仅 TTS 侧（IndexTTS 显式授权硬闸） | `grep 规模\|档位 SKILL.md 02-planning.md` 零命中；[issue.md:626](../.agents/issue.md) RSI-040；[stages.toml:90](../../references/stages.toml) | 🔶值得落地 |
+| M2 | 规模三档 + Epic 拒启给替代 + 首小时可用页 + 每步 date 遥测超两倍上报（SKILL.md 工作流第 1 步） | 原：无规模档位（评估时 `grep 规模\|档位 SKILL.md 02-planning.md` 零命中）→ **本分支已落地**：② 新增「成本档位与开工门」节（草集/正集/大集 + 大集拒启给替代 + 超时上报） | [02-planning.md](../../references/02-planning.md) 成本档位节；[stages.toml:43](../../references/stages.toml) gate；SKILL.md 速查表 ② 行 | ✅已落地（本分支） |
 | M3 | 构造性同源：纯函数模型喂全部输出；audit 与页面同读一份弹簧数据；`needleAt.toString()` 同函数喂静态/动态（kit.md §12、craft.md「Count what you draw」） | 逐字稿单一事实源；`timing.json` 双语言镜像「结构性不存在漂移」；storyboard SSOT | [03-narration.md:3](../../references/03-narration.md)；[PIPELINE.md:216](../../references/PIPELINE.md) | ✅已对齐（timing.json 即本仓的 rig.ts） |
 | M4 | 渲染前置 audit-to-zero：11 类具名几何失败线全零放行；修几何不修键偏置（kit/audit.mjs） | 前置静态检查已有：`check --check-scenes` 分镜↔代码互比、`tsc --noEmit` + 七条渲染红线；事后 `qa --check` 数值门 + 目检 | [stages.toml:81,101,110](../../references/stages.toml)；[09-render-qa.md:58](../../references/09-render-qa.md) | ✅已对齐（判据数值化同族，残余增量见暂缓 ①） |
 | M5 | 验证工具箱：4× 裁切每接点、双主题、contact sheet、逐 PNG 阅读、墨量单调实测（verify.md / webgl.md §8） | 多抽样器抽帧 QA、A/B 对拍回归、`--check-theme` 对比度门、人工目检清单、分幕音画复检 | [09-render-qa.md:5,119](../../references/09-render-qa.md) | ✅已对齐 |
@@ -23,7 +23,7 @@
 
 ## 逐条说明（差异与建议，仅展开有实质差异者）
 
-### M2 规模/成本门控行为学（唯一 🔶）
+### M2 规模/成本门控行为学（唯一净增量，已落地）
 
 **材料怎么做**：三档在动笔前声明——Figure（40–80 部件）免问直做且不报时间（实测常快于预估，1.1.0 版据此删掉该档报价）；Hero（80–150）先报「2–4 小时」再做；Epic（6 小时起）**拒绝启动**：给估价、提出保留核心的 Hero 替代、列明完整版增量，用户显式选择才做。执行中每步 `date` 记时，超两倍份额上报；任意档首小时必有可用页。
 
@@ -31,7 +31,7 @@
 
 **差异本质**：Anatomy 把「成本档位」当作第一道工序的门，本仓把它当作配置参数。对一次性成本数十分钟到数小时、且含 TTS/渲染重阶段的视频流水线，拒启行为学的价值不亚于图解场景。
 
-**建议**（落地形态比选，见汇总）：② 策划 gate 增「成本档位声明」——三档（草集：单语 edge、≤3 分钟；正集：标准制作；大集：双语/IndexTTS/多系统动画任一组合），大集**不启动**、产出报价单 + 缩配替代方案，用户显式选择后开工。绑时机走 RSI 独立条目（候选 RSI-07x），不动 stages.toml 既有 gate 语义。
+**落地（本分支已完成）**：[02-planning.md](../../references/02-planning.md) 新增「成本档位与开工门（planning.md 头部声明）」节——planning.md 第一行声明档位（六节结构不动）；草集免问不报时、正集开工报成本量级、大集（两项及以上高成本要素：双语渲染/多系统复杂动画/整季首发/超长预算窗）不启动给替代；IndexTTS 不入档位判据（与 RSI-040 授权硬闸正交）。配套：[stages.toml](../../references/stages.toml) ② gate 与 SKILL.md 速查表同步增「档位声明」（test_stages 同源执法自动覆盖）、scaffold 提示语同步、「超两倍上报」纪律条款入 02、walking-skeleton 等价（内容层文档先行）显式化。
 
 ### M4/M5/M8 的残余差异（合并说明）
 
@@ -43,7 +43,7 @@ Anatomy 防漂移的三个具体形态值得对照自检：① audit 与页面�
 
 ## 落地建议汇总
 
-- **做**（绑时机）：规模档位声明与 Epic 拒启行为学 → 走 RSI 独立条目落 [02-planning.md](../../references/02-planning.md) gate（候选字段：成本档位三档 + 大集拒启给替代），与既有「时长预算窗」正交（预算窗管内容长度、档位管制作成本）；实施时按 RSI-070 纪律在规格层铺运行时指针。
+- **做**（✅ 已完成，本分支）：规模档位声明与 Epic 拒启行为学已落 [02-planning.md](../../references/02-planning.md)「成本档位与开工门」节 + [stages.toml](../../references/stages.toml) ② gate「档位声明」+ SKILL.md 速查表同步 + scaffold 提示语同步；与「时长预算窗」正交（预算窗管内容长度、档位管制作成本）。RSI-070 运行时指针四条同步铺设（09 失败类目枚举 / 01 Anatomy 素材源 / PIPELINE 时间遥测 / RSI.md 单句锚）。
 - **写**（一句话成本级）：无——原拟的「evals 预期输出补过程证据」经核验本仓已具备（[evals/evals.json:7](../../evals/evals.json)），撤销。
 - **暂缓**（各带触发条件）：
   1. **失败类目完备枚举**（qa 判据从验尸式补枚举式清单）——触发：`--check` 判据再次漏抓新缺陷类别（届时按漏抓类别补具名判据 + 负例测试，与 RSI-020/041 同法）；

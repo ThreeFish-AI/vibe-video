@@ -197,7 +197,9 @@ def main() -> int:
         "  1. research/ 取证：Stage ① —— A 型论文走 paper_extract.py，B 型走 source_ledger.py，"
         "guided-learn 精读产物走 C 型（research/gl-notes.md，见 01）"
     )
-    print("  2. script/planning.md：Stage ② 六节齐，含本集视觉契约（色彩语义）")
+    print(
+        "  2. script/planning.md：Stage ② 六节齐 + 档位声明，含本集视觉契约（色彩语义）"
+    )
     print(
         "  3. video/src/design/theme.ts：换本集概念色（≥4.5:1，色相不与系列已用色撞车）"
     )

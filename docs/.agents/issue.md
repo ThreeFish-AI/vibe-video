@@ -1050,7 +1050,7 @@
 
 **定性**：非阻断改进（评估类，T2）。
 
-**处理方式**：本分支交付 [anatomy-skill.md](../research/anatomy-skill.md)（精读与通俗拆解：五组机制 + 本机复跑取证 + 纯标准库破坏性实验）与 [anatomy-skill-mapping.md](../research/anatomy-skill-mapping.md)（10 条映射判定：7 ✅ 已对齐 / 1 🔶 值得落地 / 4 ⏸ 暂缓带触发条件）；图资产 anatomy--workflow 四件套入 docs/assets；知识索引同步登记。钉版 `bc943e4`（2026-10-15，MIT）。净增量唯一落地候选：**规模/成本门控行为学**（Figure/Hero/Epic 档位 + Epic 拒启给替代 + 首小时可用页 + 每步 date 遥测超两倍份额上报），建议以独立 RSI 条目落 [02-planning.md](../../references/02-planning.md) gate（成本档位三档 + 大集拒启给替代，与时长预算窗正交——预算窗管内容长度、档位管制作成本）。
+**处理方式**：本分支交付 [anatomy-skill.md](../research/anatomy-skill.md)（精读与通俗拆解：五组机制 + 本机复跑取证 + 纯标准库破坏性实验）与 [anatomy-skill-mapping.md](../research/anatomy-skill-mapping.md)（10 条映射判定：7 ✅ 已对齐 / 1 ✅ 本分支落地 / 4 ⏸ 暂缓带触发条件）；图资产 anatomy--workflow 四件套入 docs/assets；知识索引同步登记。钉版 `bc943e4`（2026-10-15，MIT）。净增量已随本条目落地规格层：[02-planning.md](../../references/02-planning.md) 新增「成本档位与开工门」节（草集/正集/大集三档、大集两项及以上高成本要素不启动给缩配替代、超两倍耗时上报；IndexTTS 与 RSI-040 硬闸正交不入档位判据），② gate 增「档位声明」（[stages.toml](../../references/stages.toml) 与 SKILL.md 速查表同步、test_stages 同源执法覆盖），scaffold 提示语与 SKILL.md 速查表 ② 行「做什么」列同步精简（色彩语义括注缩写，无语义损失）；另按 RSI-070 G3 自查铺设四条待信号运行时指针（[09](../../references/09-render-qa.md) 失败类目枚举 / [01](../../references/01-source-extraction.md) Anatomy 产页素材源 / [PIPELINE](../../references/PIPELINE.md) 时间遥测 / [RSI.md](../../RSI.md) 单句核心锚）。
 
 **后续防范**：外部 skill 借鉴一律先过四步协议；「已有等价物」判定须 grep -n 实测锚点——本次 M7/M8 两个印象式候选增量即被 [evals/evals.json](../../evals/evals.json) 的过程证据断言与 [test_qa_checks.py](../../tests/test_qa_checks.py) 的合成坏帧负例测试实锚否决（印象式评估会高估净增量）。
 

@@ -104,6 +104,8 @@ $P/
 uv run --no-project $T/scripts/pipeline.py --project $P     {status|doctor|build|check|tts|captions|deliver|render|qa|all|clean-samples|stages}
 ```
 
+> 待信号（RSI-071）：出现长阶段失控实例时，为编排器加每阶段耗时打点与「超策划预估两倍即上报」的机器面（行为学条款已落 [02 成本档位](./02-planning.md)；评估存证见 [anatomy-skill-mapping](../docs/research/anatomy-skill-mapping.md) M2）。
+
 > `clean-samples` 与 `stages` 与具体工程无关，不读 `pipeline.toml`（`--project` 可省）。
 > 本清单与 `pipeline.py` 文件头的抄件由 [tests/test_stages.py](../tests/test_stages.py) 对齐 argparse 真实注册表。
 > 工作区内亦可走薄包装：`uv run --no-project $W/scripts/pipeline.py --project $P …`（包装器自证工作区锚并硬性覆写 `VIBE_VIDEO_WORKSPACE`，从任意 CWD 调用都锚定本工作区）。
