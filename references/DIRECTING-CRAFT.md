@@ -28,7 +28,7 @@
 | 14 | Misconception-First + 要点硬帽 ≤3 | [02 钩子矩阵](./02-planning.md)（对齐） | ④ 易懂性判据（既有） |
 | 15 | 导演级评审回路（结构化 notes） | §六 | note 纪律（镜号+帧锚+指向） |
 | 16 | 冗余与装饰禁令 | §5.3 | 复述口播门（既有）+ §六语义维 |
-| 17 | 声音结构通道（cue 同帧锚定） | §5.1（时点侧） | BGM 留空轨是 [02](./02-planning.md) 既有边界——cue 系统属后续 RSI，立项技术路线已存证（CC0 音源/事件驱动音效/画面推导音效与空间属性，[opus5-video-techniques §五](../docs/research/opus5-video-techniques.md)） |
+| 17 | 声音结构通道（cue 同帧锚定） | §5.1（时点侧） | BGM 留空轨是 [02](./02-planning.md) 既有边界 |
 
 ## 一、镜头语言
 

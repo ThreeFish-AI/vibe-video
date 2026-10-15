@@ -1010,9 +1010,9 @@
 
 **处理方式**：评估存证 [docs/research/opus5-video-techniques.md](../research/opus5-video-techniques.md)（五仓钉版事实快照 + 逐仓净增量判定 + 引入形态七案比选 + 采纳/不采纳/待信号三档清单 + cue 系统路线图输入 §五）；PR [#50](https://github.com/ThreeFish-AI/vibe-video/pull/50)（commit adbb6cf）。二轮经用户复核校正归引（首轮误把建模手册伪锚禁令套到 DIRECTING-CRAFT——后者准入是业界已验证原理，RSI-048 先例），落地四项：反模式表 A-29（metronome 等长镜头）/A-30（硬交换冒充承接）、08 帧驱动条款 CSS transition/animation 禁令、08 Motion Blur 启用时机（>80px/帧，180° 快门法则）。三轮复核补证 Austerlitz 案例仓（无 LICENSE，仅存证）入 §五路线图。
 
-**后续防范**：外部工具/方法引入一律走「钉版取证（raw @ sha）→ 许可核实（NC/无许可禁代码与文本级复用，只提炼归纳性规则要点）→ 净增量判定 → 引入形态比选」四步（对齐 RSI-060 UA 评估先例）；无锚点概念一律待信号清单管理（每项带触发条件），候选条目正文不入手册条目与规格正文——规格层仅许一行指针指向清单（指针不构成候选区，DIRECTING-CRAFT「不设候选区」纪律不变）。
+**后续防范**：外部工具/方法引入一律走「钉版取证（raw @ sha）→ 许可核实（NC/无许可禁代码与文本级复用，只提炼归纳性规则要点）→ 净增量判定 → 引入形态比选」四步（对齐 RSI-060 UA 评估先例）；无锚点概念一律待信号清单管理（每项带触发条件），候选条目正文不入手册条目与规格正文——规格层仅许一行指针指向清单（指针不构成候选区，DIRECTING-CRAFT「不设候选区」纪律不变；此指针许可 2026-10-15 被 RSI-070 修订段废止：跟踪一律住 ledger 暂缓跟踪表，Skill 工程文件不铺指针）。
 
-**同类问题影响**：RSI-060（UA 融入评估）同范式先例；待信号七项（carry score 语义连续性判据 / 风格库 11 节骨架 / 反模式两条〔镜头抖动·背景噪声〕/ 循环末帧=首帧逐像素口径 / contact sheet 逐拍预检 / 案例拆解档案形态）住研究文档 §四；cue 系统后续 RSI 立项时以研究文档 §五为路线图输入。
+**同类问题影响**：RSI-060（UA 融入评估）同范式先例；待信号七项（carry score 语义连续性判据 / 风格库 11 节骨架 / 反模式两条〔镜头抖动·背景噪声〕/ 循环末帧=首帧逐像素口径 / contact sheet 逐拍预检 / 案例拆解档案形态）住研究文档 §四（2026-10-15 起全量迁入 RSI-071 暂缓跟踪表 W5–W12）；cue 系统后续 RSI 立项时以研究文档 §五为路线图输入（同批迁入 RSI-071 暂缓跟踪表 W9）。
 
 ## RSI-069 反模式表节标题条目计数无机器执法：表行增删后计数漂移只靠评审人眼
 
@@ -1042,7 +1042,7 @@
 
 **同类问题影响**：既有评估先例大体合规——RSI-016 依赖评估的再评估触发器在 [PIPELINE](../../references/PIPELINE.md) §七/§九与 [08](../../references/08-remotion-implementation.md) 均有复述/指针，RSI-060 在 [01](../../references/01-source-extraction.md) 铺研究文档 §七指针；本条把隐性实践显式化为条款，防 RSI-068 形态复发。
 
-**修订（2026-10-15，用户评审 RSI-071 时否决）**：原条款「在规格层铺一行指针」被否——暂缓项写进 Skill 工程文件会让现行规格混入未落地的待办，Agent 运行时加载规格即读到一堆「未来可能做」的条目。改为：Skill 工程文件只承载已落地规格；暂缓项一律住 ledger 对应条目，逐项写明触发条件与预期落位文件，触发后走 RSI 立项。[RSI.md](../../RSI.md) G3 自查项同步改写；RSI-068 遗留的 4 处指针（09 连续性、10 断点续跑、DIRECTING-CRAFT 表外候选、PIPELINE breakdown 档案）撤出并迁入 RSI-071 暂缓跟踪表 D5–D8。
+**修订（2026-10-15，用户评审 RSI-071 时否决）**：原条款「在规格层铺一行指针」被否——暂缓项写进 Skill 工程文件会让现行规格混入未落地的待办，Agent 运行时加载规格即读到一堆「未来可能做」的条目。改为：Skill 工程文件只承载已落地规格；暂缓项一律住 ledger 对应条目，逐项写明触发条件与预期落位文件，触发后走 RSI 立项。[RSI.md](../../RSI.md) G3 自查项同步改写；RSI-068 铺设的 5 处指针（09 连续性、10 断点续跑、DIRECTING-CRAFT 表外候选与 cue 路线图、PIPELINE breakdown 档案）撤出并迁入 RSI-071 暂缓跟踪表 W5–W8 与 W9。
 
 ## RSI-071 Anatomy skill 精读与机制映射评估：外部借鉴四步协议回执、净增量收敛于规模成本门控行为学
 
@@ -1052,19 +1052,23 @@
 
 **定性**：非阻断改进（评估类，T2）。
 
-**处理方式**：本分支交付 [anatomy-skill.md](../research/anatomy-skill.md)（精读与通俗拆解：五组机制 + 本机复跑取证 + 纯标准库破坏性实验）与 [anatomy-skill-mapping.md](../research/anatomy-skill-mapping.md)（10 条映射判定：7 ✅ 已对齐 / 1 ✅ 本分支落地 / 4 ⏸ 暂缓带触发条件）；图资产 anatomy--workflow 四件套入 docs/assets；知识索引同步登记。钉版 `bc943e4`（2026-10-15，MIT）。净增量已随本条目落地规格层：[02-planning.md](../../references/02-planning.md) 新增「成本档位与开工门」节（草集/正集/大集三档、大集两项及以上高成本要素不启动给缩配替代、超两倍耗时上报；IndexTTS 与 RSI-040 硬闸正交不入档位判据），② gate 增「档位声明」（[stages.toml](../../references/stages.toml) 与 SKILL.md 速查表同步、test_stages 同源执法覆盖），scaffold 提示语与 SKILL.md 速查表 ② 行「做什么」列同步精简（色彩语义括注缩写，无语义损失）；暂缓项不进 Skill 工程文件，统一住本条目「暂缓跟踪表」（见同类问题影响）。
+**处理方式**：本分支交付 [anatomy-skill.md](../research/anatomy-skill.md)（精读与通俗拆解：五组机制 + 本机复跑取证 + 纯标准库破坏性实验）与 [anatomy-skill-mapping.md](../research/anatomy-skill-mapping.md)（10 条映射判定：7 ✅ 已对齐 / 2 ✅ 弱增量并入既有实践 / 1 ✅ 本分支落地；另 4 项 ⏸ 暂缓带触发条件住下方跟踪表）；图资产 anatomy--workflow 四件套入 docs/assets；知识索引同步登记。钉版 `bc943e4`（2026-10-15，MIT）。净增量已随本条目落地规格层：[02-planning.md](../../references/02-planning.md) 新增「成本档位与开工门」节（草集/正集/大集三档、大集两项及以上高成本要素不启动给缩配替代、超两倍耗时上报；IndexTTS 与 RSI-040 硬闸正交不入档位判据），② gate 增「档位声明」（[stages.toml](../../references/stages.toml) 与 SKILL.md 速查表同步、test_stages 同源执法覆盖），scaffold 提示语与 SKILL.md 速查表 ② 行「做什么」列同步精简（色彩语义括注缩写，无语义损失）；暂缓项不进 Skill 工程文件，统一住本条目「暂缓跟踪表」（见同类问题影响）。
 
 **后续防范**：外部 skill 借鉴一律先过四步协议；「已有等价物」判定须 grep -n 实测锚点——本次 M7/M8 两个印象式候选增量即被 [evals/evals.json](../../evals/evals.json) 的过程证据断言与 [test_qa_checks.py](../../tests/test_qa_checks.py) 的合成坏帧负例测试实锚否决（印象式评估会高估净增量）。
 
-**同类问题影响**：暂缓项的唯一跟踪处是下表（Skill 工程文件不留指针；触发条件成立时按 RSI 立项、落规格、在本表标「已立项 RSI-xxx」）。表中后四项为 RSI-068 评估遗留、原以指针形式散落在 09/10/DIRECTING-CRAFT/PIPELINE，本条一并迁回：
+**同类问题影响**：暂缓项的唯一跟踪处是下表（Skill 工程文件不留指针；触发条件成立时按 RSI 立项、落规格、在本表标「已立项 RSI-xxx」）。表中 W5–W8 为 RSI-068 评估遗留、原以指针形式散落在 09/10/DIRECTING-CRAFT/PIPELINE，本条一并迁回；W9 为同批撤出的 DIRECTING-CRAFT cue 路线图指针；W10–W12 为 RSI-068 待信号清单中从未铺指针的三项，随本条全量入表（清单原文见 [opus5 §四](../research/opus5-video-techniques.md)）：
 
 | # | 暂缓项 | 触发条件 | 预期落位 | 来源 |
 | :--- | :--- | :--- | :--- | :--- |
-| D1 | 失败类目完备枚举（qa 判据由逐案增补转向具名类目枚举） | `qa --check` 漏抓一类新缺陷 | [09-render-qa.md](../../references/09-render-qa.md) 自动体检表 + `scripts/qa_frames.py` 新判据 + 合成坏例负例测试 | RSI-071（Anatomy M4） |
-| D2 | 单句核心锚 | [SKILL.md](../../SKILL.md) 结构性改版 | SKILL.md 开篇 | RSI-071（Anatomy M1） |
-| D3 | 编排器分阶段耗时打点与超时上报机器面 | 出现一次生产阶段耗时失控 | [PIPELINE.md](../../references/PIPELINE.md) §三 + `scripts/pipeline.py`（行为学条款已在 [02](../../references/02-planning.md) 成本档位节） | RSI-071（Anatomy M2） |
-| D4 | Anatomy 产页作视觉信源 | 用户点名制作等距机器图解类集子 | [01-source-extraction.md](../../references/01-source-extraction.md) B 型取证 | RSI-071（映射报告暂缓④） |
-| D5 | carry score 类语义连续性判据 | 出现「转场交换 vs 物体位移」人工误判 | [09-render-qa.md](../../references/09-render-qa.md) 导演级四维 · 连续性 + `qa_frames --check` | RSI-068（[opus5 §四](../research/opus5-video-techniques.md)） |
-| D6 | 渲染断点续跑 | 片长增长或中断重跑成本显现 | [10-final-render.md](../../references/10-final-render.md) + render 分块 | RSI-068 |
-| D7 | 成片旁 breakdown 档案（节拍表/验收分/被否记录） | 交付复盘人工档案成本显现，或相邻集复用节拍结构 | [PIPELINE.md](../../references/PIPELINE.md) 交付归档节 | RSI-068 |
-| D8 | 表外反模式候选（镜头抖动 / 背景噪声等，清单见 [opus5 §四](../research/opus5-video-techniques.md)） | 成片出现反模式表外病灶 | [DIRECTING-CRAFT.md](../../references/DIRECTING-CRAFT.md) §七 | RSI-068 |
+| W1 | 失败类目完备枚举（qa 判据由逐案增补转向具名类目枚举） | `qa --check` 漏抓一类新缺陷 | [09-render-qa.md](../../references/09-render-qa.md) 自动体检表 + `scripts/qa_frames.py` 新判据 + 合成坏例负例测试 | RSI-071（Anatomy M4） |
+| W2 | 单句核心锚 | [SKILL.md](../../SKILL.md) 结构性改版 | SKILL.md 开篇 | RSI-071（Anatomy M1） |
+| W3 | 编排器分阶段耗时打点与超时上报机器面 | 出现一次生产阶段耗时失控 | [PIPELINE.md](../../references/PIPELINE.md) §三 + `scripts/pipeline.py`（行为学条款已在 [02](../../references/02-planning.md) 成本档位节） | RSI-071（Anatomy M2） |
+| W4 | Anatomy 产页作视觉信源 | 用户点名制作等距机器图解类集子 | [01-source-extraction.md](../../references/01-source-extraction.md) B 型取证 | RSI-071（映射报告暂缓④） |
+| W5 | carry score 类语义连续性判据 | 出现「转场交换 vs 物体位移」人工误判 | [09-render-qa.md](../../references/09-render-qa.md) 导演级四维 · 连续性 + `qa_frames --check` | RSI-068（[opus5 §四](../research/opus5-video-techniques.md)） |
+| W6 | 渲染断点续跑 | 片长增长或中断重跑成本显现 | [10-final-render.md](../../references/10-final-render.md) + render 分块 | RSI-068 |
+| W7 | 成片旁 breakdown 档案（节拍表/验收分/被否记录） | 交付复盘人工档案成本显现，或相邻集复用节拍结构 | [PIPELINE.md](../../references/PIPELINE.md) 交付归档节 | RSI-068 |
+| W8 | 表外反模式候选（镜头抖动 / 背景噪声等，清单见 [opus5 §四](../research/opus5-video-techniques.md)） | 成片出现反模式表外病灶 | [DIRECTING-CRAFT.md](../../references/DIRECTING-CRAFT.md) §七 | RSI-068 |
+| W9 | cue 系统（配乐/音效技术路线：CC0 音源/事件驱动音效/画面推导音效与空间属性） | 用户点名制作含 cue 的集子 | [02-planning.md](../../references/02-planning.md)「边界与不做的事」节（BGM 留空轨）+ 新 cue 规格文件 | RSI-068（[opus5 §五](../research/opus5-video-techniques.md)） |
+| W10 | 风格库（11 节骨架形态） | 首个真实风格化分集需求 | 独立 bounded 手册（对齐 MODELING-PLAYBOOK 治理） | RSI-068（opus5 §四） |
+| W11 | 循环判据升级为末帧 = 首帧逐像素 | loop 型内容出现指纹误放行 | `qa_frames --loop` 口径 | RSI-068（opus5 §四） |
+| W12 | contact sheet 逐拍预检（每拍一帧拼图，全量渲染前抽查） | beat 级预检需求（分幕复检粒度不足） | `qa_frames` 抽帧模式扩展 | RSI-068（opus5 §四） |

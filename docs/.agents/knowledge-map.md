@@ -40,7 +40,7 @@
 | [understand-anything.md](../research/understand-anything.md) | Understand-Anything 工程能力融入评估：事实快照（钉版）、图谱字段 S0/S1/L 定级、引入形态八案比选与概念移植采纳清单（RSI-060） |
 | [opus5-video-techniques.md](../research/opus5-video-techniques.md) | Opus 5.5 视频生态五仓评估：onetake carry score / lemo-opuscar 风格骨架与原创配乐路线 / Remotion 官方 skill 对读 / 反模式交叉核对，引入形态七案比选与待信号清单（RSI-068） |
 | [anatomy-skill.md](../research/anatomy-skill.md) | Anatomy skill（等距机器图解）精读与通俗拆解：真实数字单一模型、几何审计归零、反糊弄与苛刻自验五组机制，含实测复跑与破坏性实验（RSI-071） |
-| [anatomy-skill-mapping.md](../research/anatomy-skill-mapping.md) | Anatomy ↔ vibe-video 机制映射报告：10 条映射判定（7 对齐 / 1 落地 / 4 暂缓），净增量收敛于规模成本门控行为学（RSI-071） |
+| [anatomy-skill-mapping.md](../research/anatomy-skill-mapping.md) | Anatomy ↔ vibe-video 机制映射报告：10 条映射判定（7 对齐 / 2 并入 / 1 落地），另 4 项暂缓住 ledger，净增量收敛于规模成本门控行为学（RSI-071） |
 
 ## 资产
 
