@@ -1041,3 +1041,17 @@
 **后续防范**：评估类条目（text-to-cad / UA / HyperFrames 先例族）核验时按自查项逐场景核对指针覆盖；研究文档新增触发条件或待信号项时，同步自查其触发场景在规格层是否有锚。
 
 **同类问题影响**：既有评估先例大体合规——RSI-016 依赖评估的再评估触发器在 [PIPELINE](../../references/PIPELINE.md) §七/§九与 [08](../../references/08-remotion-implementation.md) 均有复述/指针，RSI-060 在 [01](../../references/01-source-extraction.md) 铺研究文档 §七指针；本条把隐性实践显式化为条款，防 RSI-068 形态复发。
+
+## RSI-071 Anatomy skill 精读与机制映射评估：外部借鉴四步协议回执、净增量收敛于规模成本门控行为学
+
+**表因**：用户点名评估开源 skill Anatomy（wheresryan22/anatomy，10.6k★，MIT）对本研究仓的可借鉴引入项（信源三路：官网 / GitHub 仓库 / 微信实测文）。
+
+**根因**：外部 skill 的机制层与本仓「SSOT + 机器门 + 失败沉淀」三层范式高度同构，未经钉版取证与净增量判定的印象式借鉴会重复引入已有等价物；需要一次循 RSI-068 四步协议（钉版取证 → 许可核实 → 净增量判定 → 形态比选）的系统性评估存证。
+
+**定性**：非阻断改进（评估类，T2）。
+
+**处理方式**：本分支交付 [anatomy-skill.md](../research/anatomy-skill.md)（精读与通俗拆解：五组机制 + 本机复跑取证 + 纯标准库破坏性实验）与 [anatomy-skill-mapping.md](../research/anatomy-skill-mapping.md)（10 条映射判定：7 ✅ 已对齐 / 1 🔶 值得落地 / 4 ⏸ 暂缓带触发条件）；图资产 anatomy--workflow 四件套入 docs/assets；知识索引同步登记。钉版 `bc943e4`（2026-10-15，MIT）。净增量唯一落地候选：**规模/成本门控行为学**（Figure/Hero/Epic 档位 + Epic 拒启给替代 + 首小时可用页 + 每步 date 遥测超两倍份额上报），建议以独立 RSI 条目落 [02-planning.md](../../references/02-planning.md) gate（成本档位三档 + 大集拒启给替代，与时长预算窗正交——预算窗管内容长度、档位管制作成本）。
+
+**后续防范**：外部 skill 借鉴一律先过四步协议；「已有等价物」判定须 grep -n 实测锚点——本次 M7/M8 两个印象式候选增量即被 [evals/evals.json](../../evals/evals.json) 的过程证据断言与 [test_qa_checks.py](../../tests/test_qa_checks.py) 的合成坏帧负例测试实锚否决（印象式评估会高估净增量）。
+
+**同类问题影响**：待信号清单新增四项（失败类目完备枚举——触发：`--check` 判据漏抓新缺陷类；单句核心锚——触发：SKILL.md 结构性改版；全流程时间遥测——触发：长阶段失控实例；Anatomy 产页作素材源——触发：用户点名等距机器图解集），详见映射报告落地建议节；落地时按 RSI-070 纪律在规格层铺运行时指针。
