@@ -88,8 +88,6 @@ uv run --no-project --with pillow --with numpy $T/scripts/qa_frames.py \
 
 ## 自动体检判据与处置
 
-> 待信号（RSI-071）：`--check` 判据再漏抓新缺陷类别时，按漏抓类别补具名判据 + 合成坏例负例测试（对照 Anatomy 审计的具名失败类目枚举法，存证见 [anatomy-skill-mapping](../docs/research/anatomy-skill-mapping.md) M4）。
-
 | 判据 | 级别 | 处置 |
 |---|---|---|
 | 黑帧/早渐黑（均值 <0.02；末 beat 且分镜标「渐黑」豁免） | FAIL | 查尾幕渐黑是否从**末 beat** 而非末句推导（references/08 红线 4）；查 SceneFade 末幕是否误开淡出 |
@@ -135,7 +133,7 @@ uv run --no-project --with pillow --with numpy $T/scripts/qa_frames.py \
    - **节奏**：主体静止持续 >5s 判卡顿（呼吸辉光不算）；相邻镜时长长短交替（连续同长 ≤2）；
      动效落点对齐句内关键词（Land on the Word，`--beat-heads` 前后帧抽查）；
    - **连续性**：镜切换前后焦点位移 ≤1/3 屏宽（超限须引导或显式理由）；跨镜主体色彩/形状签名一致
-     （镜间身份恒常——与 Morph Continuity 互补：后者管镜内形变，本条管镜间身份）；「转场交换 vs 物体位移」的自动判据（carry score 类）为待信号候选，出现此类人工误判时按[待信号清单](../docs/research/opus5-video-techniques.md)立项；
+     （镜间身份恒常——与 Morph Continuity 互补：后者管镜内形变，本条管镜间身份）；
    - **语义**：静音抽查 3 个机制镜——关声看画面仍能讲出主干（机械判据对「字幕代偿」失明，
      ISSUE-187「FAIL 0 ≠ 视觉正确」同族补盲）；每段动效一句话职能可答。
 
