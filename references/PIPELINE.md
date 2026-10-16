@@ -215,6 +215,13 @@ uv run --no-project $T/scripts/pipeline.py --project $P deliver [--root ~/Docume
 
 **时序常数单一事实源** = 每集 `video/src/timing.json`（句间/幕间/片头/片尾/幕间淡入淡出）：`timing.ts` 经 `resolveJsonModule` 同步 import，Python 侧（qa_frames/captions/check_script）经 `timeline.py` 直读同一文件——改节奏只动 JSON，双语言镜像漂移结构性不存在。**渲染主机约束**：三集未内嵌 CJK 字体（PingFang SC/Songti SC/SF Mono 系统栈），渲染仅限 macOS；两个重启触发器见 [references/08 事实条](./08-remotion-implementation.md)。
 
+### 媒体面派生链与改稿再生（图源 candidate / 录制 sidecar / 配音 manifest）
+
+图示素材与配音都是派生物：改上游真源后只能管线再生，**勿手改产物清单**。
+
+- **图示链**（改图后）：图源真源是 PROJECT 根（`archify.html_dir` 同锚，见上方字段表）`docs/diagrams/<slug>/` 的 candidate JSON——archify 全局约定的图源唯一权威，入库；出图 HTML 落 `archify.html_dir`（同 PROJECT 锚，本地产）。做法：改 candidate → `/archify` 重出 HTML → `record_archify_all.py --project $P` 重录受影响图（换 worktree 全量重录属常规操作）。坑位：`$P/video/public/archify/*.json` 是**录制 sidecar**（chapters/`capture_fps` 等实测与人工审定 `type` 的入库记录），不是 candidate——当 candidate 改会漏掉重出 HTML 这步，重录的仍是旧图。
+- **配音链**（改 narration 后）：`video/public/audio/manifest.json` 每句 `durationSec` 是 mp3 实测时长，下游时间轴按它排布。做法：改稿后走 `tts` 再生（幂等缓存只重录变更句块）。坑位：TTS 服务不可用时把重配登记为待办（如内容仓 issue 台账），**勿手改 manifest 文本**——手改即静默产生时长与 mp3 不一致的入库提交，下游按假时长排时间轴；草声重合成秒级、克隆档有 digest 缓存，等服务恢复后再生即可。
+
 ### 双语渲染（zh 主稿 + en 对齐译稿，可选）
 
 「语言」是与阶段序列正交的维度，分三层（RSI-004；逐字稿对齐与译写规约见 [references/03](./03-narration.md)，画面文案 i18n 见 [references/08](./08-remotion-implementation.md)，配音决策见 [references/07](./07-tts-voice.md)）：
