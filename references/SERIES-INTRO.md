@@ -1,6 +1,6 @@
 # 系列片头（SERIES-INTRO）：独立音轨与 T 表的资产契约
 
-> **定位**：系列片头（片头组件 + 独立口播音轨 + 静音带实测 T 表）的**资产层 SSOT**。分层边界：[03](./03-narration.md) 管分集口播怎么写、[06](./06-storyboard.md) 管分镜契约、[DIRECTING-CRAFT](./DIRECTING-CRAFT.md) 管镜头语言与词级落点判据、[07](./07-tts-voice.md) 管配音档位与人为触发授权、[08](./08-remotion-implementation.md) 管骨架档位与运动层、[09](./09-render-qa.md) 管抽帧验收、[10](./10-final-render.md) 管终渲交付——本文件只管它们都不管的系列级口播资产：独立音轨形态、静音带 T 表方法论、改稿五同步、双语 drift 登记与口播容器命名约定。设计依据与上游事故链见台账 RSI-050/051（negentropy ISSUE-208）。
+> **定位**：系列片头（片头组件 + 独立口播音轨 + 静音带实测 T 表）的**资产层 SSOT**。分层边界：[03](./03-narration.md) 管分集口播怎么写、[06](./06-storyboard.md) 管分镜契约、[DIRECTING-CRAFT](./DIRECTING-CRAFT.md) 管镜头语言与词级落点判据、[07](./07-tts-voice.md) 管配音档位与人为触发授权、[08](./08-remotion-implementation.md) 管骨架档位与运动层、[09](./09-render-qa.md) 管抽帧验收、[10](./10-final-render.md) 管终渲交付——本文件只管它们都不管的系列级口播资产：独立音轨形态、静音带 T 表方法论、改稿五同步、双语 drift 登记与口播容器命名约定。设计依据与上游事故链见台账 I-050/051（negentropy ISSUE-208）。
 >
 > **纪律**：方法论入册、**实测数字不入册**——take 时长、检测阈值、帧数等一切活数字的唯一事实源是各集片头组件内 T 表及其头注（防数字时鲜性，ISSUE-179 活数据教训——take 时长/阈值/帧锚帧数一律留在组件 T 表头注）。命令一律 `$T/$W/$P/$V` 记法（唯一定义见 [PIPELINE.md](./PIPELINE.md)）；音色只写 `$V/refs.toml` 指纹记法，不写样本文件名（声音样本是生物特征，不入库不进文档）。
 
@@ -13,7 +13,7 @@
 1. **独立音轨，gitignored 不入库**。口播音频落 `$P/video/public/audio/`（整目录 gitignored），重配音走 [07](./07-tts-voice.md) 同一授权与档位纪律。音轨复现配方（`tts_sample.py` + 固定 seed + 风格档）写在组件头注——配方随组件走，音频本身是可再生派生物。
 2. **不入 narration SSOT——这不是 [RSI 不变量 2](../RSI.md) 的例外**。该不变量管的是**分集**口播：`narration.md` 唯一 SSOT，`narration.json` / `manifest.json` / `chapters.json` 是派生物、不得直改；片头口播是**系列级资产**、不是任何一集 narration 的派生物——它活在片头组件的 `NARRATION` 常量（TTS 合同，改文案先改这里，见 §五），与分集 narration 是并行的两类口播资产，不存在派生豁免。
 3. **leadInSec 扩展时段，时序仍归 timing SSOT**。片头总长 `INTRO_FRAMES = leadInSec × fps`，`leadInSec` 只读 `$P/video/src/timing.json`（[RSI 不变量 5](../RSI.md)：TS/Python 双语共读，禁内联时序常数）——T 表是组件内**口播词级对位**，不是集级时序 SSOT 的例外：集级时序（幕边界、beat 窗）仍在 timing.json / manifest，T 表只决定「口播第几个词时哪个视觉元素点火」。
-4. **五集同构 seeded 复制**。复制源头组件（如首集 `components/series-intro.tsx`）逐集复制、复制后自由演进（同 [08](./08-remotion-implementation.md) seeded 档与 harness-stack 先例）；逐集差异**全部数据驱动**（activeIndex 自 `series-layers.json` 派生、mech 为本集 `theme.ts` 维度色；不手写集号与层序）——改一处共享语义 = 改复制源 + 全系列同步重渲（交付验收线见台账 RSI-052 引 ISSUE-207）。
+4. **五集同构 seeded 复制**。复制源头组件（如首集 `components/series-intro.tsx`）逐集复制、复制后自由演进（同 [08](./08-remotion-implementation.md) seeded 档与 harness-stack 先例）；逐集差异**全部数据驱动**（activeIndex 自 `series-layers.json` 派生、mech 为本集 `theme.ts` 维度色；不手写集号与层序）——改一处共享语义 = 改复制源 + 全系列同步重渲（交付验收线见台账 I-052 引 ISSUE-207）。
 
 ## 二、静音带实测 T 表方法论
 
@@ -32,9 +32,9 @@ T 表（片头组件内 `const T = {…}`）把口播音频翻译成帧锚。纪
 
 1. **音轨时长重测**：新 take 时长回填组件头注与 T 表头注（长句超出原 lead-in 时段须同步调 timing.json 的 leadInSec）；
 2. **静音带重测、重排 T 表**（§二）；
-3. **字幕安全带核对**：字幕容器仍在安全带内、长句已按 [06](./06-storyboard.md)/[08](./08-remotion-implementation.md)/[09](./09-render-qa.md) 的单行语义切换契约拆窗（RSI-049，契约正文以三规格为准）；
+3. **字幕安全带核对**：字幕容器仍在安全带内、长句已按 [06](./06-storyboard.md)/[08](./08-remotion-implementation.md)/[09](./09-render-qa.md) 的单行语义切换契约拆窗（I-049，契约正文以三规格为准）；
 4. **视觉拍点对账**：T 表词锚联动的一切视觉点火（词级点火/基准落位/字幕切换）逐键核对注释与实现一致；
-5. **禁词表人工核对**：按 [03](./03-narration.md) 系列纪律逐词核对顺序词与他集标题——机器门已扩面至组件口播字面量容器（RSI-050，`check_series.py` 规则1），但改稿时的人工核对仍是第一道防线（门拦形态、人拦语义）。
+5. **禁词表人工核对**：按 [03](./03-narration.md) 系列纪律逐词核对顺序词与他集标题——机器门已扩面至组件口播字面量容器（I-050，`check_series.py` 规则1），但改稿时的人工核对仍是第一道防线（门拦形态、人拦语义）。
 
 ## 四、双语 drift 登记
 
@@ -46,9 +46,9 @@ T 表（片头组件内 `const T = {…}`）把口播音频翻译成帧锚。纪
 
 ## 五、口播容器命名约定
 
-片头组件内的口播承载一律用两个保留名，这是 `check_series.py` 规则1 扩面的**执法锚**（文档—执法互锚，RSI-050）：
+片头组件内的口播承载一律用两个保留名，这是 `check_series.py` 规则1 扩面的**执法锚**（文档—执法互锚，I-050）：
 
 - `const NARRATION = …`：TTS 合同全文（带标点，重配音按它逐字合成）；`const SUBS = […]`：字幕切分数组（显示层切分点去标点）。容器名硬编码在规则1 扫描面里——**新增口播承载形态（片头/预告/品牌声画组件）必须沿用这两个名字**，改名即逃出执法面。
 - en 口播用 `NARRATION_EN` / `SUBS_EN`（`_` + 两位大写语种码后缀），带类型注解（`const X: T = …`）同受执法；扫描面的近似口径残余以 `check_series.py` 容器正则旁注为**唯一声明处**，此处不复述。
 - 视觉层文本（进度卡序数词、身份卡标题等）**不进**这两个容器——序号活在视觉层是既定不变量，容器外的字符串字面量不受顺序词执法（`ep: '第一集'` 进度卡是合法形态）。
-- 字幕的**单行语义切换**契约不在本文件：拆窗规则、渲染约束与抽帧验收的 SSOT 在 [06](./06-storyboard.md)/[08](./08-remotion-implementation.md)/[09](./09-render-qa.md)（RSI-049），此处只留指针。
+- 字幕的**单行语义切换**契约不在本文件：拆窗规则、渲染约束与抽帧验收的 SSOT 在 [06](./06-storyboard.md)/[08](./08-remotion-implementation.md)/[09](./09-render-qa.md)（I-049），此处只留指针。

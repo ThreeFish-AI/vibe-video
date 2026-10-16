@@ -1,6 +1,6 @@
 # 知识索引（全仓文档的唯一索引）
 
-本文件是仓内文档的全量索引。README「文档地图」只列入口文档并指向这里；文档目录有增删、改名或迁移时，同一次提交里同步本表。目录布局遵循 [Agent Skills 规范](https://agentskills.io/specification)（RSI-008）。
+本文件是仓内文档的全量索引。README「文档地图」只列入口文档并指向这里；文档目录有增删、改名或迁移时，同一次提交里同步本表。目录布局遵循 [Agent Skills 规范](https://agentskills.io/specification)（I-008）。
 
 ## 入口与路由
 
@@ -22,25 +22,25 @@
 | [INDEXTTS-2.5-ADVANCED.md](../../references/INDEXTTS-2.5-ADVANCED.md) | 上游能力面与进阶：机制循证、配音质量提升路线图 |
 | [PRON-GLOSSARY.md](../../references/PRON-GLOSSARY.md) | 易错字台账：发音标注跨集复用表 |
 | [MODELING-PLAYBOOK.md](../../references/MODELING-PLAYBOOK.md) | 动效画面建模手册（有界经验库，门 `check_playbook.py`） |
-| [DIRECTING-CRAFT.md](../../references/DIRECTING-CRAFT.md) | 导演手艺知识库：镜头语言/节奏/动画原则/导演级审查判据（`@shot` 词表 SSOT，RSI-048） |
-| [SERIES-INTRO.md](../../references/SERIES-INTRO.md) | 系列片头资产契约：独立音轨/静音带 T 表方法论/改稿五同步/双语 drift 登记/NARRATION-SUBS 口播容器命名约定（RSI-051） |
+| [DIRECTING-CRAFT.md](../../references/DIRECTING-CRAFT.md) | 导演手艺知识库：镜头语言/节奏/动画原则/导演级审查判据（`@shot` 词表 SSOT，I-048） |
+| [SERIES-INTRO.md](../../references/SERIES-INTRO.md) | 系列片头资产契约：独立音轨/静音带 T 表方法论/改稿五同步/双语 drift 登记/NARRATION-SUBS 口播容器命名约定（I-051） |
 
 ## 元机制、评测与研究
 
 | 文档 | 内容 |
 |---|---|
 | [RSI.md](../../RSI.md) | 自改进回路（通用协议已上收统一仓库 [ThreeFish-AI/rsi](https://github.com/ThreeFish-AI/rsi)）：仓内触发分流、ledger 纪律、子代理附加纪律、统一 G0–G4 门禁指针与 machine_checks、不变量保护清单、建模经验分支 |
-| [issue.md](./issue.md) | RSI ledger（`RSI-xxx`） |
+| [issue.md](./issue.md) | RSI ledger（`I-xxx`，头部索引表 + 主体详情双层） |
 | [evals/README.md](../../evals/README.md) | 输出质量评测与触发评测的用法（`evals.json` / `trigger-evals.json`） |
 | [modeling-experience-distillation.md](../research/modeling-experience-distillation.md) | 建模经验有界沉淀的理论、证据（IEEE 引用）与方案比选 |
 | [prose-refinement.md](../research/prose-refinement.md) | ⑤ 成文优化的语料取证、理论依据（IEEE 引用）与方案比选（落位 / 插入位置 / 执法力度） |
-| [dependency-policy-and-asset-tools.md](../research/dependency-policy-and-asset-tools.md) | 依赖版本策略比选、HyperFrames 复核（vs Remotion）与 text-to-cad 评估（RSI-016 循证） |
+| [dependency-policy-and-asset-tools.md](../research/dependency-policy-and-asset-tools.md) | 依赖版本策略比选、HyperFrames 复核（vs Remotion）与 text-to-cad 评估（I-016 循证） |
 | [motion-engineering.md](../research/motion-engineering.md) | Visual Lock、Morph Continuity、过渡/循环抽帧验收与 Motion Blur opt-in 的方案依据 |
-| [directing-craft.md](../research/directing-craft.md) | 导演手艺知识库的调研综合、方案比选（G2）、机械门族数据契约 roadmap（RSI-048）与回拉层级依据（RSI-060 补） |
-| [understand-anything.md](../research/understand-anything.md) | Understand-Anything 工程能力融入评估：事实快照（钉版）、图谱字段 S0/S1/L 定级、引入形态八案比选与概念移植采纳清单（RSI-060） |
-| [opus5-video-techniques.md](../research/opus5-video-techniques.md) | Opus 5.5 视频生态五仓评估：onetake carry score / lemo-opuscar 风格骨架与原创配乐路线 / Remotion 官方 skill 对读 / 反模式交叉核对，引入形态七案比选与待信号清单（RSI-068） |
-| [anatomy-skill.md](../research/anatomy-skill.md) | Anatomy skill（等距机器图解）精读与通俗拆解：真实数字单一模型、几何审计归零、反糊弄与苛刻自验五组机制，含实测复跑与破坏性实验（RSI-071） |
-| [anatomy-skill-mapping.md](../research/anatomy-skill-mapping.md) | Anatomy ↔ vibe-video 机制映射报告：10 条映射判定（7 对齐 / 2 并入 / 1 落地），另 4 项暂缓住 ledger，净增量收敛于规模成本门控行为学（RSI-071） |
+| [directing-craft.md](../research/directing-craft.md) | 导演手艺知识库的调研综合、方案比选（G2）、机械门族数据契约 roadmap（I-048）与回拉层级依据（I-060 补） |
+| [understand-anything.md](../research/understand-anything.md) | Understand-Anything 工程能力融入评估：事实快照（钉版）、图谱字段 S0/S1/L 定级、引入形态八案比选与概念移植采纳清单（I-060） |
+| [opus5-video-techniques.md](../research/opus5-video-techniques.md) | Opus 5.5 视频生态五仓评估：onetake carry score / lemo-opuscar 风格骨架与原创配乐路线 / Remotion 官方 skill 对读 / 反模式交叉核对，引入形态七案比选与待信号清单（I-068） |
+| [anatomy-skill.md](../research/anatomy-skill.md) | Anatomy skill（等距机器图解）精读与通俗拆解：真实数字单一模型、几何审计归零、反糊弄与苛刻自验五组机制，含实测复跑与破坏性实验（I-071） |
+| [anatomy-skill-mapping.md](../research/anatomy-skill-mapping.md) | Anatomy ↔ vibe-video 机制映射报告：10 条映射判定（7 对齐 / 2 并入 / 1 落地），另 4 项暂缓住 ledger，净增量收敛于规模成本门控行为学（I-071） |
 
 ## 资产
 

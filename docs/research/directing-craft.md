@@ -1,10 +1,10 @@
 # 导演手艺知识库的引入：调研综合、方案比选与数据契约 roadmap
 
-> **结论先行**：以按需读取的工艺层知识库（[references/DIRECTING-CRAFT.md](../../references/DIRECTING-CRAFT.md)）承载「怎么导」的导演知识（景别/运镜/转场/节奏/构图/动画原则），五个阶段规格只注入指针+核心规范；镜头语言用约定写法落位（`@shot:` 景别落画面列——`check_script.py` 的 `--check-motion` 只读动效列 `cells[3]`，零 parser 改动）；机械门族（词表门/eye-trace/read-time lint）作为后续 RSI roadmap 显式存证于本文，「先有数据再有门」。协议：RSI-048（[台账](../.agents/issue.md)）。
+> **结论先行**：以按需读取的工艺层知识库（[references/DIRECTING-CRAFT.md](../../references/DIRECTING-CRAFT.md)）承载「怎么导」的导演知识（景别/运镜/转场/节奏/构图/动画原则），五个阶段规格只注入指针+核心规范；镜头语言用约定写法落位（`@shot:` 景别落画面列——`check_script.py` 的 `--check-motion` 只读动效列 `cells[3]`，零 parser 改动）；机械门族（词表门/eye-trace/read-time lint）作为后续 RSI roadmap 显式存证于本文，「先有数据再有门」。协议：I-048（[台账](../.agents/issue.md)）。
 
 ## 一、问题：夹缝层的系统性缺失
 
-双 Explore 实证（2026-10-07）：`景别`/`运镜`/`anticipation`/`staging`/`eye-trace`/`转场语义`/`视觉节奏曲线` 在 references/scripts/tests/SKILL **全仓零命中**。既有视觉质量资产是「实战事故驱动的补丁式积累」（四定式 RSI-032、Visual Hook RSI-039、Morph Continuity、MODELING-PLAYBOOK）——每条有实证锚点但无理论坐标系组织，未知失败形态（节奏均质化、焦点漂移、眼动跳切、镜头无动机）无判据可依。
+双 Explore 实证（2026-10-07）：`景别`/`运镜`/`anticipation`/`staging`/`eye-trace`/`转场语义`/`视觉节奏曲线` 在 references/scripts/tests/SKILL **全仓零命中**。既有视觉质量资产是「实战事故驱动的补丁式积累」（四定式 I-032、Visual Hook I-039、Morph Continuity、MODELING-PLAYBOOK）——每条有实证锚点但无理论坐标系组织，未知失败形态（节奏均质化、焦点漂移、眼动跳切、镜头无动机）无判据可依。
 
 **夹缝定位**：08 运动层（frozen）管「怎么动」的机制正确；MODELING-PLAYBOOK 管「画什么」的策略经验；[03:99-107](../../references/03-narration.md) 已有**声音表演导演学**（故事弧分块+情绪起伏曲线+表演标点）——「怎么导」（镜头语言层）恰是两者都不管的夹缝，且视觉侧没有声音侧导演学的对应物。
 
@@ -24,7 +24,7 @@
 | 动画原则 | DUR 六档/easing 四条/spring 三档（token 已备） | AAS、Suppression、Eye-Trace 判据 |
 | 数据本体红线 | 3D「弹簧过冲要钳行程」实践 | 泛化为 2D 全域红线 |
 
-**回拉层级澄清（RSI-060 补）**：§4.1 回看密度规则的回拉目标定为「能同时看清当前焦点及其
+**回拉层级澄清（I-060 补）**：§4.1 回看密度规则的回拉目标定为「能同时看清当前焦点及其
 直接上下文的最近一级全景（层级结构即父层）」，仅幕首或换层（§1.3 语义断裂）回到全片根
 全景——依据是信息检索 mantra 的「overview 先行、zoom and filter 按需下钻」[10] 与
 semantic zoom 文献的多层抽象按需切换 [11]（全图常驻反而是噪声）。
@@ -51,8 +51,8 @@ semantic zoom 文献的多层抽象按需切换 [11]（全图常驻反而是噪�
 
 | 方案 | 取舍 | 决策 |
 |---|---|---|
-| 单 RSI-048（知识+约定+目检，零机器门） | 最小干预；首集实践产出校准数据 | **采纳** |
-| 三期 RSI-048/049/050（契约→知识→门） | 执法强但公式常数未经本仓校准（eye-trace 九宫格/read-time 公式误报风险中级）；ISSUE-167/188 前车之鉴（假 WARN 毁信噪比） | 降级为 roadmap |
+| 单 I-048（知识+约定+目检，零机器门） | 最小干预；首集实践产出校准数据 | **采纳** |
+| 三期 I-048/049/050（契约→知识→门） | 执法强但公式常数未经本仓校准（eye-trace 九宫格/read-time 公式误报风险中级）；ISSUE-167/188 前车之鉴（假 WARN 毁信噪比） | 降级为 roadmap |
 
 ## 四、数据契约 roadmap（后续 RSI 的显式设计——本期不实施）
 

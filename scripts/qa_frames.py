@@ -29,7 +29,7 @@ A/B 对拍（有帧时 advisory；零匹配帧硬失败，供重制/重构回归
     字幕缺失       字幕带内无任何像素达文字亮度 → WARN（单句字幕渲染失败）
     纯底色段       画面内容区（顶部安全带 y<56 之下、字幕带之上）无内容像素持续
                    ≥ qa.max_dark_sec 秒（默认 8s，toml 可覆写；末幕豁免防片尾渐黑）
-                   → FAIL——跨帧时序判据（RSI-020）：场景组件整段渲染为空（仅字幕
+                   → FAIL——跨帧时序判据（I-020）：场景组件整段渲染为空（仅字幕
                    无画面）时帧均值被字幕带抬高、相邻帧字幕不同指纹也不同，帧内
                    判据全数放行；须句中点采样形态（--beat-heads 头帧落在淡入瞬态，不查）
 
@@ -96,7 +96,7 @@ def length_fn_for(lang: str):
 
 
 #: --stills-plan 未显式给 --chars-per-sec 时按语言取注册表起步值（语言相关
-#: 常数住在 langs.LangSpec.stills_rate，消费者内联属 RSI-004 明令禁止的形态）。
+#: 常数住在 langs.LangSpec.stills_rate，消费者内联属 I-004 明令禁止的形态）。
 _DEF_CHARS_PER_SEC = {lang: spec.stills_rate for lang, spec in langs.LANGS.items()}
 
 
@@ -495,7 +495,7 @@ INTRUSION_MIN_W_PX = 24
 CONTRAST_MIN = 4.5
 #: A/B 对拍的逐像素刚可辨差异（just-noticeable diff 的经验值）
 DIFF_JND = 12
-#: 纯底色段判据（RSI-020）的几何：画面内容区 = 顶部安全带（y<56，章节条零碰撞
+#: 纯底色段判据（I-020）的几何：画面内容区 = 顶部安全带（y<56，章节条零碰撞
 #: 带，几何 SSOT 见 ChapterProgress.tsx 注释）之下、字幕安全带（底部 160px）之上
 #: ——场景内容按设计契约全部落在这条带内，空段判定只看它。
 CONTENT_TOP_PX = 56
@@ -613,7 +613,7 @@ def check_frames(
     timeline: dict[str, tuple[float, float]] | None = None,
     max_dark_sec: float | None = None,
 ) -> None:
-    """逐帧体检（黑帧/侵入/字幕/冻帧）+ 纯底色段跨帧时序门（RSI-020）。
+    """逐帧体检（黑帧/侵入/字幕/冻帧）+ 纯底色段跨帧时序门（I-020）。
 
     `timeline`（{句id: (startSec, spanSec)}，qa_frames.resolve_timeline() 的产物）给到时
     才启用纯底色段判定——须句中点采样形态；--beat-heads 的头帧名不在时间轴里，
@@ -698,7 +698,7 @@ def _check_blank_runs(
     max_dark_sec: float | None,
     msgs: list[str],
 ) -> None:
-    """纯底色段门（RSI-020）：内容区无内容的采样帧连成段，持续 ≥ 阈值 → FAIL。
+    """纯底色段门（I-020）：内容区无内容的采样帧连成段，持续 ≥ 阈值 → FAIL。
 
     单帧判据对「整段仅字幕无画面」失明（帧均值被字幕带抬高、相邻帧字幕文本不同
     指纹也不同），必须跨帧看时长。run 不跨幕（幕间 SceneFade 淡出尾会让两侧帧

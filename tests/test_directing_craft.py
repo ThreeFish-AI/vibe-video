@@ -1,4 +1,4 @@
-"""导演手艺知识库的文档级锚定执法（RSI-048）。
+"""导演手艺知识库的文档级锚定执法（I-048）。
 
 执法五类纪律（同 test_voice_tiers 的跨文档行锚先例——防规格漂移的最低成本形态）：
   1. 存在性与预算：DIRECTING-CRAFT.md 存在、带目录、行数 ≤500（知识库自身防 context rot）；
@@ -9,10 +9,10 @@
   4. 免费护栏钉：@shot 在动效列得「不在词表」WARN 是预期行为（在 test_check_script）；
   5. 路由可达：SKILL.md 按需加载表含 DIRECTING-CRAFT 行（②⑥⑧⑨ 设计时读）。
 
-RSI-060 追加：§4.1 回看密度规则的回拉层级澄清锚（「最近一级全景」——依据与 IEEE
+I-060 追加：§4.1 回看密度规则的回拉层级澄清锚（「最近一级全景」——依据与 IEEE
 引用住 docs/research/directing-craft.md；研究文档侧暂无内容门，链接门仅保文件可达）。
 
-RSI-069 追加：§七反模式表节标题计数与表行数的机器一致性门（A-29/A-30 落地时
+I-069 追加：§七反模式表节标题计数与表行数的机器一致性门（A-29/A-30 落地时
 计数漂移靠评审人眼抓漏，本门使漂移即测试失败）。
 """
 
@@ -33,7 +33,7 @@ SHOT_TIERS = ("ECU", "CU", "MS", "WS", "EWS")
 def test_doc_exists_with_toc_and_budget():
     """DIRECTING-CRAFT.md 存在、带目录行、行数 ≤500。"""
     assert CRAFT.exists(), (
-        "references/DIRECTING-CRAFT.md 不存在（RSI-048 知识 SSOT 缺失）"
+        "references/DIRECTING-CRAFT.md 不存在（I-048 知识 SSOT 缺失）"
     )
     text = read_ref("DIRECTING-CRAFT.md")
     assert "**目录**" in text, "DIRECTING-CRAFT 缺目录行（按节查阅的导航面）"
@@ -54,7 +54,7 @@ def test_stage_specs_inject_pointer_and_core_rule():
     }
     for name, (needle, pointer) in checks.items():
         text = read_ref(name)
-        assert needle in text, f"{name} 缺「{needle}」（RSI-048 核心规范注入）"
+        assert needle in text, f"{name} 缺「{needle}」（I-048 核心规范注入）"
         if pointer:
             assert "](./DIRECTING-CRAFT.md)" in text, (
                 f"{name} 缺 DIRECTING-CRAFT 可跳转链接（AGENTS.md 死文本禁令；"
@@ -90,7 +90,7 @@ def test_prose_refinement_freeze_list_covers_shot_tag():
 
 
 def test_pullback_level_clause():
-    """RSI-060：§4.1 回看密度规则须带回拉层级——「最近一级全景」（父层），
+    """I-060：§4.1 回看密度规则须带回拉层级——「最近一级全景」（父层），
     仅幕首/换层回根全景；不澄清则回拉档位无判据（回全图=噪声，回同层=迷航）。"""
     text = read_ref("DIRECTING-CRAFT.md")
     assert "最近一级全景" in text, (
@@ -103,12 +103,12 @@ def test_skill_md_load_on_demand_row():
     """SKILL.md 按需加载表含 DIRECTING-CRAFT 行（②⑥⑧⑨ 设计时读）。"""
     text = read_skill_md()
     assert "[DIRECTING-CRAFT.md](references/DIRECTING-CRAFT.md)" in text, (
-        "SKILL.md 按需加载表缺 DIRECTING-CRAFT 行——Agent 无发现通道，知识库成孤岛（RSI-048）"
+        "SKILL.md 按需加载表缺 DIRECTING-CRAFT 行——Agent 无发现通道，知识库成孤岛（I-048）"
     )
 
 
 def test_section_count_matches_table():
-    """RSI-069：§七标题的条目计数须与表内反模式行数一致（计数漂移即红）。
+    """I-069：§七标题的条目计数须与表内反模式行数一致（计数漂移即红）。
 
     A-29/A-30 落地时节标题仍写「28 条」未随表行数同步，靠评审人眼抓漏——
     计数与表行是手工维护的两份事实，本门从文本两侧各自解析后断言相等；
@@ -130,5 +130,5 @@ def test_section_count_matches_table():
     )
     assert declared == len(rows), (
         f"§七标题计数「{declared} 条」≠ 表内反模式行数 {len(rows)}"
-        "——条目增删后须同步节标题计数（RSI-069 机器执法门）"
+        "——条目增删后须同步节标题计数（I-069 机器执法门）"
     )

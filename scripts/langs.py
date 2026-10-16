@@ -5,7 +5,7 @@
 
 此前全链路是「单语言单槽位」：narration.json / audio/{id}.mp3 / captions.srt /
 final.mp4 各只有一个路径，语言相关常数（tts lang 码、edge 音色、长度单位）散落
-在各消费者里硬编码。双语化把语言建模为与阶段序列正交的独立维度，分三层（RSI-004）：
+在各消费者里硬编码。双语化把语言建模为与阶段序列正交的独立维度，分三层（I-004）：
 
   机制（本模块）  语言注册表 + 路径派生规则 + 长度单位——纯函数、零 IO
   策略（config）  pipeline.toml 的 narration.langs / [narration.en] / [tts.en]
@@ -52,7 +52,7 @@ class LangSpec(NamedTuple):
     #: 未合成句的外推语速起步值（单位随 unit：zh 字/秒为首集实测 300 字/分；
     #: en 词/秒 2.5 仅量级参考，首集英文长跑实测后校准）。消费者：qa_frames
     #: --stills-plan 未显式给 --chars-per-sec 时取此缺省（语言相关常数内联在
-    #: 消费者属 RSI-004 后续防范明令禁止的形态）。
+    #: 消费者属 I-004 后续防范明令禁止的形态）。
     stills_rate: float
 
 

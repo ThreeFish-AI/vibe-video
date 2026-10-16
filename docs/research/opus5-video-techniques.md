@@ -1,6 +1,6 @@
 # Opus 5.5 视频生态五仓评估：学习/借鉴/引入存证
 
-> **结论先行**：微信文章《用 Claude Opus 5.5 做视频堪称一绝》[1] 提及的五个开源仓全部核实存在并已钉版取证。**架构层面零引入必要**——文章主推的「单 HTML/Canvas + 截帧 + FFmpeg」临时路线在本仓已有 Remotion 确定性流水线面前全面处于劣势（[HyperFrames 否决同款论据](./dependency-policy-and-asset-tools.md)：第二渲染面）。**概念层借鉴分两轮落位**：首轮存证后经用户复核校正归引——[DIRECTING-CRAFT](../../references/DIRECTING-CRAFT.md) 反模式表的既有准入是「业界已验证原理」（RSI-048 先例：Murch/Disney/Mayer 来源），不适用建模手册的成片锚点伪锚禁令，故业界原理级**四项落规格**（反模式表 A-29 metronome 等长镜头 / A-30 硬交换冒充承接、08 帧驱动条款 CSS transition/animation 禁令、08 Motion Blur 启用时机——180° 快门法则）；cue 路线为**存证另列**：opuscar 的 CC0 音源 + 程序化配乐/事件驱动音效是 02「留空轨」cue 系统后续 RSI 的技术路线参照（§五，三轮补证 Austerlitz「画面推导音效 + 空间音频属性」并入）。**待信号七项**住 §四，核心两项：carry score 元素级连续性 oracle（QA 语义盲区的自动化候选——实现路径未验证、误报面未知，09 判据上架纪律硬约束）与风格库 11 节骨架（零消费者，首例风格化需求时按 §2.2 形态起库）。事实快照均为 2026-10-13 钉版口径（三路并行子代理只读取证，raw @ 钉版 sha，未 clone、未执行外部代码）。协议：RSI-068（[台账](../.agents/issue.md)）。
+> **结论先行**：微信文章《用 Claude Opus 5.5 做视频堪称一绝》[1] 提及的五个开源仓全部核实存在并已钉版取证。**架构层面零引入必要**——文章主推的「单 HTML/Canvas + 截帧 + FFmpeg」临时路线在本仓已有 Remotion 确定性流水线面前全面处于劣势（[HyperFrames 否决同款论据](./dependency-policy-and-asset-tools.md)：第二渲染面）。**概念层借鉴分两轮落位**：首轮存证后经用户复核校正归引——[DIRECTING-CRAFT](../../references/DIRECTING-CRAFT.md) 反模式表的既有准入是「业界已验证原理」（I-048 先例：Murch/Disney/Mayer 来源），不适用建模手册的成片锚点伪锚禁令，故业界原理级**四项落规格**（反模式表 A-29 metronome 等长镜头 / A-30 硬交换冒充承接、08 帧驱动条款 CSS transition/animation 禁令、08 Motion Blur 启用时机——180° 快门法则）；cue 路线为**存证另列**：opuscar 的 CC0 音源 + 程序化配乐/事件驱动音效是 02「留空轨」cue 系统后续 RSI 的技术路线参照（§五，三轮补证 Austerlitz「画面推导音效 + 空间音频属性」并入）。**待信号七项**住 §四，核心两项：carry score 元素级连续性 oracle（QA 语义盲区的自动化候选——实现路径未验证、误报面未知，09 判据上架纪律硬约束）与风格库 11 节骨架（零消费者，首例风格化需求时按 §2.2 形态起库）。事实快照均为 2026-10-13 钉版口径（三路并行子代理只读取证，raw @ 钉版 sha，未 clone、未执行外部代码）。协议：I-068（[台账](../.agents/issue.md)）。
 
 ## 一、事实快照（五仓钉版 + Austerlitz 案例补证，2026-10-13）
 
@@ -63,15 +63,15 @@ XML 分段范式（`inputs/direction/structure/build/gotchas/start`）[9] 与本
 | 2 | 新增风格库（STYLE-PLAYBOOK 类，11 节骨架） | **否决（本期）**：零消费者零成片锚点，违「先有数据再有门」（不变量 8，ISSUE-167/188 先例）；骨架形态存证待信号，首个真实风格化需求出现时按 §2.2 骨架起库 |
 | 3 | qa_frames 加 carry score 类判据 | **否决（本期）**：实现路径未验证（Remotion 元素清单暴露方式）、误报面未知，违 09 判据上架纪律；登记待信号，首集出现「转场 vs 位移」人工误判时立项 |
 | 4 | 08 回填「禁 CSS transition/animation」 | **采纳（二轮落地）**：规格条款非机器门，不违不变量 8；一行堵 Studio 生成物与外部代码携带路径（08 帧驱动条款） |
-| 5 | DIRECTING-CRAFT 反模式表加条目（等长镜头/硬交换/镜头抖动/背景噪声） | **部分采纳（二轮落地）**：A-29 metronome、A-30 硬交换落表——DIRECTING-CRAFT 准入是业界已验证原理（RSI-048 先例），伪锚禁令只约束建模手册；镜头抖动/背景噪声证据单薄维持待信号 |
+| 5 | DIRECTING-CRAFT 反模式表加条目（等长镜头/硬交换/镜头抖动/背景噪声） | **部分采纳（二轮落地）**：A-29 metronome、A-30 硬交换落表——DIRECTING-CRAFT 准入是业界已验证原理（I-048 先例），伪锚禁令只约束建模手册；镜头抖动/背景噪声证据单薄维持待信号 |
 | 6 | cue 系统 RSI 吸收 CC0 音源 + 程序化合成 + 事件驱动音效路线 | **存证采纳**（路线图输入，非本期实现，见 §五） |
 | 7 | 本评估落研究文档 + ledger 登记 + 索引 | **采纳**（即本 PR 全部改动面） |
 
 ## 四、采纳 / 不采纳 / 待信号清单
 
-**采纳（已落地）**：研究文档存证（本文）+ RSI-068 ledger 登记 + [knowledge-map](../.agents/knowledge-map.md) 索引 + CHANGELOG；二轮规格落地四项——[DIRECTING-CRAFT](../../references/DIRECTING-CRAFT.md) 反模式表 A-29/A-30、[08](../../references/08-remotion-implementation.md) 帧驱动条款 CSS 禁令、08 Motion Blur 启用时机；三轮补证 Austerlitz 画面推导音效入 §五（存证）。**零 vendor、零依赖。**
+**采纳（已落地）**：研究文档存证（本文）+ I-068 ledger 登记 + [knowledge-map](../.agents/knowledge-map.md) 索引 + CHANGELOG；二轮规格落地四项——[DIRECTING-CRAFT](../../references/DIRECTING-CRAFT.md) 反模式表 A-29/A-30、[08](../../references/08-remotion-implementation.md) 帧驱动条款 CSS 禁令、08 Motion Blur 启用时机；三轮补证 Austerlitz 画面推导音效入 §五（存证）。**零 vendor、零依赖。**
 
-**待信号（登记后按触发条件立项；候选条目正文不入规格/手册——2026-10-15 [RSI-070 修订](../../RSI.md)后跟踪一律住 ledger 暂缓跟踪表（RSI-068 项已全量迁入 RSI-071 W5–W12），Skill 工程文件不铺指针，本清单仅存证触发条件与落位候选）**：
+**待信号（登记后按触发条件立项；候选条目正文不入规格/手册——2026-10-15 [I-070 修订](../../RSI.md)后跟踪一律住 ledger 暂缓跟踪表（I-068 项已全量迁入 I-071 W5–W12），Skill 工程文件不铺指针，本清单仅存证触发条件与落位候选）**：
 
 | 概念 | 触发条件 | 落位候选 |
 |---|---|---|
@@ -87,7 +87,7 @@ XML 分段范式（`inputs/direction/structure/build/gotchas/start`）[9] 与本
 
 ## 五、cue 系统路线图输入（02 留白的技术参照存证）
 
-02 阶段明确「BGM 留空轨」边界（[02-planning.md](../../references/02-planning.md)），DIRECTING-CRAFT 原则表曾注明「cue 系统属后续 RSI」（2026-10-15 RSI-070 修订后撤出规格，跟踪住 ledger RSI-071 暂缓跟踪表 W9）。本次取证给出该后续 RSI 的**已验证技术路线**（opuscar [6] + onetake [3] + Austerlitz [11] 三源实证）：
+02 阶段明确「BGM 留空轨」边界（[02-planning.md](../../references/02-planning.md)），DIRECTING-CRAFT 原则表曾注明「cue 系统属后续 RSI」（2026-10-15 I-070 修订后撤出规格，跟踪住 ledger I-071 暂缓跟踪表 W9）。本次取证给出该后续 RSI 的**已验证技术路线**（opuscar [6] + onetake [3] + Austerlitz [11] 三源实证）：
 
 - **音源**：CC0/免费采样库（VSCO 2 CE、VCSL、FreePats、Karoryfer、Salamander）——零许可风险；
 - **合成**：Karplus–Strong 物理建模拨弦 + numpy 波形合成（chip tune/drone）+ 程序化音效（click/whoosh/thump）——确定性可复现，与本仓帧驱动哲学同构；

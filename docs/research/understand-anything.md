@@ -1,6 +1,6 @@
 # Understand-Anything 工程能力融入 vibe-video：评估存证与方案比选
 
-> **结论先行**：Understand-Anything（UA，MIT，钉版 `000fbf3`）的工程能力**可以融入，但只以薄形态**——真正的增量不是搬它的代码或 dashboard，而是补两处与工具无关的规格缺口：其一，① B 型纯代码仓库信源缺「结构骨架与素材映射」节（② 色彩契约/分幕、⑥ Map-First 全景/走查链因此没有结构原料）；其二，② 分幕表缺「前置概念」列（幕级「先释后用」无法审计，RSI-015 jev 集实证）。UA 本身只作**按集 opt-in 的骨架起草器与读码导航**，其 LLM 字段永远只是线索：不进证据、不进口播、不作 ④ 锚点、不上屏。不 vendor 任何代码、不加依赖、不开新阶段、不加证据等级。落位：[01「六、结构骨架与素材映射」](../../references/01-source-extraction.md)（含 UA opt-in 子节）、[02 分幕表前置概念列](../../references/02-planning.md)；协议：RSI-060（[台账](../.agents/issue.md)）。事实快照均为 2026-10-12 口径（两轮 Workflow 调研 15 子代理 + 3 份对抗核验，**本文全部采用核验修正后的结论**）。
+> **结论先行**：Understand-Anything（UA，MIT，钉版 `000fbf3`）的工程能力**可以融入，但只以薄形态**——真正的增量不是搬它的代码或 dashboard，而是补两处与工具无关的规格缺口：其一，① B 型纯代码仓库信源缺「结构骨架与素材映射」节（② 色彩契约/分幕、⑥ Map-First 全景/走查链因此没有结构原料）；其二，② 分幕表缺「前置概念」列（幕级「先释后用」无法审计，I-015 jev 集实证）。UA 本身只作**按集 opt-in 的骨架起草器与读码导航**，其 LLM 字段永远只是线索：不进证据、不进口播、不作 ④ 锚点、不上屏。不 vendor 任何代码、不加依赖、不开新阶段、不加证据等级。落位：[01「六、结构骨架与素材映射」](../../references/01-source-extraction.md)（含 UA opt-in 子节）、[02 分幕表前置概念列](../../references/02-planning.md)；协议：I-060（[台账](../.agents/issue.md)）。事实快照均为 2026-10-12 口径（两轮 Workflow 调研 15 子代理 + 3 份对抗核验，**本文全部采用核验修正后的结论**）。
 
 ## 一、事实快照（UA @ `000fbf3`，2026-10-12）
 
@@ -54,12 +54,12 @@ UA 的净增量**只对大型纯代码仓**（100–300 文件量级）有意义
 | 2 | vendor 仅 core 抽取（TS） | **否决**：同一构建链问题；graphology/tree-sitter 依赖树未审计 |
 | 3 | Python 重写 tree-sitter 抽取（本期写适配器脚本） | **否决（本期）**：零消费者；schema 在漂移、lineRange/gitCommitHash 是 LLM 转录值，现在写只能是猜测型解析器——降 D1（§七），首集靠 01 人工纪律 |
 | 4 | 新增「⓪ 知识图谱」阶段（改 stages.toml） | **否决**：给低频需求设常驻流程面；「先有数据再有门」（ISSUE-167/188 假 WARN 先例；RSI 不变量 8） |
-| 5 | source_ledger 加 kind=kg/ua | **否决**：RSI-030 已否决给本地冻结件强挂 kind——fetch/verify 是「活信源重抓比对」语义，冻结产物强挂 kind 制造语义漂移、违背最小干预（[12] 方案比选①原文）；配套论据：三型分流表 {A,B,C} 加第四行破坏 test_source_types 执法。路径 a 恰无漂移——图谱经 raw URL @G 抓取、指纹漂移即 FAIL，正是 kind=repo 语义 |
+| 5 | source_ledger 加 kind=kg/ua | **否决**：I-030 已否决给本地冻结件强挂 kind——fetch/verify 是「活信源重抓比对」语义，冻结产物强挂 kind 制造语义漂移、违背最小干预（[12] 方案比选①原文）；配套论据：三型分流表 {A,B,C} 加第四行破坏 test_source_types 执法。路径 a 恰无漂移——图谱经 raw URL @G 抓取、指纹漂移即 FAIL，正是 kind=repo 语义 |
 | 6 | 图谱 JSON 冻进 research/ 作结构事实源 | **否决**：research/ 是事实源区，放 LLM 派生物制造第二事实源错觉；图谱与中间件只落 `$P/.temp/`，source-notes 头部登记 sha256 与出处 |
 | 7 | dashboard 录制为 Map-First 底图 | **否决**：01 图片纪律；无深链/状态 API；fitView 按墙钟 500ms 对不上词窗；字号 10–11px；7 色板取模与系列色板冲突；LLM 推断上屏；形成第二渲染面（HyperFrames 否决同款论据） |
 | **8** | **按集 opt-in：UA 只作骨架起草器与读码导航（01 硬规则子节 + 本文存证）** | **采纳**：零代码/零依赖/零新门；两钉闸 + S0/S1/L 消费纪律把 LLM 字段钉死在「线索」位；骨架规格本身与工具无关（主体收益），UA 随时可撤 |
 
-**Chesterton's Fence**（为何动 01 B 型节而不动分流表/kind）：RSI-030 否决 kind 的理由是「fetch/verify 是活信源重抓比对语义，冻结本地文档强挂 kind 制造语义漂移，且违背最小干预」（方案比选①原文，[12]）；「文件名清单只在分流表一处枚举、下游一律泛引」是其后续防范②的防复制论据，本文同向遵守。故骨架是 source-notes.md **内的一节**（派生视图），不进分流表、不加 kind、不加证据等级——「派生视图，非证据」一句即消解了定级问题。text-to-cad 先例（[dependency-policy](./dependency-policy-and-asset-tools.md) §三）只有「按集 opt-in、不入模板」一半可平移——其 skills CLI 有 `-s` 单 skill 安装通道，UA 没有官方单 skill 通道，整插件安装会连带 hooks（每次 Bash 起 node），故 UA 连「可选工具附录」都不进，只落 01 子节 + 研究文档。HyperFrames 先例（同文 §二）的「第二渲染面」否决论据直接适用于 dashboard 录制案。
+**Chesterton's Fence**（为何动 01 B 型节而不动分流表/kind）：I-030 否决 kind 的理由是「fetch/verify 是活信源重抓比对语义，冻结本地文档强挂 kind 制造语义漂移，且违背最小干预」（方案比选①原文，[12]）；「文件名清单只在分流表一处枚举、下游一律泛引」是其后续防范②的防复制论据，本文同向遵守。故骨架是 source-notes.md **内的一节**（派生视图），不进分流表、不加 kind、不加证据等级——「派生视图，非证据」一句即消解了定级问题。text-to-cad 先例（[dependency-policy](./dependency-policy-and-asset-tools.md) §三）只有「按集 opt-in、不入模板」一半可平移——其 skills CLI 有 `-s` 单 skill 安装通道，UA 没有官方单 skill 通道，整插件安装会连带 hooks（每次 Bash 起 node），故 UA 连「可选工具附录」都不进，只落 01 子节 + 研究文档。HyperFrames 先例（同文 §二）的「第二渲染面」否决论据直接适用于 dashboard 录制案。
 
 ## 五、概念移植采纳 / 不采纳清单
 
@@ -95,11 +95,11 @@ UA 的净增量**只对大型纯代码仓**（100–300 文件量级）有意义
 
 **再评估触发器**（满足其一）：release 标签追平插件版本；出现官方单 skill 或无 hooks 安装通道；出现非交互模式；用户本人触发试点（在 100–300 文件仓实测 token、耗时、骨架节点命中率与非交互可行性）。
 
-**延后 roadmap 一览**：D1 适配器脚本（触发：≥2 集走 UA 路径且登记过手工转录出错，或首集抽样 ≥10 锚点发现转抄错误 ≥1；前置：重拍事实快照）· D2 `--prereq-order` WARN 门（触发：≥2 集填列 + ④ 检出幕级先用后讲 ≥1；前置：planning 机读解析契约 + 名称对齐契约 + 探针零误报）· D3 骨架→Mermaid→archify 全景图（RSI-038 关闭 + ≥2 集手写骨架图）· D4 DIRECTING-CRAFT 结构类条款批（≥2 集 ⑨ note 回拉/焦点/毛团缺陷合计 ≥2）· D5 建模手册条目（候选区显式信号，即 §六）· D6 SKILL.md 相邻技能行（UA 路径 ≥2 集使用；等量压缩 + evals 对拍 + 同名遮蔽先处理）· D7 系列级骨架（同仓 ≥2 集，source-map 侧登记一次）· D8 再评估/试点（上文触发器）· D9 首集复盘（上文撤销节）· D10 02 结构类单机制幕缺省叙事顺序（≥2 集 ④/⑨ 出现叙事顺序类 note）· D11 08 theme 契约补分组色登记（⑨ note 报告并列分组不可辨且位置/线型/编号手段用尽）。
+**延后 roadmap 一览**：D1 适配器脚本（触发：≥2 集走 UA 路径且登记过手工转录出错，或首集抽样 ≥10 锚点发现转抄错误 ≥1；前置：重拍事实快照）· D2 `--prereq-order` WARN 门（触发：≥2 集填列 + ④ 检出幕级先用后讲 ≥1；前置：planning 机读解析契约 + 名称对齐契约 + 探针零误报）· D3 骨架→Mermaid→archify 全景图（I-038 关闭 + ≥2 集手写骨架图）· D4 DIRECTING-CRAFT 结构类条款批（≥2 集 ⑨ note 回拉/焦点/毛团缺陷合计 ≥2）· D5 建模手册条目（候选区显式信号，即 §六）· D6 SKILL.md 相邻技能行（UA 路径 ≥2 集使用；等量压缩 + evals 对拍 + 同名遮蔽先处理）· D7 系列级骨架（同仓 ≥2 集，source-map 侧登记一次）· D8 再评估/试点（上文触发器）· D9 首集复盘（上文撤销节）· D10 02 结构类单机制幕缺省叙事顺序（≥2 集 ④/⑨ 出现叙事顺序类 note）· D11 08 theme 契约补分组色登记（⑨ note 报告并列分组不可辨且位置/线型/编号手段用尽）。
 
 **D1 适配备忘（5 条，已核验）**：① 读原始 JSON——core validateGraph 会剥 recoveredFromImportMap 与 kind；② 前缀别名归一（`func:`/`function:`、`step:`）；③ 钉版两钉闸（图谱自述 gitCommitHash 对本集 pin + 图谱条目自身 pin，H≠pin 或缺失即不用）；④ lineRange 与全量 gitCommitHash 按 S1 处理、用前复核（S0/L 按 §二）；⑤ 纯 stdlib 只读、只写 `$P/.temp/`、失败指路式（点名 skip 而非静默）。
 
-**另立 RSI 候选**（不入本 PR，按统一协议 §3 记入项目侧 backlog，不随仓库分发）：source_ledger verify 区分抓取失败（unknown）与确证漂移（FAIL，现把抓取失败也计入 FAIL——fail-closed 不变，仅诊断性拆分）；改稿影响清单 rework_impact（可与 RSI-052 合并）；⑤ 冻结事实丢失报告；信源漂移反查；html_dir 口径不一致（与 RSI-038 一并评估）；check_playbook 伪锚校验；RSI 门禁方法论三条（登记到统一仓 ThreeFish-AI/rsi，不进本仓 ledger）。
+**另立 RSI 候选**（不入本 PR，按统一协议 §3 记入项目侧 backlog，不随仓库分发）：source_ledger verify 区分抓取失败（unknown）与确证漂移（FAIL，现把抓取失败也计入 FAIL——fail-closed 不变，仅诊断性拆分）；改稿影响清单 rework_impact（可与 I-052 合并）；⑤ 冻结事实丢失报告；信源漂移反查；html_dir 口径不一致（与 I-038 一并评估）；check_playbook 伪锚校验；RSI 门禁方法论三条（登记到统一仓 ThreeFish-AI/rsi，不进本仓 ledger）。
 
 ## 八、已知局限
 
@@ -129,7 +129,7 @@ UA 的净增量**只对大型纯代码仓**（100–300 文件量级）有意义
 
 [11] elkjs contributors, "elkjs," npm registry（0.9.3 = EPL-2.0 单许可；「EPL-2.0 OR GPL-3.0-or-later」双许可自 0.12.0 起）. [Online]. Available: https://www.npmjs.com/package/elkjs/v/0.9.3
 
-[12] ThreeFish-AI, "RSI-030 / RSI-032 / RSI-048 台账," vibe-video docs/.agents/issue.md（C 型分流、四定式、导演手艺——本文比选的仓内先例）. [Online]. Available: https://github.com/ThreeFish-AI/vibe-video/blob/main/docs/.agents/issue.md
+[12] ThreeFish-AI, "I-030 / I-032 / I-048 台账," vibe-video docs/.agents/issue.md（C 型分流、四定式、导演手艺——本文比选的仓内先例）. [Online]. Available: https://github.com/ThreeFish-AI/vibe-video/blob/main/docs/.agents/issue.md
 
 [13] Egonex-AI, "understand-anything-plugin/skills/understand/SKILL.md," Understand-Anything @ 000fbf3（worktree 重定向与 `UNDERSTAND_NO_WORKTREE_REDIRECT=1` 的确定性脚本行为）. [Online]. Available: https://github.com/Egonex-AI/Understand-Anything/blob/000fbf3f36b5e534a0a8d3461cf24f5dc9ae43fe/understand-anything-plugin/skills/understand/SKILL.md
 

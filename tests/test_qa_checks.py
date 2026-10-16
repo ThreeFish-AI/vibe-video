@@ -38,7 +38,7 @@ def make_png(path: Path, mode: str, scale: float = 1.0) -> None:
             h - round(158 * scale) : h - round(136 * scale),
             round(60 * scale) : round(220 * scale),
         ] = 210
-    elif mode == "content":  # 正常帧：字幕 + 内容区中部一块亮矩形（RSI-020 用）
+    elif mode == "content":  # 正常帧：字幕 + 内容区中部一块亮矩形（I-020 用）
         arr[
             h - round(80 * scale) : h - round(20 * scale),
             (w - round(600 * scale)) // 2 : (w + round(600 * scale)) // 2,
@@ -197,7 +197,7 @@ def test_beat_heads_explicit_zero_fails_at_argparse_gate(monkeypatch, capsys):
 
 def test_fade_exempt_last_requires_final_sentence_window():
     """渐黑豁免按帧位判定：check_frames 只豁免列表末位，自定义请求不覆盖片尾时
-    末位是普通边界帧，按位次豁免会把真实黑帧吞成绿色体检（RSI-041 评审加固）。"""
+    末位是普通边界帧，按位次豁免会把真实黑帧吞成绿色体检（I-041 评审加固）。"""
     tl = {"p0-01": (0.0, 1.0), "p1-01": (5.0, 1.0)}
     early = [("p0-02-t6-after", 1.2)]
     assert not qa_frames._fade_exempt_last(True, early, tl, 30, 0.0)
@@ -399,11 +399,11 @@ def test_qa_modes_fail_when_selection_is_empty(project, monkeypatch, mode):
     assert exc.value.code != 0
 
 
-# ── 纯底色段（RSI-020）：跨帧时序判据 ────────────────────────────────────
+# ── 纯底色段（I-020）：跨帧时序判据 ────────────────────────────────────
 
 
 def test_blank_scene_run_fails(tmp_path):
-    """RSI-020 回归：整幕仅字幕无画面（内容区无内容像素）持续 ≥ 阈值 → FAIL。
+    """I-020 回归：整幕仅字幕无画面（内容区无内容像素）持续 ≥ 阈值 → FAIL。
 
     上游形态（五集系列 ep4）：场景分片代理在文件头声称另一半场由另一文件承担
     而该文件不存在，52.8s/55.5s 两段纯黑+字幕——帧均值被字幕带抬高（黑帧门放行）、
@@ -487,7 +487,7 @@ def test_blank_run_does_not_join_across_scenes(tmp_path):
 def test_check_rejects_invalid_qa_config_loudly(
     project, monkeypatch, toml_body, must_mention
 ):
-    """带病 [qa] 拒跑（RSI-020 评审加固）：validate FAIL 不许被静默丢弃。
+    """带病 [qa] 拒跑（I-020 评审加固）：validate FAIL 不许被静默丢弃。
 
     修复前的两种病理形态：字符串值在阈值比较处 ``threshold <= 0`` 裸
     TypeError traceback；负值借「0=关闭」分支**无声关门假绿**（exit 0，上游

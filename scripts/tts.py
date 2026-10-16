@@ -20,7 +20,7 @@
   indextts：uv run --no-project --with mutagen $T/scripts/tts.py \
                 --project $P --engine indextts --final-voice --ref <参考样本.wav> \
                 [--style passionate] [--server http://127.0.0.1:8766] [--force]
-                （--final-voice＝本人显式要求的具名授权，RSI-040：缺此 flag 的实跑硬失败）
+                （--final-voice＝本人显式要求的具名授权，I-040：缺此 flag 的实跑硬失败）
   情感三来源（互斥）：--style/--emo-vector 向量注入 · --emo-ref <另一段录音> 语调迁移
                 （更自然）· --emo-text "轻快爽朗、自信阳光" 自然语言（需服务端 --use-qwen-emo）
   （工程内薄包装等价于在工程目录下运行 scripts/tts.py）
@@ -129,7 +129,7 @@ MANUAL = str(
 )  # skill 根 references/
 SPEC_07 = str(
     Path(__file__).resolve().parents[1] / "references" / "07-tts-voice.md"
-)  # 人为触发原则 SSOT（RSI-040）；与 MANUAL 同构派生，不 import 兄弟模块
+)  # 人为触发原则 SSOT（I-040）；与 MANUAL 同构派生，不 import 兄弟模块
 
 # --plan 排期估算用的实测常数（MPS fp32，长跑折算口径：含降频、机器争用与逐句开销）。
 # RTF_1BEAM 来自三集 596 句连续跑 8.5 小时 / 40.2 分钟纯语音；RTF_MULTIBEAM 由同句
@@ -293,7 +293,7 @@ def server_launch_hint(port: int = 8766) -> str:
 
     显式 flag 集对齐 VOICE-CLONING §2.3 权威命令（--indextts-version/--host 显式化，
     语义同服务端缺省）；可选的 --use-qwen-emo 以独立提示行呈现——tts_resume 的同名
-    透传参数映射此 flag（RSI-035）。提示行用 POSIX `:` no-op 前缀而非 `#` 注释：
+    透传参数映射此 flag（I-035）。提示行用 POSIX `:` no-op 前缀而非 `#` 注释：
     macOS 缺省 zsh 交互态 interactivecomments 关闭，`#` 会连注释文本一起进入
     服务 argv、被 argparse 拒收（服务起不来）——`: ` 前缀在 bash/zsh/sh 粘贴
     均为无害空命令。
@@ -331,7 +331,7 @@ def write_voice_marker(out_dir: Path, signature: str) -> None:
 def enforce_final_voice_gate(
     parser: argparse.ArgumentParser, args: argparse.Namespace
 ) -> None:
-    """人为触发原则主闸（RSI-040）：IndexTTS 声音克隆只在本人显式点名时启用。
+    """人为触发原则主闸（I-040）：IndexTTS 声音克隆只在本人显式点名时启用。
 
     --final-voice 是具名授权声明——每次非 --plan 的 indextts 实跑都必须在命令行
     在场（zh/en 每语言各算一次独立要求），缺席即拒。刻意先于工程文件读取调用
@@ -340,7 +340,7 @@ def enforce_final_voice_gate(
     证据只能来自命令行本身。--plan 是纯本地预演（不连服不合成），免闸；纯缓存
     命中的幂等重跑同样要 flag（防「缓存命中掩护下的签名外改写」灰区）。
     与 clone_only 族同用 parser.error；缺 flag 形态在 tts_resume 入口预检即拦，
-    不会进入冷重启循环（循环内自愈语义保持 RSI-022 原样）。
+    不会进入冷重启循环（循环内自愈语义保持 I-022 原样）。
     """
     if args.engine == "indextts" and not args.plan and not args.final_voice:
         parser.error(
@@ -1069,7 +1069,7 @@ async def main() -> None:
     idx.add_argument(
         "--final-voice",
         action="store_true",
-        help="[indextts] 终稿配音具名授权（RSI-040 人为触发原则）：本人显式要求本次用"
+        help="[indextts] 终稿配音具名授权（I-040 人为触发原则）：本人显式要求本次用"
         " Index TTS 才可带上——每次非 --plan 合成、zh/en 每语言各算一次独立要求；"
         "缺省 edge 草声，缺此 flag 的 indextts 实跑直接硬失败（见 references/07-tts-voice.md）。"
         "与 --allow-voice-switch 分工：本 flag＝使用授权（每次实跑都要）；"
@@ -1249,7 +1249,7 @@ async def main() -> None:
                 "--interval-silence": args.interval_silence is not None,
                 "--no-text-normalization": args.no_text_normalization,
                 "--seed": args.seed is not None,
-                # RSI-040：授权 flag 同属克隆专属——edge 下给了授权却没给 --engine，
+                # I-040：授权 flag 同属克隆专属——edge 下给了授权却没给 --engine，
                 # 照跑会把「本人要的终稿声音」静默降级成 edge 草声，且留下假授权痕迹。
                 "--final-voice": args.final_voice,
             }.items()
@@ -1278,7 +1278,7 @@ async def main() -> None:
                 file=sys.stderr,
             )
 
-    # ── 人为触发原则（RSI-040）：先于一切工程文件读取 ──────────────────
+    # ── 人为触发原则（I-040）：先于一切工程文件读取 ──────────────────
     # 缺 --final-voice 的 indextts 实跑在此硬失败（见上方函数 docstring）。
     enforce_final_voice_gate(parser, args)
 

@@ -6,7 +6,7 @@
 - 一致性：风格预设、口播文本预处理、HTTP 契约全部复用 tts.py（单一事实源），小样与
   成片走完全相同的合成路径，听感可直接外推。
 - 前置：参考音色样本（prepare_ref.py 产出）+ 已启动的 vibe-tts 服务（vibe_tts_server.py）。
-- 纪律（RSI-040 人为触发原则）：本脚本直调服务、不经 tts.py 主闸，但与全量合成同
+- 纪律（I-040 人为触发原则）：本脚本直调服务、不经 tts.py 主闸，但与全量合成同
   纪律——仅在用户已显式要求终声（IndexTTS）的上下文内使用，不得用于日常草声迭代。
 
 用法（任意目录执行，$T/$V 锚定见 references/PIPELINE.md）：
@@ -598,7 +598,7 @@ def main() -> None:
         chosen += f" --seed {sampling['seed']}"
     print(
         f"\n下一步 · 选定风格后全量合成一集（--final-voice＝本人显式点名的具名授权，"
-        f"RSI-040 人为触发；实跑缺它会被 tts.py 主闸硬拒）：\n"
+        f"I-040 人为触发；实跑缺它会被 tts.py 主闸硬拒）：\n"
         f"  cd $P && uv run --no-project --with mutagen scripts/tts.py \\\n"
         f"      --engine indextts --final-voice --ref {ref} {chosen}"
     )

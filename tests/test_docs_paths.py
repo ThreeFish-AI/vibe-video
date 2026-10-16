@@ -257,12 +257,12 @@ def test_machine_checks_pinned():
     )
 
 
-# ---- 用户可见文案 ↔ 工具面一致性（RSI-005 / RSI-006）----
+# ---- 用户可见文案 ↔ 工具面一致性（I-005 / I-006）----
 #
 # 门的报错指引与脚手架的「下一步」提示是用户照做的命令——它们与机制面漂移时，
 # 使用者先在错误路径上找工具。两类实测漂移：指引点名的脚本根本不存在
-# （RSI-006：scripts/archify_types.py），以及提示教人加一个会弄坏安装的参数
-# （RSI-005：--ignore-workspace，ISSUE-175 后已作废但 scaffold 结尾仍在打印）。
+# （I-006：scripts/archify_types.py），以及提示教人加一个会弄坏安装的参数
+# （I-005：--ignore-workspace，ISSUE-175 后已作废但 scaffold 结尾仍在打印）。
 
 SCRIPTS = skill_root() / "scripts"
 TEMPLATES = skill_root() / "assets"
@@ -280,7 +280,7 @@ _IGNORE_WS_NPMRC_RE = re.compile(r"^\s*ignore-workspace\s*=", re.M)
 
 #: Remotion 工具经 npx 调用（08 规格：一律 ./node_modules/.bin/ 直调，防 workspace 污染）。
 _NPX_TOOL_RE = re.compile(r"\bnpx\s+(?:tsc|remotion)\b")
-#: 已不存在的旧布局路径（RSI-009 起 pipeline/ 目录整体移除，任何指回都是死路径；
+#: 已不存在的旧布局路径（I-009 起 pipeline/ 目录整体移除，任何指回都是死路径；
 #: docs/quickstart 已迁 assets/）；前一字符不许是词字符或 -，但**不排除 /**
 #: （`$T/…` 命令与本仓 blob 外链都以 / 起头），只放过上游
 #: apps/negentropy-influence/pipeline/… 的历史外链。另拦省略 pipeline/ 前缀的
@@ -314,7 +314,7 @@ def user_facing_files() -> list[Path]:
 
 
 def test_script_references_resolve():
-    """文案里点名的 scripts/*.py 必须真实存在（RSI-006 幽灵脚本回归）。
+    """文案里点名的 scripts/*.py 必须真实存在（I-006 幽灵脚本回归）。
 
     分集侧薄包装（build_narration/tts/qa_frames）与 skill 同名，同样落在
     scripts/ 下，故判据统一为「该名在 skill 的 scripts 目录存在」。"""
@@ -336,7 +336,7 @@ _SPEC_REF_RE = re.compile(r"(?<![\w-])references/(\d\d-[a-z][a-z0-9-]*\.md)")
 
 
 def test_spec_references_resolve():
-    """文案里点名的 references/NN-*.md 必须真实存在（RSI-013）。
+    """文案里点名的 references/NN-*.md 必须真实存在（I-013）。
 
     插入 ⑤ 成文优化时 05–09 整段顺移为 06–10；旧文件名散落在 frozen 组件注释、
     模板与手册里，现有链接门只查 Markdown 相对链接、查不到注释与散文里的路径，
@@ -374,7 +374,7 @@ def test_spec_reference_detector_forms(line, hit):
 
 
 def test_no_instruction_to_add_ignore_workspace():
-    """用户可见文案不得教人加 `--ignore-workspace`（RSI-005）。
+    """用户可见文案不得教人加 `--ignore-workspace`（I-005）。
 
     分集 video/ 已入库 pnpm-workspace.yaml 自锚；pnpm ≥12 加该参数会把工程自身
     workspace 一并忽略 → ERR_PNPM_IGNORED_BUILDS。允许「勿加 / 不要加」式的
@@ -399,7 +399,7 @@ def current_docs_and_code() -> list[Path]:
     """现行文案面 = 用户照做面 + references/ 全部手册 + 根 README + 知识索引 + mermaid
     图源（首行 `%% source:` 指回文档章节）+ docs/research（设计依据文档，编号对齐后
     `skills/NN` 简写会被误读为同号新规格）。frozen 档不再豁免：2.0.0 起模板即唯一
-    事实源（RSI-009），陈旧注释一律清到现行路径。issue 台账与 CHANGELOG 是历史
+    事实源（I-009），陈旧注释一律清到现行路径。issue 台账与 CHANGELOG 是历史
     记录，不在面内。"""
     docs = skill_root() / "docs"
     files = {
@@ -414,7 +414,7 @@ def current_docs_and_code() -> list[Path]:
 
 
 def test_no_npx_for_remotion_tools():
-    """RSI-008：SKILL.md 快速通道曾教 `npx tsc --noEmit`，与 08 命令闭环矛盾。"""
+    """I-008：SKILL.md 快速通道曾教 `npx tsc --noEmit`，与 08 命令闭环矛盾。"""
     offenders = [
         f"{_rel(f)}:{no}"
         for f in current_docs_and_code()
@@ -448,12 +448,12 @@ def test_no_npx_for_remotion_tools():
 )
 def test_legacy_path_detector_forms(line, legacy):
     """检测器自检：`/` 起头的 `$T` 命令与本仓 blob 外链、省略 pipeline/ 前缀的
-    简写曾被漏检（RSI-008 复核；RSI-009 起 pipeline/ 整体入拦）。"""
+    简写曾被漏检（I-008 复核；I-009 起 pipeline/ 整体入拦）。"""
     assert bool(_LEGACY_PATH_RE.search(line)) is legacy
 
 
 def test_no_legacy_layout_paths():
-    """pipeline/ 布局已整体移除（RSI-009），现行文案不得再指向它（含简写）。"""
+    """pipeline/ 布局已整体移除（I-009），现行文案不得再指向它（含简写）。"""
     offenders = [
         f"{_rel(f)}:{no} → {m.group(0)}"
         for f in current_docs_and_code()
@@ -473,7 +473,7 @@ _PIPELINE_SECTION_REF_RE = re.compile(
 
 
 def test_pipeline_section_refs_resolve():
-    """具名章节指针须落到 PIPELINE.md 真实标题（RSI-009 评审：10 规格曾指向不存在的
+    """具名章节指针须落到 PIPELINE.md 真实标题（I-009 评审：10 规格曾指向不存在的
     「字体可复现性」节——该事实条在 08；链接可达门只验文件，不验节名）。"""
     headings = [
         ln
@@ -489,3 +489,95 @@ def test_pipeline_section_refs_resolve():
                     dangling.append(f"{_rel(f)}:{no} → 「{m.group(1)}」")
     assert checked, "未扫到任何 PIPELINE.md 具名章节指针（检测器失效？本门不得空转）"
     assert not dangling, "指向 PIPELINE.md 不存在的章节：\n  " + "\n  ".join(dangling)
+
+
+#: ===== RSI ledger 双层结构执法（AGENTS.md：头部索引表 + 主体详情）=====
+
+LEDGER_MD = skill_root() / "docs" / ".agents" / "issue.md"
+#: 索引行五列：ID / 标题 / 状态（三态词汇）/ 完成时间（YYYY-MM-DD 或 —）/ 锚点。
+_LEDGER_ROW_RE = re.compile(
+    r"^\| (I-\d{3}) \| (.+?) \| (✅ 已完成|🔄 进行中|⏸ 暂不处理)"
+    r" \| (\d{4}-\d{2}-\d{2}|—) \| \[详情\]\(#(I-\d{3})\) \|$"
+)
+#: 详情块头：锚点行 + 标题行（两行一体，`<a id>` 与 `## <ID>：` 逐字对应）。
+_LEDGER_BLOCK_RE = re.compile(
+    r'^<a id="(I-\d{3})"></a>\n## (I-\d{3})：(.+)$', re.MULTILINE
+)
+
+
+def _ledger_rows() -> list[tuple[int, str, str, str, str, str]]:
+    rows = []
+    for no, line in enumerate(LEDGER_MD.read_text(encoding="utf-8").splitlines(), 1):
+        m = _LEDGER_ROW_RE.match(line)
+        if m:
+            rows.append((no, *m.groups()))
+    return rows
+
+
+def _ledger_blocks() -> dict[str, tuple[str, str]]:
+    text = LEDGER_MD.read_text(encoding="utf-8")
+    return {a: (h, t) for a, h, t in _LEDGER_BLOCK_RE.findall(text)}
+
+
+def test_issue_ledger_structure():
+    """AGENTS.md 台账规约：索引行集与详情块集双向一致且升序，标题 SSOT，锚点
+    逐字一致，状态三态词汇，完成时间只许 ✅ 行携带——双层结构漂移（只加块
+    忘加行、标题两处各写一份、锚点大小写走样、未完成却填日期）由静默变红灯。"""
+    rows = _ledger_rows()
+    blocks = _ledger_blocks()
+    assert rows, "未扫到任何索引行（台账结构门失效或索引表被改写？）"
+    assert blocks, '未扫到任何详情块锚点（`<a id="I-xxx"></a>` 缺失？）'
+
+    ids = [r[1] for r in rows]
+    assert ids == sorted(ids), "索引行未按 ID 升序"
+    assert list(blocks) == sorted(blocks), "详情块未按 ID 升序"
+    assert set(ids) == set(blocks), (
+        "索引行与详情块集合不一致：\n"
+        f"  只在索引表：{sorted(set(ids) - set(blocks))}\n"
+        f"  只有详情块：{sorted(set(blocks) - set(ids))}"
+    )
+
+    offenders = []
+    for no, rid, title, status, date, href in rows:
+        if rid != href:
+            offenders.append(f"{_rel(LEDGER_MD)}:{no} 锚点 href={href} ≠ 行 ID={rid}")
+        anchor_id, block_title = blocks[rid]
+        if anchor_id != rid:
+            offenders.append(f"{rid} 锚点 id={anchor_id} ≠ 标题 ID={rid}")
+        if title != block_title:
+            offenders.append(f"{rid} 索引标题与详情标题不一致（SSOT 断裂）")
+        if date != "—" and status != "✅ 已完成":
+            offenders.append(f"{rid} 状态={status} 不得携带完成时间 {date}")
+    assert not offenders, "\n  ".join(offenders)
+
+
+def test_no_legacy_ledger_ids():
+    """编号方案已由旧前缀整体更名 I-xxx（对齐 AGENTS.md）：全仓文本禁旧前缀
+    `RSI-` + 三位数字 token——新条目/新文案回用旧编号即红灯。历史 commit/PR
+    标题与仓外不在执法面；小写分支名 slug（rsi-018-…）是历史实名不禁。"""
+    banned = re.compile(r"RSI-\d")
+    skip_dirs = {".git", ".context", ".venv", "node_modules", ".temp"}
+    text_suffixes = {
+        ".md",
+        ".py",
+        ".toml",
+        ".txt",
+        ".json",
+        ".mmd",
+        ".yaml",
+        ".yml",
+        ".tmpl",
+        ".ts",
+        ".tsx",
+        ".sh",
+    }
+    offenders = []
+    for f in sorted(skill_root().rglob("*")):
+        if f.is_dir() or skip_dirs & set(f.parts) or f.suffix not in text_suffixes:
+            continue
+        for no, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
+            if banned.search(line):
+                offenders.append(f"{_rel(f)}:{no} → {line.strip()[:80]}")
+    assert not offenders, "残留旧编号 token（I-xxx 更名遗漏）：\n  " + "\n  ".join(
+        offenders
+    )

@@ -1,4 +1,4 @@
-"""RSI-022 回归：TTS 长跑自愈编排（tts_resume.py）+ doctor 客户端依赖预检。
+"""I-022 回归：TTS 长跑自愈编排（tts_resume.py）+ doctor 客户端依赖预检。
 
 覆盖两半：① scripts/tts_resume.py——退出码解析（subprocess 真码 vs 管道尾食
 负例）、重启计数状态机（mock subprocess / urlopen，不真起服务）、健康检查
@@ -244,7 +244,7 @@ def test_default_server_argv_matches_launch_hint():
 
 
 def test_default_server_argv_flags_pinned_to_manual():
-    """RSI-035 快照钉死：缺省 argv 的显式 flag 集对齐 VOICE-CLONING §2.3 权威
+    """I-035 快照钉死：缺省 argv 的显式 flag 集对齐 VOICE-CLONING §2.3 权威
     命令（hint 同步携带，四处口径一处红）；可选能力 --use-qwen-emo 缺省不带
     （story 块情感走台本向量；无条件开会 +1.5 GB 且 qwen 权重缺机器起不来）。"""
     hint = tts.server_launch_hint(8766)
@@ -257,7 +257,7 @@ def test_default_server_argv_flags_pinned_to_manual():
 
 
 def test_use_qwen_emo_passthrough_appends_flag(monkeypatch, fake_root):
-    """RSI-035 回归：--emo-text 长跑经 --use-qwen-emo 透传后，冷重启 argv 带上
+    """I-035 回归：--emo-text 长跑经 --use-qwen-emo 透传后，冷重启 argv 带上
     同名 flag（此前冷重启静默降级服务能力 → 客户端健康门硬失败循环到放弃）。"""
     argv = tts_resume.default_server_argv(8766, use_qwen_emo=True)
     assert argv.count("--use-qwen-emo") == 1  # store_true 形 flag，无值跟随
@@ -302,7 +302,7 @@ def test_use_qwen_emo_rejected_with_custom_server_cmd(monkeypatch, fake_root):
 
 
 def test_server_launch_hint_flags_anchored_to_manual():
-    """RSI-035 核验建议①：hint ↔ VOICE-CLONING §2.3 的 flag 口径此前只靠台账
+    """I-035 核验建议①：hint ↔ VOICE-CLONING §2.3 的 flag 口径此前只靠台账
     纪律「三处同批走」，仿 test_tts_mps_oom_contract 读手册先例升机器锚——
     §2.3 权威命令的显式 flag 必须同时在 hint 与缺省 argv（可选 --use-qwen-emo
     在手册与 hint 以可选/注释形态在场、缺省 argv 不带）。"""
@@ -334,7 +334,7 @@ def test_port_from_server():
     assert tts_resume.port_from_server("https://example.com") == 443
 
 
-# ---------------- MPS env 配对纪律（RSI-017 回灌） ----------------
+# ---------------- MPS env 配对纪律（I-017 回灌） ----------------
 
 
 def test_mps_env_pairing_rules():
@@ -363,7 +363,7 @@ def test_mps_env_pairing_rules():
         tts_resume.mps_env("-1", "0.7")
 
 
-# ---------------- MPS 旋钮归位（RSI-036：flag 透传 vs env 兜底） ----------------
+# ---------------- MPS 旋钮归位（I-036：flag 透传 vs env 兜底） ----------------
 
 
 def test_mps_mem_limit_gib_passthrough_appended():
@@ -397,7 +397,7 @@ def test_mps_mem_limit_rejects_bad_values_before_killing_server(monkeypatch, fak
 
 
 def test_mps_low_ratio_alone_rejected_on_default_argv(monkeypatch, fake_root):
-    """RSI-036 回归：单独传 --mps-low-ratio 在缺省路径同样走「env 兜底仅
+    """I-036 回归：单独传 --mps-low-ratio 在缺省路径同样走「env 兜底仅
     --server-cmd」的指路报错——此前误落 mps_env 的「须成对使用」，照做配对后
     又被同一入口驳回（两步矛盾链，把用户引上必然被拒的路）。"""
     calls = _mock_loop(monkeypatch, [True], [0])
@@ -445,7 +445,7 @@ def test_mps_mem_limit_rejected_with_server_cmd_or_env_knobs(monkeypatch, fake_r
 
 
 def test_mps_high_ratio_rejected_on_default_argv(monkeypatch, fake_root):
-    """RSI-036 回归钉：缺省命令路径 env 兜底被服务端缺省 setter 覆盖（实测
+    """I-036 回归钉：缺省命令路径 env 兜底被服务端缺省 setter 覆盖（实测
     HIGH=0.0 注入后 /health 仍 15.98）——入口大声拒绝并指路 flag 透传，不再
     静默无效（静默放过 = 埋同一个坑给下一次长跑）。"""
     _mock_loop(monkeypatch, [True], [0])
@@ -501,7 +501,7 @@ def test_require_indextts_rejects_non_indextts():
 
 
 def test_require_final_voice_gates_forwarded_args():
-    """RSI-040 入口预检：--plan 豁免、含 flag 放行、缺 flag 拒（与 tts.py 主闸同口径）。"""
+    """I-040 入口预检：--plan 豁免、含 flag 放行、缺 flag 拒（与 tts.py 主闸同口径）。"""
     tts_resume.require_final_voice(["--engine", "indextts", "--plan"])
     tts_resume.require_final_voice(
         ["--engine", "indextts", "--final-voice", "--project", "x"]

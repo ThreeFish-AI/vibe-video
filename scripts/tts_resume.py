@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""IndexTTS 长跑自愈编排：健康检查 → 按端口冷重启服务 → 客户端续跑（RSI-022）。
+"""IndexTTS 长跑自愈编排：健康检查 → 按端口冷重启服务 → 客户端续跑（I-022）。
 
 - 定位：tts.py 只管单轮合成（幂等、逐句/逐块缓存续跑）；本脚本补**长跑编排**——
   服务掉线或 MPS 挂死（/health 假绿）时按端口冷重启 vibe-tts 的 vibe_tts_server.py，再以**真实
@@ -12,9 +12,9 @@
   （references/07「服务生命周期」第 2 步）。
 - 纯标准库（RSI 不变量 14）；服务启动命令从 tts.py 的 server_launch_hint 同构
   派生（--with 集合由测试对 hint 钉死防漂移，事实源仍在 tts.py）；长跑所需的
-  服务端能力经 --use-qwen-emo 透传（RSI-035：冷重启不得静默降级服务能力——
+  服务端能力经 --use-qwen-emo 透传（I-035：冷重启不得静默降级服务能力——
   缺省不带，story 块情感走台本向量无需 QwenEmotion）；MPS 显存上限经
-  --mps-mem-limit-gib 直传（RSI-036：缺省命令路径 env 兜底被服务端缺省 setter
+  --mps-mem-limit-gib 直传（I-036：缺省命令路径 env 兜底被服务端缺省 setter
   覆盖、实测无效——env 仅剩 --server-cmd 自定义命令路径）。
 - 仅服务 indextts 长跑：edge 无服务端可自愈，直接跑 tts.py。
 
@@ -22,7 +22,7 @@
     uv run --no-project --with mutagen $T/scripts/tts_resume.py \
         -- --engine indextts --final-voice --project $P --ref $V/<样本>.wav \
         --expect-ref-sha1 <指纹> [--seed 4242] …
-    （--final-voice＝本人显式点名的具名授权，RSI-040：入口预检缺它即拒、先于任何冷重启）
+    （--final-voice＝本人显式点名的具名授权，I-040：入口预检缺它即拒、先于任何冷重启）
 用法定义见 references/PIPELINE.md §三（脚本表）。
 """
 
@@ -76,11 +76,11 @@ def default_server_argv(
     --with 集合与脚本路径的一致性由 tests/test_tts_resume.py 对 hint 钉死，事实源
     留在 tts.py（不另立第二事实源，RSI 不变量 10 同款纪律）。
 
-    use_qwen_emo：透传 vibe_tts_server.py 同名 flag（RSI-035）——--emo-text 自然语言
+    use_qwen_emo：透传 vibe_tts_server.py 同名 flag（I-035）——--emo-text 自然语言
     情感的长跑必传（冷重启不带会静默降级服务能力、客户端在健康门硬失败）；
     **缺省不带**：story 档块情感走台本 cue 向量，无需 QwenEmotion，无条件开会
     +1.5 GB 且 qwen 权重未下载的机器直接起不来（VOICE-CLONING §2.4）。
-    mps_mem_limit_gib：透传 vibe_tts_server.py 同名 flag（RSI-036）——缺省命令路径
+    mps_mem_limit_gib：透传 vibe_tts_server.py 同名 flag（I-036）——缺省命令路径
     服务端缺省即调 setter 设水位线、进程 env 注入被覆盖（实测无效），长跑调
     上限/禁用（0）只能走 flag 直传；缺省 None 不追加（服务端缺省
     min(0.90×recommended, 16) 即生效）。
@@ -127,11 +127,11 @@ def index_tts_root(override: str | None = None) -> Path:
 def mps_env(high: str | None, low: str | None) -> dict[str, str]:
     """MPS 水位线 env 兜底（可选）——**仅 --server-cmd 自定义命令路径**（调用点
     reconcile_mps 已圈定）：缺省命令路径下 vibe_tts_server.py 的 --mps-mem-limit-gib
-    缺省即调 setter 设进程水位线（RSI-017），继承的 env 被覆盖、注入无效
-    （RSI-036 实测：HIGH=0.0 注入后 /health 仍 15.98）——该路径调上限一律走
+    缺省即调 setter 设进程水位线（I-017），继承的 env 被覆盖、注入无效
+    （I-036 实测：HIGH=0.0 注入后 /health 仍 15.98）——该路径调上限一律走
     --mps-mem-limit-gib flag 透传。
 
-    配对纪律（RSI-017 评审①⑤，实测）：单设正的 HIGH 而不配 LOW（默认 low=1.4，
+    配对纪律（I-017 评审①⑤，实测）：单设正的 HIGH 而不配 LOW（默认 low=1.4，
     凡 high<1.4 即 low>high）首个 MPS 分配即抛 invalid low watermark ratio——
     规则一刀切免边界推理；HIGH=0.0 是「禁用水位线」特例（上游 .sh 五集实证
     形态），无 LOW 冲突。
@@ -154,7 +154,7 @@ def mps_env(high: str | None, low: str | None) -> dict[str, str]:
         sys.exit(
             "单设正的 --mps-high-ratio 而不配 --mps-low-ratio：默认 low=1.4，"
             "high<1.4 时首个 MPS 分配即抛 invalid low watermark ratio"
-            "（RSI-017 配对纪律，一刀切免边界推理）；high=0.0（禁用水位线）除外"
+            "（I-017 配对纪律，一刀切免边界推理）；high=0.0（禁用水位线）除外"
         )
     env = {"PYTORCH_MPS_HIGH_WATERMARK_RATIO": high}
     if low is not None:
@@ -163,7 +163,7 @@ def mps_env(high: str | None, low: str | None) -> dict[str, str]:
 
 
 def reconcile_mps(args: argparse.Namespace) -> dict[str, str]:
-    """MPS 旋钮归位（RSI-036）：缺省命令路径只认 flag 透传，env 兜底圈定
+    """MPS 旋钮归位（I-036）：缺省命令路径只认 flag 透传，env 兜底圈定
     --server-cmd；返回注入 extra_env。
 
     - --mps-mem-limit-gib：透传 vibe_tts_server.py 同名 flag（0=禁用 high watermark）。
@@ -172,7 +172,7 @@ def reconcile_mps(args: argparse.Namespace) -> dict[str, str]:
       启动命令可追加（--server-cmd 请把 flag 写进命令串）；与 env 旋钮互斥
       （flag 在场时 env 被服务端 setter 覆盖，两层各说各话）。
     - --mps-high-ratio/--mps-low-ratio：缺省命令路径下大声拒绝——env 注入被
-      服务端缺省 setter 覆盖（RSI-036 实测无效），静默放过等于埋同一个坑。
+      服务端缺省 setter 覆盖（I-036 实测无效），静默放过等于埋同一个坑。
     """
     v = args.mps_mem_limit_gib
     if v is not None:
@@ -190,7 +190,7 @@ def reconcile_mps(args: argparse.Namespace) -> dict[str, str]:
         if args.mps_high_ratio is not None or args.mps_low_ratio is not None:
             sys.exit(
                 "--mps-mem-limit-gib 与 --mps-high-ratio/--mps-low-ratio 互斥："
-                "flag 透传路径下 env 被服务端 setter 覆盖（RSI-036），env 旋钮无效"
+                "flag 透传路径下 env 被服务端 setter 覆盖（I-036），env 旋钮无效"
             )
     elif (
         args.mps_high_ratio is not None or args.mps_low_ratio is not None
@@ -200,7 +200,7 @@ def reconcile_mps(args: argparse.Namespace) -> dict[str, str]:
         sys.exit(
             "--mps-high-ratio/--mps-low-ratio 的 env 兜底仅服务 --server-cmd 自定义"
             "命令：缺省命令路径下 vibe_tts_server 缺省已调 setter 设水位线、env 注入被"
-            "覆盖（RSI-036 实测无效）——调上限改用 --mps-mem-limit-gib 透传"
+            "覆盖（I-036 实测无效）——调上限改用 --mps-mem-limit-gib 透传"
         )
     return mps_env(args.mps_high_ratio, args.mps_low_ratio)
 
@@ -325,7 +325,7 @@ def run_tts(forwarded: list[str]) -> int:
     """跑一轮 tts.py 并返回**真实退出码**（subprocess.run 直取 returncode）。
 
     禁 `cmd | tail; $?` 形态——那是 tail 的退出码（恒 0），失败检测失效
-    （RSI-022 表因③；负例见 tests/test_tts_resume.py）。输出直通终端：
+    （I-022 表因③；负例见 tests/test_tts_resume.py）。输出直通终端：
     长跑进度对调用方可见。
     """
     proc = subprocess.run([sys.executable, tts.__file__, *forwarded])
@@ -353,7 +353,7 @@ def require_indextts(forwarded: list[str]) -> None:
 
 
 def require_final_voice(forwarded: list[str]) -> None:
-    """人为触发原则入口预检（RSI-040）：非 --plan 的 indextts 长跑必须带具名授权
+    """人为触发原则入口预检（I-040）：非 --plan 的 indextts 长跑必须带具名授权
     --final-voice——缺失在此拦，先于健康检查与任何冷重启（同「值校验先于杀服」
     纪律），与 tts.py 主闸同口径；--plan 豁免同主闸。"""
     if "--plan" in forwarded:
@@ -369,7 +369,7 @@ def require_final_voice(forwarded: list[str]) -> None:
 
 def require_client_deps() -> None:
     """入口硬门禁：tts_resume 以当前解释器（sys.executable）跑 tts.py，mutagen
-    缺失时不预检会**首句合成成功、写完 mp3 测时长才崩**（RSI-022 表因②，
+    缺失时不预检会**首句合成成功、写完 mp3 测时长才崩**（I-022 表因②，
     uv --no-project 裸调漏 --with 的历史形态）——长跑一轮空转数小时后才暴露。"""
     if importlib.util.find_spec("mutagen") is None:
         sys.exit(
@@ -382,7 +382,7 @@ def require_client_deps() -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        description="IndexTTS 长跑自愈编排（RSI-022）：`--` 之后的参数原样转发 tts.py",
+        description="IndexTTS 长跑自愈编排（I-022）：`--` 之后的参数原样转发 tts.py",
     )
     p.add_argument(
         "--server",
@@ -420,7 +420,7 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="透传 vibe_tts_server.py 同名 flag（加载 QwenEmotion，约 +1.5 GB）：--emo-text "
         "自然语言情感的长跑必传——否则冷重启后服务静默降级、客户端在健康门硬失败"
-        "（RSI-035）；story 档块情感走台本向量、无需此 flag；缺省不带，且仅作用于"
+        "（I-035）；story 档块情感走台本向量、无需此 flag；缺省不带，且仅作用于"
         "缺省启动命令（--server-cmd 时请把 flag 写进命令串）",
     )
     p.add_argument(
@@ -439,7 +439,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="透传 vibe_tts_server.py 同名 flag（GiB；0=禁用 high watermark；缺省"
         " min(0.90×recommended, 16) 即生效）——长跑调显存上限走 flag 直传：缺省命令"
-        "路径 env 注入被服务端 setter 覆盖、实测无效（RSI-036）；与 --mps-high-ratio"
+        "路径 env 注入被服务端 setter 覆盖、实测无效（I-036）；与 --mps-high-ratio"
         " 互斥，仅缺省启动命令（--server-cmd 时写进命令串）",
     )
     p.add_argument(
@@ -447,7 +447,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="注入 PYTORCH_MPS_HIGH_WATERMARK_RATIO（0<high<1.4 须配 --mps-low-ratio；"
         "0.0=禁用水位线）——**仅 --server-cmd 自定义命令生效**：缺省命令路径被服务端"
-        "缺省 setter 覆盖（RSI-036 实测无效），改用 --mps-mem-limit-gib",
+        "缺省 setter 覆盖（I-036 实测无效），改用 --mps-mem-limit-gib",
     )
     p.add_argument(
         "--mps-low-ratio",

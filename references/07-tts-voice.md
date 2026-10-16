@@ -3,14 +3,14 @@
 > 目标读者：执行配音阶段的代理/操作者。**参数与实测数据一律以 [VOICE-CLONING.md](VOICE-CLONING.md) §三–§六为准（链接非复制）**；本文件只承载操作顺序与决策点。
 > 上游能力面、机制循证与提升路线图见 [INDEXTTS-2.5-ADVANCED.md](INDEXTTS-2.5-ADVANCED.md)；读音标注台账见 [PRON-GLOSSARY.md](PRON-GLOSSARY.md)；系列片头的独立口播音轨（不入分集 narration 与 TTS 编排）配方与改稿五同步见 [SERIES-INTRO.md](SERIES-INTRO.md)。
 
-## 两档生命周期（RSI-034）
+## 两档生命周期（I-034）
 
 | 档 | 引擎 | 时机 | 成本 |
 |---|---|---|---|
 | 草声 | edge 预置音色（scaffold 默认 `engine = "edge"`） | 制作全程：写稿→校验→成文→分镜→草渲→抽帧 QA→多轮评审→看整体效果试配音→终渲/交付（未点名重配即以 edge 成片） | 秒级、免费、需联网、免样本 |
-| 终声 | IndexTTS-2.5 + 本人声音（`tts.style` 终声档锚点，默认 story） | **仅用户显式触发**（实跑须带 `--final-voice` 具名授权，RSI-040）：整集评审通过后重配（下节）/ 追配英文版 | 小时级长跑 |
+| 终声 | IndexTTS-2.5 + 本人声音（`tts.style` 终声档锚点，默认 story） | **仅用户显式触发**（实跑须带 `--final-voice` 具名授权，I-040）：整集评审通过后重配（下节）/ 追配英文版 | 小时级长跑 |
 
-**人为触发原则（RSI-040）**：IndexTTS-2.5 + 本人声音克隆**只有在本人显式要求使用 Index TTS 时才可启用**；其余任何时间任何过程一律 edge 草声，**agent 不得主动提起或建议**使用 IndexTTS、默认直接 edge。zh 与 en 的克隆配音**各算一次独立**的人工显式要求（一次授权不自动延伸到另一语言）；每次人工显式要求＝一次启用授权。机器闸：indextts 每次非 `--plan` 合成必须带 `--final-voice`（tts.py 缺失即硬失败；`pipeline.py all` 永不透传；`tts_resume.py` 入口预检转发参数）——`.engine` 签名护栏是**变化检测器不是授权门**（拦不住首次启用与同签名重跑），授权的唯一证据是命令行里在场的 flag。
+**人为触发原则（I-040）**：IndexTTS-2.5 + 本人声音克隆**只有在本人显式要求使用 Index TTS 时才可启用**；其余任何时间任何过程一律 edge 草声，**agent 不得主动提起或建议**使用 IndexTTS、默认直接 edge。zh 与 en 的克隆配音**各算一次独立**的人工显式要求（一次授权不自动延伸到另一语言）；每次人工显式要求＝一次启用授权。机器闸：indextts 每次非 `--plan` 合成必须带 `--final-voice`（tts.py 缺失即硬失败；`pipeline.py all` 永不透传；`tts_resume.py` 入口预检转发参数）——`.engine` 签名护栏是**变化检测器不是授权门**（拦不住首次启用与同签名重跑），授权的唯一证据是命令行里在场的 flag。
 
 草声期预算门：估算口径按终声档锚点分档（story=254，写稿即按终声语速预算）；**实测口径跳过**（edge 语速≠终声档，`check` 会点名）——升档中间态（toml 已翻 indextts、`.engine` 标记还是 edge）同样跳过，重配完成后门自动恢复实测执法。「edge 终声集」（以 edge 为终声交付，合法路径）**删除 `tts.style` 锚点**恢复实测门。
 
@@ -39,7 +39,7 @@
 
 ## 重配（评审后升档，用户显式触发）
 
-触发话术（示例）：**「使用 index tts 2.5 及本人声音（风格：默认 story 段落演绎）重配本集视频」**——前提是整集已过多重复核与人工评审；未经用户显式要求**不得启动**，agent 也不得主动提议（机器闸：非 `--plan` 合成缺 `--final-voice` 即硬失败——RSI-040；`.engine` 护栏另拦引擎/样本/风格变化须 `--allow-voice-switch`，两者互补）。存量集换档（sunny-steady → story）同配方，只改 `style` 一键。
+触发话术（示例）：**「使用 index tts 2.5 及本人声音（风格：默认 story 段落演绎）重配本集视频」**——前提是整集已过多重复核与人工评审；未经用户显式要求**不得启动**，agent 也不得主动提议（机器闸：非 `--plan` 合成缺 `--final-voice` 即硬失败——I-040；`.engine` 护栏另拦引擎/样本/风格变化须 `--allow-voice-switch`，两者互补）。存量集换档（sunny-steady → story）同配方，只改 `style` 一键。
 
 流程（narration / storyboard / scenes **零改动**——音频换轨，时间轴随新 manifest 自动重排）：
 1. **升档前画面须已冻结**：草渲 + 抽帧 QA 全绿、逐字稿字节冻结——升档后只做音频换轨重渲，不再改稿改画面（改稿会触发块缓存重录、变相第二次长跑；确需改稿见下方延续条款）；
@@ -49,7 +49,7 @@
 5. 下游全量重推：`render` → `qa`（全场景 + 尾幕——时间轴位移必须重抽帧）→ `check`（实测门自动恢复执法）→（archify 集加 `check_archify.py`）→ `captions` → `render --final`；`deliver` 仍显式执行；
 6. 完成后按 [VOICE-CLONING §5.4](VOICE-CLONING.md) 跑句尾英文词 take 验收；不合格句在台本写 `[take] <句id> = 1`（再不合格递增）重跑（命令照带 `--final-voice`），`--plan` 应只显示该块待合成。
 
-**延续条款（RSI-040）**：同一次显式要求任务内的延续操作——take 验收补块、断点续跑（`tts_resume`）、改稿后增量重配（store 按 digest 兜底、只重录变更块）、幂等 no-op 重跑——命令照带 `--final-voice`（审计留痕），**无需新的显式要求**。跨会话恢复（换 worktree / 换机重建）以 `tts --plan` 对账划界：**零待合成**（tts-store 完好、纯缓存回收）属恢复操作，照带 `--final-voice` 即可；**有待合成**（store 丢失即整集重合成）与一切整集重配 / 换风格 / 换样本＝**新的一次**人工显式要求（灾备流程见 [references/10](./10-final-render.md)）。
+**延续条款（I-040）**：同一次显式要求任务内的延续操作——take 验收补块、断点续跑（`tts_resume`）、改稿后增量重配（store 按 digest 兜底、只重录变更块）、幂等 no-op 重跑——命令照带 `--final-voice`（审计留痕），**无需新的显式要求**。跨会话恢复（换 worktree / 换机重建）以 `tts --plan` 对账划界：**零待合成**（tts-store 完好、纯缓存回收）属恢复操作，照带 `--final-voice` 即可；**有待合成**（store 丢失即整集重合成）与一切整集重配 / 换风格 / 换样本＝**新的一次**人工显式要求（灾备流程见 [references/10](./10-final-render.md)）。
 
 ## 双语配音（en 版，双语集）
 
@@ -62,7 +62,7 @@
 
 ## 迭代与定稿
 
-RSI-034 起**草声档就是最快的迭代载体**：改稿频繁期停在 edge（整集秒级重合成，真 manifest 校时间轴与分镜），多轮评审与整体效果试听全用草声；字节冻结 + 评审通过后，**待用户显式要求**（agent 不主动提议）按「重配」节一次性升档 story——升档后即锁定为交付音色；**不点名＝以 edge 草声直接终渲交付**（合法路径，见两档生命周期）。sunny 两遍法（逐句缓存省机器）仅剩存量 indextts 集的意义；story 块缓存改一句重录整块，见 VOICE-CLONING §六。
+I-034 起**草声档就是最快的迭代载体**：改稿频繁期停在 edge（整集秒级重合成，真 manifest 校时间轴与分镜），多轮评审与整体效果试听全用草声；字节冻结 + 评审通过后，**待用户显式要求**（agent 不主动提议）按「重配」节一次性升档 story——升档后即锁定为交付音色；**不点名＝以 edge 草声直接终渲交付**（合法路径，见两档生命周期）。sunny 两遍法（逐句缓存省机器）仅剩存量 indextts 集的意义；story 块缓存改一句重录整块，见 VOICE-CLONING §六。
 
 ## 调用形态
 
@@ -70,11 +70,11 @@ RSI-034 起**草声档就是最快的迭代载体**：改稿频繁期停在 edge
 - 直接薄包装（工程内）：`uv run --no-project --with mutagen scripts/tts.py --engine indextts --final-voice …`（须带 `--expect-ref-sha1`，编排入口会自动带上）
 - 服务端启动命令由 `tts.py`/`tts_sample.py` 在不可达时自动打印（可直接粘贴），手册见 [VOICE-CLONING.md §二](VOICE-CLONING.md)
 - 长跑旁路监视：`uv run --no-project $T/scripts/tts_progress.py --project $P`（按逐句 mp3 mtime 重建墙钟进度与热漂移告警，story 块合成按 <1s 聚簇并折回每句口径，与合成进程零耦合——nohup 长跑时另开终端跑）
-- 长跑自愈编排（RSI-022）：`uv run --no-project --with mutagen $T/scripts/tts_resume.py -- --engine indextts --final-voice --project $P …`——服务掉线/MPS 挂死时按端口冷重启 + 真实退出码续跑（幂等缓存从断点续）；**入口预检：转发参数缺 `--final-voice` 即拒（先于任何冷重启；RSI-040）——循环内自愈语义保持 RSI-022 原样（能力失配等退出码 2 的既定修复恰是冷重启，不得短路）**；用法与参数定义见 [PIPELINE.md §三](PIPELINE.md) 脚本表，与本节「服务生命周期」同一端口纪律（重启只杀该端口 LISTEN）
+- 长跑自愈编排（I-022）：`uv run --no-project --with mutagen $T/scripts/tts_resume.py -- --engine indextts --final-voice --project $P …`——服务掉线/MPS 挂死时按端口冷重启 + 真实退出码续跑（幂等缓存从断点续）；**入口预检：转发参数缺 `--final-voice` 即拒（先于任何冷重启；I-040）——循环内自愈语义保持 I-022 原样（能力失配等退出码 2 的既定修复恰是冷重启，不得短路）**；用法与参数定义见 [PIPELINE.md §三](PIPELINE.md) 脚本表，与本节「服务生命周期」同一端口纪律（重启只杀该端口 LISTEN）
 
 ## 服务生命周期：按需启停，用完即关
 
-IndexTTS 服务端（端口取自 `tts.server`，默认 8766，下文命令以默认值示例）是**按需工具，不是常驻设施**：模型加载后常驻 10 GiB 量级 MPS 显存，长跑还会累积服务态（即使有每句 `empty_cache` 对冲，重启也总是最干净的状态复位），而冷启动仅 ~1–2 分钟。试听（`tts_sample.py`）与基准（`tts_bench.py`）直调服务、不经 tts.py 主闸，但与全量合成**同纪律**——仅在用户已显式要求终声的上下文内使用（RSI-040）。**Agent 在一次制片的全部合成需求结束后**（终渲交付完成，或本会话确认不再有 A/B 遍 / 试听 / 补句），必须执行：
+IndexTTS 服务端（端口取自 `tts.server`，默认 8766，下文命令以默认值示例）是**按需工具，不是常驻设施**：模型加载后常驻 10 GiB 量级 MPS 显存，长跑还会累积服务态（即使有每句 `empty_cache` 对冲，重启也总是最干净的状态复位），而冷启动仅 ~1–2 分钟。试听（`tts_sample.py`）与基准（`tts_bench.py`）直调服务、不经 tts.py 主闸，但与全量合成**同纪律**——仅在用户已显式要求终声的上下文内使用（I-040）。**Agent 在一次制片的全部合成需求结束后**（终渲交付完成，或本会话确认不再有 A/B 遍 / 试听 / 补句），必须执行：
 
 1. **判在用**（多 Agent 同机互斥，两者皆空才可关）：
    ```bash
@@ -91,6 +91,6 @@ IndexTTS 服务端（端口取自 `tts.server`，默认 8766，下文命令以�
 ## 完成门（交给 Stage ⑨ 前）
 
 - manifest 句数 = narration 句数；`pipeline.py check` 的实测时长口径落在预算窗内（草声期/升档中间态该口径跳过并点名，见「两档生命周期」——**末次 TTS 完成后（edge 或克隆皆同）本门必须实测过窗才算交付**）；
-- **首轮终声 TTS 完成后校准本集语速**（RSI-021；草声期**不回写**——edge 语速会污染终声口径）：写稿预算门的 `narration.chars_per_min` 默认层按 `tts.style` 分档（story=254、其余=280，档位表住 `scripts/config.py` 的 `STYLE_CHARS_PER_MIN`——**仅 story 有整集实测**，新档位首轮后按下述回写）；首轮完成后用 manifest 实测秒数复算 `本集字数 ÷ 实测分钟数`，与生效默认偏差 >3% 就把实测值写进本集 toml 的 `narration.chars_per_min`（显式覆写恒优先，下一集写稿即按本集实测口径执法）。上游教训：五集系列 ep1 首轮按 280 写 3961 字 → 实测外推 15.62 分超 [13.0, 14.6] 硬窗 → 回 ③ 减脂 317 字 → story 块缓存整失效全量重合成 ~40 分钟；后续四集按 254 直写全部一次过窗零返工；
+- **首轮终声 TTS 完成后校准本集语速**（I-021；草声期**不回写**——edge 语速会污染终声口径）：写稿预算门的 `narration.chars_per_min` 默认层按 `tts.style` 分档（story=254、其余=280，档位表住 `scripts/config.py` 的 `STYLE_CHARS_PER_MIN`——**仅 story 有整集实测**，新档位首轮后按下述回写）；首轮完成后用 manifest 实测秒数复算 `本集字数 ÷ 实测分钟数`，与生效默认偏差 >3% 就把实测值写进本集 toml 的 `narration.chars_per_min`（显式覆写恒优先，下一集写稿即按本集实测口径执法）。上游教训：五集系列 ep1 首轮按 280 写 3961 字 → 实测外推 15.62 分超 [13.0, 14.6] 硬窗 → 回 ③ 减脂 317 字 → story 块缓存整失效全量重合成 ~40 分钟；后续四集按 254 直写全部一次过窗零返工；
 - sidecar `{id}.sha` 逐句齐备（断点续跑的依据）；`.engine` 标记已更新；
 - 句尾英文产品名收尾的句子跑无偏 ASR-与逐字稿 diff（**禁 `initial_prompt`**，判据组合见 [VOICE-CLONING §5.4](VOICE-CLONING.md)；候选管线门——自动化前人工执行）。
