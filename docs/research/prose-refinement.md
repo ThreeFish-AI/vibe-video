@@ -5,11 +5,11 @@
 **目录**：一、病灶取证 · 二、根因 · 三、理论依据 · 四、方案比选 · 五、与相邻机制的关系 · 六、撤销条件 · 参考文献
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../assets/architecture/prose-refinement--passes-dark.png">
-  <img src="../assets/architecture/prose-refinement--passes-light.png" alt="Stage ⑤ 成文优化：已过 ④ 的三稿（笔记、策划、逐字稿）依次经过 L1 结构、L2 衔接、L3 句子、L4 词句四层 pass，改动经 diff 进入改动表，交独立子代理按具名规则成文评审、REWRITE 回改至清零，再只对改动句回 ④ 复核（A 节四级判定 + B 节前三条）、判 RISKY 即回退原句；评审与复核清零后定稿，build 与机器门零 FAIL 后文稿冻结（新集尚无分镜，机器门跑 check_script --pre-tts）；分镜在 ⑥ 产出，定稿前回调第七节，写完再跑全量 check。">
+  <source media="(prefers-color-scheme: dark)" srcset="../diagrams/prose-refinement--passes/prose-refinement--passes-dark.png">
+  <img src="../diagrams/prose-refinement--passes/prose-refinement--passes-light.png" alt="Stage ⑤ 成文优化：已过 ④ 的三稿（笔记、策划、逐字稿）依次经过 L1 结构、L2 衔接、L3 句子、L4 词句四层 pass，改动经 diff 进入改动表，交独立子代理按具名规则成文评审、REWRITE 回改至清零，再只对改动句回 ④ 复核（A 节四级判定 + B 节前三条）、判 RISKY 即回退原句；评审与复核清零后定稿，build 与机器门零 FAIL 后文稿冻结（新集尚无分镜，机器门跑 check_script --pre-tts）；分镜在 ⑥ 产出，定稿前回调第七节，写完再跑全量 check。">
 </picture>
 
-> 图源：[`prose-refinement--passes.mmd`](../assets/mermaid/prose-refinement--passes.mmd) · 交互版：[`prose-refinement--passes.html`](../assets/architecture/prose-refinement--passes.html)
+> 图源：[`prose-refinement--passes.mmd`](../diagrams/prose-refinement--passes/prose-refinement--passes.mmd) · 交互版：[`prose-refinement--passes.html`](../diagrams/prose-refinement--passes/prose-refinement--passes.html)
 
 ## 一、病灶取证（真实语料，只读扫描）
 

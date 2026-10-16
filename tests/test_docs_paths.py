@@ -407,7 +407,7 @@ def current_docs_and_code() -> list[Path]:
         *REFERENCES.glob("*.md"),
         skill_root() / "README.md",
         docs / ".agents" / "knowledge-map.md",
-        *(docs / "assets" / "mermaid").glob("*.mmd"),
+        *(docs / "diagrams").glob("*/*.mmd"),
         *(docs / "research").glob("*.md"),
     }
     return sorted(files)

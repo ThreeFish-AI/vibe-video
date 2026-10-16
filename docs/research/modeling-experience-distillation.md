@@ -19,11 +19,11 @@
 ## 三、回路总览
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../assets/architecture/modeling-experience--loop-dark.png">
-  <img src="../assets/architecture/modeling-experience--loop-light.png" alt="建模经验回路：制片主 Agent 读手册、分镜标注、收到显式信号后只往候选区追加一行；策展子代理在交付后攒批逐条处置、更新权重、过字数水位门，达到 HIGH 即执行六级压缩阶梯压至 TARGET；RSI 四道门核验后写回有界手册，供下一集读取；回潮信号可恢复被过度压缩的条目。">
+  <source media="(prefers-color-scheme: dark)" srcset="../diagrams/modeling-experience--loop/modeling-experience--loop-dark.png">
+  <img src="../diagrams/modeling-experience--loop/modeling-experience--loop-light.png" alt="建模经验回路：制片主 Agent 读手册、分镜标注、收到显式信号后只往候选区追加一行；策展子代理在交付后攒批逐条处置、更新权重、过字数水位门，达到 HIGH 即执行六级压缩阶梯压至 TARGET；RSI 四道门核验后写回有界手册，供下一集读取；回潮信号可恢复被过度压缩的条目。">
 </picture>
 
-> 图源：[`modeling-experience--loop.mmd`](../assets/mermaid/modeling-experience--loop.mmd) · 交互版：[`modeling-experience--loop.html`](../assets/architecture/modeling-experience--loop.html)
+> 图源：[`modeling-experience--loop.mmd`](../diagrams/modeling-experience--loop/modeling-experience--loop.mmd) · 交互版：[`modeling-experience--loop.html`](../diagrams/modeling-experience--loop/modeling-experience--loop.html)
 
 ## 四、证据与借鉴
 

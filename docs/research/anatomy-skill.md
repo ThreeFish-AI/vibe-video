@@ -41,11 +41,11 @@ Anatomy 的输入是一个概念加一组真实数字（「令牌桶限流（一
 因果脉络一条线读下来：**观察**（AI 图解四倍放大下穿帮）→ **归因**（可信感=物理合理+数字为真，生成不保证二者，且 1× 肉眼与作者自己都看不见——作者自认「很会建这类图、但不总擅长看它们」[2]，第三方实测同样发现产出不能保证处处正确 [3]）→ **设计规格**（真实数字先行 × 实物映射 × 构造性同源（全部输出从同一模型现算，见 §3）× 渲染（把数据画成画面）前机器证明 × 苛刻自验）→ **机制**（十步工作流，见下图）→ **证据闭环**（323→0、逐字节重建、每条审计线有植入故障自证）。全貌工作流图如下（图源与交互版链接见图注），一句话说破图意：前四步产出「真相与清单」，中间三步把清单变成几何并交给审计解键，后三步上浏览器与放大镜；箭头回到第 2 步的回路是全部设计的关键——审计发现的问题修在几何与模型，而不是修在绘制顺序上。
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../assets/architecture/anatomy--workflow-dark.png">
-  <img src="../assets/architecture/anatomy--workflow-light.png" alt="Anatomy 十步工作流：开工四步（规模门→真实数字→发明实物→部件清单）先于一切几何；随后规划世界、一次构建、由审计解深度键、装卡成帧、赋予生命；末步「如苛刻评审般验证」的结果回指第 2 步——缺陷修在模型与几何，不在绘制偏置。">
+  <source media="(prefers-color-scheme: dark)" srcset="../diagrams/anatomy--workflow/anatomy--workflow-dark.png">
+  <img src="../diagrams/anatomy--workflow/anatomy--workflow-light.png" alt="Anatomy 十步工作流：开工四步（规模门→真实数字→发明实物→部件清单）先于一切几何；随后规划世界、一次构建、由审计解深度键、装卡成帧、赋予生命；末步「如苛刻评审般验证」的结果回指第 2 步——缺陷修在模型与几何，不在绘制偏置。">
 </picture>
 
-> 图源（可 diff 文本）：[`anatomy--workflow.mmd`](../assets/mermaid/anatomy--workflow.mmd) · 交互版（下载到本地打开）：[`anatomy--workflow.html`](../assets/architecture/anatomy--workflow.html)
+> 图源（可 diff 文本）：[`anatomy--workflow.mmd`](../diagrams/anatomy--workflow/anatomy--workflow.mmd) · 交互版（下载到本地打开）：[`anatomy--workflow.html`](../diagrams/anatomy--workflow/anatomy--workflow.html)
 
 最值得按序学习的五个焦点：**真实数字先行**（构造性同源是全文最强机制）、**几何审计与状态空间采样**、**规模/成本门控行为学**、**失败驱动的规则沉淀**、**范例即规格与逐字节确定性**。前置概念（agent skill、等距投影、画家算法）已在 §1 就地讲清。
 
