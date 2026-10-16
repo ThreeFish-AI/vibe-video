@@ -151,6 +151,64 @@ def test_theme_check_passes_and_fails(tmp_path):
     assert any("bad" in m and m.startswith("FAIL") for m in msgs)
 
 
+def _write_theme(tmp_path: Path, body: str) -> None:
+    theme = tmp_path / "video/src/design/theme.ts"
+    theme.parent.mkdir(parents=True, exist_ok=True)
+    theme.write_text(f"export const theme = {{\n{body}}} as const;\n", encoding="utf-8")
+
+
+def test_check_theme_surface_slots_exempted(tmp_path):
+    """表面绑定色豁免（I-073）：paper*/terminal* 槽不落页面 bg，不判 FAIL。
+
+    context-layer 集实证误报形态：paperInk/paperInkDim/terminalBg 是纸面墨与
+    终端内底，语义上永不出现在页面 bg 上，对 bg 配对属门辖域外。
+    """
+    _write_theme(
+        tmp_path,
+        "  bg: '#0E1116',\n"
+        "  text: '#F2F5FA',\n"
+        "  concept: '#5B8DC9',\n"
+        "  paper: '#F2F5FA',\n"
+        "  paperInk: '#171C26',\n"
+        "  paperInkDim: '#5a6472',\n"
+        "  terminalBg: '#0B0E14',\n",
+    )
+    msgs: list[str] = []
+    check_theme(tmp_path, msgs)
+    assert [m for m in msgs if m.startswith("FAIL")] == []
+
+
+def test_check_theme_still_fails_low_contrast_concept(tmp_path):
+    """豁免不打开检出口子：真低对比概念色（非豁免前缀）必须仍 FAIL（I-073）。"""
+    _write_theme(
+        tmp_path,
+        "  bg: '#0E1116',\n  muted: '#5A6274',\n  paper: '#171C26',\n",
+    )
+    msgs: list[str] = []
+    check_theme(tmp_path, msgs)
+    assert any("muted" in m and m.startswith("FAIL") for m in msgs)
+
+
+def test_check_theme_surface_prefix_does_not_shadow_other_keys(tmp_path):
+    """前缀豁免只遮蔽 paper*/terminal* 同前缀键，其余键逐一保留检查（I-073）。"""
+    _write_theme(
+        tmp_path,
+        "  bg: '#0E1116',\n"
+        "  paperInk: '#171C26',\n"
+        "  paperline: '#5A6274',\n"  # paper 前缀 → 豁免
+        "  muted: '#5A6274',\n"  # 非豁免 → 仍 FAIL
+        "  terminalBg: '#0B0E14',\n"
+        "  term: '#5A6274',\n",  # 非 terminal 前缀 → 仍 FAIL
+    )
+    msgs: list[str] = []
+    check_theme(tmp_path, msgs)
+    fails = [m for m in msgs if m.startswith("FAIL")]
+    assert sorted(m.split()[1] for m in fails) == ["muted", "term"]
+    assert not any("paperInk" in m for m in fails)
+    assert not any("paperline" in m for m in fails)
+    assert not any("terminalBg" in m for m in fails)
+
+
 def test_tail_row_has_fade_ignores_trailing_prose(tmp_path):
     """渐黑行距文件末尾有散文节时（EP1/EP2 真实形态），豁免仍须命中。"""
     board = tmp_path / "storyboard.md"

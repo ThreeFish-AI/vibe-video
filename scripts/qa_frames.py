@@ -36,6 +36,8 @@ A/B 对拍（有帧时 advisory；零匹配帧硬失败，供重制/重构回归
 主题对比度（--check-theme，零依赖、不需要视频）：
     解析 video/src/design/theme.ts 的 #RRGGBB，按 WCAG 2.x 相对亮度对比
     theme.bg；概念色 < 4.5:1 → FAIL（此前只能肉眼估，见 references/08 清单）。
+    容器/描边与表面绑定色（bg 基准 / panel 系 / *Deep / paper* / terminal*）豁免——
+    门只查「概念色 on bg」可读性，表面槽语义上不落页面 bg（I-073）。
 
 抽帧计划（--stills-plan，零依赖、不需要视频）：
     TTS 长跑中途的分幕复检排期器（references/09 ★节步骤 2–3 的机械化）：读部分
@@ -560,8 +562,13 @@ def check_theme(root: Path, msgs: list[str]) -> None:
     bg = hex_rgb(colors["bg"])
     print(f">> 主题对比度 · 基准 bg {colors['bg']}")
     for key, val in colors.items():
-        if key in ("bg", "panel", "panelBorder") or key.endswith("Deep"):
-            continue  # 容器/描边色不承载正文信息
+        if (
+            key in ("bg", "panel", "panelBorder")
+            or key.endswith("Deep")
+            or key.startswith(("paper", "terminal"))
+        ):
+            continue  # 容器/描边与表面绑定色（paper*/terminal* 纸面/终端槽）不落
+            # 页面 bg——门只管概念色 on bg 可读性，对 bg 配对是辖域外误报（I-073）
         ratio = wcag_ratio(hex_rgb(val), bg)
         mark = "✅" if ratio >= CONTRAST_MIN else "❌"
         print(f"  {mark} {key:<10} {val}  对 bg 对比度 {ratio:.2f}:1")

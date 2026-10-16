@@ -88,6 +88,7 @@
 | I-070 | 评估类条目「待信号/路线图须在规格层铺运行时指针」纪律化 | ✅ 已完成 | 2026-10-14 | [详情](#I-070) |
 | I-071 | Anatomy skill 精读与机制映射评估：外部借鉴四步协议回执、净增量收敛于规模成本门控行为学 | ✅ 已完成 | 2026-10-15 | [详情](#I-071) |
 | I-072 | 类比条款三型对齐：零类比出口升三型通用 + A-14 悬空指针改指实存节 + 硬律计数副本漂移 | ✅ 已完成 | 2026-10-16 | [详情](#I-072) |
+| I-073 | 主题门表面绑定色误报：--check-theme 全量扫描把 paper*/terminal* 槽按「概念色 on bg」判 FAIL | ✅ 已完成 | 2026-10-16 | [详情](#I-073) |
 
 ---
 
@@ -1243,3 +1244,18 @@
 **后续防范**：上游规约计数一律指针化不抄副本；规约条款变更时对「条款生效前开工」的在制集做一次合规回检（本次剧场返工 ISSUE 同源教训的规约侧对偶）；「零类比直讲合法」未来如需执法面锚定（test_source_types），另立条目（本次超 T1 边界未做）。
 
 **同类问题影响**：所有 A/B 型集的类比写作决策；DIRECTING-CRAFT 其余指向「02 视觉语言」增量交付物的验法条目（如有同型悬空按同法改指实存节）；被弃候选 c3（落地隐喻注册表节）作暂缓项——触发条件：出现需要跨镜核对隐喻一致性的多类比集，预期落位 references/02-planning.md 叙事策略节。
+
+<a id="I-073"></a>
+## I-073：主题门表面绑定色误报：--check-theme 全量扫描把 paper*/terminal* 槽按「概念色 on bg」判 FAIL
+
+**表因**（2026-10-16，context-layer 集 ⑨ 草渲 QA）：`qa_frames.py --check-theme` 对含纸面/终端双表面色板的集报 FAIL 3——paperInk #171C26（1.11:1）、paperInkDim #5a6472（3.15:1）、terminalBg #0B0E14（1.02:1）对 theme.bg 对比度 < 4.5。三个色全是表面绑定色：paperInk/paperInkDim 落纸面（#F2F5FA 上，对纸面实测远超 4.5）、terminalBg 是终端内底——语义上永不出现在页面 bg 上，「对 bg 配对」的 FAIL 不对应任何真实可读性风险。
+
+**根因**：门实现按「theme.ts 全部 hex 对 bg」扫描（THEME_COLOR_RE 提取 + 逐一配对），未区分「页面概念色」与「表面绑定色」两类语义槽。Chesterton 溯源（`git log -S THEME_COLOR_RE` → 初版 f418950）：①门初版时 seed 的 [theme.ts.tmpl](../../assets/video-skeleton/video/src/design/theme.ts.tmpl) 只有七个底座槽（bg/panel/panelBorder/text/dim/danger/ok）+概念色占位——theme.ts 内一切非容器 token 语义上都是「页面读的字」，全量扫描当时无歧义；②豁免行与门同龄（初版即含 `bg/panel/panelBorder` + `*Deep` 后缀），证明设计者已知全量扫描的容器色误报形态，选择硬编码豁免清单应对；③[08 视觉契约](../../references/08-remotion-implementation.md)「面色常量绝不进 theme.ts——深色面板色会被当概念色查而直接 FAIL」是用行政约束（3D 面色放模块内）规避第三类误报，只覆盖 3D 面色语境。演化破绽：context-layer 集把 paper/paperInk/paperInkDim/terminalBg 四个 DOM 表面槽收口进 theme.ts（多场景复用的全局 token，放模块内会跨场景重复；它们不是 08 语境的 3D 面色，行政约束未覆盖 DOM 表面）——门与契约都没跟上 token 语义演化，「每新增一类表面槽就改一次脚本豁免或写一条行政禁令」的策略过时。
+
+**定性**：门禁误报（判据辖域过宽的系统性误报）· 新增豁免出口=放宽，按 G3(b)/(c) 升 T3——仅 Draft PR、Chesterton 调研、盲评回放、回归测试全数履行。
+
+**处理方式**：`check_theme` 豁免行追加 `key.startswith(("paper", "terminal"))`（与既有 panel 系 / `*Deep` 豁免同构，无新机制），[qa_frames.py](../../scripts/qa_frames.py) 头部 docstring 同步豁免口径；回归测试三条钉住失败形态——`test_check_theme_surface_slots_exempted`（表面槽夹具转净）、`test_check_theme_still_fails_low_contrast_concept`（真低对比概念色仍 FAIL，防豁免打开检出口子）、`test_check_theme_surface_prefix_does_not_shadow_other_keys`（前缀豁免只遮蔽同前缀键；`paperline` 豁免而 `term` 非前缀仍 FAIL）——既有 `test_check_theme_golden_output` 全文黄金合同继续覆盖常规过门集不劣化。**豁免口径选择**（三案比选）：A) 键名前缀豁免（取）vs B) 显式豁免清单（theme.ts 注释标记=机器读注释反模式且每集改、脚本枚举表=不随前缀泛化每集改脚本）vs C) 概念色显式声明制（theme.ts 声明 conceptKeys 只查声明的）——C 口径最正交但「未声明即全盲」是三类中最大的静默放行风险且全部存量集要迁移，B 双形态各有维护税；A 迁移成本零、与既有机制同构、豁免面收窄到两个强语义前缀、真概念色仍被查。**Chesterton 结论**：门原意自始是「概念色 on bg ≥ 4.5:1」可读性判据（[08:271](../../references/08-remotion-implementation.md)），表面绑定色语义上不落页面 bg，对 bg 配对从来不是门的设计目标——豁免是把门收窄回设计辖域，不破坏原意。**可证伪预测**：豁免有效 ⇔ ①context-layer 形态夹具（paper/paperInk/paperInkDim/terminalBg + 合格概念色）FAIL 3→0；②含真低对比概念色（#5A6274 类）夹具仍 FAIL；③`term`/`muted` 等非前缀低对比键逐一仍 FAIL。任一不成立即豁免打开检出口子，回退本改动。Draft PR 由主 Agent 开（T3 盲评回放编排）。PR：[#56](https://github.com/ThreeFish-AI/vibe-video/pull/56)。
+
+**后续防范**：theme.ts 引入新语义槽族时（未来 card*/screen* 类表面），同步评估是否属「不落页面 bg」辖域——是则扩豁免前缀并在本条目追加复盘点，不是则该槽值须过 4.5:1；不要再以「行政禁令禁止进 theme.ts」应对 DOM 表面槽收口需求（多场景复用 token 进 theme.ts 是合理演化，08 的行政约束仅辖 3D 面色）。
+
+**同类问题影响**：`check_series.py` 的撞色检测消费 series.json 的显式 `accents` 登记面（非 theme.ts 全量扫描），与表面槽正交——表面槽不登 accents 即不受影响，无需同步改动；`test_check_theme_golden_output` 黄金合同行集不受豁免影响（[fixtures/theme.ts](../../tests/fixtures/theme.ts) 无表面槽，输出逐字节不变）。
