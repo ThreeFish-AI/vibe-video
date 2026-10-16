@@ -3,7 +3,7 @@
 > 从「论文精读 → 逐字稿 → 配音 → 代码动画 → 终渲」全链路中沉淀的**可复用流水线机制**：抽取自 negentropy 仓，以 vibe-video 技能仓为家，安装在任意内容工作区上使用。
 > 首个建成的完整范例：《AI 如何自己变强？》（`$W/episodes/self-improving-agents-video/`；建成时间上的第一个，非系列首集，发布顺序见 `$W/series.json`）。
 
-**目录**：一、Pipeline 总览 · 路径变量约定（含环境变量） · 二、工程目录约定 · 三、公共脚本与编排入口（含 pipeline.toml 字段表、交付归档） · 四、复用边界 · 五、音画同步机制（含双语渲染） · 六、新集脚手架清单 · 七、工程模式 · 八、许可注意 · 九、依赖与版本策略 · 十、浏览器进程纪律
+**目录**：一、Pipeline 总览 · 路径变量约定（含环境变量） · 二、工程目录约定 · 三、公共脚本与编排入口（含 pipeline.toml 字段表、交付归档） · 四、复用边界 · 五、音画同步机制（含媒体面派生链与改稿再生、双语渲染） · 六、新集脚手架清单 · 七、工程模式 · 八、许可注意 · 九、依赖与版本策略 · 十、浏览器进程纪律
 
 ## 一、Pipeline 总览（10 Stages）
 
@@ -214,6 +214,13 @@ uv run --no-project $T/scripts/pipeline.py --project $P deliver [--root ~/Docume
 每句一段 MP3；`tts.py` 产出 `video/public/audio/manifest.json`（含每句实测时长）；Remotion `calculateMetadata` 读取 manifest 计算全片时间轴。**改稿后只需重跑：build → tts → render**。引擎可选 edge 预置音色或用自己的声音克隆（[VOICE-CLONING.md](./VOICE-CLONING.md)），两种引擎的 manifest 契约完全一致。
 
 **时序常数单一事实源** = 每集 `video/src/timing.json`（句间/幕间/片头/片尾/幕间淡入淡出）：`timing.ts` 经 `resolveJsonModule` 同步 import，Python 侧（qa_frames/captions/check_script）经 `timeline.py` 直读同一文件——改节奏只动 JSON，双语言镜像漂移结构性不存在。**渲染主机约束**：三集未内嵌 CJK 字体（PingFang SC/Songti SC/SF Mono 系统栈），渲染仅限 macOS；两个重启触发器见 [references/08 事实条](./08-remotion-implementation.md)。
+
+### 媒体面派生链与改稿再生（图源 candidate / 录制 sidecar / 配音 manifest）
+
+图示素材与配音都是派生物：改上游真源后只能管线再生，**勿手改产物清单**。
+
+- **图示链**（改图后）：图源真源是 PROJECT 根（`archify.html_dir` 同锚，见上方字段表）`docs/diagrams/<slug>/` 的 candidate JSON——archify 全局约定的图源唯一权威，入库；出图 HTML 落 `archify.html_dir`（同 PROJECT 锚，本地产）。做法：改 candidate → `/archify` 重出 HTML → `record_archify_all.py --project $P` 重录受影响图（换 worktree 全量重录属常规操作）。坑位：`$P/video/public/archify/*.json` 是**录制 sidecar**（chapters/`capture_fps` 等实测与人工审定 `type` 的入库记录），不是 candidate——当 candidate 改会漏掉重出 HTML 这步，重录的仍是旧图。
+- **配音链**（改 narration 后）：`video/public/audio/manifest.json` 每句 `durationSec` 是 mp3 实测时长，下游时间轴按它排布。做法：改稿后走 `tts` 再生（幂等缓存只重录变更句块）。坑位：TTS 服务不可用时把重配登记为待办（如内容仓 issue 台账），**勿手改 manifest 文本**——manifest 随 `audio/` 整目录 gitignored、不入库，手改即与 mp3 静默失真且 git 无痕，下游按假时长排时间轴；草声重合成秒级、克隆档有 digest 缓存，等服务恢复后再生即可。
 
 ### 双语渲染（zh 主稿 + en 对齐译稿，可选）
 

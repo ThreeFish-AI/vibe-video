@@ -89,6 +89,7 @@
 | I-071 | Anatomy skill 精读与机制映射评估：外部借鉴四步协议回执、净增量收敛于规模成本门控行为学 | ✅ 已完成 | 2026-10-15 | [详情](#I-071) |
 | I-072 | 类比条款三型对齐：零类比出口升三型通用 + A-14 悬空指针改指实存节 + 硬律计数副本漂移 | ✅ 已完成 | 2026-10-16 | [详情](#I-072) |
 | I-073 | 主题门表面绑定色误报：--check-theme 全量扫描把 paper*/terminal* 槽按「概念色 on bg」判 FAIL | ✅ 已完成 | 2026-10-16 | [详情](#I-073) |
+| I-074 | 媒体面派生链与改稿再生纪律成文——图示真源链、指纹清单禁手改与 TTS 降级出路 | ✅ 已完成 | 2026-10-16 | [详情](#I-074) |
 
 ---
 
@@ -1259,3 +1260,18 @@
 **后续防范**：theme.ts 引入新语义槽族时（未来 card*/screen* 类表面），同步评估是否属「不落页面 bg」辖域——是则扩豁免前缀并在本条目追加复盘点，不是则该槽值须过 4.5:1；不要再以「行政禁令禁止进 theme.ts」应对 DOM 表面槽收口需求（多场景复用 token 进 theme.ts 是合理演化，08 的行政约束仅辖 3D 面色）。
 
 **同类问题影响**：`check_series.py` 的撞色检测消费 series.json 的显式 `accents` 登记面（非 theme.ts 全量扫描），与表面槽正交——表面槽不登 accents 即不受影响，无需同步改动；`test_check_theme_golden_output` 黄金合同行集不受豁免影响（[fixtures/theme.ts](../../tests/fixtures/theme.ts) 无表面槽，输出逐字节不变）。
+
+<a id="I-074"></a>
+## I-074：媒体面派生链与改稿再生纪律成文——图示真源链、指纹清单禁手改与 TTS 降级出路
+
+**表因**：narration 与 archify candidate 改稿后「改哪里、重跑什么、什么禁手改」无规约可依——episode `video/public/archify/*.json` 是录制清单非 candidate（candidate 图源真源在工作区所在内容仓 `docs/diagrams/<slug>/`）、episode 侧 html 为 gitignored 本地产、audio manifest 每句 `durationSec` 是实测时长（手改文本即与 mp3 静默分叉）。改前 [SKILL.md](../../SKILL.md) 内 candidate / `docs/diagrams/` / `durationSec` 三串 grep 均 0 命中（origin/main 实测），改稿再生路径只存在于操作者经验。
+
+**根因**：媒体面派生链与「带指纹清单只能管线再生」纪律未成文——路由壳（SKILL.md）无锚点承载，规格层（PIPELINE.md）无细则住处，改稿决策每次靠回忆或事故复盘兜底。
+
+**定性**：非阻断改进（模板缺位类运行时证据，T2）。
+
+**处理方式**：[PIPELINE.md](../../references/PIPELINE.md) §五新增「媒体面派生链与改稿再生」小节——图示链三层辨析（candidate 图源真源 → 本地产 HTML → 录制 sidecar，改 candidate 后重 finalize 重录）与配音链（manifest `durationSec` 指纹清单，改稿走 `tts` 再生、服务不可用登记待办）；[SKILL.md](../../SKILL.md) 图示资产句与逐字稿不变量行各追加从句指针，17 处等量压缩守 8000 字预算（7989/8000，`test_body_within_budget` 实测）；[tests/test_media_derived_chain.py](../../tests/test_media_derived_chain.py) 锚点钉子测试两例（SKILL.md 路由壳 `durationSec`/`docs/diagrams/` 锚、PIPELINE §五 sidecar/candidate 辨析锚）钉住纪律文本不被误删。PR [#59](https://github.com/ThreeFish-AI/vibe-video/pull/59)（分支 ThreeFish-AI/rsi-074-media-derived-chain-regen）。
+
+**后续防范**：改 candidate 后须重 finalize 出集侧 html 并重录受影响章节——改的是真源，集侧产物全部派生；带指纹清单的产物（audio manifest、录制清单）只能管线再生、禁手改；TTS 服务不可用时登记待办，勿以手改 manifest 文本顶替实测时长。
+
+**同类问题影响**：所有含 archify 图示与配音的重制集改稿流程——改稿后图示与配音两侧的再生决策都依赖本条成文的派生链纪律；未来新增媒体派生物类型（如字幕烧录档）时按同法入 §五 小节并在 SKILL.md 路由壳补锚。
