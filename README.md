@@ -23,8 +23,8 @@
 ## 二、流水线总览
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/architecture/pipeline-layers-dark.png">
-  <img src="docs/assets/architecture/pipeline-layers-light.png" alt="十阶段双层流水线：内容层（文档驱动）① 信源精读取证 → ② 策划案 → ③ 逐字稿单一事实源 → ④ 双重校验 → ⑤ 成文优化 → ⑥ 分镜表；生产层（工具驱动）由 ⑤ 定稿后下行 ⑦ TTS 合成、由 ⑥ 下行 ⑧ Remotion 场景实现，二者汇合经 ⑨ 草渲 + 抽帧 QA 迭代修正，最终 ⑩ 终渲交付 1080p30">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/pipeline-layers/pipeline-layers-dark.png">
+  <img src="docs/diagrams/pipeline-layers/pipeline-layers-light.png" alt="十阶段双层流水线：内容层（文档驱动）① 信源精读取证 → ② 策划案 → ③ 逐字稿单一事实源 → ④ 双重校验 → ⑤ 成文优化 → ⑥ 分镜表；生产层（工具驱动）由 ⑤ 定稿后下行 ⑦ TTS 合成、由 ⑥ 下行 ⑧ Remotion 场景实现，二者汇合经 ⑨ 草渲 + 抽帧 QA 迭代修正，最终 ⑩ 终渲交付 1080p30">
 </picture>
 
 ①–⑥ 为**内容层**（写作产物，由人/代理撰写），⑦–⑩ 为**生产层**（由工具执行）：

@@ -7,9 +7,9 @@
 
 ## 一、Pipeline 总览（10 Stages）
 
-![科普视频 Pipeline 十阶段双层流水线总览：内容层（文档驱动）① 信源精读取证 → ② 策划案 → ③ 逐字稿 narration.md（单一事实源）→ ④ 双重校验 → ⑤ 成文优化 → ⑥ 分镜表；生产层（工具驱动）由 ⑤ 定稿后下行 ⑦ TTS 合成、⑥ 下行 ⑧ Remotion 场景实现，二者汇合后经 ⑨ 草渲+抽帧 QA 迭代修正，最终 ⑩ 终渲交付 1080p30。](../docs/assets/architecture/pipeline-layers-dark.png)
+![科普视频 Pipeline 十阶段双层流水线总览：内容层（文档驱动）① 信源精读取证 → ② 策划案 → ③ 逐字稿 narration.md（单一事实源）→ ④ 双重校验 → ⑤ 成文优化 → ⑥ 分镜表；生产层（工具驱动）由 ⑤ 定稿后下行 ⑦ TTS 合成、⑥ 下行 ⑧ Remotion 场景实现，二者汇合后经 ⑨ 草渲+抽帧 QA 迭代修正，最终 ⑩ 终渲交付 1080p30。](../docs/diagrams/pipeline-layers/pipeline-layers-dark.png)
 
-> 图源（可 diff 文本）：[`pipeline-layers.mmd`](../docs/assets/mermaid/pipeline-layers.mmd) · 交互版（下载到本地打开）：[`pipeline-layers.html`](../docs/assets/architecture/pipeline-layers.html)
+> 图源（可 diff 文本）：[`pipeline-layers.mmd`](../docs/diagrams/pipeline-layers/pipeline-layers.mmd) · 交互版（下载到本地打开）：[`pipeline-layers.html`](../docs/diagrams/pipeline-layers/pipeline-layers.html)
 
 每个 Stage 的代理提示词规格见本目录的 `01`–`10` 阶段规格（[01](./01-source-extraction.md) 起，文件号 = 阶段序号），可直接作为子代理 prompt；整仓即 vibe-video 技能本体，路由入口是 [SKILL.md](../SKILL.md)（skill 根）。
 
