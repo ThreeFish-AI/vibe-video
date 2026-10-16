@@ -29,18 +29,20 @@ def test_skill_routes_carry_derived_chain_anchors():
 
 
 def test_pipeline_has_sidecar_candidate_distinction():
-    """PIPELINE §五须含派生链小节标题与「录制 sidecar」/candidate 辨析锚：
-    「谁派生谁、改哪里重跑什么」的细则住处不被误删。"""
+    """PIPELINE §五须含派生链小节标题与两条链的红线指纹锚：
+    「谁派生谁、改哪里重跑什么」的细则住处不被误删。辨析锚取正文
+    独有指纹而非节题也含的泛词（如裸「candidate」会被节题独活满足，
+    删掉正文 bullet 测试仍绿——I-047 反假绿惯例）。"""
     text = (REFERENCES / "PIPELINE.md").read_text(encoding="utf-8")
     assert "媒体面派生链与改稿再生" in text, (
         "PIPELINE 缺「媒体面派生链与改稿再生」节——图示链与配音链的再生纪律"
         "无细则住处（I-074）"
     )
-    assert "录制 sidecar" in text, (
-        "PIPELINE 缺「录制 sidecar」辨析锚——video/public/archify/*.json 的"
+    assert "不是 candidate" in text, (
+        "PIPELINE 缺「不是 candidate」辨析指纹——video/public/archify/*.json 的"
         "身份（录制清单非 candidate）失明，重录链第一步即误读（I-074）"
     )
-    assert "candidate" in text, (
-        "PIPELINE 缺 candidate 图源真源锚——docs/diagrams candidate 与本地产"
-        "产物的派生关系失明（I-074）"
+    assert "勿手改 manifest 文本" in text, (
+        "PIPELINE 缺「勿手改 manifest 文本」红线指纹——配音链改稿再生纪律"
+        "（durationSec 实测、TTS 降级出路）失守，手改 manifest 无门可拦（I-074）"
     )
