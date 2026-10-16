@@ -36,7 +36,7 @@ A/B 对拍（有帧时 advisory；零匹配帧硬失败，供重制/重构回归
 主题对比度（--check-theme，零依赖、不需要视频）：
     解析 video/src/design/theme.ts 的 #RRGGBB，按 WCAG 2.x 相对亮度对比
     theme.bg；概念色 < 4.5:1 → FAIL（此前只能肉眼估，见 references/08 清单）。
-    容器/描边与表面绑定色（panel 系 / *Deep / paper* / terminal*）豁免——
+    容器/描边与表面绑定色（bg 基准 / panel 系 / *Deep / paper* / terminal*）豁免——
     门只查「概念色 on bg」可读性，表面槽语义上不落页面 bg（I-073）。
 
 抽帧计划（--stills-plan，零依赖、不需要视频）：
