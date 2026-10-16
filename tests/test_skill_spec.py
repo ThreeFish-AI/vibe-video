@@ -1,4 +1,4 @@
-"""SKILL.md 与 Agent Skills 规范的合规执法（RSI-008）。
+"""SKILL.md 与 Agent Skills 规范的合规执法（I-008）。
 
 规范来源：agentskills.io/specification、官方参考校验器 skills-ref（strictyaml 解析）、
 Anthropic skill authoring best practices。本文件不引入 YAML 依赖（不变量 14），改用一个
@@ -14,7 +14,7 @@ YAML 解析失败会静默丢弃全部 frontmatter（description 退化为正文
   4. 长参考文档（>100 行）须有目录行
   5. evals/ 结构合法
   6. 全仓 Markdown 相对链接可达（迁移安全网，补 test_docs_paths 受检面之外的文档）
-  6b. 全仓文本产物无人工占位（需人工决策走交互请求，不在产物里留占位，RSI-060 追记）
+  6b. 全仓文本产物无人工占位（需人工决策走交互请求，不在产物里留占位，I-060 追记）
 """
 
 from __future__ import annotations
@@ -333,7 +333,7 @@ def test_repo_markdown_relative_links_resolve():
 
 
 def test_repo_markdown_free_of_merge_conflict_markers():
-    """全仓 Markdown 不得残留 git 冲突标记（RSI-039 评审加固：冲突标记曾全绿入库）。
+    """全仓 Markdown 不得残留 git 冲突标记（I-039 评审加固：冲突标记曾全绿入库）。
 
     只查行首 '<<<<<<<' / '>>>>>>>'（git 冲突形态），不查 '======='——setext 标题
     下划线会假阳性；代码围栏内亦不计（_outside_fences）。
@@ -349,7 +349,7 @@ def test_repo_markdown_free_of_merge_conflict_markers():
 
 # ── 6b. 全仓文本产物无人工占位 ────────────────────────────────────────────────
 
-#: 人工占位标记（RSI-060 追记）：需用户决策的环节走交互请求，不在仓库产物里留占位。
+#: 人工占位标记（I-060 追记）：需用户决策的环节走交互请求，不在仓库产物里留占位。
 HUMAN_PLACEHOLDER_RE = re.compile(r"TODO\((?:human|user)\)", re.IGNORECASE)
 #: 受检的文本产物后缀（含模板与骨架源码）。
 PLACEHOLDER_SUFFIXES = {
@@ -367,7 +367,7 @@ INLINE_CODE_RE = re.compile(r"`[^`]*`")
 
 
 def test_repo_free_of_human_placeholders():
-    """全仓文本产物不得残留人工占位（TODO(human|user) 形态，RSI-060 追记）。
+    """全仓文本产物不得残留人工占位（TODO(human|user) 形态，I-060 追记）。
 
     需人工决策的环节由 Agent 以交互请求发起，交付物须是可合入的完整现行态；规约上提为
     ThreeFish-AI/agents.md Operational Excellence「Human-in-the-Loop」条（PR #9 已合入
@@ -401,12 +401,12 @@ def test_repo_free_of_human_placeholders():
     )
 
 
-# ── 7. 开篇钩子规范跨文档一致性（RSI-039） ────────────────────────────────────
+# ── 7. 开篇钩子规范跨文档一致性（I-039） ────────────────────────────────────
 
 
 def test_opening_hook_discipline_cross_docs_consistency():
     """开篇「这是 XXX ……」钩子规范在策划、逐字稿、校验、优化、分镜及路由壳中
-    全链条行级锚定（RSI-039；评审加固改行锚共现断言，并补 en/Z14/门名/复核枚举锚）。"""
+    全链条行级锚定（I-039；评审加固改行锚共现断言，并补 en/Z14/门名/复核枚举锚）。"""
     skill_text = SKILL_MD.read_text(encoding="utf-8")
     assert _lines_with(skill_text, "开篇钩子铁律", "这是 XXX", "候选"), (
         "SKILL.md 关键不变量行须同行声明铁律句式与候选矩阵"

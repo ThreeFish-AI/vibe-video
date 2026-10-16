@@ -7,7 +7,7 @@ narration.md 是单一事实源；本脚本是纯派生转换，不做任何内�
 派生产物两件：narration.json（逐句）与 video/src/chapters.json（逐幕标题——
 `## Pn 标题` 的标题文字此前被丢弃，现为顶部分段进度条的数据面）。
 
-**双语构建（--lang，RSI-004）**：主语言 zh 解析 narration.md；en 解析
+**双语构建（--lang，I-004）**：主语言 zh 解析 narration.md；en 解析
 narration.en.md（同一套 LINE_RE/SCENE_RE，字段同构）并过**硬对齐门**——句 id
 序列 / 幕归属 / 幕集合与主稿逐一相等（缺句 / 多句 / 乱序 / 换幕分别点名），
 1:1 对齐是复用分镜与场景代码的前提。en 构建成功即写**基线锁**
@@ -28,7 +28,7 @@ narration.langs 后附进条目 i18n 键（en 文件缺失/解析失败降级 WA
            并污染字数口径；
   ttsText  原始带标注文本，**仅当该句含标注时才写入** —— tts.py 优先取它送合成。
 
-另有 beatStart（beat 首句标记，RSI-015）：幕首句与幕内每个空行后的首句落
+另有 beatStart（beat 首句标记，I-015）：幕首句与幕内每个空行后的首句落
 True（`>` 备注行不断 beat），供 check_script --term-density 逐 beat 统计术语
 密度；不参与配音/字幕/时间轴任何派生，旧版 json 缺该键时密度门降级幕级并点名。
 
@@ -104,7 +104,7 @@ def parse_md(
     mark_warnings: list[str] = []
     marked = 0
     # beat 边界（幕内空行 = 一个 beat，05 规格第四节第 8 条）：落 beatStart=True 派生标记，
-    # 供 check_script --term-density 逐 beat 统计（RSI-015）。`>` 备注行不断 beat——
+    # 供 check_script --term-density 逐 beat 统计（I-015）。`>` 备注行不断 beat——
     # 断行依据是空行（03 格式契约）；标记只增不改既有键，配音/字幕/时间轴零波及。
     beat_break = True  # 幕首句天然开一个 beat
     for lineno, raw in enumerate(src.read_text(encoding="utf-8").splitlines(), 1):
@@ -165,7 +165,7 @@ def parse_md(
 #       校验「去标点后与 text 全等、发音标注逐个原样」，改字必须回 narration.md 改。
 #   [take] <句id> = N —— take 验收的重掷：该句所在块种子 +N（1–999），只重录这一块；
 #       定稿值留在台本即 canonical（块模式的 §5.4 口径）。
-# 无该文件 ⇒ narration.json 不因台本而变（beatStart 为 RSI-015 无条件派生，见
+# 无该文件 ⇒ narration.json 不因台本而变（beatStart 为 I-015 无条件派生，见
 #       上文 beat 边界——对拍时除该键外逐字节一致）；en 构建不消费台本
 # （story 档 EN 回退逐句）。
 #: 「只许改标点」的比较口径，按标点**串**整体判定（逐字符判定会被 `3……5` 绕过）：

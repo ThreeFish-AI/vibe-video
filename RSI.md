@@ -21,8 +21,9 @@
 
 发现即登记 [docs/.agents/issue.md](docs/.agents/issue.md)（`$T` 非 git 仓时不落本地，登记改走第八节 GitHub Issue 草稿路径）；通用入账流程（入账硬条件、脱敏边界、条目状态机）见[统一协议 §3 旁路捕获](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#3-旁路捕获)。仓内 ledger 纪律：
 
-- 编号 `RSI-001` 起三位递增；**刻意不用 `ISSUE-` 前缀**（上游 negentropy 的 ISSUE-xxx 已占用本仓正文外链，复用必混淆；引用上游教训一律写全 URL）。
-- 新条目追加文件末尾，同一问题只维护一处；复发不新开编号，在原条目追加带日期的复盘点。
+- 编号 `I-001` 起三位递增；**刻意不用 `ISSUE-` 前缀**（上游 negentropy 的 ISSUE-xxx 已占用本仓正文外链，复用必混淆；引用上游教训一律写全 URL）。
+- 台账为「头部索引表 + 主体详情」双层：新条目**同时**追加索引行（表末）与详情块（文件末），均按 ID 升序，索引行标题与详情块标题逐字一致；详情块以 `<a id="<ID>"></a>` 建锚、标题形如 `## <ID>：<标题>`；索引行五列——ID、标题、完成状态（✅ 已完成｜🔄 进行中｜⏸ 暂不处理，登记未处理默认 ⏸）、完成时间（`YYYY-MM-DD`，未完成置 `—`）、`[详情](#<ID>)` 锚点，PR 回填处理结果时同步状态与完成时间。
+- 同一问题只维护一处；复发不新开编号，在原条目追加带日期的复盘点。
 - 登记字段六段式：表因（可观测症状）/ 根因（技术归因，含文件路径）/ 定性（阻断性缺陷｜非阻断改进）/ 处理方式（PR + commit 链接）/ 后续防范（Negative Prompt 式禁令）/ 同类问题影响（可选）。
 - 条目格式（与统一模板字段映射）：仓内沿用六段式——表因↔最小复现与来源、根因↔疑似根因、定性↔两种处理模式归属（阻断性缺陷｜非阻断改进）并可标注统一分级 T1–T3、处理方式↔结论（PR/commit 回填即 `submitted` 终态；「排队待议」「不成立 + 证据」即 `ready`/`rejected` 的仓内自然语言形态）、后续防范与同类问题影响为仓内特有（Negative Prompt 沉淀，统一模板无对应）；统一模板的状态六态住项目 `.temp` backlog（统一协议 §3），回填本 ledger 时不搬运。
 
@@ -38,7 +39,7 @@
 
 ## 四、门禁（统一 G0–G4）
 
-判据、回执格式与反刷分规则以[统一协议 §5 核验门禁](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#5-核验门禁)为准（G0 预检去重 / G1 属实与正确性 / G2 方案比选与收益 / G3 非回归与不变量勾验 / G4 安全隐私）；旧 G1–G4 的逐门映射见[附录A](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#附录a-vibe-video-旧门禁映射)。仓内附加执法资产：改动 SKILL.md 描述或路由时按 [evals/](evals/README.md) 做新旧对拍（统一协议无此仓内资产，触发条件住本节）。评估类条目（外部能力/方法论评估，[RSI-060](docs/.agents/issue.md) 与 [PR #50](https://github.com/ThreeFish-AI/vibe-video/pull/50) 先例）另设 G3 自查项：Skill 工程文件（SKILL.md、RSI.md、references/、scripts/、assets/）只承载已落地的现行规格；评估产出的「待信号 / 暂缓」项一律登记在 [ledger](docs/.agents/issue.md) 对应条目（每项写明触发条件与预期落位文件），不在 Skill 工程文件里铺指针，触发条件成立时再走 RSI 立项落规格。仓内机器执法命令（统一适配档案 `machine_checks` 引用同一份；与 pyproject.toml 顶部注释由 `test_machine_checks_pinned` 锚定一致）：
+判据、回执格式与反刷分规则以[统一协议 §5 核验门禁](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#5-核验门禁)为准（G0 预检去重 / G1 属实与正确性 / G2 方案比选与收益 / G3 非回归与不变量勾验 / G4 安全隐私）；旧 G1–G4 的逐门映射见[附录A](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#附录a-vibe-video-旧门禁映射)。仓内附加执法资产：改动 SKILL.md 描述或路由时按 [evals/](evals/README.md) 做新旧对拍（统一协议无此仓内资产，触发条件住本节）。评估类条目（外部能力/方法论评估，[I-060](docs/.agents/issue.md) 与 [PR #50](https://github.com/ThreeFish-AI/vibe-video/pull/50) 先例）另设 G3 自查项：Skill 工程文件（SKILL.md、RSI.md、references/、scripts/、assets/）只承载已落地的现行规格；评估产出的「待信号 / 暂缓」项一律登记在 [ledger](docs/.agents/issue.md) 对应条目（每项写明触发条件与预期落位文件），不在 Skill 工程文件里铺指针，触发条件成立时再走 RSI 立项落规格。仓内机器执法命令（统一适配档案 `machine_checks` 引用同一份；与 pyproject.toml 顶部注释由 `test_machine_checks_pinned` 锚定一致）：
 
 ```bash
 # 命令与 pyproject.toml 顶部注释（折行快照）由 test_machine_checks_pinned 锚定一致；依赖漂移在 pytest 收集阶段即大声报错
@@ -69,7 +70,7 @@ uv run --no-project --with pytest --with numpy --with pillow --with mutagen --wi
 
 清单是**索引不是事实源**——每条一句话判由，正文 SSOT 各归其位（防第二事实源）：
 
-1. 阶段序号与规格文件号一一对齐（第 N 阶段 ↔ `NN-*.md`；RSI-009 废除历史错位，RSI-013 插入 ⑤ 时整段顺移），严禁再引入错位；新增或删除阶段 = 规格整段改名 + 全仓入链同步（执法：`test_stage_numbers_align_spec_files`、`test_spec_references_resolve`）。
+1. 阶段序号与规格文件号一一对齐（第 N 阶段 ↔ `NN-*.md`；I-009 废除历史错位，I-013 插入 ⑤ 时整段顺移），严禁再引入错位；新增或删除阶段 = 规格整段改名 + 全仓入链同步（执法：`test_stage_numbers_align_spec_files`、`test_spec_references_resolve`）。
 2. `narration.md` 唯一 SSOT；narration.json / manifest.json / chapters.json 是派生物，不得开「直改派生物」的口子。
 3. frozen Remotion skeleton：改 frozen 文件 = 改模板 + 全集同步 + `verify_skeleton.py` 字节级过；不得只改某一集的复制件。
 4. 运动层 `video/src/motion/` frozen 且不读 theme token。

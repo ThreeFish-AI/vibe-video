@@ -178,9 +178,9 @@ def load_vocab(path) -> frozenset[str] | None:
 #: 在稿中标注。候选表本体收敛在此而非 PRON-GLOSSARY.md：文档里的表没有消费者，
 #: 只会与扫描器漂移。
 #:
-#: **语义规则（RSI-014）**：`(正则, 推荐读音)` 列表，正则**必须包含本字**（覆盖
+#: **语义规则（I-014）**：`(正则, 推荐读音)` 列表，正则**必须包含本字**（覆盖
 #: 判定按「匹配区间盖住 occurrence」）。命中即给出字典级确定的读音，命中的
-#: occurrence 应在写稿阶段就标注（RSI-014 起 03 规格纪律）；未命中的 occurrence
+#: occurrence 应在写稿阶段就标注（I-014 起 03 规格纪律）；未命中的 occurrence
 #: 仍列双候选、等复听确认（歧义语境下预防性标注反而引入风险——标注错 = 必然
 #: 读错，上游丢弃原字无兜底）。规则顺序即消歧优先级：同一 occurrence 被多条
 #: 规则覆盖时先命中者胜。
@@ -296,7 +296,7 @@ def _char_occurrences(tts: str, char: str) -> list[tuple[int, str | None]]:
 def semantic_missing(items: list[dict]) -> list[tuple[str, str, str, str, str]]:
     """语义规则命中而该 occurrence 无任何标注 → [(句id, 字, 推荐读音, 建议标注, 命中上下文)]。
 
-    RSI-014 的核心判定：jev 集全片 26 处「行(háng)」被读成 xíng（v1＝negentropy
+    I-014 的核心判定：jev 集全片 26 处「行(háng)」被读成 xíng（v1＝negentropy
     37692b45d；修复 8974c2f3f 标 27 处）直到终渲才靠人耳
     发现——字典级确定的语境（每行/单选行/银行）不该等复听。判定按 occurrence
     粒度：规则匹配区间盖住该字且该字**不在任何标注内**才报；已标注（无论读音

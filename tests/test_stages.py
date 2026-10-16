@@ -50,7 +50,7 @@ STAGES_TOML = SKILL_ROOT / "references" / "stages.toml"
 #: 机制契约文档（路径变量 SSOT + 子命令穷举抄件）
 PIPELINE_MD = SKILL_ROOT / "references" / "PIPELINE.md"
 
-#: 全量圈号超集（Unicode ①–⑳ 连续码位；阶段数从 stages() 推导，不写死——RSI-013）
+#: 全量圈号超集（Unicode ①–⑳ 连续码位；阶段数从 stages() 推导，不写死——I-013）
 ORDINALS = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳"
 
 
@@ -242,7 +242,7 @@ def test_tts_forwards_no_store_flag(monkeypatch, tmp_path):
 
 
 def test_tts_forwards_final_voice_flag(monkeypatch, tmp_path):
-    """RSI-040 具名授权透传：final_voice=True 时 tts.py 命令带 --final-voice；
+    """I-040 具名授权透传：final_voice=True 时 tts.py 命令带 --final-voice；
     缺省不带（edge 草声日常流零多余 token）。"""
     import pipeline
 
@@ -282,7 +282,7 @@ def test_tts_forwards_final_voice_flag(monkeypatch, tmp_path):
 
 
 def test_all_never_forwards_final_voice(monkeypatch, tmp_path):
-    """all 一键链结构性永不实跑克隆（RSI-040）：链内任何命令不得带 --final-voice。"""
+    """all 一键链结构性永不实跑克隆（I-040）：链内任何命令不得带 --final-voice。"""
     import pipeline
 
     commands: list[list[str]] = []
@@ -427,7 +427,7 @@ def test_skill_h1_matches_declaration():
 
 
 def test_stage_numbers_align_spec_files():
-    """守住编号对齐：每个阶段的规格文件号 == 其序号（RSI-009 废除错位，RSI-013 泛化）。
+    """守住编号对齐：每个阶段的规格文件号 == 其序号（I-009 废除错位，I-013 泛化）。
 
     历史上 ⑥⑦ 两文件号与序号错位（入链 ≥5 处曾因此保留）；插入新阶段时整段顺移，
     逐条硬编码的旧写法会漏掉新增序号——故按声明逐项推导，不写死任何一对。
@@ -465,7 +465,7 @@ def test_router_table_covers_every_skill():
     """路由壳（skill 根 SKILL.md）的阶段速查表必须链到全部规格，一一对应。
 
     判据三层：表内含规格链接的行数 == stages.toml 阶段数（一阶段一行，行数随声明，
-    不写死——RSI-013 插入 ⑤ 时写死的 9 即成错门）；链接文件名无重复；链接集合与
+    不写死——I-013 插入 ⑤ 时写死的 9 即成错门）；链接文件名无重复；链接集合与
     声明的 skill 文件逐一相等——多链（指向已删文档）、漏链（新阶段未入表）、
     重复（一链两用）三类漂移都会红。
     """
@@ -485,7 +485,7 @@ def test_router_table_covers_every_skill():
 
 
 def test_router_gates_match_stages():
-    """速查表「通过门」列与 stages.toml 的 gate 逐字相同（RSI-008：手抄件曾 6/9 行漂移）。
+    """速查表「通过门」列与 stages.toml 的 gate 逐字相同（I-008：手抄件曾 6/9 行漂移）。
 
     比末列整格而非「包含」：漂移当初就是从在门后追加注释、截短括注开始的。门列须
     写纯文本（加反引号即不相等）。
@@ -516,7 +516,7 @@ ROUTER_QA_RE = re.compile(r"pipeline\.py\s+--project\s+\S+\s+qa\b([^#`\n]*)")
 
 def test_router_qa_commands_pass_both_parsers(monkeypatch, tmp_path):
     """SKILL.md 的 qa 命令须过 pipeline.py 与 qa_frames.py 两层 argparse 且带 --check
-    （RSI-008 评审：裸 `qa` 在 qa_frames 处 parser.error，⑨ 修复循环到不了零 FAIL）。
+    （I-008 评审：裸 `qa` 在 qa_frames 处 parser.error，⑨ 修复循环到不了零 FAIL）。
 
     用真解析器判定而非文本启发式：「有 --video 却缺选择器」同样会红。
     """
@@ -1108,7 +1108,7 @@ def test_status_reports_per_language_and_lock(monkeypatch, tmp_path, capsys):
 
 
 def test_scan_and_clean_orphan_browsers_respects_safety_boundaries():
-    """RSI-033：只识别 Headless 与自动化可见 Chrome 主进程，只杀 ppid==1 孤儿，绝不触碰日常个人 Chrome（含 Browser Validation Protocol 调试端口）与在途实例。"""
+    """I-033：只识别 Headless 与自动化可见 Chrome 主进程，只杀 ppid==1 孤儿，绝不触碰日常个人 Chrome（含 Browser Validation Protocol 调试端口）与在途实例。"""
     import signal
     import pipeline
 
@@ -1150,7 +1150,7 @@ def test_scan_and_clean_orphan_browsers_respects_safety_boundaries():
 
 
 def test_doctor_clean_browsers_flag_cleans_orphans(monkeypatch, tmp_path, capsys):
-    """RSI-033：doctor 缺省对孤儿进程打 ⚠️ 告警，传 clean_browsers=True 时一键回收并打 ✅。"""
+    """I-033：doctor 缺省对孤儿进程打 ⚠️ 告警，传 clean_browsers=True 时一键回收并打 ✅。"""
     import json
     import pipeline
 
@@ -1181,7 +1181,7 @@ def test_doctor_clean_browsers_flag_cleans_orphans(monkeypatch, tmp_path, capsys
     assert "已清理自动化浏览器孤儿进程 1 个" in out_clean
 
 
-# ---------------- tts.duration_factor 透传（RSI-044 语速校准通道） ----------------
+# ---------------- tts.duration_factor 透传（I-044 语速校准通道） ----------------
 
 
 def _indextts_cfg(duration_factor=None) -> dict:
@@ -1204,7 +1204,7 @@ def _indextts_workspace(monkeypatch, tmp_path) -> None:
 
 
 def test_tts_command_bytes_unchanged_without_duration_factor(monkeypatch, tmp_path):
-    """RSI-044 最大回归风险钉：键缺省 ⇒ 命令行字节不变 ⇒ 摘要不变 ⇒ 存量集零重合成。
+    """I-044 最大回归风险钉：键缺省 ⇒ 命令行字节不变 ⇒ 摘要不变 ⇒ 存量集零重合成。
     命令列表与通道落地前的历史形态逐 token 相等（不是只查「不含 df token」——
     那样插入位置漂移会漏网）。"""
     import pipeline

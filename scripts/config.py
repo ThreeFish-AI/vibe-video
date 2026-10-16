@@ -22,7 +22,7 @@ schema 付这个代价违反最小干预。纯声明式 dict 足够。
 删哪些键的判据是正交的一条线：**删机制常数，留策略声明**。
   - 机制常数（chars_per_min / lang / draft_scale / draft_jpeg_quality）四集零差异、
     没有「本集为何选它」可讲 → 从 toml 删除，默认值在此。
-  - 策略声明（engine）有可见替代项（草声 edge | 终声 indextts 两档，RSI-034），
+  - 策略声明（engine）有可见替代项（草声 edge | 终声 indextts 两档，I-034），
     且 `.engine` 音色签名护栏让它语义承重 → **保留在 toml**，它是一条决策记录
     而非默认值。
   - 机器属性（server）→ 只给默认值 + 环境变量覆盖，永不写进受版本控制的 toml
@@ -88,7 +88,7 @@ SCHEMA: tuple[tuple[str, type, object, object, str], ...] = (
         "edge",
         False,
         "策略声明：edge（草声默认，秒级免费需联网）| indextts（本人显式点名后升档重配，"
-        "实跑须 --final-voice 具名授权——RSI-040 人为触发）；仍须在 toml 显式声明",
+        "实跑须 --final-voice 具名授权——I-040 人为触发）；仍须在 toml 显式声明",
     ),
     (
         "tts.ref",
@@ -257,12 +257,12 @@ SCHEMA: tuple[tuple[str, type, object, object, str], ...] = (
         float,
         8.0,
         False,
-        "纯底色段门（RSI-020）：画面内容区无内容像素持续 ≥ 此秒数 → FAIL"
+        "纯底色段门（I-020）：画面内容区无内容像素持续 ≥ 此秒数 → FAIL"
         "（末幕豁免防片尾渐黑误报；0 = 关闭；qa_frames --check 消费）",
     ),
 )
 
-#: chars_per_min 默认层按 tts.style 分档（RSI-021）——档位间语速差此前未被机制
+#: chars_per_min 默认层按 tts.style 分档（I-021）——档位间语速差此前未被机制
 #: 感知：story 档（块级情绪演绎）实测含停顿等效 254 字/分，sunny 等逐句档为 280。
 #: 上游实证：五集系列 ep1 首轮按 280 写 3961 字 → TTS 实测外推 15.62 分超
 #: [13.0, 14.6] 硬窗 → 回 ③ 减脂 317 字 → story 块缓存整失效全量重合成 ~40 分钟；
@@ -270,7 +270,7 @@ SCHEMA: tuple[tuple[str, type, object, object, str], ...] = (
 #: **仅 story 有整集实测**——新档位首轮 TTS 完成后以 manifest 实测秒数回写本表
 #: （操作指引见 references/07 完成门）。住 SCHEMA 侧的默认层延伸，非第二事实源。
 #: 草声期（engine=edge）tts.style 兼作终声档锚点：分档对草声估算口径同样生效
-#: （写稿按终声语速预算），实测口径则跳过直至重配完成（RSI-034）。
+#: （写稿按终声语速预算），实测口径则跳过直至重配完成（I-034）。
 STYLE_CHARS_PER_MIN: dict[str, int] = {"story": 254}
 
 #: 环境变量覆盖：仅限「机器属性」类键，不进受版本控制的 toml
@@ -354,7 +354,7 @@ def resolve(raw: dict) -> tuple[dict, dict[str, str]]:
             origin[dotted] = "default"
         else:
             origin[dotted] = "缺失"
-    # chars_per_min 的默认层按 tts.style 分档（RSI-021）：显式 toml 覆写恒优先
+    # chars_per_min 的默认层按 tts.style 分档（I-021）：显式 toml 覆写恒优先
     # （origin 非 default 不进本分支）。分档表住 SCHEMA 侧（不变量 7），消费者
     # 无需感知——check_script / build_narration 的既有读取路径零改动。
     if origin.get("narration.chars_per_min") == "default":
@@ -450,7 +450,7 @@ def validate(
             # bool 是 int 的子类：不显式排除会被下方「整数不苛求」分支收编
             # （数值键写 true → 1.0 静默放行，直调 tts.py 到 argparse 才以英文
             # 报错、编排器路径更是静默变 1.0）——TOML 的 true/false 不是数值，
-            # 配置门就给可读 FAIL（RSI-044 核验注记 1）。
+            # 配置门就给可读 FAIL（I-044 核验注记 1）。
             fails.append(
                 f"{dotted} 类型应为 {typ.__name__}，实际 bool（TOML 的 true/false 不是数值）"
             )
@@ -529,7 +529,7 @@ def validate(
     if isinstance(mds, (int, float)) and mds < 0:
         fails.append(f"qa.max_dark_sec 应 ≥ 0（0 = 关闭纯底色段门），实际 {mds}")
 
-    # ── 双语声明与逐语言覆写表（RSI-004）───────────────────────────────
+    # ── 双语声明与逐语言覆写表（I-004）───────────────────────────────
     # langs 是语言激活的唯一来源（chapters i18n、命令缺省全由它定——二源归一，
     # 不看「en 文件是否存在」）。
     lg = _get(cfg, "narration.langs") if in_scope("narration.x") else None

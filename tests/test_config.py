@@ -180,7 +180,7 @@ def test_scope_limits_required_key_enforcement(tmp_path):
     内容门（check_script，scope={"narration"}）**不得**因为「还没挑配音样本」
     就拒绝检查分镜覆盖性——那是把 TTS 的前置条件强加给 ④⑥ 阶段。
     这条曾经真的破过：全量校验让三个既有内容门用例直接变红。
-    RSI-034 起默认引擎是 edge（无 tts.* 键即合法草声集），条件必填改由显式
+    I-034 起默认引擎是 edge（无 tts.* 键即合法草声集），条件必填改由显式
     engine="indextts" 触发——断言口径随之调整，教学意图不变。
     """
     root = _write(
@@ -709,7 +709,7 @@ def test_tts_lang_override_warns(tmp_path: Path):
     assert not any("tts.lang" in w for w in w2)
 
 
-# ---------------- chars_per_min 按 tts.style 分档（RSI-021） ----------------
+# ---------------- chars_per_min 按 tts.style 分档（I-021） ----------------
 
 
 def _raw_with_style(style, chars=None):
@@ -729,7 +729,7 @@ def _raw_with_style(style, chars=None):
 
 
 def test_chars_per_min_default_tiers_by_tts_style():
-    """RSI-021：story → 254（块级演绎含停顿整集实测）；其余档 → 280 基础默认。
+    """I-021：story → 254（块级演绎含停顿整集实测）；其余档 → 280 基础默认。
 
     分档表住 SCHEMA 侧（不变量 7：默认值唯一来源），origin 仍是 default 层。
     """
@@ -774,11 +774,11 @@ def test_chars_per_min_tier_ignores_non_string_style():
     assert get(cfg, "narration.chars_per_min") == 280
 
 
-# ---------------- RSI-034：edge 草声默认档与终声档锚点 ----------------
+# ---------------- I-034：edge 草声默认档与终声档锚点 ----------------
 
 
 def test_engine_default_is_edge_draft():
-    """全程（含终渲与交付）默认引擎为 edge（草声档，RSI-034 翻转）——终声克隆只在 toml 显式声明。"""
+    """全程（含终渲与交付）默认引擎为 edge（草声档，I-034 翻转）——终声克隆只在 toml 显式声明。"""
     assert config.default("tts.engine") == "edge"
 
 
@@ -811,7 +811,7 @@ def test_edge_with_prefilled_ref_keys_still_validates(tmp_path):
     assert not fails, fails
 
 
-# ---------------- qa.max_dark_sec（RSI-020 纯底色段门阈值） ----------------
+# ---------------- qa.max_dark_sec（I-020 纯底色段门阈值） ----------------
 
 
 def test_max_dark_sec_schema_default_and_toml_override(tmp_path):
@@ -837,7 +837,7 @@ def test_max_dark_sec_schema_default_and_toml_override(tmp_path):
     assert any("qa.max_dark_sec" in f for f in fails2), fails2
 
 
-# ---------------- tts.duration_factor（RSI-044 语速校准通道） ----------------
+# ---------------- tts.duration_factor（I-044 语速校准通道） ----------------
 
 
 _MIN_INDEXTTS = (

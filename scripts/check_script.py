@@ -10,11 +10,11 @@
     （淡入淡出必须花在既有静默里，时间轴零位移的前提）；
   4. 读法陷阱：上游中文归一化实测会读错的写法（4 位年份带空格、三段版本号、
      数字区间连字符、±、10x、整句无汉字…）——见 READING_TRAPS，每条都附实测输出。
-  5. zh 字幕单行宽度（RSI-024）：frozen 模板对 zh 恒单行 + 字号下限 30px +
+  5. zh 字幕单行宽度（I-024）：frozen 模板对 zh 恒单行 + 字号下限 30px +
      nowrap，全角当量超 floor(1528/30)=50 即物理溢出画布——上限钉进门里
      而不是钉在稿风里（旧代可折行模板点名跳过）。
 
-**双语（--lang en，RSI-004）**：语言无关门（分镜覆盖/淡入/场景互比/动效互比）
+**双语（--lang en，I-004）**：语言无关门（分镜覆盖/淡入/场景互比/动效互比）
 只在主稿执法——分镜与场景代码是 zh 主稿的派生物，en 按句 id 复用，重复执法
 只会双报同源错。en 门集见 check_translation：对齐（与主稿句 id 1:1）、基线锁
 （译稿失鲜）、文本形态（禁汉字 / 必含拉丁字母 / 禁全角标点——防上游
@@ -23,11 +23,11 @@ words_per_min 对 narration.en.target_minutes 窗口（缺省点名跳过，不�
 --check-scenes --lang en 附未翻译画面文字报告（scenes/*.tsx 中未走 <L zh en> /
 t({zh, en}) 双语对的含汉字字面量，WARN-only）。
 
-画面文字复述口播门（RSI-007，FAIL，**缺省执法、无需 flag**——忘带 flag = 检查面
+画面文字复述口播门（I-007，FAIL，**缺省执法、无需 flag**——忘带 flag = 检查面
 静默缩小，同 ISSUE-168）：场景代码里与口播逐字相同的画面文字，与烧录字幕叠成
 同屏两层。语言相关门，zh / en 各自对本语言字幕面执法；--pre-tts 不跑（场景未写）。
 
-theme 死字符串门（RSI-043，FAIL，**缺省执法、无需 flag**）：`'theme.bgDeep'`
+theme 死字符串门（I-043，FAIL，**缺省执法、无需 flag**）：`'theme.bgDeep'`
 带引号 = 字符串字面量而非常量引用——非法 CSS 色值被浏览器静默丢弃（背景透明），
 tsc 放行（style 值类型是 string），色值探针也失明（ep1 实锤 12 处、8 轮门全绿）。
 语言无关，只在主稿执法；--pre-tts 不跑（场景未写）。
@@ -55,7 +55,7 @@ manifest 若在则含实测口径）+ 读法陷阱 + 发音标注合法性（bui
 与门混跑会让退出码语义含混，多音字表只针对中文）。退出码恒 0；句中带非法
 标注时点名但不判死（标注合法性的执法在 --pre-tts 面）。
 
-可选 --pron-gate（RSI-014，门）：在候选报告之上，把「语义规则命中而句中该
+可选 --pron-gate（I-014，门）：在候选报告之上，把「语义规则命中而句中该
 occurrence **无任何标注**」升为 FAIL。字典级确定的语境（每行/单选行/银行）
 不该等复听——jev 集全片 26 处「行(háng)」被读成 xíng（v1＝negentropy 37692b45d；
 修复 8974c2f3f 标 27 处），候选报告全程零拦截、
@@ -65,7 +65,7 @@ occurrence **无任何标注**」升为 FAIL。字典级确定的语境（每行
 本 flag）仍为报告。与 --pre-tts / --term-density / --lang en 互斥（规则表
 只针对中文）；--json/--check-scenes/--check-motion 属内容门面，同样互斥。
 
-可选 --term-density（RSI-015，WARN 级）：④B 密度预算的机器面——逐 beat 统计
+可选 --term-density（I-015，WARN 级）：④B 密度预算的机器面——逐 beat 统计
 **首现术语**个数（>2 报 WARN）、逐幕汇总（>8 报 WARN），超出须拆 beat 或用
 白话替代消术语。术语两面：`--terms 逗号清单` 显式声明（中文术语系统由 ④B
 评审员圈定后喂入——机器分不出「集中度」是不是术语，声明优于猜测）＋拉丁
@@ -73,7 +73,7 @@ occurrence **无任何标注**」升为 FAIL。字典级确定的语境（每行
 beatStart（build 派生，幕内空行 = 一个 beat）；旧版产物缺失该键时 beat 级
 点名跳过、幕级照跑。与 --lang en 互斥（英文稿整句拉丁字母，密度口径无意义）。
 
-p0-01 开篇钩子句式 WARN（RSI-039，WARN 级）：首句不以 zh「这是/这不是」、
+p0-01 开篇钩子句式 WARN（I-039，WARN 级）：首句不以 zh「这是/这不是」、
 en "This is" 起头即点名——句式是可机械判定的显性面，留存力/主干关联/引子精度
 仍是语义判据，执法主体 = ④ 评审门（不 FAIL，避免机械门越权替评审）。挂
 --pre-tts、--lang en 与 zh 完整门三路。
@@ -174,7 +174,7 @@ def check_budget(
     窗口**（英文稿的合理窗与中文不同，静默继承等于造出一个没人声明过的门）；
     估算 = 词数 ÷ words_per_min；实测读 audio/en/manifest.json。
 
-    实测口径只对「属于当前生效引擎」的 manifest 执法（RSI-034），两条件跳过并
+    实测口径只对「属于当前生效引擎」的 manifest 执法（I-034），两条件跳过并
     点名：① 草声期——engine=edge 且挂终声档锚点（tts.style），edge 语速≠终声
     档口径，草声实测对终声窗执法必然系统性偏短；② 升档中间态——.engine 标记
     首 token 与当前 engine 不符（toml 已翻 indextts、音频还是 edge），照窗执法
@@ -574,7 +574,7 @@ def check_pron_marks(items: list[dict], msgs: list[str]) -> None:
             fail(msgs, f"句 {it['id']} 发音标注非法：{errs[0]}")
 
 
-#: 开篇钩子句式（RSI-039 ④「开篇钩子与核心引子门」的机器面，WARN 级）：句式是
+#: 开篇钩子句式（I-039 ④「开篇钩子与核心引子门」的机器面，WARN 级）：句式是
 #: 可机械判定的显性面（zh 句首「这是/这不是」、en "This is" 起头）；留存力、主干
 #: 关联与引子精度是语义判据，执法主体仍是 ④ 评审门——这里只拦「句式都不对」，
 #: 不 FAIL，避免机械门越权替评审。
@@ -593,18 +593,18 @@ def check_opening_hook(items: list[dict], lang: str, msgs: list[str]) -> None:
             warn(
                 msgs,
                 f'p0-01 en 首句未以 "This is" 起头「{text[:32]}」——开篇钩子铁律'
-                "（RSI-039；变体合法性与留存力由 ④ 评审门裁定）",
+                "（I-039；变体合法性与留存力由 ④ 评审门裁定）",
             )
         return
     if not text.startswith(HOOK_ZH_PREFIXES):
         warn(
             msgs,
             f"p0-01 首句未以「这是/这不是」起头「{text[:20]}」——开篇钩子铁律"
-            "（RSI-039；句首禁寒暄，执法主体=④ 评审门）",
+            "（I-039；句首禁寒暄，执法主体=④ 评审门）",
         )
 
 
-#: 术语密度预算（RSI-015 ④B「密度预算」的机器面，WARN 级）：jev 集三个名词系统
+#: 术语密度预算（I-015 ④B「密度预算」的机器面，WARN 级）：jev 集三个名词系统
 #: （集中度/门槛/计费单位）全部「先用后讲」，④B 五条全检通过而普通观众仍一脸懵
 #: ——每 beat 首现术语 ≤2、每幕 ≤8 是 04 规格 B 节的判据，此处做可机判的那半。
 TERM_BUDGET_BEAT = 2
@@ -976,7 +976,7 @@ def check_motion(root: Path, msgs: list[str]) -> None:
 
 
 #: 引号内整串恰为 theme 成员路径的字符串字面量（单/双引号同罪）——`'theme.bgDeep'`
-#: 是死字符串不是常量引用（RSI-043）。反引号不抓：含插值时前缀后缀混排，整串判据
+#: 是死字符串不是常量引用（I-043）。反引号不抓：含插值时前缀后缀混排，整串判据
 #: 失效；引号自带的定界使引号外字符不影响命中。
 QUOTED_THEME_RE = re.compile(r"'(theme\.[A-Za-z_]\w*)'|\"(theme\.[A-Za-z_]\w*)\"")
 #: 词表豁免：`theme.ts` 恰为设计文件名，画面 code 标注字面引用它是合法上屏形态
@@ -994,7 +994,7 @@ def _quoted_ok_reason(line: str) -> str:
 
 
 def check_quoted_theme_literals(root: Path, msgs: list[str]) -> None:
-    """带引号的 theme 死字符串 → FAIL（RSI-043，语言无关，缺省执法）。
+    """带引号的 theme 死字符串 → FAIL（I-043，语言无关，缺省执法）。
 
     `background: 'theme.bgDeep'` 保留引号 = 字符串字面量：浏览器把它当非法 CSS
     色值静默丢弃（背景透明），tsc 放行（React style 值类型是 string），「裸 hex
@@ -1079,13 +1079,13 @@ def _build_parser() -> argparse.ArgumentParser:
     ap.add_argument(
         "--pron-gate",
         action="store_true",
-        help="门（RSI-014）：候选报告之上，语义规则命中（字典级确定读音，如 每行→HANG2）"
+        help="门（I-014）：候选报告之上，语义规则命中（字典级确定读音，如 每行→HANG2）"
         "而句中该 occurrence 无任何标注时 FAIL；已标注视为作者显式接管不拦",
     )
     ap.add_argument(
         "--term-density",
         action="store_true",
-        help="附（WARN，RSI-015）：逐 beat 首现术语 ≤2、逐幕 ≤8 的密度预算；"
+        help="附（WARN，I-015）：逐 beat 首现术语 ≤2、逐幕 ≤8 的密度预算；"
         "中文术语经 --terms 声明，拉丁字母词自动计入",
     )
     ap.add_argument(
@@ -1161,7 +1161,7 @@ def _run_pron_face(args: argparse.Namespace, root: Path, items: list[dict]) -> N
     if missing:
         print(
             f">> 语义规则命中而未标注 {len(missing)} 处"
-            "（字典级确定读音，写稿阶段就该标注——RSI-014）"
+            "（字典级确定读音，写稿阶段就该标注——I-014）"
         )
         for sid, char, reading, mark, ctx in missing:
             print(f"  {sid}  {char} → {reading}（{ctx}）  建议标注 {mark}")
@@ -1172,7 +1172,7 @@ def _run_pron_face(args: argparse.Namespace, root: Path, items: list[dict]) -> N
         for sid, char, reading, mark, ctx in missing:
             print(
                 f"  FAIL 句 {sid} 高危多音字 {char!r} 语境「{ctx}」应读 {reading} "
-                f"而句中无标注：加 {mark}（语义规则命中即建议标注，RSI-014）"
+                f"而句中无标注：加 {mark}（语义规则命中即建议标注，I-014）"
             )
         print(tail + "（--pron-gate 门）")
         sys.exit(1 if (missing or illegal) else 0)

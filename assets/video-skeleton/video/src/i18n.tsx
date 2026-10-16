@@ -1,6 +1,6 @@
 import React, {createContext, useContext} from 'react';
 
-/** 语言维度的 TS 侧事实源（RSI-004 双语渲染）。
+/** 语言维度的 TS 侧事实源（I-004 双语渲染）。
  *
  * 与 scripts/langs.py 的同构契约（勿单侧漂移，test_skeleton 执法）：
  *  - 主语言 zh 路径**无后缀**（audioDir('zh') === 'audio'，既有集零回归）；

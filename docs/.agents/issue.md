@@ -1,16 +1,97 @@
 # Issue ledger（RSI 回路的登记面）
 
-本仓缺陷与改进的唯一登记处，由 [RSI.md](../../RSI.md) 回路消费。编号 `RSI-xxx` 三位递增，从 RSI-001 起——**刻意不用 `ISSUE-` 前缀**：本仓正文里的 ISSUE-162/170/175/188 等全部指向上游 [negentropy 的台账](https://github.com/ThreeFish-AI/negentropy/blob/master/docs/.agents/issue.md)，本地复用前缀必然混淆；引用上游教训一律写全 URL，不裸写编号。
+本仓缺陷与改进的唯一登记处，由 [RSI.md](../../RSI.md) 回路消费。编号 `I-001` 起三位递增——**刻意不用 `ISSUE-` 前缀**：本仓正文里的 ISSUE-162/170/175/188 等全部指向上游 [negentropy 的台账](https://github.com/ThreeFish-AI/negentropy/blob/master/docs/.agents/issue.md)，本地复用前缀必然混淆；引用上游教训一律写全 URL，不裸写编号。
 
 纪律：
 
-- 发现即登记，新条目追加文件末尾；同一问题只维护一处，复发不新开编号（在原条目追加带日期的复盘点）；
+- 头部索引表 + 主体详情双层结构：新条目**同时**追加索引行（表末）与详情块（文件末），索引行与详情块均按 ID 升序，且索引行标题与详情块标题逐字一致；
+- 每条详情块以 `<a id="<ID>"></a>` 建锚，标题形如 `## <ID>：<标题>`，锚点 id 与索引行 href 逐字一致（大小写敏感，勿按 slug 习惯小写化）；
+- 同一问题只维护一处，复发不新开编号（在原条目追加带日期的复盘点），并同步更新索引行；
 - 条目字段六段式：表因 / 根因 / 定性 / 处理方式 / 后续防范 / 同类问题影响（可选）；
+- 索引行五列：ID、标题、完成状态（✅ 已完成 / 🔄 进行中 / ⏸ 暂不处理——登记未处理默认 ⏸）、完成时间（`YYYY-MM-DD`，未完成置 `—`）、详情锚点（`[详情](#<ID>)`）；PR 回填处理结果时同步状态与完成时间；
 - 登记本身不等于启动处理——处理走 RSI 回路（另起子代理 + 统一 G0–G4 门禁 + PR）。
+
+> 编号注：I-067 已并入 I-066（见 I-068 条目内编号注），不占号、编号不回填。
+
+## 索引
+
+| ID | 标题 | 状态 | 完成时间 | 详情 |
+| :--- | :--- | :--- | :--- | :--- |
+| I-001 | Skill 缺陷与改进无处留存，经验随会话蒸发 | ✅ 已完成 | 2026-09-23 | [详情](#I-001) |
+| I-002 | 帧率门读错字段：CDP 档 measured_fps 恒 25，退化门与素材完整门双双失明 | ✅ 已完成 | 2026-09-23 | [详情](#I-002) |
+| I-003 | 动效画面建模经验无沉淀通道，且沉淀面无体量约束 | ✅ 已完成 | 2026-09-24 | [详情](#I-003) |
+| I-004 | 全链路单语言单槽位，无法产出英文版视频 | ✅ 已完成 | 2026-09-24 | [详情](#I-004) |
+| I-005 | scaffold 结尾提示仍写 `pnpm install --ignore-workspace`，与 ISSUE-175 后的既定结论相悖 | ✅ 已完成 | 2026-09-24 | [详情](#I-005) |
+| I-006 | 覆盖门 WARN 的修复指引指向不存在的 scripts/archify_types.py | ✅ 已完成 | 2026-09-24 | [详情](#I-006) |
+| I-007 | 画面文字逐字复述口播，与烧录字幕叠成上下两层相同文字 | ✅ 已完成 | 2026-09-24 | [详情](#I-007) |
+| I-008 | Skill 不合 Agent Skills 规范：frontmatter 被官方校验器拒收，路由壳缺渐进披露与条件加载，速查门列漂移 | ✅ 已完成 | 2026-09-25 | [详情](#I-008) |
+| I-009 | 按 2.0.0 全新维护：移除全部历史兼容面（软链 ABI / 旧哨兵 / 旧 env 与缓存回退 / skeleton 历史登记 / 阶段编号错位） | ✅ 已完成 | 2026-09-25 | [详情](#I-009) |
+| I-010 | 骨架合法偏离登记面在 skill 侧，工作区无登记入口 | ✅ 已完成 | 2026-09-25 | [详情](#I-010) |
+| I-011 | 默认配音「朗读感」：合成结构而非情绪强度 | ✅ 已完成 | 2026-09-26 | [详情](#I-011) |
+| I-012 | 文档谎报上游情感混合行为：向量在场时音频被整个丢弃 | ✅ 已完成 | 2026-09-26 | [详情](#I-012) |
+| I-013 | 流水线缺「写顺」环节：AI 稿件语义与段落断断续续、不按人的阅读习惯组织 | ✅ 已完成 | 2026-09-26 | [详情](#I-013) |
+| I-014 | 多音字候选报告非门且无语义消歧：高危读音零拦截直到终渲才靠人耳发现 | ✅ 已完成 | 2026-09-28 | [详情](#I-014) |
+| I-015 | ④B 易懂性检查全是句级局部判据：解释存在≠解释到达时观众还在线 | ✅ 已完成 | 2026-09-28 | [详情](#I-015) |
+| I-016 | 依赖版本策略缺位与渲染引擎/CAD 资产选型悬置 | ✅ 已完成 | 2026-09-27 | [详情](#I-016) |
+| I-017 | IndexTTS 长跑可把统一内存拉爆致系统卡顿：MPS 水位线缺位 | ✅ 已完成 | 2026-09-29 | [详情](#I-017) |
+| I-018 | archify 建图产物三重静默缺陷，录制前置校验缺位 | ✅ 已完成 | 2026-09-30 | [详情](#I-018) |
+| I-019 | @remotion/lottie 在 headless ANGLE 渲染确定性挂死，边界无文档 | ✅ 已完成 | 2026-09-30 | [详情](#I-019) |
+| I-020 | 场景渲染内容为空无门可拦：108 秒纯黑+字幕段靠人工事故后发现 | ✅ 已完成 | 2026-09-30 | [详情](#I-020) |
+| I-021 | chars_per_min 默认值不区分 tts.style，story 档首轮必超窗返工 | ✅ 已完成 | 2026-09-30 | [详情](#I-021) |
+| I-022 | TTS 长跑自愈缺官方载体：服务掉线/客户端依赖缺失/退出码误读三坑无脚本兜底 | ✅ 已完成 | 2026-09-30 | [详情](#I-022) |
+| I-023 | 覆盖门只认单参 dur 拼写，FAIL 文案未给合规扩窗改法——空窗回填用了门读不到的写法且登记口径失效 | ✅ 已完成 | 2026-09-30 | [详情](#I-023) |
+| I-024 | zh 字幕单行宽度无门：超限句横向溢出画布只靠稿风纪律 | ✅ 已完成 | 2026-09-30 | [详情](#I-024) |
+| I-025 | 台本 [say] 与正文逐字相同时零告警：no-op 表演标点静默攒批 | ✅ 已完成 | 2026-09-30 | [详情](#I-025) |
+| I-026 | 选色判据缺「色相距离」维度与未登记色盲区：撞值门全绿仍可同色相撞车 | ✅ 已完成 | 2026-09-30 | [详情](#I-026) |
+| I-027 | 派生产物确定性无门：提交的 narration.json 可相对钉定生成器陈旧 | ⏸ 暂不处理 | — | [详情](#I-027) |
+| I-028 | 冻结件整组同步积压六项：单改一集即破 skeleton 字节契约 | ⏸ 暂不处理 | — | [详情](#I-028) |
+| I-029 | 草渲半分辨率下「帧指纹相同」WARN 可假阳：冻帧误报无像素级复核通道 | ⏸ 暂不处理 | — | [详情](#I-029) |
+| I-030 | guided-learn 精读产物无输入形态：上游《精读与通俗拆解》无法作为一等信源，Stage ① 被迫重复精读 | ✅ 已完成 | 2026-09-30 | [详情](#I-030) |
+| I-031 | 录制器异常路径泄漏整套系统 Chrome：browser.close 是顺序语句非结构保证，全仓无浏览器纪律成文 | ✅ 已完成 | 2026-09-30 | [详情](#I-031) |
+| I-032 | C 型信源（guided-learn）止步于 Stage ① 取证：类比规则与 GL 四硬律冲突，缺跨模态过程具象化与被动线性收看门禁 | ✅ 已完成 | 2026-09-30 | [详情](#I-032) |
+| I-033 | 批量录制 67 图冷启动 67 次 Chrome、可见自动化孤儿进程漏检且无 doctor/Stage ⑩ 终扫闭环 | ✅ 已完成 | 2026-09-30 | [详情](#I-033) |
+| I-034 | 配音默认档为 IndexTTS 克隆：制作期被小时级长跑阻塞，评审后重配/多语言追配无显式轨道，升档中间态预算门假红 | ✅ 已完成 | 2026-10-02 | [详情](#I-034) |
+| I-035 | tts_resume 默认 server argv 缺 --use-qwen-emo：story 档（skill 默认配音档）MPS 泄漏自愈后必败 | ✅ 已完成 | 2026-10-02 | [详情](#I-035) |
+| I-036 | --mps-high-ratio env 兜底对「服务端缺省已设限」不生效：水位线开关两层打架 | ✅ 已完成 | 2026-10-02 | [详情](#I-036) |
+| I-037 | 覆盖门 cue 形态对 prettier 默认格式化零容错：多行/`{ ` 空格即解析失败 | ✅ 已完成 | 2026-10-02 | [详情](#I-037) |
+| I-038 | archify 3.0 产物与录制器断层：无官方支持路径，使用侧兼容层方案未文档化 | ⏸ 暂不处理 | — | [详情](#I-038) |
+| I-039 | 视频开篇缺乏强留存钩子范式与人机协同决策：首句易平淡、缺「这是 XXX」模式、与核心主干易脱节 | ✅ 已完成 | 2026-10-02 | [详情](#I-039) |
+| I-040 | IndexTTS 启用缺人为触发硬闸：.engine 护栏是变化检测器不是授权门，首次启用与同签名重跑均可无授权实跑 | ✅ 已完成 | 2026-10-04 | [详情](#I-040) |
+| I-041 | 分镜缺少逐镜视觉锁定与过渡边界验收契约 | ✅ 已完成 | 2026-10-05 | [详情](#I-041) |
+| I-042 | SVG Visual Renderer 缺少统一的 frame-to-geometry 原语 | ✅ 已完成 | 2026-10-05 | [详情](#I-042) |
+| I-043 | 场景 TSX 中带引号的 `'theme.xxx'` 死字符串零门覆盖 | ✅ 已完成 | 2026-10-06 | [详情](#I-043) |
+| I-044 | tts.duration_factor 无配置通道：可执行参数只活在散文里，「唯一来源」承诺对它失效 | ✅ 已完成 | 2026-10-06 | [详情](#I-044) |
+| I-045 | tts_bench.check_env 恒 return True，「环境硬门」名存实亡 | ⏸ 暂不处理 | — | [详情](#I-045) |
+| I-046 | test_config 机制常数期望值未感知 story 分档默认（集成模式预存红） | ⏸ 暂不处理 | — | [详情](#I-046) |
+| I-047 | 「终渲=Edge」配音档位未显式声明：规格措辞构成「终渲≈终声≈IndexTTS」滑动面 | ✅ 已完成 | 2026-10-06 | [详情](#I-047) |
+| I-048 | 镜头语言·节奏·动画原则等导演知识全仓零覆盖：视频专业表达缺理论坐标系 | ✅ 已完成 | 2026-10-08 | [详情](#I-048) |
+| I-049 | 字幕单行约束未规定长句切换，内容门与渲染层之间存在语义断层 | ✅ 已完成 | 2026-10-08 | [详情](#I-049) |
+| I-050 | check_series 规则1 只扫 narration.md，组件口播字面量（NARRATION/SUBS）是顺序词执法盲区 | ✅ 已完成 | 2026-10-08 | [详情](#I-050) |
+| I-051 | 系列片头资产契约零覆盖：独立音轨/T 表方法论/改稿五同步无 SSOT 落册 | ✅ 已完成 | 2026-10-08 | [详情](#I-051) |
+| I-052 | 共享冻结件修复的波及面对账无机制：重渲待办与交付验收线全靠人记 | ⏸ 暂不处理 | — | [详情](#I-052) |
+| I-053 | 交付登记数字无机器对账：时长/锚定率/块数/归档计数散文手写即漂移 | ⏸ 暂不处理 | — | [详情](#I-053) |
+| I-054 | 渲染产物完整性预检缺失：损坏 mp4 让整轮抽帧 QA 输出伪信号 | ⏸ 暂不处理 | — | [详情](#I-054) |
+| I-055 | useCurrentFrame 语境随宿主搬迁漂移：窗口类 hooks 内联搬运即语境错位 | ⏸ 暂不处理 | — | [详情](#I-055) |
+| I-056 | archify 录制帧率门只 WARN 不拦：capture_fps 低于下限可静默入成片 | ⏸ 暂不处理 | — | [详情](#I-056) |
+| I-057 | 规则7 AUDIENCE_GLOBS 不含 components/：组件内观众可见口播串不受站点标识执法 | ⏸ 暂不处理 | — | [详情](#I-057) |
+| I-058 | check_series 模块 docstring 计数漂移：「六条规则」实际列 8 条 | ⏸ 暂不处理 | — | [详情](#I-058) |
+| I-059 | RSI 协议上收至统一仓库 ThreeFish-AI/rsi | ✅ 已完成 | 2026-10-11 | [详情](#I-059) |
+| I-060 | B 型纯代码仓库无结构输入：建模/编导缺结构原料，UA 评估融入 | ✅ 已完成 | 2026-10-13 | [详情](#I-060) |
+| I-061 | check_archify 对损坏 sidecar JSON 裸 traceback：门脚本读路径无容错 | ⏸ 暂不处理 | — | [详情](#I-061) |
+| I-062 | parse_annotation 以「章」单字切分图名：图名含「章」字即静默截断丢字 | ⏸ 暂不处理 | — | [详情](#I-062) |
+| I-063 | cmd_tts 不透传 tts.server：doctor 健康检查地址与合成地址可分叉 | ⏸ 暂不处理 | — | [详情](#I-063) |
+| I-064 | capture_fps 回退用 or 链把 0.0 当缺失：与录制器 is-None 语义分叉 | ⏸ 暂不处理 | — | [详情](#I-064) |
+| I-065 | 配音机制上收独立 Skill dub：本仓 tts.py 内联副本改为委托 | ✅ 已完成 | 2026-10-13 | [详情](#I-065) |
+| I-066 | 上游配音仓更名 dub → vibe-tts：本仓委托层命名契约同步迁移 | ✅ 已完成 | 2026-10-13 | [详情](#I-066) |
+| I-068 | Opus 5.5 视频生态五仓评估：概念借鉴存证与引入形态裁决 | ✅ 已完成 | 2026-10-14 | [详情](#I-068) |
+| I-069 | 反模式表节标题条目计数无机器执法：表行增删后计数漂移只靠评审人眼 | ✅ 已完成 | 2026-10-14 | [详情](#I-069) |
+| I-070 | 评估类条目「待信号/路线图须在规格层铺运行时指针」纪律化 | ✅ 已完成 | 2026-10-14 | [详情](#I-070) |
+| I-071 | Anatomy skill 精读与机制映射评估：外部借鉴四步协议回执、净增量收敛于规模成本门控行为学 | ✅ 已完成 | 2026-10-15 | [详情](#I-071) |
 
 ---
 
-## RSI-001 Skill 缺陷与改进无处留存，经验随会话蒸发
+<a id="I-001"></a>
+## I-001：Skill 缺陷与改进无处留存，经验随会话蒸发
 
 **表因**：制片过程中（Agent 或用户）发现的本 Skill 缺陷与流程/制度/方法改进项，没有结构化留存处——README 只提供「开 Issue」一条人工渠道，AI Agent 的发现与改进经验随会话结束消失，同类问题跨会话反复踩坑。
 
@@ -24,7 +105,8 @@
 
 **同类问题影响**：上游 negentropy 的 ISSUE-161/164/168/170/188 等历史教训此前只能以 URL 外链引用、无法在本仓续写——本台账启用后，本仓新教训有了本地归宿（上游教训仍写全 URL 引用，不迁移）。
 
-## RSI-002 帧率门读错字段：CDP 档 measured_fps 恒 25，退化门与素材完整门双双失明
+<a id="I-002"></a>
+## I-002：帧率门读错字段：CDP 档 measured_fps 恒 25，退化门与素材完整门双双失明
 
 **表因**：PR #9 评审（2026-09-23）发现，`record_archify_all.py` 新增的「帧率相对退化 >10% 点名补录」与 `check_archify.py` 素材完整门（`min_fps` 18）都按 sidecar 的 `measured_fps` 判定——在 chapter 默认的 `--capture cdp` 档下两道门永不触发；同批文档（skills/09 换机 runbook）却写的是 `capture_fps`，代码、文档、录制器三处口径分叉。
 
@@ -38,11 +120,12 @@
 
 **同类问题影响**：`archify_lead.py` 以 `measured_fps` 做帧号→时间换算，CDP 档下恰好正确（输出即 CFR 25），playwright 档（VFR）仅近似——若后续改采集档或输出帧率，须同步复核该换算。
 
-## RSI-003 动效画面建模经验无沉淀通道，且沉淀面无体量约束
+<a id="I-003"></a>
+## I-003：动效画面建模经验无沉淀通道，且沉淀面无体量约束
 
 **表因**：制片中被用户或主 Agent 认可/否决的建模方法（概念 → 画面/母题/构图/动效强度的映射，如「恒定视觉锚」「以静写闷」）只能以散文偶然埋进 skills/06 母题表、skills/08 缺陷表等规格正文——跨集可复用却无结构化入口、无认可强度记录、无淘汰机制；若放任逐集追加，规格正文会单调膨胀（skills/06 已约 6150 字，为全仓最大），新经验被埋进中段（context rot / lost in the middle）。
 
-**根因**：RSI-001 落地的回路只分流「Skill 自身缺陷 / 流程制度改进」两类，未覆盖「内容创作经验」这一第三类信号；且全仓没有任何文档体量执法先例，经验沉淀面天然无界。
+**根因**：I-001 落地的回路只分流「Skill 自身缺陷 / 流程制度改进」两类，未覆盖「内容创作经验」这一第三类信号；且全仓没有任何文档体量执法先例，经验沉淀面天然无界。
 
 **定性**：非阻断改进（不卡单次制片，但创作经验随会话蒸发、跨集重复试错）。
 
@@ -52,7 +135,8 @@
 
 **同类问题影响**：PRON-GLOSSARY 是同构的跨集沉淀台账，目前体量小（约 530 字）未设上限；若其增长到数千字量级，可复用本机制的计数器与压缩阶梯。
 
-## RSI-004 全链路单语言单槽位，无法产出英文版视频
+<a id="I-004"></a>
+## I-004：全链路单语言单槽位，无法产出英文版视频
 
 **表因**：用户提出双语需求（2026-09-24）：逐字稿、字幕、配音等制作过程支持中英双模式，可同时产出两版或择一。现状全链路每类产物只有一个路径槽位（`narration.json` / `audio/{id}.mp3` / `captions.srt` / `final.mp4`），且多处硬编码中文假设：`check_script.py` 整句无汉字即 FAIL、预算门按 280 字/分计 `len(text)`、`captions.py`/`Subtitle.tsx` 只剥 `。`、edge 音色硬编码 `zh-CN-YunxiNeural`、IndexTTS `lang` 恒 `ZH`。
 
@@ -66,7 +150,8 @@
 
 **同类问题影响**：`tts_progress.py` 秒/字基线与 `tts.py` `--plan` 4.2 s/句均为 zh 标定，en 侧只报不判（首集英文实测后校准）；series.json 标题仅 zh，`check_series` 他集标题互查与 `deliver` 英文命名暂以 zh 标题为事实源。
 
-## RSI-005 scaffold 结尾提示仍写 `pnpm install --ignore-workspace`，与 ISSUE-175 后的既定结论相悖
+<a id="I-005"></a>
+## I-005：scaffold 结尾提示仍写 `pnpm install --ignore-workspace`，与 ISSUE-175 后的既定结论相悖
 
 **表因**：`scaffold.py` 的「接下来必须人工完成」结尾提示第 7 条仍打印 `cd video && pnpm install --ignore-workspace`。2026-09 结论反转后（各分集 video/ 已入库 pnpm-workspace.yaml 自锚 + allowBuilds esbuild，见 ISSUE-175），加 `--ignore-workspace` 会把分集自己的 workspace 一并忽略，install 以 ERR_PNPM_IGNORED_BUILDS 非零退出、node_modules 半残——新集首装即踩。
 
@@ -78,9 +163,10 @@
 
 **后续防范**：命令提示文案与机制命令闭环同源漂移——改命令形态时全仓检索旧 flag，且须跨行检索（注释 / 散文会把命令断行）。
 
-**同类问题影响**：README quickstart、06 / 09 规格与 pipeline.py 机制本体已为裸 install 口径。同一 flag 的配置文件形态——frozen `video/.npmrc` 的 `ignore-workspace=true`——经探针确认为死配置：pnpm 11.25.0 / 12.2.1 下 `pnpm config get ignore-workspace` 恒为 undefined，同文件的 `registry` 照常生效（pnpm ≥11 只从 .npmrc 读认证 / registry 类配置），而它的注释还陈述已被推翻的隔离机制。处理：模板 `.npmrc` 改为只含说明（隔离由 pnpm-workspace.yaml 自锚承担）；已发布的 14 集登记 `[[generation]] npmrc-inert-key`（旧文件指纹 `b632c275ddae`）合法停在旧代，下次重渲时同步，negentropy 侧零改动；RSI-005 测试追加「模板 .npmrc 不得写 ignore-workspace」（旧模板为红）。核验真树骨架门时顺带清掉两处既有未登记漂移：jev 集整组停在 bilingual-i18n 旧代（6 文件指纹与 legacy 逐一相同）但漏入花名册，补入 roster；agent-skills 集 Main.tsx 归一化后与旧代仅差一个空行（regioned 指纹空行陷阱），按逃逸口登记带指纹的 `[[drift]]`。`TO_VIDEO_WORKSPACE=<negentropy-influence> verify_skeleton.py --strict` 由未登记 7 处转为 0 处。
+**同类问题影响**：README quickstart、06 / 09 规格与 pipeline.py 机制本体已为裸 install 口径。同一 flag 的配置文件形态——frozen `video/.npmrc` 的 `ignore-workspace=true`——经探针确认为死配置：pnpm 11.25.0 / 12.2.1 下 `pnpm config get ignore-workspace` 恒为 undefined，同文件的 `registry` 照常生效（pnpm ≥11 只从 .npmrc 读认证 / registry 类配置），而它的注释还陈述已被推翻的隔离机制。处理：模板 `.npmrc` 改为只含说明（隔离由 pnpm-workspace.yaml 自锚承担）；已发布的 14 集登记 `[[generation]] npmrc-inert-key`（旧文件指纹 `b632c275ddae`）合法停在旧代，下次重渲时同步，negentropy 侧零改动；I-005 测试追加「模板 .npmrc 不得写 ignore-workspace」（旧模板为红）。核验真树骨架门时顺带清掉两处既有未登记漂移：jev 集整组停在 bilingual-i18n 旧代（6 文件指纹与 legacy 逐一相同）但漏入花名册，补入 roster；agent-skills 集 Main.tsx 归一化后与旧代仅差一个空行（regioned 指纹空行陷阱），按逃逸口登记带指纹的 `[[drift]]`。`TO_VIDEO_WORKSPACE=<negentropy-influence> verify_skeleton.py --strict` 由未登记 7 处转为 0 处。
 
-## RSI-006 覆盖门 WARN 的修复指引指向不存在的 scripts/archify_types.py
+<a id="I-006"></a>
+## I-006：覆盖门 WARN 的修复指引指向不存在的 scripts/archify_types.py
 
 **表因**：`check_archify_coverage.py` 对「sidecar 缺 type 字段」的 WARN 文案给出修复指引「用 scripts/archify_types.py 回填」，但 skill 仓 `pipeline/scripts/` 下并无该脚本（2026-09-24 实测）。录制器对 lifecycle / 无框 architecture 的指纹嗅探存在已知盲区（14/67 丢型先例），丢型后唯一的人工回填通道是个指向幽灵脚本的提示。jev-decision-model-video 实测 5/13 图丢型，手工改 sidecar JSON 的 type 字段后图型由「untyped 计 1 种」恢复为 5 种。
 
@@ -88,13 +174,14 @@
 
 **定性**：低危高摩擦——数据面可手改，但指引失灵会让使用者先在错误路径上找工具。
 
-**处理方式**：方案比选取后者（最小干预）——不新增脚本：录制器已有 `--type` 参数、`record_archify_all.prior_type` 重录时会保住 sidecar 既有 type，缺的只是「丢型后怎么补」的真实指路。覆盖门 WARN、覆盖门注释、archify_manifest 注释三处改为如实指向「在 video/public/archify/<slug>.json 顶层写回 type」；新增 `test_docs_paths::test_script_references_resolve`，用户可见文案面（同 RSI-005 受检面）点名的任何 `scripts/*.py` 必须真实存在。回退修复后该测试点名三处幽灵引用为红。评审补漏两处：① 初版正则以 `(?<![\w/])` 排除了 `$T/pipeline/scripts/x.py` 这一主流写法，scripts/*.py 的 68 处点名只查到 9 处，放宽为 `(?<!\w)` 并扩到文档与模板后受检面为 85 个文件 239 处、全部存在；② 初版 WARN 写「重录时自动保留」不准——只有 `record_archify_all.py` 经 `prior_type` 透传，单图 `record_archify.py` 不带 `--type` 重录会重新嗅探并覆盖（`record_archify.py` 的 `a.type or _sniff_diagram_type(src)`），WARN 与覆盖门注释已如实区分两条路径。
+**处理方式**：方案比选取后者（最小干预）——不新增脚本：录制器已有 `--type` 参数、`record_archify_all.prior_type` 重录时会保住 sidecar 既有 type，缺的只是「丢型后怎么补」的真实指路。覆盖门 WARN、覆盖门注释、archify_manifest 注释三处改为如实指向「在 video/public/archify/<slug>.json 顶层写回 type」；新增 `test_docs_paths::test_script_references_resolve`，用户可见文案面（同 I-005 受检面）点名的任何 `scripts/*.py` 必须真实存在。回退修复后该测试点名三处幽灵引用为红。评审补漏两处：① 初版正则以 `(?<![\w/])` 排除了 `$T/pipeline/scripts/x.py` 这一主流写法，scripts/*.py 的 68 处点名只查到 9 处，放宽为 `(?<!\w)` 并扩到文档与模板后受检面为 85 个文件 239 处、全部存在；② 初版 WARN 写「重录时自动保留」不准——只有 `record_archify_all.py` 经 `prior_type` 透传，单图 `record_archify.py` 不带 `--type` 重录会重新嗅探并覆盖（`record_archify.py` 的 `a.type or _sniff_diagram_type(src)`），WARN 与覆盖门注释已如实区分两条路径。
 
 **后续防范**：门文案里凡指名脚本的，加一条「脚本存在性」测试断言（抽取文案中的 scripts/*.py 名单对照文件面）。
 
-**同类问题影响**：与 RSI-005 同型——文案与机制面缺乏一致性执法。
+**同类问题影响**：与 I-005 同型——文案与机制面缺乏一致性执法。
 
-## RSI-007 画面文字逐字复述口播，与烧录字幕叠成上下两层相同文字
+<a id="I-007"></a>
+## I-007：画面文字逐字复述口播，与烧录字幕叠成上下两层相同文字
 
 **表因**：jev-decision-model-video 成片中，11 句口播在画面里另有一张逐字相同的文字卡（P6 收尾金句卡「当每一次判断都便宜到可以随手来一次——」、P6 用法清单四条、P1「打分不是每个选项各算各的」判词等），底部 frozen Subtitle 又逐句烧录同一句——观众看到上下两层同一句话。用户审片时指为严重问题。
 
@@ -110,7 +197,8 @@
 
 **同类问题影响**：negentropy 13 集有存量（合计 85 处，见复现），均为已发布成片，本 PR 不改其内容。本门缺省执法后，这些集在 `pipeline.py check` / `all` 上会红，重渲前必须先修（或逐处以 `caption-dup-ok` 说明）。jev 集（发现集）的 9 处已于 [negentropy#1173](https://github.com/ThreeFish-AI/negentropy/pull/1173) 处理（2026-09-24）：改为关键词锚点、复述门 FAIL 0、重渲并交付 v3（内容侧记录见 negentropy ISSUE-199）；余 12 集 76 处待各自重渲前处理。
 
-## RSI-008 Skill 不合 Agent Skills 规范：frontmatter 被官方校验器拒收，路由壳缺渐进披露与条件加载，速查门列漂移
+<a id="I-008"></a>
+## I-008：Skill 不合 Agent Skills 规范：frontmatter 被官方校验器拒收，路由壳缺渐进披露与条件加载，速查门列漂移
 
 **表因**：以 Agent Skills 规范（agentskills.io 规范、官方参考校验器 skills-ref、Anthropic skill authoring best practices）审计本 Skill，发现五类差距：① `skills-ref validate` 失败，报 `Found ugly disallowed JSONesque flow mapping`，位置在 SKILL.md:5 的 `metadata: {…}`；② `allowed-tools` 用逗号分隔（规范为空格分隔），缺 `compatibility`，description 里塞了 1080p30、`--root`、vN 等实现细节，缺英文触发词和负向边界；③ SKILL.md 九阶段速查的「通过门」列是 stages.toml `gate` 的手抄件，9 行里 6 行已漂移（③⑤⑥⑧⑨ 截短或改写，⑦ 内容不同）；④ 快速通道第 5 步教 `npx tsc --noEmit`，与 06 规格「工具一律 `./node_modules/.bin/` 直调」矛盾；⑤ 路由壳没有任务分流，也没说明何时读哪份文件（VOICE-CLONING 等手册要两跳才能到），env 表的 SSOT 放在每次激活都全量加载的 SKILL.md 里，超过 100 行的 5 份规格没有目录，仓内没有评测资产，目录也不合规范的 `scripts/ references/ assets/` 惯例。
 
@@ -124,25 +212,26 @@
 
 **处理方式**：[PR #16](https://github.com/ThreeFish-AI/to-video/pull/16)，分三次提交（另有一次按核验反馈补强）：[0b82a71](https://github.com/ThreeFish-AI/to-video/commit/0b82a71) 目录迁移、[14c5b22](https://github.com/ThreeFish-AI/to-video/commit/14c5b22) SKILL.md 与文档重构及执法测试、[43427f1](https://github.com/ThreeFish-AI/to-video/commit/43427f1) 台账与 CHANGELOG、[71b06f4](https://github.com/ThreeFish-AI/to-video/commit/71b06f4) 核验反馈修正。① 用 `git mv` 迁到规范布局，`pipeline/scripts → ../scripts` 保留为软链。这条软链是已部署 frozen 薄包装的定位路径（ABI），5 份包装器的解析函数与全部 frozen 文件字节不变。`pipeline/README.md` 改为迁移桩，全仓 Markdown 链接按旧位置重算。② frontmatter 只保留规范六字段：metadata 改块式、allowed-tools 改空格分隔、新增 compatibility，description 改写为「做什么 + Use when + 不用于」。SKILL.md 重构为：任务分流 → 工作流（显式修复重跑循环）→ 速查（门列逐字等于 stages.toml，⑦ 的 gate 补上「运动层铁律」）→ 不变量（新增包装器 ABI）→ 运行时陷阱 → 按需加载。env 表迁入 PIPELINE.md 并补 `INDEXTTS_SERVER`，5 份长规格各加一行目录，新建 docs/.agents/knowledge-map.md。③ 新增 evals/（3 个输出评测、20 条触发评测，含近邻负例）；新增 `tests/test_skill_spec.py`（只用标准库，是比 strictyaml 更严的 frontmatter 子集解析器，并覆盖字段约束、正文预算、加载期标记、目录行、evals 结构、全仓链接网）；新增门列同源、npx、旧路径三条回归门，以及 ABI 软链两条执法。顺带修正两处迁移前就失实的文案：`prepare_ref.py --out` 的帮助文本和 tts 指纹不符提示，都曾指向不存在的 `pipeline/voices/`，现改为 `$V`。G3 的 evals 新旧对拍推迟到合并后执行：个人级 `~/.claude/skills/to-video` 指向另一份 clone，会遮蔽 worktree 里的同名 skill，合并前测到的只会是旧 description（见 evals/README.md）。
 
-**后续防范**：改 frontmatter 后必须过 test_skill_spec，必要时一次性跑官方 skills-ref。不得为 Claude Code 专有能力引入规范外字段，否则牺牲可移植性，要引入须显式决策。SKILL.md 里任何与 stages.toml、PIPELINE.md 重复的文本，都必须挂逐字同源的执法，否则只留指针。不得删除 `pipeline/scripts` 软链，也不得修改包装器解析函数（该句已被 RSI-009 推翻：兼容面整体移除，解析函数探测路径随之改指 `scripts/`）。改 description 前后，按 evals/README 做触发评测对拍。评审回归（2026-09-25）：旧路径门曾漏掉两类形态——脚本注释里省略 `pipeline/` 前缀的 `templates/<子目录>`，以及 mermaid 图源首行的 `%% source:`（该目录不在受检面内）。现已把两者纳入执法，并修正全部 8 处失效指针。其中 3 处无法泛化检测，只能人工复核：跨目录的相对指针 `../README.md`、不带子目录的 `templates/`、仍作为迁移桩存在的 `pipeline/README.md`。今后搬迁目录时，受检面须覆盖所有「指回文档」的非 Markdown 文件。二次评审（2026-09-25）：工作流 ⑧ 的裸 `pipeline.py … qa`（旧 SKILL.md 就有）必在 qa_frames 处 parser.error（缺 `<video>` 与选择器），修复循环到不了零 FAIL，已改为 `qa --video out/draft.mp4 --last-n 6 --check`，新增 `test_router_qa_commands_pass_both_parsers`：让 SKILL.md 的 qa 实参真跑过 pipeline.py 与 qa_frames.py 两层 argparse。教训：复制即跑的命令要用真解析器判定，文本启发式（只查带不带 `--video`）会放过「有视频、缺选择器」的形态。模板 `README.md.tmpl` 第一条 `qa --video out/draft.mp4 --check` 正是这个形态、同样必败，登记为跟进项：它的现有门 `test_template_readme_qa_commands_are_runnable` 只查 `--video`，未拦住。
+**后续防范**：改 frontmatter 后必须过 test_skill_spec，必要时一次性跑官方 skills-ref。不得为 Claude Code 专有能力引入规范外字段，否则牺牲可移植性，要引入须显式决策。SKILL.md 里任何与 stages.toml、PIPELINE.md 重复的文本，都必须挂逐字同源的执法，否则只留指针。不得删除 `pipeline/scripts` 软链，也不得修改包装器解析函数（该句已被 I-009 推翻：兼容面整体移除，解析函数探测路径随之改指 `scripts/`）。改 description 前后，按 evals/README 做触发评测对拍。评审回归（2026-09-25）：旧路径门曾漏掉两类形态——脚本注释里省略 `pipeline/` 前缀的 `templates/<子目录>`，以及 mermaid 图源首行的 `%% source:`（该目录不在受检面内）。现已把两者纳入执法，并修正全部 8 处失效指针。其中 3 处无法泛化检测，只能人工复核：跨目录的相对指针 `../README.md`、不带子目录的 `templates/`、仍作为迁移桩存在的 `pipeline/README.md`。今后搬迁目录时，受检面须覆盖所有「指回文档」的非 Markdown 文件。二次评审（2026-09-25）：工作流 ⑧ 的裸 `pipeline.py … qa`（旧 SKILL.md 就有）必在 qa_frames 处 parser.error（缺 `<video>` 与选择器），修复循环到不了零 FAIL，已改为 `qa --video out/draft.mp4 --last-n 6 --check`，新增 `test_router_qa_commands_pass_both_parsers`：让 SKILL.md 的 qa 实参真跑过 pipeline.py 与 qa_frames.py 两层 argparse。教训：复制即跑的命令要用真解析器判定，文本启发式（只查带不带 `--video`）会放过「有视频、缺选择器」的形态。模板 `README.md.tmpl` 第一条 `qa --video out/draft.mp4 --check` 正是这个形态、同样必败，登记为跟进项：它的现有门 `test_template_readme_qa_commands_are_runnable` 只查 `--video`，未拦住。
 
 **同类问题影响**：已发布分集和工作区经软链零改动继续可用。它们 README 里的 `$T/pipeline/scripts/…` 命令仍然有效。已部署分集 README 与 pipeline.toml 里的 GitHub blob 外链，按 negentropy 14 集实测：`pipeline/README.md` 27 处会落到迁移桩；另有 15 处在合并后 404，分别是 `pipeline/VOICE-CLONING.md` 6 处、`pipeline/templates/video-skeleton/skeleton.toml` 8 处、`pipeline/skills/06-remotion-implementation.md` 1 处。这 15 处属于内容侧的 seeded 文件（可改），RSI 回路对 `$W` 只读，故登记为 negentropy 侧跟进项：批量把外链改到 `references/…` 与 `assets/video-skeleton/skeleton.toml`。本仓不加重定向桩，避免在旧位置造出第二份文件。frozen 文件注释里的旧路径（如 SceneFade 的 `pipeline/skills/06…`）有意保留，按迁移桩里的映射表换算。复制式安装（`npx skills add --copy`）如果丢失软链，所有分集与工作区包装器都会失效（模板沿用同一解析函数，新建的也不例外），README 安装节已注明。
 
-## RSI-009 按 2.0.0 全新维护：移除全部历史兼容面（软链 ABI / 旧哨兵 / 旧 env 与缓存回退 / skeleton 历史登记 / 阶段编号错位）
+<a id="I-009"></a>
+## I-009：按 2.0.0 全新维护：移除全部历史兼容面（软链 ABI / 旧哨兵 / 旧 env 与缓存回退 / skeleton 历史登记 / 阶段编号错位）
 
-**表因**：RSI-008 迁移到 Agent Skills 规范布局时，为已部署的 negentropy14 集薄包装保留了 `pipeline/scripts` 软链 ABI、旧哨兵 `.influence-root`、旧 env `NE_TTS_STORE` 与旧缓存目录回退、skeleton.toml 内 33 条 `[[drift]]` 与 2 组 `[[generation]]` 历史登记，以及「⑥↔07、⑦↔06 编号错位」（当初因入链 ≥5 处、改名代价大而保留）。这些兼容物使 skill 仓持续背着历史包袱：frozen 文件注释里的旧路径不能改、迁移桩与不变量 16 须永久维护、skeleton.toml 一半篇幅是别仓集名。
+**表因**：I-008 迁移到 Agent Skills 规范布局时，为已部署的 negentropy14 集薄包装保留了 `pipeline/scripts` 软链 ABI、旧哨兵 `.influence-root`、旧 env `NE_TTS_STORE` 与旧缓存目录回退、skeleton.toml 内 33 条 `[[drift]]` 与 2 组 `[[generation]]` 历史登记，以及「⑥↔07、⑦↔06 编号错位」（当初因入链 ≥5 处、改名代价大而保留）。这些兼容物使 skill 仓持续背着历史包袱：frozen 文件注释里的旧路径不能改、迁移桩与不变量 16 须永久维护、skeleton.toml 一半篇幅是别仓集名。
 
 **复现**：`grep -rn 'influence-root\|NE_TTS_STORE\|LEGACY_STORE' --exclude-dir=.git .` 命中 scripts/tests/assets/references 共 10 个文件；`awk '/^\[\[drift\]\]/{c++} END{print c}' assets/video-skeleton/skeleton.toml` = 33；`ls pipeline/` = 迁移桩 README + 软链。negentropy 侧实测依赖面：14 集 61 个包装器探测 `pipeline/scripts`、pre-commit `series-consistency-check` 走工作区包装器、tts-store 65M/1815 句在旧目录。
 
-**根因**：RSI-008 的方案比选以「已部署包装器无法更新」为前提排除了「迁移但不留软链」。该前提是历史包袱的根源：兼容义务一旦背上就单调增长（软链→旧哨兵→旧 env→登记表→不可改的 frozen 注释），每次机制演进都要先问历史集答不答应。
+**根因**：I-008 的方案比选以「已部署包装器无法更新」为前提排除了「迁移但不留软链」。该前提是历史包袱的根源：兼容义务一旦背上就单调增长（软链→旧哨兵→旧 env→登记表→不可改的 frozen 注释），每次机制演进都要先问历史集答不答应。
 
 **定性**：破坏性改进（semver major，2.0.0）。negentropy 侧破坏面已知且用户决策（2026-09-25）由其仓自行适配，不在本仓留任何迁移工程。
 
-**方案比选**：A 只删 pipeline/ 目录——不可行，包装器解析函数探测 `<skill>/pipeline/scripts/pipeline.py`，只删目录连新 scaffold 都找不到 skill；B 保留软链等兼容面、仅停止增长——与用户决策相悖，且兼容物维护成本（frozen 注释冻结、迁移桩、不变量执法）持续存在；C **兼容面整体移除 + 包装器探测改指 `scripts/`（采纳）**——推翻 RSI-008 对「迁移但不留软链」的否决，推翻依据：其前提「已部署包装器无法更新」被用户决策废除（negentropy 自行适配）。negentropy 侧适配三步（本仓不代做）：61 个包装器探测路径 `pipeline" / "scripts` → `scripts`（与模板字节同步）、补 `.to-video-root` 哨兵、`mv` tts-store 目录。
+**方案比选**：A 只删 pipeline/ 目录——不可行，包装器解析函数探测 `<skill>/pipeline/scripts/pipeline.py`，只删目录连新 scaffold 都找不到 skill；B 保留软链等兼容面、仅停止增长——与用户决策相悖，且兼容物维护成本（frozen 注释冻结、迁移桩、不变量执法）持续存在；C **兼容面整体移除 + 包装器探测改指 `scripts/`（采纳）**——推翻 I-008 对「迁移但不留软链」的否决，推翻依据：其前提「已部署包装器无法更新」被用户决策废除（negentropy 自行适配）。negentropy 侧适配三步（本仓不代做）：61 个包装器探测路径 `pipeline" / "scripts` → `scripts`（与模板字节同步）、补 `.to-video-root` 哨兵、`mv` tts-store 目录。
 
 **处理方式**：PR #16 内分两批提交。①兼容面移除：`git rm -r pipeline/`；5 份包装器探测路径与 docstring 改指 `scripts/`（test_wrapper_resolver 的 fake_skill 布局与 argv 锚同步，删 2 条 ABI 软链执法）；`WORKSPACE_MARKERS` 收敛为 `.to-video-root`（scaffold 去旧哨兵探测；test_paths/test_init_workspace/test_check_series 删旧哨兵用例）；tts.py 删 `NE_TTS_STORE` 兼容读与 `LEGACY_STORE` 回退（store_root 解析序收敛为 env → 默认目录；test_tts_store 删 2 条兼容用例）；test_docs_paths 删 `$I/$R` 旧锚门与 `COMMAND_SPAN_RE` 的 I/R 记号、`_LEGACY_PATH_RE` 收紧为 `pipeline/` 前缀整体入拦；skeleton.toml 清零 drift/generation 登记、删 `baselineOf` 与 `.npmrc` 占位（verify_skeleton 的 baseline 机制保留，面向将来多模板；test_skeleton 放宽分代表非空前提、删 baselineOf 点名正控）。②编号对齐与资产清理：06-tts-voice / 07-remotion-implementation 文件互换与全量引用同步、错位警示与 test_stages 错位执法反转为对齐执法；influence--* 资产更名 pipeline-layers；frozen 文件陈旧注释修正；SKILL.md version 2.0.0 与 CHANGELOG 破坏性条目。
 
-**后续防范**：兼容义务以「显式决策 + 台账 + 版本号」为界——新增任何兼容读/回退/别名前，先问「删除它的 major 版本在哪」，无删除计划就不许加。skeleton 登记表只登记「当前合法偏离」，别仓集名不得进本仓模板。skill 仓不携带任何指向具体内容工作区的名字（系列 id、集 slug、仓名）。评审回归（2026-09-25）：文件号互换只改了带路径的链接，漏了三类写法——裸编号散文（RSI.md G2「不重述 06 机制与红线」、test_docs_paths 注释「06 规格」）、带新前缀但编号未换的 `references/05→06`、研究文档里的 `skills/06` 简写（4 处）；另有同一版本内 RSI-008 的 CHANGELOG 条目仍写「软链禁删 / 零改动可用 / 错位不变 / 不变量 16」，与 Breaking 节矛盾。现已全部改正。研究文档已纳入 `test_no_legacy_layout_paths` 受检面（`skills/NN` 简写入拦）。裸编号散文无法泛化检测（会与时间、序号误撞），今后改编号须对旧编号全仓 grep，并按上下文语义逐处判定。未发版的条目在发版前要改写到终态，被同版推翻的子句不得留在发布说明里。二次评审（2026-09-25）：包装器探测标记改为 `<c>/scripts/pipeline.py` 后与工作区根布局同形（`--init-workspace` 生成 `$W/scripts/pipeline.py`），`TO_VIDEO_HOME` 误指工作区时工作区包装器把自己认成 skill 入口、无界自递归（沙箱 3 秒串起 42 个子进程），分集包装器则去跑不存在的 `$W/scripts/tts.py`；旧标记 `pipeline/scripts` 不与任何工作区布局相撞，故为本次迁移引入。五份包装器命中判据加 `SKILL.md` 哨兵（与 `paths.SKILL_MARKER` 同口径），`test_home_pointing_at_workspace_falls_through` 五形态参数化执法（进程组超时整组 kill，旧实现下 5 条全红），A1 修复口径同步；negentropy 侧 ISSUE-200 的 A1 须同步此条件。教训：改探测标记时，须对照「可能被误指的目录」（工作区、分集、skill 旧版）的真实布局逐一核对是否同形，标记要取对方结构上不可能有的文件。三次评审（2026-09-25）：09 规格的字体重启触发器指针由 `pipeline/README「字体可复现性」`机械改写为 `references/PIPELINE.md「字体可复现性」`，但该事实条一直在 07 规格（main 上的旧指针即已悬空），同批 Subtitle.tsx 的同一指针却已改对；已改为指向 07 的可跳转链接，新增 `test_pipeline_section_refs_resolve`：`PIPELINE.md …「节名」` 形态的指针须命中 PIPELINE.md 真实标题（旧文案下红、点名 09:33）。教训：搬迁时改写的是「文件名」，节名是否仍在目标文件要单独核对；链接可达门只验文件、不验节名。
+**后续防范**：兼容义务以「显式决策 + 台账 + 版本号」为界——新增任何兼容读/回退/别名前，先问「删除它的 major 版本在哪」，无删除计划就不许加。skeleton 登记表只登记「当前合法偏离」，别仓集名不得进本仓模板。skill 仓不携带任何指向具体内容工作区的名字（系列 id、集 slug、仓名）。评审回归（2026-09-25）：文件号互换只改了带路径的链接，漏了三类写法——裸编号散文（RSI.md G2「不重述 06 机制与红线」、test_docs_paths 注释「06 规格」）、带新前缀但编号未换的 `references/05→06`、研究文档里的 `skills/06` 简写（4 处）；另有同一版本内 I-008 的 CHANGELOG 条目仍写「软链禁删 / 零改动可用 / 错位不变 / 不变量 16」，与 Breaking 节矛盾。现已全部改正。研究文档已纳入 `test_no_legacy_layout_paths` 受检面（`skills/NN` 简写入拦）。裸编号散文无法泛化检测（会与时间、序号误撞），今后改编号须对旧编号全仓 grep，并按上下文语义逐处判定。未发版的条目在发版前要改写到终态，被同版推翻的子句不得留在发布说明里。二次评审（2026-09-25）：包装器探测标记改为 `<c>/scripts/pipeline.py` 后与工作区根布局同形（`--init-workspace` 生成 `$W/scripts/pipeline.py`），`TO_VIDEO_HOME` 误指工作区时工作区包装器把自己认成 skill 入口、无界自递归（沙箱 3 秒串起 42 个子进程），分集包装器则去跑不存在的 `$W/scripts/tts.py`；旧标记 `pipeline/scripts` 不与任何工作区布局相撞，故为本次迁移引入。五份包装器命中判据加 `SKILL.md` 哨兵（与 `paths.SKILL_MARKER` 同口径），`test_home_pointing_at_workspace_falls_through` 五形态参数化执法（进程组超时整组 kill，旧实现下 5 条全红），A1 修复口径同步；negentropy 侧 ISSUE-200 的 A1 须同步此条件。教训：改探测标记时，须对照「可能被误指的目录」（工作区、分集、skill 旧版）的真实布局逐一核对是否同形，标记要取对方结构上不可能有的文件。三次评审（2026-09-25）：09 规格的字体重启触发器指针由 `pipeline/README「字体可复现性」`机械改写为 `references/PIPELINE.md「字体可复现性」`，但该事实条一直在 07 规格（main 上的旧指针即已悬空），同批 Subtitle.tsx 的同一指针却已改对；已改为指向 07 的可跳转链接，新增 `test_pipeline_section_refs_resolve`：`PIPELINE.md …「节名」` 形态的指针须命中 PIPELINE.md 真实标题（旧文案下红、点名 09:33）。教训：搬迁时改写的是「文件名」，节名是否仍在目标文件要单独核对；链接可达门只验文件、不验节名。
 
 **同类问题影响**：本仓 CHANGELOG/issue 台账中的历史叙述按记录保留，未随兼容面删除。破坏面与未兼容旧功能清单已同步登记到 negentropy 侧（[ISSUE-200](https://github.com/ThreeFish-AI/negentropy/pull/1174)，PR [#1174](https://github.com/ThreeFish-AI/negentropy/pull/1174)，2026-09-25），待其适配后逐项验证关闭：
 
@@ -154,34 +243,36 @@
 | A2 | pre-commit `series-consistency-check` 走工作区包装器，触及 influence 的提交被拦 | 同 A1（工作区 2 份包装器） | 暂存一处 influence 内改动，钩子 Passed 而非报「找不到 skill」 |
 | A3 | 旧哨兵 `.influence-root` 不再识别，依赖 WORKSPACE 锚的脚本大声退出 | 工作区根补空 `.to-video-root` | 工作区内任意目录直跑 `check_series.py`，rc=0 |
 | A4 | tts-store 旧目录（实测 65M / 1815 句）回退删除，缓存全 miss（重渲一集重合成 2.5–3.5h） | `mkdir -p ~/Library/Application\ Support/to-video` 后 `mv ~/Library/Application\ Support/negentropy-influence/tts-store ~/Library/Application\ Support/to-video/tts-store`（新目录已存在时改 `rsync -a` 合并，勿 mv 嵌套） | 任一集 `pipeline.py tts`（不改稿）零重合成、全部命中缓存 |
-| A5 | skeleton 登记清零 + frozen 模板字节变更（包装器探测行、remotion.config.ts 与 frozen 组件注释、.npmrc 删除），旧集 `verify_skeleton --strict` 大量 STALE/DRIFT 红 | 逐集整组同步模板（拷齐再 `tsc --noEmit`）；仍成立的偏离按 [RSI-010](#rsi-010-骨架合法偏离登记面在-skill-侧工作区无登记入口) 加 `skeleton.` 前缀登记进 `$W/to-video.toml` | 同步过的集 `--strict` rc=0 |
+| A5 | skeleton 登记清零 + frozen 模板字节变更（包装器探测行、remotion.config.ts 与 frozen 组件注释、.npmrc 删除），旧集 `verify_skeleton --strict` 大量 STALE/DRIFT 红 | 逐集整组同步模板（拷齐再 `tsc --noEmit`）；仍成立的偏离按 [I-010](#rsi-010-骨架合法偏离登记面在-skill-侧工作区无登记入口) 加 `skeleton.` 前缀登记进 `$W/to-video.toml` | 同步过的集 `--strict` rc=0 |
 | A6 | 已发布集 README/pipeline.toml 的 GitHub blob 外链 42 处（15 处本已 404 + 27 处指向已删迁移桩） | 批量改指 `references/…` 与 `assets/video-skeleton/skeleton.toml` | 抽检 5 处链接可达 |
 
-**B. 未兼容的旧版功能（2.0.0 有意不支持；用于后续「未回归」核对）**：`.influence-root` 哨兵识别；`NE_TTS_STORE` 旧 env 名与旧默认目录回退；`$T/pipeline/scripts/…` 命令路径与 `pipeline/README.md` 迁移桩；`baselineOf` 模板缺省值（机制保留、模板不设）；**skill 侧 skeleton 登记**——旧版在 skill 侧登记内容仓集名的 drift/generation；2.0.0 起 skill 侧登记键被 verify_skeleton 拒收，登记面迁至工作区（见 RSI-010）；模板 `.npmrc` 占位文件。
+**B. 未兼容的旧版功能（2.0.0 有意不支持；用于后续「未回归」核对）**：`.influence-root` 哨兵识别；`NE_TTS_STORE` 旧 env 名与旧默认目录回退；`$T/pipeline/scripts/…` 命令路径与 `pipeline/README.md` 迁移桩；`baselineOf` 模板缺省值（机制保留、模板不设）；**skill 侧 skeleton 登记**——旧版在 skill 侧登记内容仓集名的 drift/generation；2.0.0 起 skill 侧登记键被 verify_skeleton 拒收，登记面迁至工作区（见 I-010）；模板 `.npmrc` 占位文件。
 
-**C. 本机其他依赖**：`to-video-e2e/mini-video` 测试工作区包装器失效（重建即可）；真树回归语料（`TO_VIDEO_TEST_WORKSPACE` 指 negentropy 树）待 A1/A3 完成后恢复——扫描类门（`--check-scenes` 等）的红绿对拍在此之前不可用，不得以单行构造样例替代（见 RSI-007 教训）。
+**C. 本机其他依赖**：`to-video-e2e/mini-video` 测试工作区包装器失效（重建即可）；真树回归语料（`TO_VIDEO_TEST_WORKSPACE` 指 negentropy 树）待 A1/A3 完成后恢复——扫描类门（`--check-scenes` 等）的红绿对拍在此之前不可用，不得以单行构造样例替代（见 I-007 教训）。
 
-**D. 跟进项（非破坏，已在 RSI-008 评审回归段登记，不重复维护）**：模板 `README.md.tmpl` 首条 `qa --video out/draft.mp4 --check` 缺选择器、照抄必败。
+**D. 跟进项（非破坏，已在 I-008 评审回归段登记，不重复维护）**：模板 `README.md.tmpl` 首条 `qa --video out/draft.mp4 --check` 缺选择器、照抄必败。
 
-## RSI-010 骨架合法偏离登记面在 skill 侧，工作区无登记入口
+<a id="I-010"></a>
+## I-010：骨架合法偏离登记面在 skill 侧，工作区无登记入口
 
-**表因**：RSI-009 清空 skeleton.toml 的 33 条 `[[drift]]` 与 2 组 `[[generation]]` 后，2.0.0 CHANGELOG 写「旧内容工作区的既有漂移须重新登记到各自工作区」，但 `verify_skeleton.py` 只读 skill 侧 `$T/assets/video-skeleton/skeleton.toml`，工作区无任何登记入口；同批删掉的登记格式说明（指纹口径、「缺失」哨兵、分代语义）仍被 `pipeline.py` 英文渲染预检报错与 `verify_skeleton.py` docstring 三处指向。
+**表因**：I-009 清空 skeleton.toml 的 33 条 `[[drift]]` 与 2 组 `[[generation]]` 后，2.0.0 CHANGELOG 写「旧内容工作区的既有漂移须重新登记到各自工作区」，但 `verify_skeleton.py` 只读 skill 侧 `$T/assets/video-skeleton/skeleton.toml`，工作区无任何登记入口；同批删掉的登记格式说明（指纹口径、「缺失」哨兵、分代语义）仍被 `pipeline.py` 英文渲染预检报错与 `verify_skeleton.py` docstring 三处指向。
 
 **复现**：`grep -n 'skel.get("drift"\|skel.get("generation"' scripts/verify_skeleton.py` 命中两处，均取自 `SKELETON_TOML`；skeleton.toml 内 `grep -c '分代'` = 0，而 `pipeline.py:643` 报错文案指向「skeleton.toml 分代说明」。
 
-**根因**：登记表在机制与内容同址时代（skill 住在 negentropy 工作区内）放进了模板；抽取为独立 skill 后，登记条目指向的具体集属于**内容**，却仍只能写进**机制**侧——任何用户停用/魔改 frozen 文件都得改已安装的 `$T`，违反 RSI「制片期 `$T` 只读」，且下次 `git pull` 冲突。RSI-009 台账 B 节已把「工作区侧登记」列为另立条目的长期解，CHANGELOG 却按已实现来写。
+**根因**：登记表在机制与内容同址时代（skill 住在 negentropy 工作区内）放进了模板；抽取为独立 skill 后，登记条目指向的具体集属于**内容**，却仍只能写进**机制**侧——任何用户停用/魔改 frozen 文件都得改已安装的 `$T`，违反 RSI「制片期 `$T` 只读」，且下次 `git pull` 冲突。I-009 台账 B 节已把「工作区侧登记」列为另立条目的长期解，CHANGELOG 却按已实现来写。
 
 **定性**：机制缺陷（缺登记面）+ 文档指针悬空；随 2.0.0 同版修复，免得登记位置日后再迁一次、又造成一次破坏性变更。
 
-**方案比选**：A **登记面迁至工作区 `to-video.toml` 的 `[skeleton]`（采纳）**——与该文件既有定位「内容策略随内容走，skill 不携带具体系列身份」同构（同 check_series 的系列 id 集）；键名不变、表名加前缀即可原样搬运旧条目。B 只改 CHANGELOG 文案——零代码，但「改偏离须改 `$T`」的缺口延到下个版本，届时迁移又是一次 breaking。A 的子选择：与 skill 侧**合并**读取被否决（两处登记 = split-brain，且合法条目必含集名、skill 侧不存在正当用途），改为 skill 侧出现 `drift`/`generation` 键即大声退出；`baselineOf` 是模板级声明，维持 skill 侧（RSI-009 已定，面向将来多模板）。
+**方案比选**：A **登记面迁至工作区 `to-video.toml` 的 `[skeleton]`（采纳）**——与该文件既有定位「内容策略随内容走，skill 不携带具体系列身份」同构（同 check_series 的系列 id 集）；键名不变、表名加前缀即可原样搬运旧条目。B 只改 CHANGELOG 文案——零代码，但「改偏离须改 `$T`」的缺口延到下个版本，届时迁移又是一次 breaking。A 的子选择：与 skill 侧**合并**读取被否决（两处登记 = split-brain，且合法条目必含集名、skill 侧不存在正当用途），改为 skill 侧出现 `drift`/`generation` 键即大声退出；`baselineOf` 是模板级声明，维持 skill 侧（I-009 已定，面向将来多模板）。
 
 **处理方式**：`verify_skeleton.py` 新增 `load_registry()`（skill 侧登记键 → `sys.exit` 点名迁移方式；读 `$W/to-video.toml` 的 `skeleton` 表，缺失 = 无登记）；已登记偏离报告改为全部列出，指向 series.json 未知集的条目标「陈旧登记」旁注（登记本地化后「他工作区登记是噪音」的过滤理由不再成立）。skeleton.toml 恢复「合法偏离登记」「骨架分代」两节格式说明（不含条目），三处既有指针随之重新生效；工作区模板 `to-video.toml.tmpl` 加 `[skeleton]` 注释示例，scaffold init 提示同步；07 / PIPELINE.md / CHANGELOG（negentropy 适配增第 ④ 步）指针同步。test_skeleton 的 `register_drift` / `inject_generation` 改写工作区 to-video.toml（既有 6 条分代正控与 2 条 drift 正控随之覆盖新路径），新增 skill 侧登记被拒、模板零登记、陈旧登记旁注三条用例；三条真树用例改读工作区登记。
 
-**后续防范**：skill 仓只放机制；任何「指向具体集/系列」的数据（登记、豁免、花名册）一律住工作区，新增此类配置前先问「它随内容变还是随机制变」。发布说明里的迁移步骤必须能照做——写「须登记到 X」前先确认 X 存在读取入口。删除数据条目时区分「条目」与「格式说明」：前者可清零，后者是机制文档，删了即留悬空指针。评审回归（2026-09-25）：三处漏改——① DRIFT-CHANGED 的处置文案仍写「请复核后更新 skeleton.toml」，照做会被 `load_registry()` 拒收，已改指 `$W/to-video.toml` 的 `[[skeleton.drift]]`，并在 `test_registered_drift_is_pinned_to_its_fingerprint` 断言该行指向工作区；② CHANGELOG 第 ① 步称包装器同步后「verify_skeleton 随之对齐」不成立——同版 7 个 frozen TS/TSX 的纯注释修正改变了 md5，英文渲染预检（直比字节、不查登记）会拦下全部既有集，已补为第 ② 步（当代集整组拷齐、旧代集只拷组外文件），分集包装器亦须整文件覆盖而非只改探测行；③ test_skeleton 分代节注释仍写「登记落在镜像 skeleton.toml」。教训：迁移登记面后，须全仓 grep 旧落点名（含报错文案与测试注释）；迁移步骤里「随之对齐」之类的结论要用字节比对实测，不凭推断。二次评审（2026-09-25）：① skill 侧拒收守卫只查顶层 `drift` / `generation` 键，而 skeleton.toml 格式说明里的示例本身就是 `[[skeleton.drift]]`——原样贴进 skill 侧时解析为 `skeleton.drift`，守卫不触发、登记被静默忽略（沙箱实测：带正确指纹仍 `--strict` rc=1 且无指路）。已把拒收键扩为 `LEAK_KEYS`（旧表名 + `skeleton`），`test_skill_side_registry_is_refused` 参数化覆盖两种写法（旧守卫下新用例红）；② skeleton.toml 与 check_script、verify_skeleton、test_skeleton 注释里仍有 9 处旧表名 `[[drift]]`，已统一为 `[[skeleton.drift]]`（测试里刻意注入的旧写法除外）。教训：拒收守卫要按「格式说明里示例的原样形态」建反例，而不只按旧形态建。三次评审（2026-09-25）：① 登记迁到工作区后，drift「必钉指纹」等策略断言只剩真树用例（集成模式、单一工作区）在跑，普通工作区写一条缺 fingerprint 的登记即被 `exempt()` 无条件放行、该文件永久免检。已新增 `registry_problems()` 载入期校验（drift 四字段必填、指纹 12 位 hex 或「缺失」、路径在受门档位、同集同文件不重复；generation 的 id / reason / 花名册 / legacy 非空，legacy 在受门档位且 ≠ 当前模板指纹），非法即大声退出，`exempt()` 删去「未钉即放行」分支；两条真树用例改为委托该函数（规则单一实现），另加离线正反控 10 条与端到端 1 条（旧实现下红）。用 origin/main 旧 skeleton.toml 模拟第 ⑤ 步搬运：33 条 drift 与 bilingual-i18n 全过，仅 `npmrc-inert-key`（`.npmrc` 已退出受门）被拒，CHANGELOG 第 ⑤ 步已注明勿搬；② 拒收文案对已带 `skeleton.` 前缀的形态仍教「加前缀」，照做得 `[[skeleton.skeleton.drift]]`、登记被静默忽略，已按泄漏写法分支指路；③ CHANGELOG 第 ④ 步与 RSI-009 A4 的 `mv` 缺 `mkdir -p`（1.x 在旧目录存在时从不建新目录，本机实测父目录不存在，mv 必报 No such file or directory），且丢了 1.0.0「目标已存在改 rsync 合并、勿 mv 嵌套」的提醒，已补。教训：策略从「本仓测试执法」迁到「用户数据」时，执法点须同步迁到运行期；迁移命令要在目标机器的真实初态上走一遍，不能只在干净环境里推演。
+**后续防范**：skill 仓只放机制；任何「指向具体集/系列」的数据（登记、豁免、花名册）一律住工作区，新增此类配置前先问「它随内容变还是随机制变」。发布说明里的迁移步骤必须能照做——写「须登记到 X」前先确认 X 存在读取入口。删除数据条目时区分「条目」与「格式说明」：前者可清零，后者是机制文档，删了即留悬空指针。评审回归（2026-09-25）：三处漏改——① DRIFT-CHANGED 的处置文案仍写「请复核后更新 skeleton.toml」，照做会被 `load_registry()` 拒收，已改指 `$W/to-video.toml` 的 `[[skeleton.drift]]`，并在 `test_registered_drift_is_pinned_to_its_fingerprint` 断言该行指向工作区；② CHANGELOG 第 ① 步称包装器同步后「verify_skeleton 随之对齐」不成立——同版 7 个 frozen TS/TSX 的纯注释修正改变了 md5，英文渲染预检（直比字节、不查登记）会拦下全部既有集，已补为第 ② 步（当代集整组拷齐、旧代集只拷组外文件），分集包装器亦须整文件覆盖而非只改探测行；③ test_skeleton 分代节注释仍写「登记落在镜像 skeleton.toml」。教训：迁移登记面后，须全仓 grep 旧落点名（含报错文案与测试注释）；迁移步骤里「随之对齐」之类的结论要用字节比对实测，不凭推断。二次评审（2026-09-25）：① skill 侧拒收守卫只查顶层 `drift` / `generation` 键，而 skeleton.toml 格式说明里的示例本身就是 `[[skeleton.drift]]`——原样贴进 skill 侧时解析为 `skeleton.drift`，守卫不触发、登记被静默忽略（沙箱实测：带正确指纹仍 `--strict` rc=1 且无指路）。已把拒收键扩为 `LEAK_KEYS`（旧表名 + `skeleton`），`test_skill_side_registry_is_refused` 参数化覆盖两种写法（旧守卫下新用例红）；② skeleton.toml 与 check_script、verify_skeleton、test_skeleton 注释里仍有 9 处旧表名 `[[drift]]`，已统一为 `[[skeleton.drift]]`（测试里刻意注入的旧写法除外）。教训：拒收守卫要按「格式说明里示例的原样形态」建反例，而不只按旧形态建。三次评审（2026-09-25）：① 登记迁到工作区后，drift「必钉指纹」等策略断言只剩真树用例（集成模式、单一工作区）在跑，普通工作区写一条缺 fingerprint 的登记即被 `exempt()` 无条件放行、该文件永久免检。已新增 `registry_problems()` 载入期校验（drift 四字段必填、指纹 12 位 hex 或「缺失」、路径在受门档位、同集同文件不重复；generation 的 id / reason / 花名册 / legacy 非空，legacy 在受门档位且 ≠ 当前模板指纹），非法即大声退出，`exempt()` 删去「未钉即放行」分支；两条真树用例改为委托该函数（规则单一实现），另加离线正反控 10 条与端到端 1 条（旧实现下红）。用 origin/main 旧 skeleton.toml 模拟第 ⑤ 步搬运：33 条 drift 与 bilingual-i18n 全过，仅 `npmrc-inert-key`（`.npmrc` 已退出受门）被拒，CHANGELOG 第 ⑤ 步已注明勿搬；② 拒收文案对已带 `skeleton.` 前缀的形态仍教「加前缀」，照做得 `[[skeleton.skeleton.drift]]`、登记被静默忽略，已按泄漏写法分支指路；③ CHANGELOG 第 ④ 步与 I-009 A4 的 `mv` 缺 `mkdir -p`（1.x 在旧目录存在时从不建新目录，本机实测父目录不存在，mv 必报 No such file or directory），且丢了 1.0.0「目标已存在改 rsync 合并、勿 mv 嵌套」的提醒，已补。教训：策略从「本仓测试执法」迁到「用户数据」时，执法点须同步迁到运行期；迁移命令要在目标机器的真实初态上走一遍，不能只在干净环境里推演。
 
-**同类问题影响**：negentropy 侧 A5 由「整组同步或接受红」扩为可登记（CHANGELOG 第 ⑤ 步）；旧版在 skill 侧登记的写法在 2.0.0 被拒收（RSI-009 B 节同步改写）。
+**同类问题影响**：negentropy 侧 A5 由「整组同步或接受红」扩为可登记（CHANGELOG 第 ⑤ 步）；旧版在 skill 侧登记的写法在 2.0.0 被拒收（I-009 B 节同步改写）。
 
-## RSI-011 默认配音「朗读感」：合成结构而非情绪强度
+<a id="I-011"></a>
+## I-011：默认配音「朗读感」：合成结构而非情绪强度
 
 **表因**：用户连续两轮否决调优结果（2026-09-25）——α≤1 的语调迁移「过于保守」，α>1 外推「情绪够但仍是朗读、且像别人」。按句内起伏幅度调参无法收敛。
 
@@ -195,17 +286,21 @@
 
 **同类问题影响**：14 个存量集仍锁 sunny-steady（用户确认先不动；手工重制时按 references/06「重制存量集」流程切 story + 补台本）。
 
-## RSI-012 文档谎报上游情感混合行为：向量在场时音频被整个丢弃
+<a id="I-012"></a>
+## I-012：文档谎报上游情感混合行为：向量在场时音频被整个丢弃
 
 **表因**：第三轮实验中 `--emo-ref` + `--emo-vector` 同传（实验服务放行）的输出与纯向量**逐字节一致**（p04/p11 cmp 相同）。
 
 **根因**：上游 `infer_v2_5.py:582-585` 只要给了 `emo_vector` 就把 `emo_audio_prompt` 置 None——音频被整个丢弃。本仓 `tts_server.py` 注释与 `INDEXTTS-2.5-ADVANCED.md` §3.1 均声称「音频仍会以 (1−Σw) 权重混进最终 emovec」，**错误**：`(1−Σw)` 份额实际来自本人 `spk_audio_prompt` 的情感编码（emo_audio_prompt 回落为 spk 自身）。生产端行为无影响（服务本就拒绝同传），但误导调参方向——第三轮实验有一个对照组（「博主语调 × 段落」）实际从未用到博主音频，标签失实。
 
+**定性**：低危文档缺陷（勘误类——生产端行为无影响，但失实断言误导调参方向与实验对照解读）。
+
 **处理方式**：tts_server.py 请求模型注释与 ADVANCED §3.1 勘误（附源码行号与字节级实测证据）；第三轮试听页 #07 的真实配方同步勘误（纯本人音色的段落演绎——这也解释了它音色门全场最稳）。
 
 **后续防范**：涉及上游行为的文档断言须附源码行号锚点；「A 与 B 组合生效」类机制声明，用「同传 A+B vs 只传 A 输出逐字节比对」验证过才可写。
 
-## RSI-013 流水线缺「写顺」环节：AI 稿件语义与段落断断续续、不按人的阅读习惯组织
+<a id="I-013"></a>
+## I-013：流水线缺「写顺」环节：AI 稿件语义与段落断断续续、不按人的阅读习惯组织
 
 **表因**：用户反馈（2026-09-25）：流水线产出的逐字稿、策划案、分镜等稿件语义与段落之间断断续续，不按人的阅读理解习惯（总分总、结论先行、段间过渡）组织，读起来是 AI 写的。
 
@@ -219,11 +314,12 @@
 
 **处理方式**：新增 `references/05-prose-refinement.md`（四层 pass + 四稿专属规则 + 中文去机器味检查表 + 改动审计与复核），原 05–09 `git mv` 顺移为 06–10；stages.toml 插入 `prose-refinement`（authored、无子命令）；SKILL.md / README / PIPELINE.md / knowledge-map / evals / 脚本文案 / 模板与 frozen 注释中的阶段序号与文件名全量同步；RSI.md 不变量 1、8、11 与对应测试去数字化；新增文档完整性门 `test_spec_references_resolve`；两张架构图重生成。[PR #18](https://github.com/ThreeFish-AI/to-video/pull/18)，commit `c3834c4`。
 
-**后续防范**：① 执法测试与不变量**不写死阶段数量或具体序号**，一律从 stages.toml 推导（本次三条测试与三条不变量都曾写死「9」）；② 规格文件名出现在注释与散文里时，改名必须过 `test_spec_references_resolve`，不能只靠 Markdown 链接门；③ 裸写的 `references/07` 这类简写不在门内，改名时须用 `git grep` 搜出所有「references/ + 两位数字」且后面不跟连字符的写法，人工逐条核对；④ 内容层新规则上线前，先在真实语料上量化病灶，避免给已经干净的层级加门。评审回归（2026-09-26）：① 通过门里的「成文评审 REWRITE=0」在规格中找不到产出它的步骤：第九节只定义了改动句回 ④A 复核，第十节只是勾选表，执行 ⑤ 的代理无法判门。已在第九节补第 3 步「成文评审」：独立子代理只拿规格、改后稿件和改动表，按第三至第八节的具名规则判 REWRITE；给不出规则编号的意见不算。② 改动句复核判 REWRITE 时只写了「按 ④ 修正」，门里却只查 RISKY=0。门改为「成文评审 REWRITE=0 且改动句复核 RISKY=0、REWRITE=0」，与 ④ 同口径，stages.toml / SKILL.md / README / CHANGELOG / evals 与 `prose-refinement--passes` 图同步更新。教训：authored 阶段的 prompt 门没有测试兜底，门里每个判定量都要能在规格里找到「谁产出、按什么判」；引用上游门的判定时，连同上游的放行口径一起引用。二次评审（2026-09-26）：① 第九节的 RISKY 回退按单句粒度，但第四节第 9 条允许在相邻 id 间搬运文本，只回退其中一句会让被搬运的文本丢失或重复，且回退句不再送评审、无环节兜底。已改为：重新分配涉及的几个 id 在改动表合写一行，回退以行为单元整组回退。② scaffold 结尾提示「润色四稿再切镜」与规格时序矛盾（分镜在 ⑥ 才产出），改为润色笔记 / 策划 / 逐字稿后切镜、分镜定稿前回调 ⑤ 第七节。③ 研究文档方案 A 一行残留旧序号「②③⑤」，改为 ②③⑥。教训：规则允许跨单元搬运内容时，回退、复核等补偿动作的粒度必须与搬运的粒度一致；重编号后，研究文档里描述候选方案的旧序号同样要按 `git grep` 圈号逐条核对。三次评审（2026-09-26）：① 第九节第 1 步「在 git 下即以 git diff 定位改动」默认稿件已提交，而新集稿件在 ⑤ 时多半未被 git 跟踪，`git diff` 看不到，复核范围与 RISKY 回退都失去基准。已改为：稿件在 ④ 清零时已 commit 才用 `git diff HEAD` / `git show HEAD:`，否则一律复制到 `$P/.temp/prose-before/`；不拿暂存区当留底（改稿中途再 `git add` 即覆盖），没有留底不得开始改稿；evals #1 的 ⑤ 断言补「改前留底」。② 改动句复核只跑 ④A，而 ⑤ 的话题链改主语、跨 id 搬运正好会让 ④B 的术语降落、指代距离、抽象连段退步，定稿时无环节再核。复核范围扩为「A 节四级判定 + B 节前三条（连同前后句一起看）」，门的字面不变（B 只产出 REWRITE，已含在「REWRITE=0」内），04 规格、SKILL.md、stages.toml 注释、CHANGELOG、evals 与研究文档同步。③ `prose-refinement--passes` 图的输入仍是含分镜的「四稿」，与时序矛盾（分镜在 ⑥ 才产出）：输入改为三稿，顶部新增「⑥ 分镜回调」泳道（定稿 →切镜→ ⑥ 分镜，定稿前回调第七节），复核节点标注 ④A + ④B 前三条；archify showcase 9/9、0 错 0 警、无回折尖刺，visual-check 通过，重导 dark/light PNG，mmd 与 alt 文本同步。④ 新增的 `spec_reference_files()` 与既有 `current_docs_and_code()` 逐项重复，已删除并把知识索引并入后者（反控：向知识索引注入旧文件名即红）。教训：留底、回退这类补偿动作要先确认基准在真实初态下存在（新集 = 未跟踪文件）；上游门拆成 A/B 两半时，下游复核要写明复核哪一半，不能只引半边；修正一处时序表述后，要把同一说法的所有载体（脚本提示、图、alt 文本、规格步骤）一起 grep。四次评审（2026-09-26）：① 第九节第 1 步的留底基准写成 `HEAD`，而 HEAD 在 ⑤ 中途任何一次提交后都会移走：`git diff HEAD` 只剩最后一次提交之后的改动，更早改过的句子漏出 ④ 复核；RISKY 回退用 `git show HEAD:` 取回的也是改了一半的文本。已改为开工前 `git rev-parse HEAD` 记下基准 SHA，diff/show 一律用它。② 第四节第 9 条的跨 id 搬运对已有分镜的集不安全：SKILL.md「润色成稿」路由与第二节第 6 条都允许对已制作的集跑 ⑤，而分镜画面列、场景 `rel(beat,'句id')` / `at()` 时点、archify cue 锚句都按 id 绑定内容，文本搬走后画面比口播早或晚一句，`check` 查不出。已补护栏：分镜已存在时，搬运前在分镜与 `video/src/scenes/` 里 grep 涉及的 id，有画面锚在被搬走的文字上就同步改分镜与场景，或放弃搬运；第十节加一条对应勾选。CHANGELOG 同步。教训：留底基准要钉成不可变引用（SHA），不能用会随操作移动的引用（HEAD、暂存区）；研究文档里否决某方案的理由（这里是「破坏分镜句区间与锚句」），在规格仍允许该情形出现的路径上（已制作集）同样要设防。合并 main（2026-09-26，PR #17 story 配音已合入）：① 本条由 RSI-011 顺延改号为 RSI-013，现行文案、测试 docstring、mermaid 注释与 CHANGELOG 同步；② PR #17 新增文案里的 `references/06-tts-voice.md`（tts.py 两处）改指 07，CHANGELOG [Unreleased] 的「重制流程见 references/06」改为 07；③ ⑤ 规格与 story 档衔接：第二节第 6 条改为「逐句档改一句重配一句、story 档改一句重录整块」并补台本 `[say]` 同步义务（去标点全等，否则 build FAIL），第四节「与配音分块的关系」去掉「若采用」假设、写明 beat 首句应是台本块起点，研究文档 §五 同步。教训：并行分支各自预留台账编号时，后合入者合并前要先 `git grep` 对方已占用的编号；对方合入后，本分支里「尚未合入 / 若采用」这类以对方状态为前提的表述要逐条改成现状。五次评审（2026-09-26）：第九节第 5 步与第十节要求 ⑤ 定稿时「`build` + `check` 零 FAIL」，但新集走主路径（④ 后先润色、再切镜）时还没有 `storyboard.md`，`check_script.py` 的主稿完整门遇缺分镜直接退出（`storyboard.md 不存在`，rc=1；临时工作区实测复现），`pipeline.py check` 又在 zh 失败后短路、en 失配句也点不出——代理要么卡住，要么提前写分镜违反时序。已改为按分镜是否存在分流：已存在跑完整 `check`；新集跑 `check_script.py --pre-tts`（时长预算 / 读法陷阱 / 发音标注，实测 rc=0），双语集另跑 `--lang en`（en 门不读分镜，实测点名基线锁失配）；完整 `check` 移到 ⑥ 之后。SKILL.md 速查表 ⑤ 行与「润色成稿」路由、`prose-refinement--passes` 图（定稿节点改「build + 机器门零 FAIL」、⑥ 节点补「全量 check」；archify showcase 9/9、0 错 0 警、9 条边无回折尖刺，visual-check 通过，重导 dark/light PNG）、mmd 与研究文档 alt 文本同步；工具不改（缺分镜即 FAIL 是完整门的既定语义）。教训：规格里点名的每条命令，都要在该阶段的真实初态（新集 = 分镜未产出）下实跑一次；插入新阶段后，下游产物尚不存在，沿用上游门的命令前先查它对缺失输入是否硬失败。六次评审（2026-09-26）：① 第九节第 4 步把研究笔记的改动句也送回 ④A，但 ④A 以 paper-notes 为锚，笔记本身就是 ④A 的事实源，改写后的主旨综述段只能自己核自己，笔记一旦漂移，后续逐字稿复核也以漂移后的笔记为准。已改为：研究笔记的改动句仍做 A 节四级判定，锚点换成信源原文（A 型 `paper_extract.py find`，B 型按 `research/sources.toml` 登记的 URL 回查）；04 规格「输出」节与 CHANGELOG 同步，④A 的判定口径不变，故 `prose-refinement--passes` 图不动。② L1 把调序、补「转」、兑现开头的问题列为可改项，而第二节第 2 条禁止重排与增句、只给拆句 / 并句指了回 ③ 的出路，第十节第一项在 ⑤ 内可能无法合法达成，代理只能违反 id 冻结或在不相邻 id 间搬文本（锚点回查与相邻 id 回退单元都不覆盖）。已在第二节第 2 条写明 ⑤ 对逐字稿只做 beat 分组与相邻 id 间文本重分配，拆 / 并 / 调序 / 补句一律回 ③、连同已做的 ⑤ 改动重过 ④，回来后重新留底；L1 行加指针，第十节 id 集合基准改为「回过 ③ 的以重新留底时为准」，CHANGELOG 同步。③ 第二节第 5 条仍无条件要求「改完必须重跑 `check`」，是五次评审在第九节修掉的同一问题的残留载体，改为「按第九节第 5 步重跑机器门」，并注明复述门只在分镜与场景已存在时触发。教训：规格让某个事实源本身可被改写时，复核锚点必须上溯到它的上游，不能以它自己为锚；某一层 pass 的「改什么」若与护栏冲突，必须在护栏里给出合法出路，否则验收项形同虚设。 七次评审（2026-09-26）：① SKILL.md「润色成稿」路由写成「`check`（尚无分镜时改跑 `--pre-tts` 门）」，路由壳里反引号命令默认指 `pipeline.py` 子命令，照抄成 `pipeline.py check --pre-tts` 会被 argparse 拒收（实测 `unrecognized arguments`，只有 `check_script.py` 认这个 flag）。已改为直写 `check_script.py --pre-tts`，05 第十节同一写法一并对齐。② `tests/test_docs_paths.py` 两处 docstring 仍用重编号前的简写（「与 07 命令闭环矛盾」「09 规格…该事实条在 07」），改为 08 / 10 / 08；`test_spec_references_resolve` 只认带文件名的完整写法，这类简写正是后续防范第 ③ 条所说的门外盲区。③ 05 规格参考文献 [24] 只给站点根域名，换成 Zeigler 教材 §9.1 的完整页面 URL（已核对该页确有「现在时、主动语态、只写看得见听得见的」依据）。教训：flag 只属于某个脚本时，文档里要连脚本名一起写，不能挂在另一条命令后面；引用 URL 要落到具体页面，核对时顺带确认该页支撑规格里的那条论断。八次评审（2026-09-26）：CHANGELOG「Breaking」第 2 条把旧代集的登记面写成 `[[skeleton.drift]]`。drift 是按「集 × 文件」钉指纹的特有偏离豁免，14 个存量集要为 5 个 frozen 文件逐条登记（至多约 70 条）；整组停在旧代应登记一组 `[[skeleton.generation]]`（skeleton.toml「骨架分代」：一次模板升级 = 一代；`verify_skeleton` 的 I1/I2 均认 `generation_hit`，半同步集报 GENERATION-MIXED）。已改为 generation，并注明 legacy 的旧指纹从 `verify_skeleton` 报告里取。教训：写迁移指引时，逃逸口要按它在机制里的语义选（代际滞后 → generation，特有偏离 → drift），不能按名字像不像来选。九次评审（2026-09-26）：`tests/test_stages.py` 的 `ORDINALS` 注释称覆盖「20 以内」，字符串却只到 ⑫——阶段数过 12 时 `test_stage_numbers_align_spec_files` 在 `ORDINALS.index` 抛 ValueError，`test_ordinals_are_a_contiguous_run_from_one` 则把正确的声明误报为「无重无缺」违规，等于在刚去数字化的测试里又藏了一个写死上限。已补齐为 Unicode 连续码位 ①–⑳（U+2460–U+2473），注释同步。教训：去数字化时，推导所依赖的查表本身也是上限，要么覆盖到符号集的自然边界，要么在注释里写明真实上限。二次合并 main（2026-09-26，PR #19 story 块合成回归七~十已合入，未占用新台账号）：CHANGELOG [Unreleased] 的 story 条目两侧都改过，取 main 新版正文、保留本分支的「重制流程见 references/07」；其 TTS 规格改动随改名识别落入 `07-tts-voice.md`，新增文案无旧规格指针。
+**后续防范**：① 执法测试与不变量**不写死阶段数量或具体序号**，一律从 stages.toml 推导（本次三条测试与三条不变量都曾写死「9」）；② 规格文件名出现在注释与散文里时，改名必须过 `test_spec_references_resolve`，不能只靠 Markdown 链接门；③ 裸写的 `references/07` 这类简写不在门内，改名时须用 `git grep` 搜出所有「references/ + 两位数字」且后面不跟连字符的写法，人工逐条核对；④ 内容层新规则上线前，先在真实语料上量化病灶，避免给已经干净的层级加门。评审回归（2026-09-26）：① 通过门里的「成文评审 REWRITE=0」在规格中找不到产出它的步骤：第九节只定义了改动句回 ④A 复核，第十节只是勾选表，执行 ⑤ 的代理无法判门。已在第九节补第 3 步「成文评审」：独立子代理只拿规格、改后稿件和改动表，按第三至第八节的具名规则判 REWRITE；给不出规则编号的意见不算。② 改动句复核判 REWRITE 时只写了「按 ④ 修正」，门里却只查 RISKY=0。门改为「成文评审 REWRITE=0 且改动句复核 RISKY=0、REWRITE=0」，与 ④ 同口径，stages.toml / SKILL.md / README / CHANGELOG / evals 与 `prose-refinement--passes` 图同步更新。教训：authored 阶段的 prompt 门没有测试兜底，门里每个判定量都要能在规格里找到「谁产出、按什么判」；引用上游门的判定时，连同上游的放行口径一起引用。二次评审（2026-09-26）：① 第九节的 RISKY 回退按单句粒度，但第四节第 9 条允许在相邻 id 间搬运文本，只回退其中一句会让被搬运的文本丢失或重复，且回退句不再送评审、无环节兜底。已改为：重新分配涉及的几个 id 在改动表合写一行，回退以行为单元整组回退。② scaffold 结尾提示「润色四稿再切镜」与规格时序矛盾（分镜在 ⑥ 才产出），改为润色笔记 / 策划 / 逐字稿后切镜、分镜定稿前回调 ⑤ 第七节。③ 研究文档方案 A 一行残留旧序号「②③⑤」，改为 ②③⑥。教训：规则允许跨单元搬运内容时，回退、复核等补偿动作的粒度必须与搬运的粒度一致；重编号后，研究文档里描述候选方案的旧序号同样要按 `git grep` 圈号逐条核对。三次评审（2026-09-26）：① 第九节第 1 步「在 git 下即以 git diff 定位改动」默认稿件已提交，而新集稿件在 ⑤ 时多半未被 git 跟踪，`git diff` 看不到，复核范围与 RISKY 回退都失去基准。已改为：稿件在 ④ 清零时已 commit 才用 `git diff HEAD` / `git show HEAD:`，否则一律复制到 `$P/.temp/prose-before/`；不拿暂存区当留底（改稿中途再 `git add` 即覆盖），没有留底不得开始改稿；evals #1 的 ⑤ 断言补「改前留底」。② 改动句复核只跑 ④A，而 ⑤ 的话题链改主语、跨 id 搬运正好会让 ④B 的术语降落、指代距离、抽象连段退步，定稿时无环节再核。复核范围扩为「A 节四级判定 + B 节前三条（连同前后句一起看）」，门的字面不变（B 只产出 REWRITE，已含在「REWRITE=0」内），04 规格、SKILL.md、stages.toml 注释、CHANGELOG、evals 与研究文档同步。③ `prose-refinement--passes` 图的输入仍是含分镜的「四稿」，与时序矛盾（分镜在 ⑥ 才产出）：输入改为三稿，顶部新增「⑥ 分镜回调」泳道（定稿 →切镜→ ⑥ 分镜，定稿前回调第七节），复核节点标注 ④A + ④B 前三条；archify showcase 9/9、0 错 0 警、无回折尖刺，visual-check 通过，重导 dark/light PNG，mmd 与 alt 文本同步。④ 新增的 `spec_reference_files()` 与既有 `current_docs_and_code()` 逐项重复，已删除并把知识索引并入后者（反控：向知识索引注入旧文件名即红）。教训：留底、回退这类补偿动作要先确认基准在真实初态下存在（新集 = 未跟踪文件）；上游门拆成 A/B 两半时，下游复核要写明复核哪一半，不能只引半边；修正一处时序表述后，要把同一说法的所有载体（脚本提示、图、alt 文本、规格步骤）一起 grep。四次评审（2026-09-26）：① 第九节第 1 步的留底基准写成 `HEAD`，而 HEAD 在 ⑤ 中途任何一次提交后都会移走：`git diff HEAD` 只剩最后一次提交之后的改动，更早改过的句子漏出 ④ 复核；RISKY 回退用 `git show HEAD:` 取回的也是改了一半的文本。已改为开工前 `git rev-parse HEAD` 记下基准 SHA，diff/show 一律用它。② 第四节第 9 条的跨 id 搬运对已有分镜的集不安全：SKILL.md「润色成稿」路由与第二节第 6 条都允许对已制作的集跑 ⑤，而分镜画面列、场景 `rel(beat,'句id')` / `at()` 时点、archify cue 锚句都按 id 绑定内容，文本搬走后画面比口播早或晚一句，`check` 查不出。已补护栏：分镜已存在时，搬运前在分镜与 `video/src/scenes/` 里 grep 涉及的 id，有画面锚在被搬走的文字上就同步改分镜与场景，或放弃搬运；第十节加一条对应勾选。CHANGELOG 同步。教训：留底基准要钉成不可变引用（SHA），不能用会随操作移动的引用（HEAD、暂存区）；研究文档里否决某方案的理由（这里是「破坏分镜句区间与锚句」），在规格仍允许该情形出现的路径上（已制作集）同样要设防。合并 main（2026-09-26，PR #17 story 配音已合入）：① 本条由 I-011 顺延改号为 I-013，现行文案、测试 docstring、mermaid 注释与 CHANGELOG 同步；② PR #17 新增文案里的 `references/06-tts-voice.md`（tts.py 两处）改指 07，CHANGELOG [Unreleased] 的「重制流程见 references/06」改为 07；③ ⑤ 规格与 story 档衔接：第二节第 6 条改为「逐句档改一句重配一句、story 档改一句重录整块」并补台本 `[say]` 同步义务（去标点全等，否则 build FAIL），第四节「与配音分块的关系」去掉「若采用」假设、写明 beat 首句应是台本块起点，研究文档 §五 同步。教训：并行分支各自预留台账编号时，后合入者合并前要先 `git grep` 对方已占用的编号；对方合入后，本分支里「尚未合入 / 若采用」这类以对方状态为前提的表述要逐条改成现状。五次评审（2026-09-26）：第九节第 5 步与第十节要求 ⑤ 定稿时「`build` + `check` 零 FAIL」，但新集走主路径（④ 后先润色、再切镜）时还没有 `storyboard.md`，`check_script.py` 的主稿完整门遇缺分镜直接退出（`storyboard.md 不存在`，rc=1；临时工作区实测复现），`pipeline.py check` 又在 zh 失败后短路、en 失配句也点不出——代理要么卡住，要么提前写分镜违反时序。已改为按分镜是否存在分流：已存在跑完整 `check`；新集跑 `check_script.py --pre-tts`（时长预算 / 读法陷阱 / 发音标注，实测 rc=0），双语集另跑 `--lang en`（en 门不读分镜，实测点名基线锁失配）；完整 `check` 移到 ⑥ 之后。SKILL.md 速查表 ⑤ 行与「润色成稿」路由、`prose-refinement--passes` 图（定稿节点改「build + 机器门零 FAIL」、⑥ 节点补「全量 check」；archify showcase 9/9、0 错 0 警、9 条边无回折尖刺，visual-check 通过，重导 dark/light PNG）、mmd 与研究文档 alt 文本同步；工具不改（缺分镜即 FAIL 是完整门的既定语义）。教训：规格里点名的每条命令，都要在该阶段的真实初态（新集 = 分镜未产出）下实跑一次；插入新阶段后，下游产物尚不存在，沿用上游门的命令前先查它对缺失输入是否硬失败。六次评审（2026-09-26）：① 第九节第 4 步把研究笔记的改动句也送回 ④A，但 ④A 以 paper-notes 为锚，笔记本身就是 ④A 的事实源，改写后的主旨综述段只能自己核自己，笔记一旦漂移，后续逐字稿复核也以漂移后的笔记为准。已改为：研究笔记的改动句仍做 A 节四级判定，锚点换成信源原文（A 型 `paper_extract.py find`，B 型按 `research/sources.toml` 登记的 URL 回查）；04 规格「输出」节与 CHANGELOG 同步，④A 的判定口径不变，故 `prose-refinement--passes` 图不动。② L1 把调序、补「转」、兑现开头的问题列为可改项，而第二节第 2 条禁止重排与增句、只给拆句 / 并句指了回 ③ 的出路，第十节第一项在 ⑤ 内可能无法合法达成，代理只能违反 id 冻结或在不相邻 id 间搬文本（锚点回查与相邻 id 回退单元都不覆盖）。已在第二节第 2 条写明 ⑤ 对逐字稿只做 beat 分组与相邻 id 间文本重分配，拆 / 并 / 调序 / 补句一律回 ③、连同已做的 ⑤ 改动重过 ④，回来后重新留底；L1 行加指针，第十节 id 集合基准改为「回过 ③ 的以重新留底时为准」，CHANGELOG 同步。③ 第二节第 5 条仍无条件要求「改完必须重跑 `check`」，是五次评审在第九节修掉的同一问题的残留载体，改为「按第九节第 5 步重跑机器门」，并注明复述门只在分镜与场景已存在时触发。教训：规格让某个事实源本身可被改写时，复核锚点必须上溯到它的上游，不能以它自己为锚；某一层 pass 的「改什么」若与护栏冲突，必须在护栏里给出合法出路，否则验收项形同虚设。 七次评审（2026-09-26）：① SKILL.md「润色成稿」路由写成「`check`（尚无分镜时改跑 `--pre-tts` 门）」，路由壳里反引号命令默认指 `pipeline.py` 子命令，照抄成 `pipeline.py check --pre-tts` 会被 argparse 拒收（实测 `unrecognized arguments`，只有 `check_script.py` 认这个 flag）。已改为直写 `check_script.py --pre-tts`，05 第十节同一写法一并对齐。② `tests/test_docs_paths.py` 两处 docstring 仍用重编号前的简写（「与 07 命令闭环矛盾」「09 规格…该事实条在 07」），改为 08 / 10 / 08；`test_spec_references_resolve` 只认带文件名的完整写法，这类简写正是后续防范第 ③ 条所说的门外盲区。③ 05 规格参考文献 [24] 只给站点根域名，换成 Zeigler 教材 §9.1 的完整页面 URL（已核对该页确有「现在时、主动语态、只写看得见听得见的」依据）。教训：flag 只属于某个脚本时，文档里要连脚本名一起写，不能挂在另一条命令后面；引用 URL 要落到具体页面，核对时顺带确认该页支撑规格里的那条论断。八次评审（2026-09-26）：CHANGELOG「Breaking」第 2 条把旧代集的登记面写成 `[[skeleton.drift]]`。drift 是按「集 × 文件」钉指纹的特有偏离豁免，14 个存量集要为 5 个 frozen 文件逐条登记（至多约 70 条）；整组停在旧代应登记一组 `[[skeleton.generation]]`（skeleton.toml「骨架分代」：一次模板升级 = 一代；`verify_skeleton` 的 I1/I2 均认 `generation_hit`，半同步集报 GENERATION-MIXED）。已改为 generation，并注明 legacy 的旧指纹从 `verify_skeleton` 报告里取。教训：写迁移指引时，逃逸口要按它在机制里的语义选（代际滞后 → generation，特有偏离 → drift），不能按名字像不像来选。九次评审（2026-09-26）：`tests/test_stages.py` 的 `ORDINALS` 注释称覆盖「20 以内」，字符串却只到 ⑫——阶段数过 12 时 `test_stage_numbers_align_spec_files` 在 `ORDINALS.index` 抛 ValueError，`test_ordinals_are_a_contiguous_run_from_one` 则把正确的声明误报为「无重无缺」违规，等于在刚去数字化的测试里又藏了一个写死上限。已补齐为 Unicode 连续码位 ①–⑳（U+2460–U+2473），注释同步。教训：去数字化时，推导所依赖的查表本身也是上限，要么覆盖到符号集的自然边界，要么在注释里写明真实上限。二次合并 main（2026-09-26，PR #19 story 块合成回归七~十已合入，未占用新台账号）：CHANGELOG [Unreleased] 的 story 条目两侧都改过，取 main 新版正文、保留本分支的「重制流程见 references/07」；其 TTS 规格改动随改名识别落入 `07-tts-voice.md`，新增文案无旧规格指针。
 
-**同类问题影响**：negentropy 已发布集的 frozen 骨架注释指针会落后于模板（md5 变化、`verify_skeleton --strict` 报 STALE），仅注释差异、行为零改动，按 CHANGELOG「Breaking」第 2 条自适配；PR #17 先于本条合入 main（`3b1607a`，占用 RSI-011/012），本条合并 main 时由 RSI-011 顺延改号为 RSI-013（合并前的 commit message 仍写 RSI-011，以本台账为准）；其 TTS 规格改动随 git 改名识别自动落入 `references/07-tts-voice.md`，RSI-011 / RSI-012 两条台账里的 `references/06` 指当时的 TTS 规格（现 07），按历史记录保留原文；尚未发版的 CHANGELOG [Unreleased] 与现行文案里的同类旧指针已随本次合并改为新编号。
+**同类问题影响**：negentropy 已发布集的 frozen 骨架注释指针会落后于模板（md5 变化、`verify_skeleton --strict` 报 STALE），仅注释差异、行为零改动，按 CHANGELOG「Breaking」第 2 条自适配；PR #17 先于本条合入 main（`3b1607a`，占用 I-011/012），本条合并 main 时由 I-011 顺延改号为 I-013（合并前的 commit message 仍写 I-011，以本台账为准）；其 TTS 规格改动随 git 改名识别自动落入 `references/07-tts-voice.md`，I-011 / I-012 两条台账里的 `references/06` 指当时的 TTS 规格（现 07），按历史记录保留原文；尚未发版的 CHANGELOG [Unreleased] 与现行文案里的同类旧指针已随本次合并改为新编号。
 
-## RSI-014 多音字候选报告非门且无语义消歧：高危读音零拦截直到终渲才靠人耳发现
+<a id="I-014"></a>
+## I-014：多音字候选报告非门且无语义消歧：高危读音零拦截直到终渲才靠人耳发现
 
 **表因**：jev-decision-model-video v1（negentropy `37692b45d`）终渲后发现全片 26 处「行(háng)」被 TTS 读成 xíng（修复提交 `8974c2f3f` 标 27 处 HANG2：26 处 v1 位置 + 1 处 v2 改写新增句）——`check_script.py --pron-candidates` 是非门报告（exit 恒 0），`POLYPHONE_CANDIDATES` 仅按「字符在场」列两种候选读音、不做上下文消歧，全片零拦截；PRON-GLOSSARY 台账仅 1 条已确认记录（英文专名 Context），03 规格的纪律是「确认读错才回填台账」——纯被动、无预防，系统性读错只能等终渲后的人耳。
 
@@ -241,7 +337,8 @@
 
 **同类问题影响**：14 集存量对拍（feature/1.x.x@`95f5a532e`）51 处规则命中（全部 HANG2），均为已发布成片，本仓不改其内容；各集重制/重配音时跑 `--pron-gate` 即可逐处补标（jev 集自 negentropy origin/feature/1.x.x@`57987b28b` 起已标注 27 处、门过 0 命中；更早的 #1172/#1173 版 0 命中系全片无 háng 语境，并非已标注）。英文专名（CMU 通道）不属本门范围——句尾英文词读法按既有「标注兜底、不赌采样」纪律走 PRON-GLOSSARY 台账。
 
-## RSI-015 ④B 易懂性检查全是句级局部判据：解释存在≠解释到达时观众还在线
+<a id="I-015"></a>
+## I-015：④B 易懂性检查全是句级局部判据：解释存在≠解释到达时观众还在线
 
 **表因**：jev-decision-model-video v1 过了 ④B 五条全检（术语降落/指代距离/抽象连段/金句密度/听觉友好），普通观众反馈「一脸懵」——三个名词系统（集中度/门槛/计费单位）全部「先用后讲」：每个术语首现时旁边都有「解释」，但解释本身又用了未解释概念（递归不自懂），且解释常在术语已承担载荷**之后**才到达。
 
@@ -255,7 +352,8 @@
 
 **同类问题影响**：`beatStart` 是 narration.json 的**新增**派生键——旧版 json 不含它，`--term-density` 幕级照跑、beat 级点名跳过；存量集重跑 build 即得（配音/字幕/时间轴零波及，tts 摘要只算文本）。04 规格「输出」节的改动句复核口径（A 节 + B 节前三条）未扩到新三判据——新三判据在 ④B 主体评审执法，⑤ 改动句复核是否纳入待下一集实证后再议。
 
-## RSI-016 依赖版本策略缺位与渲染引擎/CAD 资产选型悬置
+<a id="I-016"></a>
+## I-016：依赖版本策略缺位与渲染引擎/CAD 资产选型悬置
 
 **表因**：用户提出（2026-09-27）：① 本技能所涉依赖的使用版本未优先指定到最新版（如 Remotion 模板钉 4.0.512），且每次使用时无「直接用最新版」的提醒；② HyperFrames 与 Remotion 的取舍、text-to-cad 是否引入作为 3D/2D 建模工具，两项选型悬置待调研。
 
@@ -265,13 +363,14 @@
 
 **方案比选**（详见 [docs/research/dependency-policy-and-asset-tools.md](../research/dependency-policy-and-asset-tools.md)）：版本策略三案——混排现状（否决：update 后分叉）/ 全 caret（否决：静默漂移击穿 structured 门）/ **全精确钉版 + 追新协议（采纳）**，「最新版优先」由协议而非说明符语法承担。HyperFrames 复核（2026-09-27：0.8.79 / 53.4k★ / Apache-2.0）结论维持 negentropy 既定 B 轨单集试点观望：不替代（静默失败模式 + pre-1.0 API 漂移 + 负向知识清零成本）、不共用双引擎（击穿时序 SSOT 与骨架字节门体系）；触发器增补「1.0 + API 稳定承诺」「Remotion 5.0 license 收紧」。text-to-cad 三案——常驻依赖（否决：交集极小 + 70–80MB + cadgen 高频 churn）/ 固化子步骤（否决：低频需求设常驻流程面）/ **按集 opt-in 独立工具（采纳）**：仅装 cad 单 skill，GLB-only 零转换链直通 GLTFLoader，宪法与 md5 验收照旧（宪法 1 对 CAD 资产的放宽口径见 08「宪法适配」条）。
 
-**处理方式**：模板四包统一精确钉 4.0.529（撰写时最新稳定版）+ lockfile 重生成（js-yaml 安全 override 保留）；`references/PIPELINE.md` 新增「§九 依赖与版本策略」（SSOT）并在 §七 补复核结论一句；提醒面四处——SKILL.md（工作流第 5 步注释 + 关键不变量一条）、`scaffold.py` 建集结尾动态打印模板钉版与 `npm view remotion version` 对照命令、08 命令闭环注释、README 前置依赖表地板注；08 事实条 Remotion 5.0 触发器补两则（numberOfSharedAudioTags 默认将改 0、license 复读）并新增「外部 CAD 资产（可选 opt-in）」小节（SKILL.md「相邻技能协作」cad 行同步登记）；研究文档与 knowledge-map 登记；CHANGELOG [Unreleased] Breaking 节给存量集自适配指引（generation vs drift 两口径）。[PR #21](https://github.com/ThreeFish-AI/to-video/pull/21)，commits `a48df28` / `15a961e` / `945face`。独立核验子代理四门全过（2026-09-27），其建议已并入：新增 test_template_pins_remotion_family_exact_and_identical 机器门、08 宪法适配补相机纪律半句、CHANGELOG Breaking 节标题涵盖 RSI-013/016
+**处理方式**：模板四包统一精确钉 4.0.529（撰写时最新稳定版）+ lockfile 重生成（js-yaml 安全 override 保留）；`references/PIPELINE.md` 新增「§九 依赖与版本策略」（SSOT）并在 §七 补复核结论一句；提醒面四处——SKILL.md（工作流第 5 步注释 + 关键不变量一条）、`scaffold.py` 建集结尾动态打印模板钉版与 `npm view remotion version` 对照命令、08 命令闭环注释、README 前置依赖表地板注；08 事实条 Remotion 5.0 触发器补两则（numberOfSharedAudioTags 默认将改 0、license 复读）并新增「外部 CAD 资产（可选 opt-in）」小节（SKILL.md「相邻技能协作」cad 行同步登记）；研究文档与 knowledge-map 登记；CHANGELOG [Unreleased] Breaking 节给存量集自适配指引（generation vs drift 两口径）。[PR #21](https://github.com/ThreeFish-AI/to-video/pull/21)，commits `a48df28` / `15a961e` / `945face`。独立核验子代理四门全过（2026-09-27），其建议已并入：新增 test_template_pins_remotion_family_exact_and_identical 机器门、08 宪法适配补相机纪律半句、CHANGELOG Breaking 节标题涵盖 I-013/016
 
 **后续防范**：① 新增任何依赖须同时给出「查最新」的一手命令与追新口径；Remotion 家族（按依赖表实际集合，不写死包名）钉版一律精确且整组一致，禁止混排说明符。② 外部工具选型结论必须带数据快照日期与再评估触发器；上游 pre-1.0 的结论有效期以触发器为准，不写「永久结论」。③ 对抗性复核推翻过的表述（动机叙事、可伪造的输出元数据、API 归属错误）不得回流正文。评审回归（2026-09-27）：① 新增的 `test_template_pins_remotion_family_exact_and_identical` 先按精确版本号过滤再判「只剩一个版本」，带 `^`/`~` 的值被滤掉不参与判定——只要四包中有一包精确钉版，main 上的原混排形态（remotion/cli `^4.0.0` + 另两包精确）照样通过，门恰好放行它要防的病灶。已改为先断言四包全部精确、再断言版本全等；正控（当前模板）绿，三则反控（原混排 / 三包 caret / 全精确但版本不等）全红。② 研究文档方案 C 判定栏「与 go mod vendor 式治理同构 [3]」引的是 Remotion License 页，撑不起该类比；改指 skeleton.toml 文件头的原文依据，[3] 挪到 §2.2 的 Remotion 许可陈述上。教训：「全部满足 X」的断言不能写成「过滤出满足 X 的再计数」——过滤会吞掉违例；新门必须用被修复前的真实病灶形态做一次反控。引文编号改动后逐条核对「引用处 ↔ 条目」双向对应，不能只查条目存在。二次评审（2026-09-27）：① `scaffold.py` 结尾的钉版提示读渲染后的 `video/package.json`，而 `--title` 原样插进 description——标题含 ASCII 双引号时产物不是合法 JSON，scaffold 在全部文件落盘后 traceback 退出（rc=1，其后提示被吞；改前同输入 rc=0）。改读渲染前的 `package.json.tmpl`（钉版本是模板属性），新增 `test_scaffold_pin_hint_reads_template_not_rendered_output`（改前红、改后绿）；标题未转义即插进 JSON 属既有问题，不在本条范围。② §九「同系列续集跟随该系列版本」在门上两头不成立（沙箱 `verify_skeleton --strict` 实测）：首集追新登记 drift 后，续集停在模板版 rc=0 放行（系列里仍有一集等于模板指纹时 I1 参照系取模板）；续集照做却不另登记则 I2 STALE（drift 按「集 × 文件」登记）。§九改为续集逐集登记 drift，并如实写明此时系列内一致靠人工核对；新增 `test_family_bump_needs_drift_per_episode` 钉住逐集登记路径，CHANGELOG 与 scaffold 提示同步。③ §九「四包整组」只覆盖模板四包，08「3D 点缀」路径会让单集自加 `@remotion/three`（对 remotion 的 peer 精确锁定），按字面追新会留下旧版、造成全家桶分叉；改为「该集 package.json 里全部 `remotion` / `@remotion/*` 整组」，CHANGELOG 同口径。教训：提示类代码只读机制侧的真理源（模板），不读掺了用户输入的渲染产物；写追新/迁移协议时，要沿门的真实判定路径（参照系选择、登记键粒度）把每一步实跑一次，不能凭直觉宣称「门执法」；「整组」类约束按该集实际依赖集合表述，不按模板的静态集合表述。三次评审（2026-09-27）：① 08「外部 CAD 资产」的宪法适配条写「三条宪法同样生效」，但该节适用条件恰是「只做直角体」词表表达不了的时候——齿轮/轴类 CAD 几何自带曲面，启用即违反宪法 1，适配清单却只交代了颜色/光照/相机，照办的代理要么拒绝该路径、要么违规而不自知；研究文档 §3.3 与 CHANGELOG 还把三条宪法概括成「几何进 CAD、颜色归 theme、零光源」，与 08 原文（直角体/相机/读色）编号对不上。已改为「宪法 1 按边界放宽：曲面只许来自 CAD 模型、手搭仍守直角体词表，母题独占约束（圆被不变量母题独占的画面不出曲面体）照旧」，三处概括同步，并补一句 GLTFLoader 默认 MeshStandardMaterial 在零光源下渲染为黑——覆写材质是启用前提而非可选项（防代理见黑加灯、反向违反宪法 3）。② 钉版门 `test_template_pins_remotion_family_exact_and_identical` 写死四包，模板日后新增 `@remotion/*`（如 `@remotion/paths`）即对混排失明——恰是二次评审教训③「整组按实际依赖集合」所防形态在测试自身的复发。已抽 `remotion_family(deps)` 按依赖表实际集合取（含「家族非空」断言），追新正控的整组改版同用该函数；反控重跑：正控绿，三反控（家族新成员带 `^`——旧写死四包的门对此 GREEN、全 caret、精确但不等）全红。教训：转述他人规约（宪法、门、协议）时逐条对照原文编号，不自造摘要——摘要一旦换词，执行方就多出一套互相矛盾的口径；「整组」约束的执法面（测试）与立规面（协议正文）必须同取「实际集合」，写死名单的执法会让立规随时间失真。四次评审（2026-09-27）：① 本条后续防范①「一律……四包整组一致」自身写死四包，恰是三次评审②所防形态在台账立规语句的残留——执法面（`remotion_family`）与协议正文（§九）均已随二次评审③/三次评审②改为实际集合口径，唯独此句未同步，模板日后新增 `@remotion/*` 时按字面即失去约束。已改为「（按依赖表实际集合，不写死包名）……整组一致」。教训：修「写死名单」类缺陷时，把同口径的全部载体 grep 一遍（测试、协议正文、台账立规语句一并）——漏掉立规语句会让同一条目内的教训自相矛盾。五次评审（2026-09-27）：① `remotion_family` 的「实际集合」只覆盖包名轴、漏了依赖节轴——devDependencies 里的 `@remotion/*`（规范位置即 devDeps 的 `@remotion/testing` 等）会同时逃过钉版门与追新正控，恰是三次评审②所防形态在另一维度的复发；已改为收整份 package.json（两节并扫），正控整组改版按节就地更新。② 追新正控探针写死 4.0.999，模板追平该值时 update 变 no-op、断言以一份全绿 stdout 假红且无线索指向版本碰撞（沙箱复现）；已改为模板钉版 patch+1 推导，与钉版永不相撞。③ 08「整库含 13 个制造域 skill」比其自引事实源（研究文档写 13–14）更精确且无来源支撑，若实为 14 即事实错误；08 已对齐 13–14。④ 本条「提醒面四处」括注混入 cad 行，与 CHANGELOG/研究文档同清单（SKILL.md 只列两项、cad 行归 CAD 功能条目）不一致，且该行是装配指引、无版本提醒语义；已移入 CAD 分句。教训：转述规约的执法面按规约的域取整（整份 package.json），不按现状已实体化的面取；测试魔法字面量与被测事实存在可撞值域时，从事实源推导或断言不相撞；下游摘要不得比自引事实源更精确——未核实的精确化即事实风险。六次评审（2026-09-27）：① 五次评审①把 `remotion_family` 扩成两节并扫时，合并 `{**dev, **deps}` 在同名家族包两节并存且取值不同时静默保留 dependencies 一节——devDependencies 的 `^`/异版说明符被遮蔽，钉版门对跨节混排失明（npm/pnpm 均接受跨节同名 manifest，搬节忘删残留即触发；改前以 devDeps 残留 `^4.0.0` 的合成 package.json 实测，全精确 + 全等断言照样通过）。已改为同名两节取值不同即 ValueError（同值重复条目照常收编），新增反控 `test_remotion_family_rejects_cross_section_duplicate`。② 研究文档 §2.1「近 4 天 7 个 patch」与 npm registry time 字段实测不符：0.8.69–0.8.79 共 11 个 patch 发布于 09-24–09-26 三个日历日（任何锚定快照日的 4 天窗口 ≥10 个），「7」只匹配约 2.2 天的窗口且**低估** churn——该数字支撑「pre-1.0 API 漂移风险真实」结论与再评估触发器的节奏判断；已改为有源计数「09-24–09-26 三个日历日连发 11 个 patch（0.8.69–0.8.79）」。③ 参考文献 [6] 把 "Remotion's bet is React components; HyperFrames' bet is plain HTML" 归属到所链对比页，而该页 HTML 与上游 .mdx 源均零命中（该句逐字出自仓库 README 的同名对比节）；引语已移入 [4] README 括注，[6] 换为该页逐字可查的原有措辞（"One pure function of the frame number, no timeline to register, no contract to get subtly wrong"）。教训：多节视图合并前先判同名键冲突，静默遮蔽会让执法面对自己刚扩的域失明；快照类计数与直接引语落笔前对一手源逐字核对（registry time 字段 / 页面与源文件双查），不以转述或记忆为源。七次评审（2026-09-27，外部评审实证复核）：① §九总则「仓内出现的一切版本号只有两种身份」是排他性列举，而 `.pre-commit-config.yaml` 的 ruff rev v0.14.5 是第三种身份（执法工具硬钉自身）——钉版原因此前只存于维护者个人记忆、仓内零沉淀，按总则「都不是停留在旧版的理由」逐字追新的代理会顺手升 rev 致 lint 大面积红（0.16.7 实测：扫描面 77 处 noqa 误报 RUF100 62 处，0.14.5 全绿）。已在 §九 加唯一例外括注、`.pre-commit-config.yaml` 头注释沉淀钉版原因与升版判据（`ruff==<new>` 全量 lint 零误报才动 rev），CHANGELOG 同口径。② 参考文献 [5] 只给站点根域名且所注页面名非根级路径——rules-and-anti-patterns 实际位于 /prompting/、rendering 位于 /guides/，按条目页面名拼根级路径 404，读者无法直达 §2.2 两条承重引语的一手页面；已落两个完整 URL（llms.txt 索引 + 200/404 实测）。③ §3.1「7 周 37 版」与 PyPI time 字段不符：首发 08-11、末版 09-21、间隔 41 天 ≈ 5.9 周（算到快照日也仅 6.7 周），「37 版」「09-21」属实；已改「08-11–09-21 共 41 天 37 版」——恰是六次评审②同标准的漏网形态。教训：「一切 X」类排他性总则落笔前先 grep 仓内全部同类载体（版本号不只模板与 README 两处：pre-commit rev、CI action 版本皆在其列），例外须与规则同处沉淀并写在钉版所在文件；同一文档已立的计数/引语核对标准要对后续新增段落同等执行，不能只回扫被点名的那一处。八次评审（2026-09-27，外部评审实证复核）：① §3.3 否决行括注「playwright+chromium 已因 QA 预装」归因失实——QA 抽帧（qa_frames.py）走 `pnpm exec remotion ffmpeg`，全文无 playwright；全仓唯一 playwright 消费者是 archify 录制（record_archify.py，Stage ⑥/⑧ 图示资产路径），且经 `uv run --with playwright` 按需解析（README 前置依赖表明言「按需取依赖，无需预装环境」）、以 channel="chrome" 启动系统 Chrome 连 chromium 下载都不触发，「预装」双重失实；已改「playwright 非预装：archify 图解录制同经 `uv run --with playwright` 按需解析，浏览器启动系统 Chrome」。② 参考文献 [8]「PyPI license 元数据缺失，MIT 经仓库 API 确认」前半句可证伪——pypi.org/pypi/cadgen/json 的 info.license 固为 None（旧式文本字段确缺），但 license_expression='MIT'（PEP 639；实测首发 0.4.1 起各版本均带、按版本不可变），项目页侧栏据此显示 MIT；已改「license_expression: MIT——PEP 639 元数据，项目页据此显示」。教训：仓内机制归因（谁拉入哪个依赖）落笔前 grep 全仓消费者并对照 README 安装口径，不凭「该环节大概在用什么」的印象为源；「元数据缺失」类断言先查新式字段是否已取代旧字段（PEP 639 license_expression 取代 license 文本/classifiers）——旧字段为空不等于元数据缺失。九次评审（2026-09-27，外部评审实证复核）：① 七次评审①给「一切版本号只有两种身份」补 ruff 唯一例外时的载体清点（点名 pre-commit rev 与 CI action 版本）漏了模板 `video/pnpm-workspace.yaml` 的 `overrides: js-yaml '>=4.3.2 <5.0.0'`——上界是文件头注释明言的「限 <5 避免 major 跳跃」成文停留理由（父包 cosmiconfig 声明 ^4.1.0、npm 最新已 5.x），既非快照非地板亦非 ruff 例外，与总则「都不是停留在旧版的理由」直接文本冲突；该文件属 frozen 档随每集复制，逐字照办会把 GHSA-2883-xcg3-v3hh 审计得出的安全封顶当作总则宣称不存在的「停留理由」顺手摘除。已把「唯一例外」改为例外并列两条（ruff 硬钉 + js-yaml 封顶，原因各自沉淀在被钉文件头注释，解除上界须先确认传递链兼容并过渲染回归），CHANGELOG 同口径；按版本约束语法全仓复扫（overrides/resolutions/engines/packageManager/.nvmrc/pyproject）确认无第四种载体。教训：排他性总则的载体清点不能只按点名枚举（pre-commit rev、CI action）——枚举本身就是写死名单，要按版本约束语法全仓 grep 后再落笔，与四次评审「写死名单」同病灶的另一形态。十次评审（2026-09-27，外部评审实证复核）：① 七次评审①沉淀的钉版头注释写「最新版（0.16.7 实测）」，但 PyPI time 字段实测 0.16.8（2026-09-16）/0.16.9（2026-09-24，当日 latest）均先于注释落盘（d803cac，2026-09-27）——实测当天 0.16.7 已落后两个版本，「最新版」的主语与实测版本错位；§九 例外①以同口径指向该注释，读者会误以为当前最新版已验证过误报。已以 0.16.9 复测（`uv run --with ruff==0.16.9` 全量 lint：RUF100 仍误报 62 处，与 0.16.7 同数；0.14.5 全绿对照同步复现）后把注释改为「最新版（0.16.9 实测 62 处，2026-09-27；0.16.7 同数）」——钉版依据对真实最新版成立，措辞与事实对齐。教训：「最新版」这类随时间漂移的主语，落笔时须钉住「实测版本 + 当日是否确为最新」双要素（对 PyPI time 字段核一次当日 latest）；实测解析通道（uv 缓存等）可能给出落后于 registry 的版本——「实测到的版本号」≠「最新版本号」，两者错位时「最新版」主语即是事实错误，恰是六次评审②「快照类计数对一手源逐字核对」同标准的漏网形态。
 
-## RSI-017 IndexTTS 长跑可把统一内存拉爆致系统卡顿：MPS 水位线缺位
+<a id="I-017"></a>
+## I-017：IndexTTS 长跑可把统一内存拉爆致系统卡顿：MPS 水位线缺位
 
-**表因**：用户提出（2026-09-28）IndexTTS 合成会把 M4/24GB 统一内存吃满导致整机卡顿，问能否限制显存预防。既有同族症状：长跑数十分钟后合成全 500 而 `/health` 假绿（`tts_server.py` 「MPS 长跑泄漏对冲」注释实测 ~40 分钟击穿 30 GiB、VOICE-CLONING §七既有记录；RSI-002 曾把 empty_cache 移入 finally 对冲）。
+**表因**：用户提出（2026-09-28）IndexTTS 合成会把 M4/24GB 统一内存吃满导致整机卡顿，问能否限制显存预防。既有同族症状：长跑数十分钟后合成全 500 而 `/health` 假绿（`tts_server.py` 「MPS 长跑泄漏对冲」注释实测 ~40 分钟击穿 30 GiB、VOICE-CLONING §七既有记录；I-002 曾把 empty_cache 移入 finally 对冲）。
 
 **根因**：torch MPS 分配器默认高水位 `PYTORCH_MPS_HIGH_WATERMARK_RATIO=1.7` × recommendedMaxWorkingSetSize 17.76 GiB ≈ **30.2 GiB > 24 GB 物理统一内存**——分配器放行一切直到系统级换页/压缩才表现为整机卡顿，水位 OOM 来不及先触发（libtorch 二进制实串自证该机制存在：超水位报错尾句劝调该 env，见 ADVANCED §6.8 与本条四轮④）。上游 indextts 全仓无任何 MPS 内存限制（`set_per_process_memory_fraction` 0 命中；`torch.cuda.empty_cache()` 全仓 16 处——indextts/ 包 12 + backends/trt/export 4，`infer_v2_5.py` 占 2——在 MPS 上全是 no-op），low_vram 自动降载只查 `torch.cuda`（`infer_v2_5.py:125-129`，MPS 恒 False）。每句 empty_cache 只治累积**速率**不设天花板，且不防单次峰值（CFM 25 步 `sol.append(x)` 死存储 `flow_matching.py:110` + BigVGAN 整段上采样 `infer_v2_5.py:849` + beam3 fp32 KV ~1.2 GB）。
 
@@ -291,7 +390,8 @@
 
 五轮评审（2026-09-29）：① CPU/CUDA `OutOfMemoryError` 类型兜底仅在实际 `mps` device 下启用，避免非 MPS 部署收到错误的显存排障指引；② 显式 `--mps-mem-limit-gib 0` 在 allocator 初始化前覆盖继承的 `PYTORCH_MPS_HIGH_WATERMARK_RATIO`，并调用 `set_per_process_memory_fraction(0.0)`，保证「不限」不随 shell 环境漂移；③ 只有解析到 `MPS allocated + other allocations + Tried to allocate > max allowed` 才进入不可重试的「MPS 显存上限不足」契约，普通 MPS OOM、系统内存压力、碎片化与解析不完整均保留重试；④ 解析器兼容 PyTorch 的 `MiB/GiB` 及十进制单位，新增 helper、环境覆盖与客户端分流测试，相关测试与全量回归通过。
 
-## RSI-018 archify 建图产物三重静默缺陷，录制前置校验缺位
+<a id="I-018"></a>
+## I-018：archify 建图产物三重静默缺陷，录制前置校验缺位
 
 **表因**：上游五集系列重制（[negentropy ISSUE-201](https://github.com/ThreeFish-AI/negentropy/blob/master/docs/.agents/issue.md)，2026-10-02）四起同类：①ep4 两图建图产物缺 guided-views 嵌入——全局 archify CLI 3.0.0 删除了该模块，用全局 CLI 的产物天然无嵌入，录制空转不报错；②ep2 三图漏 `claude-code--` 前缀（html_pattern 失配，dry-run 有报但在建图完成数小时后）；③ep1 四图漏 sidecar type（图型多样性门晚期才红）；④两图 sidecar type=state 被录制器 argparse choices 拒绝、退出码 2——archify 出图词汇含 state 而录制器词表不含，规格与录制器词表不一致是机制内矛盾。
 
@@ -309,7 +409,8 @@
 
 合并前评审留白（2026-09-29）：canonical 门命令（pyproject.toml 头注释 SSOT）缺 `--with playwright`——本条 5 条预检回归测试随整个 test_record_archify_all 被 `importorskip` 在门跑中静默跳过（本轮回填证据：playwright 变体实跑 813 passed / 19 skipped，含该文件全部 11 条）；把 `--with playwright` 纳入 SSOT 命令登记为待办。
 
-## RSI-019 @remotion/lottie 在 headless ANGLE 渲染确定性挂死，边界无文档
+<a id="I-019"></a>
+## I-019：@remotion/lottie 在 headless ANGLE 渲染确定性挂死，边界无文档
 
 **表因**：上游 [negentropy ISSUE-202](https://github.com/ThreeFish-AI/negentropy/blob/master/docs/.agents/issue.md)（2026-10-02）：ep4 草渲五连崩（Target closed / 静默死，崩点漂移 10170/13727/1199/3339 + swap 耗尽 38GB 表象），ep5 同款两崩。
 
@@ -317,12 +418,14 @@
 
 **定性**：非阻断改进（纯文档；机制不变——处置仍是换实现，文档把关口前移到入片前）。
 
-**处理方式**：分支同 RSI-018，[PR #23](https://github.com/ThreeFish-AI/to-video/pull/23)。references/08 事实条新增「Lottie 资产渲染边界」：新 Lottie 资产入片前必须先过 100 帧段渲冒烟（`./node_modules/.bin/remotion render Main /tmp/smoke.mp4 --frames=<起点>-<起点+100> --concurrency=1`，起点取该资产出场帧位），挂死即弃用该 JSON、换原生 SVG / 运动层实现（上游以原生组件替换实证）；references/09 修复回路新增「渲染崩溃分诊」：崩点漂移 + 系统内存压力表象时先按确定性崩点处理——分段 100 帧窗渲染定位 + 禁用法二分（同段全过即定位到组件），勿先降并发 / 换机器 / 清缓存。测试面由既有 test_docs_paths（链接可达 / 命令锚定 / 围栏平衡）覆盖，无新增机制代码。
+**处理方式**：分支同 I-018，[PR #23](https://github.com/ThreeFish-AI/to-video/pull/23)。references/08 事实条新增「Lottie 资产渲染边界」：新 Lottie 资产入片前必须先过 100 帧段渲冒烟（`./node_modules/.bin/remotion render Main /tmp/smoke.mp4 --frames=<起点>-<起点+100> --concurrency=1`，起点取该资产出场帧位），挂死即弃用该 JSON、换原生 SVG / 运动层实现（上游以原生组件替换实证）；references/09 修复回路新增「渲染崩溃分诊」：崩点漂移 + 系统内存压力表象时先按确定性崩点处理——分段 100 帧窗渲染定位 + 禁用法二分（同段全过即定位到组件），勿先降并发 / 换机器 / 清缓存。测试面由既有 test_docs_paths（链接可达 / 命令锚定 / 围栏平衡）覆盖，无新增机制代码。
 
 **后续防范**：新资产类型入片先问「它在 headless 渲染后端下有已知确定性边界吗」，有则先冒烟；崩溃排障先分诊「随机 vs 确定」再动手——漂移 + 资源压力的表象会掩盖确定性崩点。
 
 **同类问题影响**：「fetch + delayRender」形态的资产加载组件在此环境均有同款潜在风险，冒烟纪律不限于 Lottie。
-## RSI-020 场景渲染内容为空无门可拦：108 秒纯黑+字幕段靠人工事故后发现
+
+<a id="I-020"></a>
+## I-020：场景渲染内容为空无门可拦：108 秒纯黑+字幕段靠人工事故后发现
 
 **表因**：五集系列重制 ep4（上游 negentropy 分支 ThreeFish-AI/learn-claude-code-5-episode-revamp，ep4 交付 commit `a783411f2`；上游台账 https://github.com/ThreeFish-AI/negentropy/blob/master/docs/.agents/issue.md ），场景分片并行代理在文件头声称「另一半场由另一文件承担」但该文件不存在——`check_script --check-scenes` 查句覆盖与场景互比，不查场景渲染内容是否为空；成片草渲后 52.8s/55.5s 两段仅字幕无画面，集成期人工发现。`qa_frames --check` 判据族（黑帧/重复帧/安全区/字幕带）无「连续纯底色段」：帧均值被字幕带抬高（事故帧 ≈0.106 > 黑帧阈值 0.02，黑帧门放行），相邻采样帧字幕文本不同、16×16 指纹也不同（冻帧门放行）。
 
@@ -334,13 +437,14 @@
 
 **处理方式**：`qa_frames.py --check` 新增纯底色段门——`check_frames` 增 `timeline`/`max_dark_sec` 参数，逐帧算**画面内容区**（顶部安全带 y<56 之下、字幕带之上；几何 SSOT 来自 ChapterProgress 零碰撞带契约「各幕内容 y≥56 起」）亮像素占比 <5e-4 判「无内容」，同幕连续无内容帧按「首帧中点−半句距 .. 末帧中点+半句距」计持续时长，≥ `qa.max_dark_sec` → FAIL；末幕按**全集时间轴**最后一幕豁免；`--beat-heads` 头帧不在时间轴里、判据自然不参与（头帧落在淡入瞬态，近底色是合法态）。config SCHEMA 新键 `qa.max_dark_sec`（默认 8.0、负值 FAIL、0=关闭）。[09](../../references/09-render-qa.md) 把「草渲后全片亮度带扫描」从经验散条升格为 ⑨ 必做步骤（`--scene` 全幕传齐 + `--check`，每幕 ~8 帧 ≈5–7s 采样形态，门按持续时长在样点间内插）+ 判据表新行 + FAIL 0 边界句与修复回路同步；[PIPELINE.md](../../references/PIPELINE.md) 字段表/工具表登记。回归测试 4 组（整幕空段 FAIL／干净帧零报警含末幕豁免与亚阈值暗段／阈值可配与关门／run 不跨幕）。实施：[PR #24](https://github.com/ThreeFish-AI/to-video/pull/24)。
 
-合并前评审加固（2026-09-29）：①`--check` 消费 config 不再丢弃 validate FAIL——带病 `[qa]`（类型错→阈值比较处裸 traceback、负值→借「0=关闭」分支无声关门假绿）改为点名 FAIL 拒跑；独立直调本命令正是 09 ⑨ 必做路径，不能赌 pipeline.py check 先跑过全量 validate（回归测试 2 条：字符串/负值对拍）。②09 FAIL 0 边界句的体检清单与 PIPELINE.md 工具表/模块 docstring 同构化（补「字幕缺失」、对比度归位 `--check-theme`——原句继承 main 旧口径漏 WARN 级「字幕缺失」而混入对比度）。③RSI-021 回归测试计数订正（4 函数 5 断言面，见下）。
+合并前评审加固（2026-09-29）：①`--check` 消费 config 不再丢弃 validate FAIL——带病 `[qa]`（类型错→阈值比较处裸 traceback、负值→借「0=关闭」分支无声关门假绿）改为点名 FAIL 拒跑；独立直调本命令正是 09 ⑨ 必做路径，不能赌 pipeline.py check 先跑过全量 validate（回归测试 2 条：字符串/负值对拍）。②09 FAIL 0 边界句的体检清单与 PIPELINE.md 工具表/模块 docstring 同构化（补「字幕缺失」、对比度归位 `--check-theme`——原句继承 main 旧口径漏 WARN 级「字幕缺失」而混入对比度）。③I-021 回归测试计数订正（4 函数 5 断言面，见下）。
 
 **后续防范**：自动体检新增判据先问「它是帧内性质还是跨帧性质」——时长/连续性类缺陷（空段、卡死、整段丢字幕）单帧判据结构性失明；场景分片并行代理的交付面须含「本文件实际渲染哪些 beat」的机器可核声明（`--check-scenes` 只对账分镜↔代码句覆盖，文件级互相推诿它看不见）；草渲后全片内容带扫描未跑不得进终渲（09 ⑨ 必做项）。
 
 **同类问题影响**：门只认句中点采样形态（`--beat-heads` 不查）；未来若有合法的 >8s 纯底色艺术段，本集 toml 覆写 `qa.max_dark_sec` 并在分镜留决策记录。
 
-## RSI-021 chars_per_min 默认值不区分 tts.style，story 档首轮必超窗返工
+<a id="I-021"></a>
+## I-021：chars_per_min 默认值不区分 tts.style，story 档首轮必超窗返工
 
 **表因**：五集系列 ep1（上游同分支，ep1 交付 commit `6f58fac2e`）首轮按默认 280 字/分写 3961 字 → TTS 实测外推 15.62 分超 [13.0, 14.6] 硬窗 → 回 ③ 减脂 317 字 → story 档块缓存整失效全量重合成（~40 分钟浪费）；后续四集按实测 254 直写全部一次过窗零返工（ep2–ep5 的 pipeline.toml 已显式 `chars_per_min = 254`——内容侧自发的手工 workaround，正是 B 案的存量形态）。
 
@@ -355,24 +459,28 @@
 **后续防范**：STYLE_PRESETS 新增风格档时，检查所有「按档位变化的口径常数」（语速/停顿/种子）是否需入 `STYLE_CHARS_PER_MIN` 一类分档表——首轮后以 manifest 实测回写，不拿单集标定当普适；预算门超窗先查生效 chars_per_min 的来源（doctor 打印 default/pipeline.toml 分层），再回 ③ 减脂。
 
 **同类问题影响**：en 版走 words_per_min（词/分）不受本分档影响（首集英文实测后按 07 完成门同模式校准）；14 个存量 sunny-steady 集默认值不变（280），零波及；已显式写 254 的 story 集（上游五集）走 toml 覆写路径，行为不变。
-## RSI-022 TTS 长跑自愈缺官方载体：服务掉线/客户端依赖缺失/退出码误读三坑无脚本兜底
 
-**表因（上游实证）**：五集系列 TTS 长跑（每集 149-170 句）反复遇到：①IndexTTS 服务掉线或 MPS 挂死（需按端口冷重启 + `PYTORCH_MPS_HIGH_WATERMARK_RATIO` 参数，与本仓 RSI-017 同族——长跑显存击穿后合成全 500 而 `/health` 假绿、自愈循环须含「连续失败→按端口重启服务」）；②客户端 mutagen 依赖缺失在**首句合成成功后**才崩（uv --no-project 裸调形态：tts.py 的 mutagen 是惰性 import，只在写完 mp3 测时长时才 ModuleNotFoundError）；③自制自愈脚本踩 `cmd | tail; $?` 陷阱（取的是 tail 退出码 → 失败检测恒失效）。上游已验证一套 .sh 形态自愈循环（连续失败→按端口冷重启服务→客户端续跑，五集全部跑通），但只存在于用户内容仓的未跟踪文件（`negentropy 工作区 .context/tts-run/resume.sh`，未入 git 无 URL，已原文核对：`kill $(lsof -tnP -iTCP:8766 -sTCP:LISTEN)` + `PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0` nohup 拉起 + 子 shell 取 rc + 60×5s 健康轮询 grep `'"ok": *true'`），未回流机制仓。工单草稿曾引「上游 ISSUE-202」为同族——核对为 remotion lottie headless 挂死条目、非 TTS 族，此引用不成立已弃（同族依据改为 RSI-017 与上游脚本原文）。
+<a id="I-022"></a>
+## I-022：TTS 长跑自愈缺官方载体：服务掉线/客户端依赖缺失/退出码误读三坑无脚本兜底
+
+**表因**（上游实证）：五集系列 TTS 长跑（每集 149-170 句）反复遇到：①IndexTTS 服务掉线或 MPS 挂死（需按端口冷重启 + `PYTORCH_MPS_HIGH_WATERMARK_RATIO` 参数，与本仓 I-017 同族——长跑显存击穿后合成全 500 而 `/health` 假绿、自愈循环须含「连续失败→按端口重启服务」）；②客户端 mutagen 依赖缺失在**首句合成成功后**才崩（uv --no-project 裸调形态：tts.py 的 mutagen 是惰性 import，只在写完 mp3 测时长时才 ModuleNotFoundError）；③自制自愈脚本踩 `cmd | tail; $?` 陷阱（取的是 tail 退出码 → 失败检测恒失效）。上游已验证一套 .sh 形态自愈循环（连续失败→按端口冷重启服务→客户端续跑，五集全部跑通），但只存在于用户内容仓的未跟踪文件（`negentropy 工作区 .context/tts-run/resume.sh`，未入 git 无 URL，已原文核对：`kill $(lsof -tnP -iTCP:8766 -sTCP:LISTEN)` + `PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0` nohup 拉起 + 子 shell 取 rc + 60×5s 健康轮询 grep `'"ok": *true'`），未回流机制仓。工单草稿曾引「上游 ISSUE-202」为同族——核对为 remotion lottie headless 挂死条目、非 TTS 族，此引用不成立已弃（同族依据改为 I-017 与上游脚本原文）。
 
 **根因**：`scripts/tts.py` 只管单轮合成；服务生命周期管理与长跑续跑编排无官方载体；`pipeline.py` doctor 不预检客户端依赖。
 
 **定性**：非阻断改进（上游有 .sh 兜底、五集已跑通；但每次新长跑都要重搓 shell——正是陷阱③的来源，且该 .sh 未入版本控制、一次 clean 即失传）。
 
-**方案比选**：A 原样回流 .sh——零改动已验证，但 shell 里退出码/健康检查靠 curl+grep 且无法做状态机单测（G3 缺载体），`$?` 类陷阱是类型系统级缺陷；B 新增 `scripts/tts_resume.py`（**采纳**，纯标准库对齐不变量 14）——`subprocess.run(...).returncode` 结构性消除管道尾食、urllib 健康检查、状态机可单测；对 .sh 的两处刻意微调：首轮健康即不重启（省 1–2 分钟冷启动；失败后仍无条件重启，覆盖 /health 假绿）、放弃上限缺省 3 轮（工单口径，`--max-restarts` 可调回上游实证的 12）；C 并入 tts.py（--resume flag）——超出白名单，且把服务编排塞进单轮合成器、破坏其「可拷进 index-tts venv 单独运行」的导入边界（test_tts_lang_mirror 钉死）；D 只改 doctor+文档记录 .sh 形态——不解决载体缺位。启动命令不另立第二事实源：从 `tts.server_launch_hint` 同构派生并由回归测试钉住 `--with` 集合（hint 仍是人贴终端的 SSOT）。doctor 预检形态：⚠️ 不计失败（对齐「服务离线不计失败」先例——doctor 规范调用本就不带 `--with`，计入失败会让正常态恒红）；**硬门禁放 tts_resume 入口**（它以 sys.executable 跑 tts.py，同解释器依赖在场是硬前提——这才是结构性堵住「首句合成后才崩」的位置）。MPS env 兜底执行 RSI-017 配对纪律：单设正 high 必配 low（默认 low=1.4，high<1.4 首个 MPS 分配即崩），0.0（禁用水位线）为唯一免配对特例。
+**方案比选**：A 原样回流 .sh——零改动已验证，但 shell 里退出码/健康检查靠 curl+grep 且无法做状态机单测（G3 缺载体），`$?` 类陷阱是类型系统级缺陷；B 新增 `scripts/tts_resume.py`（**采纳**，纯标准库对齐不变量 14）——`subprocess.run(...).returncode` 结构性消除管道尾食、urllib 健康检查、状态机可单测；对 .sh 的两处刻意微调：首轮健康即不重启（省 1–2 分钟冷启动；失败后仍无条件重启，覆盖 /health 假绿）、放弃上限缺省 3 轮（工单口径，`--max-restarts` 可调回上游实证的 12）；C 并入 tts.py（--resume flag）——超出白名单，且把服务编排塞进单轮合成器、破坏其「可拷进 index-tts venv 单独运行」的导入边界（test_tts_lang_mirror 钉死）；D 只改 doctor+文档记录 .sh 形态——不解决载体缺位。启动命令不另立第二事实源：从 `tts.server_launch_hint` 同构派生并由回归测试钉住 `--with` 集合（hint 仍是人贴终端的 SSOT）。doctor 预检形态：⚠️ 不计失败（对齐「服务离线不计失败」先例——doctor 规范调用本就不带 `--with`，计入失败会让正常态恒红）；**硬门禁放 tts_resume 入口**（它以 sys.executable 跑 tts.py，同解释器依赖在场是硬前提——这才是结构性堵住「首句合成后才崩」的位置）。MPS env 兜底执行 I-017 配对纪律：单设正 high 必配 low（默认 low=1.4，high<1.4 首个 MPS 分配即崩），0.0（禁用水位线）为唯一免配对特例。
 
 **处理方式**：新增 `scripts/tts_resume.py`（健康检查 `ok` 判据同上游 .sh → 不健康或客户端失败后按端口冷重启——SIGTERM→等待→SIGKILL，只杀该端口 LISTEN、绝不 `pkill -f`（07「服务生命周期」第 2 步判据面=作用面纪律）→ `subprocess.run` 真实退出码续跑 tts.py（`--` 后参数原样转发，幂等缓存断点续）→ 超上限非零退出；入口门禁 `--engine=indextts` 与 mutagen 在场；服务命令/根/日志/MPS env 全参数化）；`pipeline.py` doctor 的 indextts 节加 mutagen 预检（⚠️ + `--with mutagen` 可操作提示）；[references/PIPELINE.md](../../references/PIPELINE.md) §三脚本表登记（用法定义 SSOT）与 [references/07-tts-voice.md](../../references/07-tts-voice.md) 调用形态指针行；回归测试 [tests/test_tts_resume.py](../../tests/test_tts_resume.py)：退出码管道尾食负例文档化（`/bin/sh` 实测 `(exit 7) | cat; echo $?` → 0）、重启计数状态机（瞬时失败两轮后成功/达上限放弃/首轮不健康先重启/冷启动超时 exit 3）、健康检查 payload 与传输异常分支、启动命令对 hint 的 `--with` 防漂移、MPS 配对、端口纪律（无 pkill、SIGTERM→SIGKILL）、doctor 预检两分支（缺失 ⚠️ 不计失败 / 在场静默）。实施：[PR #25](https://github.com/ThreeFish-AI/to-video/pull/25)。
 
 合并前评审加固（2026-09-29，四条全过对抗验证）：①`server_healthy` 捕获面补 `http.client.HTTPException` 族——BadStatusLine/IncompleteRead 的 MRO 不经 URLError/OSError/ValueError（实测穿透），端口被非 HTTP 进程占用（--server 指错/残留垃圾服务）曾使自愈编排器裸 traceback 崩溃、恰在其职责域内丧失自愈；②`main()` 入口校验 index-tts checkout 存在（缺失时 Popen 在**服务掉线后**才裸炸——靶场景遇配置错误须入口大声退出），`start_server` 再兜一层 FileNotFoundError（覆盖 uv 不在 PATH）；③`mps_env` 拒 nan/-inf/负数（比较恒 False 溜过 `> 0` 配对分支，注入后 torch 崩出不可读错误）；④mock 状态机测试显式 `--index-tts-root` 指向 tmp（消除对本机 `~/tools/index-tts` 真伪的机器依赖）。回归测试 +4 用例（HTTPException×2 参数例、根缺失入口拦、Popen 兜底）+ mps 非有限/负数 3 断言扩入既有用例。
 
-**后续防范**：①长跑编排类脚本禁止 `cmd | tail` 后取 `$?`——一律 `subprocess.run` 直取 returncode（shell 管道退出码陷阱在 Python 侧结构性不可达）；②杀服务按端口不按 argv 模式（判据面=作用面）；③客户端依赖预检要在**编排入口**做（同解释器前提），诊断命令里的预检只报不计失败；④MPS 水位线 env 单设正 high 必配 low（RSI-017）；⑤用户侧验证过的运维脚本须回流机制仓——留在内容仓未跟踪路径等于零版本控制；⑥urllib 的 `except (URLError, OSError)` 窄口径对「读响应体」路径漏 HTTPException 族——凡健康探测类代码须把 `http.client.HTTPException` 计入按不健康处理的异常面。
+**后续防范**：①长跑编排类脚本禁止 `cmd | tail` 后取 `$?`——一律 `subprocess.run` 直取 returncode（shell 管道退出码陷阱在 Python 侧结构性不可达）；②杀服务按端口不按 argv 模式（判据面=作用面）；③客户端依赖预检要在**编排入口**做（同解释器前提），诊断命令里的预检只报不计失败；④MPS 水位线 env 单设正 high 必配 low（I-017）；⑤用户侧验证过的运维脚本须回流机制仓——留在内容仓未跟踪路径等于零版本控制；⑥urllib 的 `except (URLError, OSError)` 窄口径对「读响应体」路径漏 HTTPException 族——凡健康探测类代码须把 `http.client.HTTPException` 计入按不健康处理的异常面。
 
 **同类问题影响**：上游五集长跑的 .sh 可由本脚本替代（`.context/tts-run/resume.sh` 可退役）；edge 引擎无服务端不适用；tts_bench/tts_sample 短调用仍走 tts.py 自动打印的启动命令（server_launch_hint SSOT 不变）。
-## RSI-023 覆盖门只认单参 dur 拼写，FAIL 文案未给合规扩窗改法——空窗回填用了门读不到的写法且登记口径失效
+
+<a id="I-023"></a>
+## I-023：覆盖门只认单参 dur 拼写，FAIL 文案未给合规扩窗改法——空窗回填用了门读不到的写法且登记口径失效
 
 **表因**：上游内容仓 E2 第 4 轮评审（2026-09-29）发现：空窗回填提交把 6 处 cue 时长写成双参 `durationInFrames: dur('a','b')`（P1Hangar×3/P5Tarmac×3），`CUE_DUR_RE` 只识别单参对象字面量形态——门一跑即 SystemExit，且该提交未重跑门，series.json/CHANGELOG 里「覆盖门 FAIL 0」的登记口径就此失效（门炸与登记绿并存）。
 
@@ -386,11 +494,12 @@
 
 **同类问题影响**：Sequence 级 JSX 等号形态（`durationInFrames={dur('a','b')}`）不在此门管辖（正则只查对象字面量冒号形态），该形态合法勿误改。
 
-## RSI-024 zh 字幕单行宽度无门：超限句横向溢出画布只靠稿风纪律
+<a id="I-024"></a>
+## I-024：zh 字幕单行宽度无门：超限句横向溢出画布只靠稿风纪律
 
 **表因**：上游内容仓两起实测——E3 曾 81 字散文句在 30px 最小字号下两侧各溢出 1920 画布 ~255px；E2 重制评审（2026-09-29）确认构造仍在（当时最长 39 字不触发，复活门槛 ≈51 全角字）。
 
-**根因**：frozen 模板 `Subtitle.tsx` 对 zh 恒单行（`twoLine = !isZh && fitted < MIN_FONT_SIZE`——两行回退仅 en）、字号下限钳 30px、`nowrap` 不折行——「不溢出」⇔ 全角当量 ≤ floor(1528/30) = 50，但该物理上限只存在于渲染层，build/check 期无门；「超宽句压短」的稿风纪律不执法。zh 组件层加两行回退属 frozen 整组同步（见 RSI-028），门是独立于模板的最小干预。
+**根因**：frozen 模板 `Subtitle.tsx` 对 zh 恒单行（`twoLine = !isZh && fitted < MIN_FONT_SIZE`——两行回退仅 en）、字号下限钳 30px、`nowrap` 不折行——「不溢出」⇔ 全角当量 ≤ floor(1528/30) = 50，但该物理上限只存在于渲染层，build/check 期无门；「超宽句压短」的稿风纪律不执法。zh 组件层加两行回退属 frozen 整组同步（见 I-028），门是独立于模板的最小干预。
 
 **定性**：阻断性缺陷缺门（缺陷复活门槛低：一次成文放宽即触发，且 qa 帧级检查对字幕盒内文字溢出不敏感）。
 
@@ -400,7 +509,8 @@
 
 **后续防范**：字幕物理类上限钉进门里不钉在稿风里；新增句级门须同时想清 zh/en 归属并在两条分发路径挂载（漏挂即静默缺门）。
 
-## RSI-025 台本 [say] 与正文逐字相同时零告警：no-op 表演标点静默攒批
+<a id="I-025"></a>
+## I-025：台本 [say] 与正文逐字相同时零告警：no-op 表演标点静默攒批
 
 **表因**：上游 E2 重制（2026-09-29 清理）实测 cues.toml 攒了 8 条 `[say]` 与句原文逐字相同——三处逐字一致（say == text == ttsText），纯假动作；build 只在 say 与正文**改字**时报 FAIL，零改动无任何提示。
 
@@ -412,7 +522,8 @@
 
 **后续防范**：表演层输入的「零效果边界」与「非法边界」都要有声音——只拦非法会把「写了等于没写」留成静默债。
 
-## RSI-026 选色判据缺「色相距离」维度与未登记色盲区：撞值门全绿仍可同色相撞车
+<a id="I-026"></a>
+## I-026：选色判据缺「色相距离」维度与未登记色盲区：撞值门全绿仍可同色相撞车
 
 **表因**：上游 E2 流光五色选色（2026-09-29）初选玫红 #E85D75（350°，colorsys 口径），与同系列既有 E3 玫红 #FF6F91（346°）色相仅差 4°——`check_series` 规则 4 只拦精确同值，门全绿、视觉同色相；两次改向后落品红 #D65DB1（318°，全系列空槽；最近占用 E1 紫 #C9A0FF 266° 差 52°）。另发现材料色数组 token（`sourceFlows`）不进 series.json `accents` 清单，机器完全不看见。
 
@@ -424,9 +535,10 @@
 
 **后续防范**：「机器不判」的判据必须写明人工承接面在哪，否则契约只有被执法的那一半活着。
 
-## RSI-027 派生产物确定性无门：提交的 narration.json 可相对钉定生成器陈旧
+<a id="I-027"></a>
+## I-027：派生产物确定性无门：提交的 narration.json 可相对钉定生成器陈旧
 
-**表因**：上游 E2 第 4 轮（2026-09-29）rebuild 发现提交版 narration.json 与当前生成器输出不一致——生成器在 RSI-015 起派生 `beatStart` 键，提交版是旧生成器产物（0 个 beatStart vs 新 31 个）；无任何门报告这一漂移，语义对账（ids/text/scene/blockStart/cue 五维全等）只能靠人手写脚本。
+**表因**：上游 E2 第 4 轮（2026-09-29）rebuild 发现提交版 narration.json 与当前生成器输出不一致——生成器在 I-015 起派生 `beatStart` 键，提交版是旧生成器产物（0 个 beatStart vs 新 31 个）；无任何门报告这一漂移，语义对账（ids/text/scene/blockStart/cue 五维全等）只能靠人手写脚本。
 
 **根因**：narration.json 是「源（narration.md + cues.toml）× 生成器版本」的二元派生物，生成器演进出新键时存量 json 陈旧但合法可渲染——缺一个「提交的派生物 == 当前生成器重跑结果」的确定性门（类似 lockfile 校验）。
 
@@ -434,11 +546,12 @@
 
 **处理方式**：登记待办。落地形状候选：`pipeline.py check` 附 `--determinism`——build_narration 重跑到临时目录与在库 json 做规范化 diff（键序/新增键白名单化），漂移即 FAIL 并提示重跑 build。
 
-**后续防范**：凡「源×生成器」型派生物进 git，都应有确定性门；生成器新增输出键的 RSI（如 RSI-015 之于 beatStart）须在 PR 里点名「存量集 json 将报陈旧，重跑 build 自适配」。
+**后续防范**：凡「源×生成器」型派生物进 git，都应有确定性门；生成器新增输出键的 RSI（如 I-015 之于 beatStart）须在 PR 里点名「存量集 json 将报陈旧，重跑 build 自适配」。
 
 **同类问题影响**：chapters.json/series-layers.json 等同型派生物。
 
-## RSI-028 冻结件整组同步积压六项：单改一集即破 skeleton 字节契约
+<a id="I-028"></a>
+## I-028：冻结件整组同步积压六项：单改一集即破 skeleton 字节契约
 
 **表因**：上游 E2 第 4 轮评审（2026-09-29）判「明确不动」清单六项——frozen `Subtitle.tsx` 的 zh 两行回退与 scrim 色值 `rgba(6,8,12,0.68)`（四集共享规范值）、`ArchifyClip.tsx` 内衬色 `#0B0E13` 与注释里指向集内 `scripts/` 的悬空路径、`ArchifyRecap.tsx` 手抄匿名类型断言（应引用导出的 `ArchifyChapter`）、`ArchifyYield.tsx` 零挂载死件、`i18n.tsx` `useL`/`L` 零消费导出（四集字节一致）、`build_narration.py` 侧 zh 句长防线（episode 薄包装受 frozen 字节执法）。
 
@@ -446,11 +559,12 @@
 
 **定性**：非阻断积压（登记待批；六项均已在上游内容仓经 md5 跨集指纹实证为共享件）。
 
-**处理方式**：登记待办。建议攒一个集中 generation 批次：模板侧六项一次改齐（Subtitle zh 两行回退落地后 RSI-024 的代际守卫消失、门自动退位点名跳过——双保险仅在过渡期成立；scrim/内衬色走 theme 派生；ArchifyYield 删或给活例；类型断言改引用；i18n 死导出删；薄包装注释限定 skill 路径），同步 CHANGELOG Breaking 自适配指引与各集 `[[skeleton.generation]]` 登记。
+**处理方式**：登记待办。建议攒一个集中 generation 批次：模板侧六项一次改齐（Subtitle zh 两行回退落地后 I-024 的代际守卫消失、门自动退位点名跳过——双保险仅在过渡期成立；scrim/内衬色走 theme 派生；ArchifyYield 删或给活例；类型断言改引用；i18n 死导出删；薄包装注释限定 skill 路径），同步 CHANGELOG Breaking 自适配指引与各集 `[[skeleton.generation]]` 登记。
 
 **后续防范**：跨集共享件的缺陷一律先 md5 抽跨集指纹定性再动手；「本集不修」必须像本条一样落到台账而不是只留在当轮 commit message 里。
 
-## RSI-029 草渲半分辨率下「帧指纹相同」WARN 可假阳：冻帧误报无像素级复核通道
+<a id="I-029"></a>
+## I-029：草渲半分辨率下「帧指纹相同」WARN 可假阳：冻帧误报无像素级复核通道
 
 **表因**：上游 E2 v2 草渲 QA（2026-09-29）四条「帧指纹相同（疑似冻帧）」WARN（p1-21b/p1-24、p3-10/p3-11c、p4-01/p4-04、p6-26/p6-27），像素级对账全部证伪——变更像素 3.5–7.7%、diff bbox 非空，是 `--scale 0.5 --jpeg-quality 60` 草渲下指纹分辨率不足的假阳。
 
@@ -462,9 +576,10 @@
 
 **后续防范**：数值/指纹类 WARN 上线时想好「假阳时如何一票证伪」并把证伪命令写进文案——不能复核的告警等于噪声。
 
-合并前评审（2026-09-29）：①编号与并行创建的 RSI-018..022（PR #23/#24/#25，首创在前）撞号，本批七条目整体重编号 018..024 → 023..029（条目内互引同步：024 宽度门 ↔ 028 冻结件）；②文档漂移修复——check_script.py 模块头机制清单/--pre-tts 枚举/--help 三面与 references/05 第九节第 5 条补收 zh 字幕宽度门（门已挂 --pre-tts 与 zh 完整门两路，枚举面漏同步）；③say 条目「既有 15 处调用点」订正为 14 处（build_narration 生产 1 + 既有测试 13，可 grep 复核）。
+合并前评审（2026-09-29）：①编号与并行创建的 I-018..022（PR #23/#24/#25，首创在前）撞号，本批七条目整体重编号 018..024 → 023..029（条目内互引同步：024 宽度门 ↔ 028 冻结件）；②文档漂移修复——check_script.py 模块头机制清单/--pre-tts 枚举/--help 三面与 references/05 第九节第 5 条补收 zh 字幕宽度门（门已挂 --pre-tts 与 zh 完整门两路，枚举面漏同步）；③say 条目「既有 15 处调用点」订正为 14 处（build_narration 生产 1 + 既有测试 13，可 grep 复核）。
 
-## RSI-030 guided-learn 精读产物无输入形态：上游《精读与通俗拆解》无法作为一等信源，Stage ① 被迫重复精读
+<a id="I-030"></a>
+## I-030：guided-learn 精读产物无输入形态：上游《精读与通俗拆解》无法作为一等信源，Stage ① 被迫重复精读
 
 **表因**：用户提出（2026-09-29）——本 Skill 与 guided-learn 配套分工（GL 出《{学习目标} 精读与通俗拆解》文档、to-video 出视频），但 Stage ① 信源分流只有 A 型（论文 PDF）/B 型（活信源）两型：GL 已完成通读、通俗化与循证拆解的冻结本地文档不匹配任何一型——`source_ledger.py` 只吃 URL 且 kind 仅 repo|site、A 型流程假设从原始 PDF 分章重读。同一信源被两套 Skill 各精读一遍，GL 的白话主线/类比/三拍叙事等通俗化成果进不了记忆点原料库。
 
@@ -484,7 +599,8 @@
 
 合并前评审二（2026-09-30）：02:11 与 03:126 的「B/C 型对应素材节」半悬空——C 型在 01 §七「素材映射」有锚点，B 型六节无素材节定义，执行者按指引回 01 找不到落点。订正为三型各有实锚：A 型 paper-notes 第 4 段、B 型 source-notes 叙事正文（B 轨）、C 型 01 §七「素材映射」（02 与 03 两处同步）。
 
-## RSI-031 录制器异常路径泄漏整套系统 Chrome：browser.close 是顺序语句非结构保证，全仓无浏览器纪律成文
+<a id="I-031"></a>
+## I-031：录制器异常路径泄漏整套系统 Chrome：browser.close 是顺序语句非结构保证，全仓无浏览器纪律成文
 
 **表因**：用户提出（2026-09-29）——要求「能用 Headless Chrome 就用 Headless、用完的孤儿浏览器进程及时清理、能复用则复用」。核查：record_archify.py 是全仓唯一程序化驱动浏览器的脚本（Playwright channel="chrome" headless=True，:616-621，跨章复用单 browser——headless 与复用已达标），但 `browser.close()`（:628）只在正常返回路径执行：pump_until 超时 sys.exit（:684）、encode_frames 三处 sys.exit（:226/:230/:292）、wait_for_selector/wait_for_function 15s 超时抛 TimeoutError（:646/:705）、激活失败（:716 仅此一处先关再退）等路径全部跳过——每章 context（new_ctx :643/:698）异常路径同样泄漏；长批次（record_archify_all 逐图独立子进程 ~45 分钟）一次超时即残留整套 headless 系统 Chrome 常驻内存。文档层全仓无「headless 优先/用后清理/复用」任何表述，且 record_archify_all.py:17-19 与 10-final-render.md:88-90 的串行理由「多实例互抢前台焦点会掉帧」与 headless=True 矛盾（真实机理是 CPU/GPU 资源争抢，错误归因会诱导未来错误优化）。
 
@@ -498,11 +614,12 @@
 
 **后续防范**：① 浏览器生命周期一律 contextmanager/finally 结构化，禁止裸 close 顺序语句；② 进程清理必须窄域双特征匹配（headless + 临时 profile），严禁全局 pkill Chrome；③ 文档归因须与代码实况对拍（headless 无前台焦点——错误机理描述会诱导错误优化）。
 
-## RSI-032 C 型信源（guided-learn）止步于 Stage ① 取证：类比规则与 GL 四硬律冲突，缺跨模态过程具象化与被动线性收看门禁
+<a id="I-032"></a>
+## I-032：C 型信源（guided-learn）止步于 Stage ① 取证：类比规则与 GL 四硬律冲突，缺跨模态过程具象化与被动线性收看门禁
 
-**表因**：用户提出（2026-09-30）——RSI-030 虽在 Stage ① 引入了 C 型信源（`research/gl-notes.md` 冻结快照与穿透核查），但下游 Stage ②–⑥ 对如何将《{学习目标} 精读与通俗拆解》从「主动阅读文档」转化为「具有画面感和过程具象化、让小白读者被动收看就能轻松理解的科普视频」存在三处断层：① **类比规则冲突**：guided-learn（`lecture-format.md §1.1`）强制执行类比四硬律（难点准入 ≤5 个、一物一喻、严禁升格为贯穿全篇的剧场/世界观、1–3 句即止并带失配拦截），而 `references/02-planning.md:9` 却硬性要求「一个贯穿全片的拟人化/比喻体系」、`03-narration.md:126` 要求「每个新概念配比喻」，诱导制片时推翻 GL 已核验的局部类比并强造失配大剧场；② **过程具象化映射缺位**：`01 §七` 仍引用 GL 已废除的「PREP 叙事」，且未规定 GL 的「三拍叙事（白话→机制→走查实例）」「动手实验室破坏性实验」「实证数字表」「适用边界」如何映射为分镜动画，压字数时极易删掉具体输入走查（Worked Example）与反例，只剩抽象规则配静态卡片；③ **被动收看门禁缺失**：`04 B 节` 缺「具象走查在场性」与「线性收看零回溯负担」判据，且未打通 GL 已产出的 `archify` 图与 `sources.md` 台账的直通复用。
+**表因**：用户提出（2026-09-30）——I-030 虽在 Stage ① 引入了 C 型信源（`research/gl-notes.md` 冻结快照与穿透核查），但下游 Stage ②–⑥ 对如何将《{学习目标} 精读与通俗拆解》从「主动阅读文档」转化为「具有画面感和过程具象化、让小白读者被动收看就能轻松理解的科普视频」存在三处断层：① **类比规则冲突**：guided-learn（`lecture-format.md §1.1`）强制执行类比四硬律（难点准入 ≤5 个、一物一喻、严禁升格为贯穿全篇的剧场/世界观、1–3 句即止并带失配拦截），而 `references/02-planning.md:9` 却硬性要求「一个贯穿全片的拟人化/比喻体系」、`03-narration.md:126` 要求「每个新概念配比喻」，诱导制片时推翻 GL 已核验的局部类比并强造失配大剧场；② **过程具象化映射缺位**：`01 §七` 仍引用 GL 已废除的「PREP 叙事」，且未规定 GL 的「三拍叙事（白话→机制→走查实例）」「动手实验室破坏性实验」「实证数字表」「适用边界」如何映射为分镜动画，压字数时极易删掉具体输入走查（Worked Example）与反例，只剩抽象规则配静态卡片；③ **被动收看门禁缺失**：`04 B 节` 缺「具象走查在场性」与「线性收看零回溯负担」判据，且未打通 GL 已产出的 `archify` 图与 `sources.md` 台账的直通复用。
 
-**根因**：RSI-030 仅解决了「信源真实性回溯（Veracity）」单维，未覆盖「跨模态教学转化（Pedagogical & Visual Translation）」维度；`02/03` 的比喻条款写于 GL 类比四硬律定型之前，两仓规范演进产生 Split-Brain。
+**根因**：I-030 仅解决了「信源真实性回溯（Veracity）」单维，未覆盖「跨模态教学转化（Pedagogical & Visual Translation）」维度；`02/03` 的比喻条款写于 GL 类比四硬律定型之前，两仓规范演进产生 Split-Brain。
 
 **定性**：非阻断改进（用户点名启动）。
 
@@ -512,7 +629,8 @@
 
 **后续防范**：① 跨 Skill 协作不仅对齐文件格式（语法层），必须同步核心概念约束（语义层：如类比四硬律 vs 全片剧场）；② 压缩长文档为视频逐字稿时，Worked Example（具体输入走查）与破坏性反例属不可裁减的骨架，只许裁旁支章节。
 
-## RSI-033 批量录制 67 图冷启动 67 次 Chrome、可见自动化孤儿进程漏检且无 doctor/Stage ⑩ 终扫闭环
+<a id="I-033"></a>
+## I-033：批量录制 67 图冷启动 67 次 Chrome、可见自动化孤儿进程漏检且无 doctor/Stage ⑩ 终扫闭环
 
 **表因**：用户提出（2026-09-30）——① `record_archify_all.py` 虽在单图内部跨章复用 browser，但跨图仍逐图 `subprocess.run` 冷启动全新 Chrome（如 67 张图连续冷启动并销毁 67 次 macOS Chrome 主进程 + GPU Helper + 67 个临时 profile），系统开销极大；② Stage ① 动态网页取证与 Stage ⑥/⑧/⑨ 预览缺少显式的「三档浏览器通道优先级」，Agent 易调 `open`、`remotion studio` 或非无头工具在桌面弹出多个可见 Chrome 窗口；③ `PIPELINE.md §十` 的孤儿检测命令 `grep -E '[Cc]hrome.*--headless' | grep -F playwright` 只认 `--headless` 且必须含 `playwright`，导致**带自动化 profile 的可见 Chrome 孤儿进程**、Remotion `chrome-headless-shell` 残留及 Stage ① `--dump-dom` 孤儿进程全部漏检，且 `pipeline.py doctor` 与 `10-final-render.md` 收尾均无自动体检与窄域回收入口。
 
@@ -520,14 +638,14 @@
 
 **定性**：非阻断改进（用户点名启动；含系统资源开销优化与可见孤儿进程漏检修复）。
 
-**方案比选**：跨图复用三案——① 维持逐图子进程（否决：N 图 N 次冷启动 Chrome，违背复用减负要求）；② 裸共享单 Browser 无恢复（否决：任一图触发 Target closed 或连接断开会连坐后续全部图，违背 RSI-031 历史隔离初衷）；③ 进程内共享单 Headless Browser + 每章独立 Context + 单图异常捕获与 Browser 断连自愈重拉，并保留 `--no-reuse-browser` 逃生舱（采纳：正常批次 N 图仅启动 1 次 Chrome，异常时单图隔离并自动换新 Browser 续跑，显式权衡并升级 RSI-031 的跨图策略）。孤儿清理两案——① 仅更新文档 shell 命令（否决：无自动体检入口易被遗忘）；② `pipeline.py doctor` 内置 `scan_automation_browsers`（覆盖无头与可见自动化沙箱实例、区分 `ppid=1` 确认孤儿与在途实例）+ `doctor --clean-browsers` 按 PID 精准 `SIGTERM` 回收 `ppid=1` 孤儿 + Stage ⑩ 收尾必跑终扫（采纳：零误伤用户日常 Chrome，工具化闭环）。
+**方案比选**：跨图复用三案——① 维持逐图子进程（否决：N 图 N 次冷启动 Chrome，违背复用减负要求）；② 裸共享单 Browser 无恢复（否决：任一图触发 Target closed 或连接断开会连坐后续全部图，违背 I-031 历史隔离初衷）；③ 进程内共享单 Headless Browser + 每章独立 Context + 单图异常捕获与 Browser 断连自愈重拉，并保留 `--no-reuse-browser` 逃生舱（采纳：正常批次 N 图仅启动 1 次 Chrome，异常时单图隔离并自动换新 Browser 续跑，显式权衡并升级 I-031 的跨图策略）。孤儿清理两案——① 仅更新文档 shell 命令（否决：无自动体检入口易被遗忘）；② `pipeline.py doctor` 内置 `scan_automation_browsers`（覆盖无头与可见自动化沙箱实例、区分 `ppid=1` 确认孤儿与在途实例）+ `doctor --clean-browsers` 按 PID 精准 `SIGTERM` 回收 `ppid=1` 孤儿 + Stage ⑩ 收尾必跑终扫（采纳：零误伤用户日常 Chrome，工具化闭环）。
 
 **处理方式**：`record_archify.py` 提炼 `BROWSER_LAUNCH_ARGS` 与 `record_one_diagram()` 单图入口；`record_archify_all.py` 新增 `run_batch_reusing_browser()`（默认 `--reuse-browser`，支持 `--no-reuse-browser` 回退）；`pipeline.py` 新增 `scan_automation_browsers()` / `clean_orphan_browsers()` 并接入 `cmd_doctor` 与 `doctor --clean-browsers`；同步 `references/PIPELINE.md §十`、`references/10-final-render.md` 与 `CHANGELOG.md`；扩展 `tests/test_record_archify_session.py` 与 `tests/test_stages.py`。[PR #28](https://github.com/ThreeFish-AI/to-video/pull/28)。
 
 **后续防范**：① 性能优化触碰既有隔离决策时，通过「细粒度沙箱（Context）+ 监督器自愈重启（Supervisor Restart）」同时满足低开销与故障隔离；② 孤儿浏览器识别一律以「自动化沙箱特征（profile/headless-shell/headless）× 主进程（非 `--type=`）× 父进程状态（`ppid=1`）」三维判定，兼顾无头与可见孤儿且永不触碰用户日常主 profile。
 
-
-## RSI-034 配音默认档为 IndexTTS 克隆：制作期被小时级长跑阻塞，评审后重配/多语言追配无显式轨道，升档中间态预算门假红
+<a id="I-034"></a>
+## I-034：配音默认档为 IndexTTS 克隆：制作期被小时级长跑阻塞，评审后重配/多语言追配无显式轨道，升档中间态预算门假红
 
 **表因**：用户提出（2026-10-02）——① `tts.engine` 默认 `indextts`（config.py SCHEMA），新集建集即要求样本指纹（scaffold 写 `TODOTODOTODO` 占位、登记 refs.toml），首轮 `tts` 就是 2.5–3.5 小时克隆长跑，而此时逐字稿还在多轮改稿评审回路里，每轮都付克隆成本（README quickstart 甚至靠 sed 手翻 edge 才能免克隆跑通——README.md:110）；② 「整集评审通过后，用 IndexTTS-2.5 + 本人声音重配本集（story 段落演绎，其余内容零变更）」「额外为本集配英文配音」两类用户诉求在 SKILL 路由与 07 规格里无入口，只有散落的「重制存量集」手工配方；③ toml 已翻 `indextts`、音频目录还是 edge 草声时，`tts --pre-tts` 前置预算门拿旧引擎 manifest 的墙钟对按 story 254 字/分标定的 target_minutes 窗执法，语速差导致假 FAIL，把重配拦死在启动前。
 
@@ -541,7 +659,8 @@
 
 **后续防范**：① 成本差数量级悬殊的同类引擎必须显式分档（草声/终声生命周期），默认档取便宜者，贵的档只由用户显式触发；② 一切「按 manifest 实测执法」的门必须先核 manifest 属不属于当前生效配置——换引擎/换档中间态是常态而非异常；③ 显式触发型重配的安全闸复用既有 `.engine` 护栏与 `--allow-voice-switch`，不另造门；④ 文档声明「默认引擎」处（VOICE-CLONING/PIPELINE/README）与 SCHEMA 默认值必须同 commit 对齐，防再出现「文档说 edge、机制默认 indextts」的 Split-Brain。
 
-## RSI-035 tts_resume 默认 server argv 缺 --use-qwen-emo：story 档（skill 默认配音档）MPS 泄漏自愈后必败
+<a id="I-035"></a>
+## I-035：tts_resume 默认 server argv 缺 --use-qwen-emo：story 档（skill 默认配音档）MPS 泄漏自愈后必败
 
 **表因**（2026-10-01，E1《刻意做小》配音实测）：story 档长跑遇 MPS 显存 OOM 后，`tts_resume.py` 自动冷重启的服务 health 显示 `supports_emo_text:false`，续跑客户端对 emo 块（`[block.*]` 台本，story 档标配）合成必然失败——自愈回路对 skill 默认配音档不闭环，须人工带 `--use-qwen-emo` 重启服务再裸跑 tts.py 才能续。
 
@@ -553,15 +672,16 @@
 
 **后续防范**：改 tts_server 启动参数时，hint / default_server_argv / 07 规格 / 测试快照四处同批走。
 
-复盘（2026-10-02，RSI 子代理）：**登记的失败链经 G1 静态核对 + E1 现场日志双重证伪**。①story 档块情感走台本 cue 的**向量**（`tts.py` `resolve_block_vec` → `parse_emo_vector`，`[block.*]` 的 `emo` 字段恒为 `happy:0.6` 向量式，自然语言会被 `parse_emo_vector` 直接报「未知情感键」），服务端 `emo_vector` 不需要 QwenEmotion（`tts_server.py` 仅对 `emo_text` 查 `supports_emo_text`）；②客户端健康门对 story 档只查 `supports_blocks`/`version`/`low_vram`/sampling/seed/`duration_factor`，`supports_emo_text` 仅在 CLI 显式 `--emo-text` 时被查（tts.py 长跑健康门）；③E1 现场 `.temp/tts-resume/server-8766.log`：四次 resume 冷重启**全部** `use_qwen_emo=False`（`>> QwenEmotion not loaded`），块合成持续 200 OK（`Use the specified emotion vector` ×N）——「默认配音档自愈后 emo 必败」不成立，**定性由阻断性降级为非阻断潜在缺陷**；E1 实测当时真正卡住的是 RSI-036 的水位线问题（人工重启带 `--use-qwen-emo` 只是顺带）。另勘误：启动命令 SSOT 在 [VOICE-CLONING.md §2.3](../../references/VOICE-CLONING.md)（07 只是指针行），且其 `--use-qwen-emo` 标注为**可选**、`--indextts-version 2.5`/`--host` 为服务端缺省等价——「07 规格明确带 flag」的口径表述不准。真实缺口：`--emo-text` 长跑（手册既有特性）冷重启后服务静默降级 → 客户端健康门硬失败 → resume 循环重启至 `--max-restarts` 放弃（自愈器把可续跑变确定性失败）；以及 `server_launch_hint`/`default_server_argv` 与 §2.3 权威命令的显式 flag 口径差。G2 比选：A（登记原方向）缺省 argv 无条件带 `--use-qwen-emo`——否决：与手册「可选」冲突、无条件 +1.5 GiB 常驻强加全部长跑、qwen 权重未下载的机器（§2.4 已登记该失败形态）会把能自愈变启动必败；B（采纳）`tts_resume` 新增 `--use-qwen-emo` 透传（缺省不带、同名映射服务端 flag、`--server-cmd` 下拒收指点写进命令串），`server_launch_hint` 对齐 §2.3 显式 flag + 可选 flag 尾注释，测试快照钉死缺省不含/透传含/与 hint 口径一致；C 通用 `--server-flag` 字符串透传——否决：无校验面 + 已知需求是枚举型（YAGNI）。实施：分支 `ThreeFish-AI/rsi-034-036-emo-memlimit-cue-form`（PR 链接待回填），回归测试 `test_default_server_argv_flags_pinned_to_manual` / `test_use_qwen_emo_passthrough_appends_flag` / `test_use_qwen_emo_rejected_with_custom_server_cmd`。后续防范补充：服务端 flag 语义唯一事实源 = `tts_server.py` parser；hint 显式 flag 集 = §2.3 权威命令；resume 透传参数与之同名映射——三处同批走。独立核验（2026-10-02，第二子代理）：E1 日志复核（≥4 次冷启动全 `use_qwen_emo=False`、159 次 "Use the specified emotion vector" + 165 次 200 OK）与三链代码复核确认降级成立；hint 尾注释 `\`+`#` 形态经 zsh/bash/sh 三口径实测粘贴安全（注释不入 argv）；核验建议①已采纳——hint↔§2.3 手册锚升机器执法（`test_server_launch_hint_flags_anchored_to_manual`，仿 test_tts_mps_oom_contract 读手册先例），「三处同批走」不再只靠纪律。
+复盘（2026-10-02，RSI 子代理）：**登记的失败链经 G1 静态核对 + E1 现场日志双重证伪**。①story 档块情感走台本 cue 的**向量**（`tts.py` `resolve_block_vec` → `parse_emo_vector`，`[block.*]` 的 `emo` 字段恒为 `happy:0.6` 向量式，自然语言会被 `parse_emo_vector` 直接报「未知情感键」），服务端 `emo_vector` 不需要 QwenEmotion（`tts_server.py` 仅对 `emo_text` 查 `supports_emo_text`）；②客户端健康门对 story 档只查 `supports_blocks`/`version`/`low_vram`/sampling/seed/`duration_factor`，`supports_emo_text` 仅在 CLI 显式 `--emo-text` 时被查（tts.py 长跑健康门）；③E1 现场 `.temp/tts-resume/server-8766.log`：四次 resume 冷重启**全部** `use_qwen_emo=False`（`>> QwenEmotion not loaded`），块合成持续 200 OK（`Use the specified emotion vector` ×N）——「默认配音档自愈后 emo 必败」不成立，**定性由阻断性降级为非阻断潜在缺陷**；E1 实测当时真正卡住的是 I-036 的水位线问题（人工重启带 `--use-qwen-emo` 只是顺带）。另勘误：启动命令 SSOT 在 [VOICE-CLONING.md §2.3](../../references/VOICE-CLONING.md)（07 只是指针行），且其 `--use-qwen-emo` 标注为**可选**、`--indextts-version 2.5`/`--host` 为服务端缺省等价——「07 规格明确带 flag」的口径表述不准。真实缺口：`--emo-text` 长跑（手册既有特性）冷重启后服务静默降级 → 客户端健康门硬失败 → resume 循环重启至 `--max-restarts` 放弃（自愈器把可续跑变确定性失败）；以及 `server_launch_hint`/`default_server_argv` 与 §2.3 权威命令的显式 flag 口径差。G2 比选：A（登记原方向）缺省 argv 无条件带 `--use-qwen-emo`——否决：与手册「可选」冲突、无条件 +1.5 GiB 常驻强加全部长跑、qwen 权重未下载的机器（§2.4 已登记该失败形态）会把能自愈变启动必败；B（采纳）`tts_resume` 新增 `--use-qwen-emo` 透传（缺省不带、同名映射服务端 flag、`--server-cmd` 下拒收指点写进命令串），`server_launch_hint` 对齐 §2.3 显式 flag + 可选 flag 尾注释，测试快照钉死缺省不含/透传含/与 hint 口径一致；C 通用 `--server-flag` 字符串透传——否决：无校验面 + 已知需求是枚举型（YAGNI）。实施：分支 `ThreeFish-AI/rsi-034-036-emo-memlimit-cue-form`（PR 链接待回填），回归测试 `test_default_server_argv_flags_pinned_to_manual` / `test_use_qwen_emo_passthrough_appends_flag` / `test_use_qwen_emo_rejected_with_custom_server_cmd`。后续防范补充：服务端 flag 语义唯一事实源 = `tts_server.py` parser；hint 显式 flag 集 = §2.3 权威命令；resume 透传参数与之同名映射——三处同批走。独立核验（2026-10-02，第二子代理）：E1 日志复核（≥4 次冷启动全 `use_qwen_emo=False`、159 次 "Use the specified emotion vector" + 165 次 200 OK）与三链代码复核确认降级成立；hint 尾注释 `\`+`#` 形态经 zsh/bash/sh 三口径实测粘贴安全（注释不入 argv）；核验建议①已采纳——hint↔§2.3 手册锚升机器执法（`test_server_launch_hint_flags_anchored_to_manual`，仿 test_tts_mps_oom_contract 读手册先例），「三处同批走」不再只靠纪律。
 
-复盘补（2026-10-02，PR #30 冲突消解复核）：复核子代理**证伪上文「尾注释 `\`+`#` 形态经 zsh/bash/sh 三口径实测粘贴安全」**——其 zsh 口径在 rc 加载态跑（本机 oh-my-zsh lib/misc.zsh 默认 `setopt interactivecomments` 造成遮蔽），macOS 缺省交互 zsh 该选项 OFF：`#` 不是注释，注释文本整体进入服务 argv、被 tts_server argparse 拒收（unrecognized arguments → exit 2），服务起不来且报错无「注释污染」可定位性。修复：hint 命令止于 `--port {port}`（去尾续行符），可选能力改为独立 `: 可选：--use-qwen-emo（…）` 提示行（POSIX `:` no-op 前缀，bash/zsh/sh 粘贴均无害；`--use-qwen-emo in hint` 机器锚子串不受影响）。教训：「粘贴安全」类核验必须在 pristine shell（`zsh -f -i`，无 rc）口径实测。另：本次合并重编号曾盲扫误伤 CHANGELOG §⑦ 与 PIPELINE §五的 RSI-034 配音两档标号（已回滚）——判据教训：对双侧都改过的文件，终验须锚定「main 侧行逐字节不变」，而非「文件内新号零残留」。
+复盘补（2026-10-02，PR #30 冲突消解复核）：复核子代理**证伪上文「尾注释 `\`+`#` 形态经 zsh/bash/sh 三口径实测粘贴安全」**——其 zsh 口径在 rc 加载态跑（本机 oh-my-zsh lib/misc.zsh 默认 `setopt interactivecomments` 造成遮蔽），macOS 缺省交互 zsh 该选项 OFF：`#` 不是注释，注释文本整体进入服务 argv、被 tts_server argparse 拒收（unrecognized arguments → exit 2），服务起不来且报错无「注释污染」可定位性。修复：hint 命令止于 `--port {port}`（去尾续行符），可选能力改为独立 `: 可选：--use-qwen-emo（…）` 提示行（POSIX `:` no-op 前缀，bash/zsh/sh 粘贴均无害；`--use-qwen-emo in hint` 机器锚子串不受影响）。教训：「粘贴安全」类核验必须在 pristine shell（`zsh -f -i`，无 rc）口径实测。另：本次合并重编号曾盲扫误伤 CHANGELOG §⑦ 与 PIPELINE §五的 I-034 配音两档标号（已回滚）——判据教训：对双侧都改过的文件，终验须锚定「main 侧行逐字节不变」，而非「文件内新号零残留」。
 
-## RSI-036 --mps-high-ratio env 兜底对「服务端缺省已设限」不生效：水位线开关两层打架
+<a id="I-036"></a>
+## I-036：--mps-high-ratio env 兜底对「服务端缺省已设限」不生效：水位线开关两层打架
 
 **表因**（同日实测）：传 `--mps-high-ratio 0.0`（resume 注入 `PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0`）冷重启服务后，OOM 报错仍为「当前上限 15.98 GiB」且 health `mps_mem_limit_gib:15.98`；直接给服务端传 `--mps-mem-limit-gib 0` 后 health 该字段变 `None`、泄漏块一次通过——env 兜底路径失效，真开关在服务端 flag。
 
-**根因**：`tts_resume.mps_env()` docstring 自述「env 仅服务自定义 --server-cmd 未带 flag 的场合」，但默认 argv 路径下 `tts_server.py` 的 `--mps-mem-limit-gib` **缺省即设进程水位线**（RSI-017 行为）——服务端缺省逻辑覆盖/无视了 resume 注入的进程 env，两层各说各话。
+**根因**：`tts_resume.mps_env()` docstring 自述「env 仅服务自定义 --server-cmd 未带 flag 的场合」，但默认 argv 路径下 `tts_server.py` 的 `--mps-mem-limit-gib` **缺省即设进程水位线**（I-017 行为）——服务端缺省逻辑覆盖/无视了 resume 注入的进程 env，两层各说各话。
 
 **定性**：非阻断改进（参数存在但行为与文档承诺不符；文档已部分承认边界）。
 
@@ -569,11 +689,12 @@
 
 **后续防范**：涉及「缺省已设 X」的服务端参数，客户端编排一律走 flag 透传不走 env 猜测。
 
-复盘（2026-10-02，RSI 子代理）：G2 比选——A「env 兜底继续 + 文档强调局限」否决（缺省命令路径服务端缺省 setter 结构性覆盖 env，文档修不了行为）；B（采纳）`tts_resume` 新增 `--mps-mem-limit-gib` 透传（同名映射 `tts_server.py` flag）+ env 兜底**降级圈定** `--server-cmd` 路径：缺省路径传 `--mps-high-ratio` 改为入口大声拒绝并指路新 flag（静默无效正是本条病理，放过等于埋同一个坑）；C「`--mps-high-ratio` 自动换算 GiB 透传」否决（ratio×recommended 的 recommended 值只有服务端知道，客户端换算引入第二事实源）；D「删除 env 兜底」否决（自定义 `--server-cmd` 命令无 flag 追加通道，env 是唯一手段——降级不删除）。入口防呆次序刻意：值校验（≥0 有限，nan/inf/负数同拦）**先于杀服**——坏值若透传到服务端，冷重启会先杀掉健康服务、新进程才被服务端 argparse 拦下起不来；`--mps-mem-limit-gib` 与 env 旋钮互斥、与 `--server-cmd` 组合拒收（同 RSI-035 的「编排器不猜用户命令的参数面」）。`mps_env` docstring 与 `--mps-high-ratio` help 同步圈定作用域；PIPELINE.md §三脚本表 MPS 句改写。实施：分支 `ThreeFish-AI/rsi-034-036-emo-memlimit-cue-form`（PR 链接待回填），回归测试 5 条：透传落 argv（0/16.5/缺省三态）/坏值先于杀服拦截/`--server-cmd` 与 env 旋钮双拒收/缺省路径 `--mps-high-ratio` 大声拒绝且指路/env+`--server-cmd` 路径保留放行。独立核验（2026-10-02，第二子代理）：17 参数组合矩阵推演+实测无漏洞、值校验先于杀服经源码序结构性确认、文档三处互洽。备查两条（不改行为）：①`-0.0` 经 `:g` 格式化落成 `-0`（服务端 `>=0` 放行、语义等同 0，仅形态略怪）；②16 GB 级机型服务端缺省额度低于常驻底线时缺省路径**不调 setter**（env 实未被覆盖），`reconcile_mps` 对缺省路径 env 旋钮一刀切拒绝在该机型属过度拒绝——换来的是全机型确定性语义（flag 路径恒有效），取舍保留。
+复盘（2026-10-02，RSI 子代理）：G2 比选——A「env 兜底继续 + 文档强调局限」否决（缺省命令路径服务端缺省 setter 结构性覆盖 env，文档修不了行为）；B（采纳）`tts_resume` 新增 `--mps-mem-limit-gib` 透传（同名映射 `tts_server.py` flag）+ env 兜底**降级圈定** `--server-cmd` 路径：缺省路径传 `--mps-high-ratio` 改为入口大声拒绝并指路新 flag（静默无效正是本条病理，放过等于埋同一个坑）；C「`--mps-high-ratio` 自动换算 GiB 透传」否决（ratio×recommended 的 recommended 值只有服务端知道，客户端换算引入第二事实源）；D「删除 env 兜底」否决（自定义 `--server-cmd` 命令无 flag 追加通道，env 是唯一手段——降级不删除）。入口防呆次序刻意：值校验（≥0 有限，nan/inf/负数同拦）**先于杀服**——坏值若透传到服务端，冷重启会先杀掉健康服务、新进程才被服务端 argparse 拦下起不来；`--mps-mem-limit-gib` 与 env 旋钮互斥、与 `--server-cmd` 组合拒收（同 I-035 的「编排器不猜用户命令的参数面」）。`mps_env` docstring 与 `--mps-high-ratio` help 同步圈定作用域；PIPELINE.md §三脚本表 MPS 句改写。实施：分支 `ThreeFish-AI/rsi-034-036-emo-memlimit-cue-form`（PR 链接待回填），回归测试 5 条：透传落 argv（0/16.5/缺省三态）/坏值先于杀服拦截/`--server-cmd` 与 env 旋钮双拒收/缺省路径 `--mps-high-ratio` 大声拒绝且指路/env+`--server-cmd` 路径保留放行。独立核验（2026-10-02，第二子代理）：17 参数组合矩阵推演+实测无漏洞、值校验先于杀服经源码序结构性确认、文档三处互洽。备查两条（不改行为）：①`-0.0` 经 `:g` 格式化落成 `-0`（服务端 `>=0` 放行、语义等同 0，仅形态略怪）；②16 GB 级机型服务端缺省额度低于常驻底线时缺省路径**不调 setter**（env 实未被覆盖），`reconcile_mps` 对缺省路径 env 旋钮一刀切拒绝在该机型属过度拒绝——换来的是全机型确定性语义（flag 路径恒有效），取舍保留。
 
-复盘补（2026-10-02，PR #30 复核）：复核子代理抓出拒收矩阵漏口——`reconcile_mps` 的 elif 只守 `--mps-high-ratio`，单独传 `--mps-low-ratio`（缺省路径）误落 mps_env 的「须成对使用」，照做配对后又被同一入口以「env 兜底仅 --server-cmd」驳回——两步矛盾链把用户引上必然被拒的路（与 RSI-038 登记的「指路不可执行」同类病理）。修复：elif 放宽为 high/low 任一在场即拦（报错覆盖两旋钮并指路 `--mps-mem-limit-gib`），`--mps-low-ratio` help 补 server-cmd 圈定；回归钉 `test_mps_low_ratio_alone_rejected_on_default_argv`（含「未杀服」计数断言）。同批测试加固：`test_mps_high_ratio_env_still_works_with_server_cmd` 升为真触发一次冷重启并断言 `extra_env` 注入（此前 extra_env→start_server 接线全仓零覆盖）、`test_mps_mem_limit_rejects_bad_values_before_killing_server` 补「restart 零调用」钉。
+复盘补（2026-10-02，PR #30 复核）：复核子代理抓出拒收矩阵漏口——`reconcile_mps` 的 elif 只守 `--mps-high-ratio`，单独传 `--mps-low-ratio`（缺省路径）误落 mps_env 的「须成对使用」，照做配对后又被同一入口以「env 兜底仅 --server-cmd」驳回——两步矛盾链把用户引上必然被拒的路（与 I-038 登记的「指路不可执行」同类病理）。修复：elif 放宽为 high/low 任一在场即拦（报错覆盖两旋钮并指路 `--mps-mem-limit-gib`），`--mps-low-ratio` help 补 server-cmd 圈定；回归钉 `test_mps_low_ratio_alone_rejected_on_default_argv`（含「未杀服」计数断言）。同批测试加固：`test_mps_high_ratio_env_still_works_with_server_cmd` 升为真触发一次冷重启并断言 `extra_env` 注入（此前 extra_env→start_server 接线全仓零覆盖）、`test_mps_mem_limit_rejects_bad_values_before_killing_server` 补「restart 零调用」钉。
 
-## RSI-037 覆盖门 cue 形态对 prettier 默认格式化零容错：多行/`{ ` 空格即解析失败
+<a id="I-037"></a>
+## I-037：覆盖门 cue 形态对 prettier 默认格式化零容错：多行/`{ ` 空格即解析失败
 
 **表因**（同日实测）：场景代码经 prettier 默认格式化（cue 对象多行、`{` 后空行/空格）后 `check_archify_coverage` 只识别 10/18 个 cue；`CUE_OBJ_RE = \{chapterId:...` 要求 `{` 与 `chapterId` 零空白，格式化工具的默认输出直接破坏可解析性。
 
@@ -591,7 +712,8 @@
 
 复盘补二（2026-10-02，PR #30 评审）：评审抓出引号放宽的同类残差——同一提取循环**第 4 处**单引号正则 `fit:\s*'(stretch|hold|trim)'`（extract_cues 函数体内、不在正则常量块）漏改：`fit: "stretch"` 双引号形态 CUE_OBJ_RE 可匹配、fit 静默解析为 None，下游 check_archify 的 `explicit_stretch` 集合漏收该 cue、「显式 stretch 越界」FAIL 不再触发——该门防的正是渲染期抛错（与 ArchifyRecap.pickFit 同构：自动挡越界降档 hold/trim，唯显式 stretch 越界才渲染期抛错），静默 None 即「少算不报错」病理。修复：fit 正则同步放宽 `['"]…['"]`（值词表 stretch|hold|trim 不动）；回归钉 `test_prettier_double_quote_fit_extracted` 直调 `extract_cues` 观测 fit（CLI 门输出不含 fit，直调单一提取器是唯一可观测面）。教训：对「容 X 格式化」类修复，验收须枚举同一数据流上的**全部**消费者/提取点逐个比对容差口径——三兄弟正则在常量块同批改，函数体内第四处漏网。
 
-## RSI-038 archify 3.0 产物与录制器断层：无官方支持路径，使用侧兼容层方案未文档化
+<a id="I-038"></a>
+## I-038：archify 3.0 产物与录制器断层：无官方支持路径，使用侧兼容层方案未文档化
 
 **表因**（2026-10-01，E1 实测）：archify 3.0 出的 HTML 无 guided-views 模块（JS+容器全无），`record_archify_all.py` 预检 FAIL 且指路「须用仍含该模块的版本重新出图」——但 2.x 无备份可寻（skill 非 git 历史、npm 同名包无关），指路不可执行。E1 以 80 行兼容层绕过（桥接 3.0 原生 `focus.set/view.reveal/view.centerAt` + 播放期 opacity 脉动保帧率 15→62fps），注入器幂等可复现（negentropy E1 `scripts/patch-archify-html.py`）。
 
@@ -603,7 +725,8 @@
 
 **后续防范**：升 archify major 前先跑 `record_archify_all --dry-run` 预检，断层在制作早期暴露。
 
-## RSI-039 视频开篇缺乏强留存钩子范式与人机协同决策：首句易平淡、缺「这是 XXX」模式、与核心主干易脱节
+<a id="I-039"></a>
+## I-039：视频开篇缺乏强留存钩子范式与人机协同决策：首句易平淡、缺「这是 XXX」模式、与核心主干易脱节
 
 **表因**：用户提出（2026-10-02）——视频开篇需要以「这是 XXX ……」模式开头；开头内容需充分吸引人，足够第一时间留住观众；且开篇所讲的「这是 XXX」必须与后文内容主干或核心机制强关联，正好抛出全片核心引子；该入场表述重要性高于视频标题，必须足够慎重，策划期需提供多个优质备选项交给人自主选择。原有流水线中，Stage ② 策划案仅有抽象的「一条主线问题（钩子 → 悬念 → 回答）」，缺少对首句黄金 3–5 秒留存的工程定义与句式范式；Stage ③ 逐字稿首句常沦为平淡介绍或空泛寒暄；Stage ④ 易懂性校验无首句留存与核心引子门禁；且全流程缺少人机协同多候选决策环节。
 
@@ -623,21 +746,23 @@
 
 **后续防范**：凡涉及全片完播率的顶级入口（首句 Hook），一律采取「强范式约束 + 核心关联审查 + 人机协同多候选决策」定式，避免单点随机生成。
 
-## RSI-040 IndexTTS 启用缺人为触发硬闸：.engine 护栏是变化检测器不是授权门，首次启用与同签名重跑均可无授权实跑
+<a id="I-040"></a>
+## I-040：IndexTTS 启用缺人为触发硬闸：.engine 护栏是变化检测器不是授权门，首次启用与同签名重跑均可无授权实跑
 
 **表因**：用户提出（2026-10-04）——① 制作全程（写稿→校验→成文→分镜→草渲→抽帧 QA→多轮评审→看整体效果试配音）应一律 edge 草声快速配音承担反复调试，IndexTTS-2.5 + 本人声音克隆仅在最后人工显式要求出上线成品时启用、尽可能只启用一次（本地合成小时级太贵）；② 现状机器层拦不住该纪律：`check_voice_marker`（tts.py:504-518）对**无 `.engine` 标记直接放行**（首次启用 indextts——正是升档长跑的入口——不经任何授权判定）、对**签名一致放行**（重配成功后再 `tts`/`all`/`--force`，含改稿后增量重跑，均无闸静默再跑小时级合成）；③ 文档层 07 只到「仅用户显式触发」「未经要求不得启动」，未写明「agent 不得主动提议 IndexTTS」「zh 与 en 各算一次独立人工要求」。
 
-**根因**：`.engine` 签名护栏的设计职责是**变化检测**（防「README 旧命令静默整集换音色」，tts.py:474-477 自述），不是**使用授权**——它回答「音色变了吗」，回答不了「这次昂贵操作被本人允许了吗」。RSI-034 后续防范③「显式触发型重配复用既有 `.engine` 护栏与 `--allow-voice-switch`、不另造门」把变化检测误当授权门使用，两个形态天然漏放：首次启用（无标记可比）与同签名重跑（无变化可比）。授权证据只能来自**本次命令行里在场的具名声明**，不能来自上次合成的遗留状态。
+**根因**：`.engine` 签名护栏的设计职责是**变化检测**（防「README 旧命令静默整集换音色」，tts.py:474-477 自述），不是**使用授权**——它回答「音色变了吗」，回答不了「这次昂贵操作被本人允许了吗」。I-034 后续防范③「显式触发型重配复用既有 `.engine` 护栏与 `--allow-voice-switch`、不另造门」把变化检测误当授权门使用，两个形态天然漏放：首次启用（无标记可比）与同签名重跑（无变化可比）。授权证据只能来自**本次命令行里在场的具名声明**，不能来自上次合成的遗留状态。
 
 **定性**：非阻断改进（用户点名启动）。
 
-**方案比选**：四案——A 仅文档纪律自守（否决：RSI-034 文档「不得启动」即现状，无执法面即漂移，用户被迫再次提出即自证）；B 环境变量授权（否决：写进 shell profile 即持久授权，违背「每次/每语言各一次显式要求」的瞬时语义）；C toml 加 `authorized` 键（否决：toml 是配置事实源不是意图声明，一次写入永久有效，且 `cmd_all` 会透传即一键链可绕）；D 具名 flag `--final-voice`（采纳：在场即证、缺席即拒——每次非 `--plan` 合成命令行里必须在场＝每次启用对应一次人工显式要求的**可审计意图声明**；`all` 结构性不透传、`tts_resume` 入口预检、`--plan` 免闸；edge 下误带归入既有 clone_only 硬失败族防降级）。**修正 RSI-034 后续防范③**：「不另造门」的前提是 `.engine` 护栏能承载显式触发的执法，如上根因所示不成立；本条升级为「授权型开关必须是命令行级瞬时声明（在场即证、缺席即拒），不得落持久配置或进程环境；与变化检测闸（`--allow-voice-switch`）互补不互替」。
+**方案比选**：四案——A 仅文档纪律自守（否决：I-034 文档「不得启动」即现状，无执法面即漂移，用户被迫再次提出即自证）；B 环境变量授权（否决：写进 shell profile 即持久授权，违背「每次/每语言各一次显式要求」的瞬时语义）；C toml 加 `authorized` 键（否决：toml 是配置事实源不是意图声明，一次写入永久有效，且 `cmd_all` 会透传即一键链可绕）；D 具名 flag `--final-voice`（采纳：在场即证、缺席即拒——每次非 `--plan` 合成命令行里必须在场＝每次启用对应一次人工显式要求的**可审计意图声明**；`all` 结构性不透传、`tts_resume` 入口预检、`--plan` 免闸；edge 下误带归入既有 clone_only 硬失败族防降级）。**修正 I-034 后续防范③**：「不另造门」的前提是 `.engine` 护栏能承载显式触发的执法，如上根因所示不成立；本条升级为「授权型开关必须是命令行级瞬时声明（在场即证、缺席即拒），不得落持久配置或进程环境；与变化检测闸（`--allow-voice-switch`）互补不互替」。
 
-**处理方式**：`scripts/tts.py`（`--final-voice` flag + 主闸置于工程文件读取之前 + edge 侧 clone_only 族收编 + SPEC_07 指针 + docstring 示例）；`scripts/pipeline.py`（tts 子命令透传、`cmd_all` 入口 fail-fast 预检与结构性永不透传、报错引擎中性防误导已重配集）；`scripts/tts_resume.py`（`require_final_voice` 入口预检先于任何冷重启；循环内自愈语义保持 RSI-022 原样——曾试加「退出码 2 不冷重启」短路，评审判定误泛化后回撤：`tts.py` 对能力失配（如缺 `--use-qwen-emo`、服务端过旧）亦用 `parser.error` 退出 2，其既定修复恰是冷重启）；`scripts/config.py`（SCHEMA `tts.engine` 说明对齐）；`scripts/tts_sample.py`（docstring 纪律注 + 运行时「下一步」hint 补 flag）；`references/07-tts-voice.md`（人为触发原则段、升档闸前置、延续条款——同任务延续免新要求，跨会话以 `--plan` 对账划界：零待合成属恢复操作照带 flag、有待合成即整集重配＝新显式要求、双语独立要求、示例命令全量更新、顺手修正「第 4 步试听」→「闸 3」编号笔误）；`references/10-final-render.md`（TTS 恢复按引擎分派：edge 集免服务直跑，indextts 集零待合成回收 vs 有待合成＝新显式要求）；`SKILL.md` + `references/stages.toml`（gate 双址同步 + 关键不变量 + 预算瘦身守 8000）；`assets/video-skeleton/pipeline.toml.tmpl` 注释 / `assets/workspace/voices/README.md`（scaffold 克隆食谱）/ PIPELINE.md / VOICE-CLONING.md / README.md 同 commit 对齐；tests（test_engine_guard +5，含顺序不变量钉 `test_wrong_signature_marker_cannot_preempt_gate`——错签名不得抢跑授权闸 / test_tts_resume +2 与 FWD 补 flag / test_stages +4 含 all 存在性 guard / test_voice_tiers 锚点）；evals.json id1/id3 负例断言。两轮评审：Round1 三镜头（代码/文档/测试）7 缺陷（存量可执行文案漏 flag ×5、evals id1 示例误导、all 测试空转绿灯）+ Round2 核验与 Staff 终审 4 缺陷（rc==2 误泛化、07/10 跨会话语义矛盾、cmd_all 报错处方误导、台账失实）全数修复。四门核验表见 PR 描述。[PR #33](https://github.com/ThreeFish-AI/to-video/pull/33)（ff986c2）；合并后待办：trigger-evals 新旧对拍（同名遮蔽须合并后做，与 RSI-034 待办合并）。
+**处理方式**：`scripts/tts.py`（`--final-voice` flag + 主闸置于工程文件读取之前 + edge 侧 clone_only 族收编 + SPEC_07 指针 + docstring 示例）；`scripts/pipeline.py`（tts 子命令透传、`cmd_all` 入口 fail-fast 预检与结构性永不透传、报错引擎中性防误导已重配集）；`scripts/tts_resume.py`（`require_final_voice` 入口预检先于任何冷重启；循环内自愈语义保持 I-022 原样——曾试加「退出码 2 不冷重启」短路，评审判定误泛化后回撤：`tts.py` 对能力失配（如缺 `--use-qwen-emo`、服务端过旧）亦用 `parser.error` 退出 2，其既定修复恰是冷重启）；`scripts/config.py`（SCHEMA `tts.engine` 说明对齐）；`scripts/tts_sample.py`（docstring 纪律注 + 运行时「下一步」hint 补 flag）；`references/07-tts-voice.md`（人为触发原则段、升档闸前置、延续条款——同任务延续免新要求，跨会话以 `--plan` 对账划界：零待合成属恢复操作照带 flag、有待合成即整集重配＝新显式要求、双语独立要求、示例命令全量更新、顺手修正「第 4 步试听」→「闸 3」编号笔误）；`references/10-final-render.md`（TTS 恢复按引擎分派：edge 集免服务直跑，indextts 集零待合成回收 vs 有待合成＝新显式要求）；`SKILL.md` + `references/stages.toml`（gate 双址同步 + 关键不变量 + 预算瘦身守 8000）；`assets/video-skeleton/pipeline.toml.tmpl` 注释 / `assets/workspace/voices/README.md`（scaffold 克隆食谱）/ PIPELINE.md / VOICE-CLONING.md / README.md 同 commit 对齐；tests（test_engine_guard +5，含顺序不变量钉 `test_wrong_signature_marker_cannot_preempt_gate`——错签名不得抢跑授权闸 / test_tts_resume +2 与 FWD 补 flag / test_stages +4 含 all 存在性 guard / test_voice_tiers 锚点）；evals.json id1/id3 负例断言。两轮评审：Round1 三镜头（代码/文档/测试）7 缺陷（存量可执行文案漏 flag ×5、evals id1 示例误导、all 测试空转绿灯）+ Round2 核验与 Staff 终审 4 缺陷（rc==2 误泛化、07/10 跨会话语义矛盾、cmd_all 报错处方误导、台账失实）全数修复。四门核验表见 PR 描述。[PR #33](https://github.com/ThreeFish-AI/to-video/pull/33)（ff986c2）；合并后待办：trigger-evals 新旧对拍（同名遮蔽须合并后做，与 I-034 待办合并）。
 
 **后续防范**：① 授权型开关必须是命令行级瞬时声明（在场即证、缺席即拒），不得落持久配置或进程环境；与变化检测闸互补不互替。② 残余面登记：`tts_sample.py`/`tts_bench.py` 未加机器闸（试听/基准是升档闸的组成部分，文档纪律约束在「用户已显式要求终声」上下文内使用）；HTTP 直连 `tts_server.py` 可绕客户端闸（本闸是 agent 纪律闸不是能力锁）；拷至 ~/tools/index-tts venv 的旧版 tts.py 副本无闸（更新滞后残余）。③ 成本差数量级悬殊的操作（本例：秒级 vs 小时级）默认档之外的一切启用路径，须逐一排查「首次」「同状态重跑」两类变化检测天然盲区。
 
-## RSI-041 分镜缺少逐镜视觉锁定与过渡边界验收契约
+<a id="I-041"></a>
+## I-041：分镜缺少逐镜视觉锁定与过渡边界验收契约
 
 **表因**：文章复盘暴露出，复杂 Morph 或连续状态变形若只写「画面有质感」，缺少可执行的参考、保持、禁止约束；现有抽帧 QA 主要覆盖 beat 头部、句中点和尾句，对形变边界的中间态、文字交接和循环速度连续性没有统一排期入口。
 
@@ -653,7 +778,8 @@
 
 **同类问题影响**：适用于 UI 状态演进、机制流程动画、片头循环装置和高风险字幕交接；普通科普镜头无需强制 Morph、Motion Blur 或 loop 检查。
 
-## RSI-042 SVG Visual Renderer 缺少统一的 frame-to-geometry 原语
+<a id="I-042"></a>
+## I-042：SVG Visual Renderer 缺少统一的 frame-to-geometry 原语
 
 **表因**：分集可以手写 SVG `strokeDasharray`、路径 Morph 和沿路径定位，但每集各自实现会重复处理窗口边界、路径长度、切线旋转与非法输入；文章中的“逐笔绘制”和连续 Morph 尚未沉淀为可复用机制。
 
@@ -667,7 +793,8 @@
 
 **同类问题影响**：适用于人物描边、机制线路、UI 状态 Morph 和沿路径移动的标签/角色；需要体积、内外结构或大量粒子时仍应分别评估 Three.js 或 Canvas 2D，不把 SVG 原语泛化成所有画面类型的默认答案。
 
-## RSI-043 场景 TSX 中带引号的 `'theme.xxx'` 死字符串零门覆盖
+<a id="I-043"></a>
+## I-043：场景 TSX 中带引号的 `'theme.xxx'` 死字符串零门覆盖
 
 **表因**：negentropy 工作区 ep1 提交 b542a2ae5 做「裸 hex → theme 常量收敛」的批量替换把引号一并保留，`background: '#0B0E13'` 变成 `background: 'theme.bgDeep'`（字符串字面量而非常量引用），共 12 处（P1:2/P2:7/P3:2/P5:1）。`'theme.bgDeep'` 是非法 CSS 色值，浏览器渲染时静默丢弃、背景透明——深底场景与画布底色差异小，肉眼与像素级 QA 双双看不出，直到评审用 `git show` 逐行对账才揭穿。
 
@@ -675,13 +802,14 @@
 
 **定性**：阻断性缺陷（产物级渲染错误实锤 12 处；修复本身即收益，走快速通道但 G1–G4 一道不省）。
 
-**处理方式**：`scripts/check_script.py` 新增 `check_quoted_theme_literals`（FAIL，缺省执法、无需 flag——同 RSI-007 的 ISSUE-168 立场，忘带 flag = 检查面静默缩小；语言无关、只在主稿执法、--pre-tts 不跑因场景未写）。判据窄到零误报：逐行扫描 `video/src/scenes/*.tsx` 与 `video/src/components/*.tsx`，引号内**整串**恰为 `theme.<标识符>`（单/双引号同罪）才命中——长文案含子串、注释行（`//`、`{/* */}`、JSDoc `*`）、`theme.ts` 文件名字面引用（agent-skills 集图表配色 code 标注先例）全部豁免；同行同串去重；命中行或其上一行注 `quoted-theme-ok: <理由>` 降 WARN 留痕（同 caption-dup-ok 立场：逃逸口必须存在且必须被记录）。校准：对内容工作区 15 集 248 个创作层 TSX 实跑，现存裸形态命中仅 agent-skills P5.tsx:434 一处（合法上屏，词表豁免），门命中 0、误报 0；历史快照 b542a2ae5 的 12 处全部命中且行号精确。references/08 规则 7 补判据说明；回归测试 +8（事故行锚定/常量引用不报/注释跳过/文件名豁免/整串判据/豁免注记/双引号与 components 扫面/同行去重），撤修复（注释 main 中的调用）即 4 条命中型用例全失败，恢复后 8/8 过。[PR #35](https://github.com/ThreeFish-AI/to-video/pull/35)（113e838 + 台账补登 f7b42dd）。
+**处理方式**：`scripts/check_script.py` 新增 `check_quoted_theme_literals`（FAIL，缺省执法、无需 flag——同 I-007 的 ISSUE-168 立场，忘带 flag = 检查面静默缩小；语言无关、只在主稿执法、--pre-tts 不跑因场景未写）。判据窄到零误报：逐行扫描 `video/src/scenes/*.tsx` 与 `video/src/components/*.tsx`，引号内**整串**恰为 `theme.<标识符>`（单/双引号同罪）才命中——长文案含子串、注释行（`//`、`{/* */}`、JSDoc `*`）、`theme.ts` 文件名字面引用（agent-skills 集图表配色 code 标注先例）全部豁免；同行同串去重；命中行或其上一行注 `quoted-theme-ok: <理由>` 降 WARN 留痕（同 caption-dup-ok 立场：逃逸口必须存在且必须被记录）。校准：对内容工作区 15 集 248 个创作层 TSX 实跑，现存裸形态命中仅 agent-skills P5.tsx:434 一处（合法上屏，词表豁免），门命中 0、误报 0；历史快照 b542a2ae5 的 12 处全部命中且行号精确。references/08 规则 7 补判据说明；回归测试 +8（事故行锚定/常量引用不报/注释跳过/文件名豁免/整串判据/豁免注记/双引号与 components 扫面/同行去重），撤修复（注释 main 中的调用）即 4 条命中型用例全失败，恢复后 8/8 过。[PR #35](https://github.com/ThreeFish-AI/to-video/pull/35)（113e838 + 台账补登 f7b42dd）。
 
 **后续防范**：批量替换裸色值改读 theme 常量时，替换产物必须验证「新形态真实在场」——grep 引号包裹的旧产物（如 `'theme\.`）计数须为零、裸引用新形态计数须为正，双向核对（negentropy MEMORY 已有同款条目：quoted-theme-replace-needs-positive-verify）。凡「把值换成常量引用」类机械改动，验收判据是引用关系的成立而不是字面量的存在。
 
 **同类问题影响**：适用于一切「字符串形态恰与标识符形态同构」的替换类事故（如把 `'useMemo'` 误当 `useMemo` 调用、把 token 名写进文案却没接线）；对 en 版 TSX 同样适用（本门语言无关）。残余面：反引号模板串（含插值时整串判据失效）不抓，family 上无事故先例；`video/src` 其余目录（design/、Root.tsx 等）不在扫面，与 check_script 既有 TSX 扫描家族口径一致。**已知误报方向**（独立核验实测确认，当前 15 集零实害）：豁免判据只认**整行注释**，行尾注释中出现的引号死串形态（如 `background: theme.bgDeep, // 曾写 'theme.bgDeep'` 旧写法留痕）、屏显文本/模板字符串语境中整串恰为 token 名或内嵌单/双引号形态的字面量会被门命中——处置 = 命中行注 `quoted-theme-ok: <理由>` 留痕降 WARN（后续版本可把行尾注释并入豁免判据，须先积累真实场景再动判据）。
 
-## RSI-044 tts.duration_factor 无配置通道：可执行参数只活在散文里，「唯一来源」承诺对它失效
+<a id="I-044"></a>
+## I-044：tts.duration_factor 无配置通道：可执行参数只活在散文里，「唯一来源」承诺对它失效
 
 **表因**（2026-10-05，negentropy ep1 复盘发现）：以 `--duration-factor 1.24` 录制全片配音的集（story 风格预设默认 df=1.0，实测校准 1.24 才落入时长硬窗），其 `pipeline.toml` 文件头声明「本集可执行参数的**唯一来源**」、README ③ 又写「配音参数全部取自 pipeline.toml，勿在命令行另写」——而 df 无处可写，只能以「⚠️ 例外注记」形式活在两处散文注释里。复现断裂实锤（`--plan` 对账实证，零合成）：以 df=1.24 摘要写桩集内缓存后，照编排器口径重跑（无 df token → tts.py 回落 story 预设 1.0）整块缓存全失配（「待合成 1 块 / 3 句 · 已整块缓存 0 块」），直调 `tts.py --duration-factor 1.24` 则整块命中（「待合成 0 块 / 0 句」）——141 句全集即整集重配（小时级），且回落 1.0 后实测时长门 FAIL。配置层同证：`duration_factor = 1.24` 写进 toml 后 `config.resolve` 原样透传（未声明、无来源登记），`config.validate` 仅 WARN「未知键 tts.duration_factor（无人读取）」。
 
@@ -689,47 +817,51 @@
 
 **定性**：非阻断改进（有 `--plan` 对账与注记兜底不静默；但承诺破缺 + 复现路径依赖人读注释，属「契约不清致代理误用」族）。
 
-**处理方式**：候选比选四案——(a) SCHEMA 增键 + 编排器透传（采纳）；(b) 仅文档化「须直调」（否决：维持承诺破缺，ep1 现状即此案的反证）；(c) 命名风格预设承载慢速档（否决：df 是**连续的** per-episode 时长硬窗校准值，非可跨集复用的离散听感档位；离散化会为每个新校准值改机制仓 + 孪生档污染 STYLE_PRESETS 生产/候选分界——预设承载跨集风格、SCHEMA 键承载本集校准，两机制正交）；(d) 环境变量（否决：`ENV_OVERRIDES` 既定立场「仅机器属性」，env 覆盖使同一 toml 两机产出不同摘要，与缓存确定性直接冲突）。落地：`scripts/config.py` SCHEMA 新增 `tts.duration_factor`（float，缺省 None＝沿用 style 预设；取值域 [0.5, 2.0]＝tts.py `--duration-factor` 既有 parser.error 同域，TOML 字面量 nan/inf 一并拦；edge 集误写给点名 WARN——同 tts.lang「静默忽略会让人误以为改了参数」口径；逐语言覆写表 `_TTS_EN_KEYS` 不收——语速按整集硬窗校准、双语继承，en 误写给白名单 FAIL）；`scripts/pipeline.py` tts 子命令 indextts 分支透传（落点与 `--style` 同构，紧跟其后）。**键缺省 ⇒ 命令行字节不变 ⇒ 摘要不变 ⇒ 存量集零重合成**：测试逐 token 钉死历史命令形态（非只查「不含 token」——防插入位置漂移漏网）；digest 层补「df 参与摘要」显式钉（同句两档 df 摘要必不同，即本条失配机理的机制依据）。文档同步：PIPELINE.md 字段表（自称字段 SSOT）、07 重配流程第 3 步（首配即定值纪律）、VOICE-CLONING §4.3（配置通道指针）、`pipeline.toml.tmpl` 注释预置。回归 10 条（test_config 5 / test_stages 4 / test_digest 1 + 撤修复实证：仅藏实现文件跑新测试 6 条即红；首条 commit 信息曾误记「12 条」，2026-10-06 核验收口订正——分项 5+4+1 与 grep 实数 10 为准）；`tts_resume.py` 走 `--` 原样转发天然覆盖，零改动；RSI-040 `--final-voice` 硬闸与 `all` 结构性永不透传不变量逐一核对未触碰。**核验收口**（2026-10-06，独立核验 PASS-with-notes 两条注记）：① validate 类型分支显式排除 bool（`isinstance(val, bool) and typ is not bool` 先于「整数不苛求」分支）——TOML `duration_factor = true` 此前被收编成 1.0 静默放行（直调 tts.py 到 argparse 才以英文报错、编排器路径静默变 1.0），现在配置门即给可读 FAIL；该分支为全 SCHEMA 数值键共用，bool 键自身（`archify.forbid_inset`）经 `typ is not bool` 豁免零波及，真集 grep 实证 bool 只写在 bool 键；+2 测（bool FAIL 可读 / bool 键自身不受误伤）。② 台账与 commit 元数字归一（本段）。[PR #36](https://github.com/ThreeFish-AI/to-video/pull/36)（主实现 2f47e8b + 核验收口 1cbbf38）。**评审加固**（2026-10-06，review-once 独立盲审 3×P3）：① 校准值测试的断言与注释对齐 cfg 实际行为——int 字面量 cfg 保留 int（validate 收编只改局部变量不写回），断言改类型敏感、注释改「下游经 tts.py argparse 归一」；② 逐语言覆写引擎非 indextts 时 df 点名 WARN（同「静默忽略必须点名」口径；条件含基础层判定防与基础层 WARN 双报）；③ 基础层 df WARN 收敛为「无任何 indextts 生效语言才点名」（混合形态——基础 edge + en 覆写 indextts——df 对 en 真实透传（cmd_tts 命令字节实证），原「忽略」文案失真、诱导删键即 en 静默变速整集重配）。②③ 共 +2 测（共 14：test_config 9 / test_stages 4 / test_digest 1）。
+**处理方式**：候选比选四案——(a) SCHEMA 增键 + 编排器透传（采纳）；(b) 仅文档化「须直调」（否决：维持承诺破缺，ep1 现状即此案的反证）；(c) 命名风格预设承载慢速档（否决：df 是**连续的** per-episode 时长硬窗校准值，非可跨集复用的离散听感档位；离散化会为每个新校准值改机制仓 + 孪生档污染 STYLE_PRESETS 生产/候选分界——预设承载跨集风格、SCHEMA 键承载本集校准，两机制正交）；(d) 环境变量（否决：`ENV_OVERRIDES` 既定立场「仅机器属性」，env 覆盖使同一 toml 两机产出不同摘要，与缓存确定性直接冲突）。落地：`scripts/config.py` SCHEMA 新增 `tts.duration_factor`（float，缺省 None＝沿用 style 预设；取值域 [0.5, 2.0]＝tts.py `--duration-factor` 既有 parser.error 同域，TOML 字面量 nan/inf 一并拦；edge 集误写给点名 WARN——同 tts.lang「静默忽略会让人误以为改了参数」口径；逐语言覆写表 `_TTS_EN_KEYS` 不收——语速按整集硬窗校准、双语继承，en 误写给白名单 FAIL）；`scripts/pipeline.py` tts 子命令 indextts 分支透传（落点与 `--style` 同构，紧跟其后）。**键缺省 ⇒ 命令行字节不变 ⇒ 摘要不变 ⇒ 存量集零重合成**：测试逐 token 钉死历史命令形态（非只查「不含 token」——防插入位置漂移漏网）；digest 层补「df 参与摘要」显式钉（同句两档 df 摘要必不同，即本条失配机理的机制依据）。文档同步：PIPELINE.md 字段表（自称字段 SSOT）、07 重配流程第 3 步（首配即定值纪律）、VOICE-CLONING §4.3（配置通道指针）、`pipeline.toml.tmpl` 注释预置。回归 10 条（test_config 5 / test_stages 4 / test_digest 1 + 撤修复实证：仅藏实现文件跑新测试 6 条即红；首条 commit 信息曾误记「12 条」，2026-10-06 核验收口订正——分项 5+4+1 与 grep 实数 10 为准）；`tts_resume.py` 走 `--` 原样转发天然覆盖，零改动；I-040 `--final-voice` 硬闸与 `all` 结构性永不透传不变量逐一核对未触碰。**核验收口**（2026-10-06，独立核验 PASS-with-notes 两条注记）：① validate 类型分支显式排除 bool（`isinstance(val, bool) and typ is not bool` 先于「整数不苛求」分支）——TOML `duration_factor = true` 此前被收编成 1.0 静默放行（直调 tts.py 到 argparse 才以英文报错、编排器路径静默变 1.0），现在配置门即给可读 FAIL；该分支为全 SCHEMA 数值键共用，bool 键自身（`archify.forbid_inset`）经 `typ is not bool` 豁免零波及，真集 grep 实证 bool 只写在 bool 键；+2 测（bool FAIL 可读 / bool 键自身不受误伤）。② 台账与 commit 元数字归一（本段）。[PR #36](https://github.com/ThreeFish-AI/to-video/pull/36)（主实现 2f47e8b + 核验收口 1cbbf38）。**评审加固**（2026-10-06，review-once 独立盲审 3×P3）：① 校准值测试的断言与注释对齐 cfg 实际行为——int 字面量 cfg 保留 int（validate 收编只改局部变量不写回），断言改类型敏感、注释改「下游经 tts.py argparse 归一」；② 逐语言覆写引擎非 indextts 时 df 点名 WARN（同「静默忽略必须点名」口径；条件含基础层判定防与基础层 WARN 双报）；③ 基础层 df WARN 收敛为「无任何 indextts 生效语言才点名」（混合形态——基础 edge + en 覆写 indextts——df 对 en 真实透传（cmd_tts 命令字节实证），原「忽略」文案失真、诱导删键即 en 静默变速整集重配）。②③ 共 +2 测（共 14：test_config 9 / test_stages 4 / test_digest 1）。
 
 **后续防范**：新增可执行参数（进缓存摘要/影响合成结果的旋钮）必须同批审视其配置承载位——SCHEMA 无键位即「唯一来源」承诺的存量破缺，不得以散文例外注记收口；散文注记只许作**临时**止血（登记触发条件），机制通道落地后回改。离散预设（STYLE_PRESETS）与连续校准（SCHEMA 数值键）是正交的两类承载位：跨集复用的听感档位走预设（试听定档），本集数值对齐走 toml 键（实测校准），勿互相借道。
 
 **同类问题影响**：存量以非预设 df 录制的集（目前已知 negentropy ep1 df=1.24）在通道合并后可回改编排器路径——把例外注记换成 toml 一行 `duration_factor = 1.24`，重跑 `--plan` 应显示零待合成（值相同摘要不变）；换 worktree/换机重建不再依赖 README 注记的人读纪律。以预设 df 录制的集零波及。
 
-## RSI-045 tts_bench.check_env 恒 return True，「环境硬门」名存实亡
+<a id="I-045"></a>
+## I-045：tts_bench.check_env 恒 return True，「环境硬门」名存实亡
 
 **表因**：`tts_bench.py --check-only` 恒退出 0；main 中「环境门未通过」分支不可达。
-**根因**：`check_env` 的 `strict` 形参从未读取，`ok` 初始化 `True` 后交换区/内存/端口占用各分支只 print 不置 False——docstring 声称「唯一硬门是已有其它 IndexTTS 实例」但 others 同样不拦（preening 测绘静态证实；2026-10-06 S8 仅剥除死形参，门语义未动。原登记号 RSI-043 与先合入的 PR #35 撞号，让位重编号）。
+**根因**：`check_env` 的 `strict` 形参从未读取，`ok` 初始化 `True` 后交换区/内存/端口占用各分支只 print 不置 False——docstring 声称「唯一硬门是已有其它 IndexTTS 实例」但 others 同样不拦（preening 测绘静态证实；2026-10-06 S8 仅剥除死形参，门语义未动。原登记号 I-043 与先合入的 PR #35 撞号，让位重编号）。
 **定性**：疑似阻断性缺陷（A/B 基准前置门失效，环境不合格时耗时结论不可信），待 G1 实机复现定性。
 **处理方式**：待复现后修复——恢复 ok 置 False 判定或显式改 docstring 为「纯报告」二选一，须与「静态指标一律只作告警」的历史注释对质后定案。
 **后续防范**：门函数的布尔返回值必须有置 False 的可达路径，否则改为报告函数命名（report_env）。
 **同类问题影响**：凡「返回 bool 的门」皆可静态扫描「恒真路径」复核（preening 审计方法可复用）。
 
-## RSI-046 test_config 机制常数期望值未感知 story 分档默认（集成模式预存红）
+<a id="I-046"></a>
+## I-046：test_config 机制常数期望值未感知 story 分档默认（集成模式预存红）
 
 **表因**：集成模式（TO_VIDEO_TEST_WORKSPACE）下 `test_real_episodes_resolve_identically_to_literal_values` 对 `agent-skills-video` 断言 `narration.chars_per_min == 280` 实得 254（2026-10-06 基线即红，单仓模式不受影响）。
-**根因**：RSI-021 引入 `chars_per_min` 默认层按 `tts.style` 分档（story=254），该测试的 `LITERALS_BEFORE_DELETION` 仍按单一默认 280 书写；新入语料集为 story 档即触发。
+**根因**：I-021 引入 `chars_per_min` 默认层按 `tts.style` 分档（story=254），该测试的 `LITERALS_BEFORE_DELETION` 仍按单一默认 280 书写；新入语料集为 story 档即触发。
 **定性**：非阻断改进（测试预期 vs 分档语义漂移；单仓全绿、CI 无感）。
 **处理方式**：待办——期望值构造改为「按集生效 style 查 STYLE_CHARS_PER_MIN 分档」或对 story 集点名豁免；改断言属预期变更，走 RSI 常规流程。
 **后续防范**：钉「删除前字面值」的等价变换测试，其期望值应从 SCHEMA/分档表派生而非手抄，防分档演进再漂移。
 **同类问题影响**：`negentropy` 工作区新增 story 档集都会触发；内容仓补 LICENSE（5 集缺 source-archive/LICENSE 的同批预存红）在内容侧另行处理。
 
-## RSI-047 「终渲=Edge」配音档位未显式声明：规格措辞构成「终渲≈终声≈IndexTTS」滑动面
+<a id="I-047"></a>
+## I-047：「终渲=Edge」配音档位未显式声明：规格措辞构成「终渲≈终声≈IndexTTS」滑动面
 
 **表因**：用户 2026-10-06 需再次澄清配音档位（原话：「在终渲中使用的配音依旧是 Edge，而不是 TTS Index。只有在所有工作都完成了，且人工审核后认为视频已达到可发布状态时，人工触发我的声音克隆配音时，才需要启用 TTS Index。在整个制作过程中，全部都使用 Edge 进行配音。」）——澄清的必要性本身即缺陷证据：多处规格措辞可被读出「终渲阶段应启用/已启用 IndexTTS」。具体滑动面：① [10 前置行](../../references/10-final-render.md)「音频已冻结（B 遍完成）」以两遍法（IndexTTS sunny 存量概念）术语作终渲前置，字面把克隆两遍写成终渲必要条件；② 10 终渲节零配音语义——未声明终渲只消费既有音轨（`cmd_render` 机制上从不分派 TTS，规格却空白，读者只能从档位术语反推）；③ [SKILL](../../SKILL.md) frontmatter「制作期 edge-tts 草声默认」与速查 ⑦ 行「（制作期）」限定词暗含交付期另有一档；速查 ⑩ 行零配音语义；④ [07 两档表](../../references/07-tts-voice.md)草声时机枚制止于「试配音」不含终渲/交付；「迭代与定稿」只有升档单边叙事，缺「不点名＝以 edge 草声直接终渲交付」对偶路径；完成门「终声完成后…才算交付」可读作交付前须有克隆终声。
 
-**根因**：两层历史措辞叠加。定义层：RSI-034 台账把终声定义为「交付音色」，字面等价「终渲（交付）≈终声≈IndexTTS」（07:15「以 edge 为终声交付的集（合法路径）」——本条⑧复审落词「edge 终声集」——与 10 换机 runbook 的「TTS 恢复（按引擎分派，RSI-040）」节已在事实上修正它，但两档表叙事未回收）；触发层：RSI-040 台账表因「仅在最后人工显式要求出上线成品时启用」把启用时点绑在「出成品」上——正确的语义是克隆重配是成品渲之外/之后的独立人工触发步骤，成品渲本身仍 edge。机制面自始正确（`--final-voice` 硬闸、`all` 拒克隆、`cmd_render` 无 TTS 分派、evals id3 已有终版负例断言），缺的只是「终渲消费哪档音轨」的显式规格声明与执法锚点。
+**根因**：两层历史措辞叠加。定义层：I-034 台账把终声定义为「交付音色」，字面等价「终渲（交付）≈终声≈IndexTTS」（07:15「以 edge 为终声交付的集（合法路径）」——本条⑧复审落词「edge 终声集」——与 10 换机 runbook 的「TTS 恢复（按引擎分派，I-040）」节已在事实上修正它，但两档表叙事未回收）；触发层：I-040 台账表因「仅在最后人工显式要求出上线成品时启用」把启用时点绑在「出成品」上——正确的语义是克隆重配是成品渲之外/之后的独立人工触发步骤，成品渲本身仍 edge。机制面自始正确（`--final-voice` 硬闸、`all` 拒克隆、`cmd_render` 无 TTS 分派、evals id3 已有终版负例断言），缺的只是「终渲消费哪档音轨」的显式规格声明与执法锚点。
 
 **定性**：非阻断改进（规格措辞与执法锚点补齐；零脚本行为改动——`render --final` 仅 help 文案补充「沿用既有音轨，不触发 TTS」；用户点名启动）。
 
-**处理方式**：[PR #37](https://github.com/ThreeFish-AI/to-video/pull/37)（commit c80b990，分支 `ThreeFish-AI/rsi-045-final-render-edge-voice`；原登记号 RSI-045 与先合入 PR #38 的 tts_bench 条目撞号——该条目自身亦因 RSI-043 撞号让位占用 045——按让位重编号先例改为 RSI-047）。① 10：前置行中性化（末次 TTS 产物即可——默认 edge，克隆重配仅显式触发后存在，不是终渲前置）、终渲节首补「终渲只消费既有音轨」「不触发任何 TTS」（同句双强调，中间隔音轨路径括注）与「直接以 edge 成片交付即合法路径」、交付清单 A/B 遍措辞改「末次 TTS 后又位移过——edge 或克隆皆同」；② 07：草声时机枚举补「→终渲/交付」、迭代定稿补「不点名＝以 edge 草声直接终渲交付」对偶路径、完成门改「末次 TTS 完成后（edge 或克隆皆同）」；③ SKILL：frontmatter「制作期」→「全程（含终渲与交付）」、速查 ⑦「（制作期）」→「（全程默认）」、速查 ⑩ 做什么列补「终渲沿用既有音轨（未显式重配即 edge 成片）」（不动 gate 列——避免与 stages.toml 双址同步义务；刻意不落在工作流步骤 7 注释——8000 字符预算下与 ⑩ 行二选一）、关键不变量补终渲细化括注「含终渲与交付，终渲不自动升档」；④ VOICE-CLONING §八与 README「两档配音」条目「制作期」同步对齐（README 补对偶交付路径半句）；⑤ `pipeline.py` `render --final` help 补「沿用既有音轨，不触发 TTS」；⑥ test_voice_tiers 新增 2 锚点测试（终渲音轨消费/对偶路径，含 B 遍/A 遍两遍法术语负例锚与不变量括注锚）；⑦ 为守 SKILL 正文 8000 字符硬预算（main 侧贴线 7998）做等量压缩（RSI-040 同款手法）：相邻技能 CAD 安装命令下沉 references/08 换指针、RSI 段示例枚举（脚本报错、命令失败、规格漂移等）删减；⑧ 复审追加（PR #37 Review 三 Finding）：模板 [tts] 头注「制作期」→「全程（含终渲与交付）」同词对齐并补对偶交付路径（[pipeline.toml 模板](../../assets/video-skeleton/pipeline.toml.tmpl)，残存旧口径的唯一 shipped 面）＋模板头注锚点测试；07:15 落词「edge 终声集」使 10:9/10:88 指向 07『两档生命周期』的引用获得同词锚点（根因段 07:15 引语按时代一致性仍引 base 原词）；test_voice_tiers 10 侧锚串换新句独有指纹「直接以 edge 成片交付」（原「edge 终声集」系 10 换机 runbook 存量术语，base 即有、断言可平凡满足）。历史台账（RSI-034/040 原条目）与 CHANGELOG 历史条目零触碰。
+**处理方式**：[PR #37](https://github.com/ThreeFish-AI/to-video/pull/37)（commit c80b990，分支 `ThreeFish-AI/rsi-045-final-render-edge-voice`；原登记号 I-045 与先合入 PR #38 的 tts_bench 条目撞号——该条目自身亦因 I-043 撞号让位占用 045——按让位重编号先例改为 I-047）。① 10：前置行中性化（末次 TTS 产物即可——默认 edge，克隆重配仅显式触发后存在，不是终渲前置）、终渲节首补「终渲只消费既有音轨」「不触发任何 TTS」（同句双强调，中间隔音轨路径括注）与「直接以 edge 成片交付即合法路径」、交付清单 A/B 遍措辞改「末次 TTS 后又位移过——edge 或克隆皆同」；② 07：草声时机枚举补「→终渲/交付」、迭代定稿补「不点名＝以 edge 草声直接终渲交付」对偶路径、完成门改「末次 TTS 完成后（edge 或克隆皆同）」；③ SKILL：frontmatter「制作期」→「全程（含终渲与交付）」、速查 ⑦「（制作期）」→「（全程默认）」、速查 ⑩ 做什么列补「终渲沿用既有音轨（未显式重配即 edge 成片）」（不动 gate 列——避免与 stages.toml 双址同步义务；刻意不落在工作流步骤 7 注释——8000 字符预算下与 ⑩ 行二选一）、关键不变量补终渲细化括注「含终渲与交付，终渲不自动升档」；④ VOICE-CLONING §八与 README「两档配音」条目「制作期」同步对齐（README 补对偶交付路径半句）；⑤ `pipeline.py` `render --final` help 补「沿用既有音轨，不触发 TTS」；⑥ test_voice_tiers 新增 2 锚点测试（终渲音轨消费/对偶路径，含 B 遍/A 遍两遍法术语负例锚与不变量括注锚）；⑦ 为守 SKILL 正文 8000 字符硬预算（main 侧贴线 7998）做等量压缩（I-040 同款手法）：相邻技能 CAD 安装命令下沉 references/08 换指针、RSI 段示例枚举（脚本报错、命令失败、规格漂移等）删减；⑧ 复审追加（PR #37 Review 三 Finding）：模板 [tts] 头注「制作期」→「全程（含终渲与交付）」同词对齐并补对偶交付路径（[pipeline.toml 模板](../../assets/video-skeleton/pipeline.toml.tmpl)，残存旧口径的唯一 shipped 面）＋模板头注锚点测试；07:15 落词「edge 终声集」使 10:9/10:88 指向 07『两档生命周期』的引用获得同词锚点（根因段 07:15 引语按时代一致性仍引 base 原词）；test_voice_tiers 10 侧锚串换新句独有指纹「直接以 edge 成片交付」（原「edge 终声集」系 10 换机 runbook 存量术语，base 即有、断言可平凡满足）。历史台账（I-034/040 原条目）与 CHANGELOG 历史条目零触碰。
 
 **后续防范**：终渲/交付不自动升档、不触发任何 TTS——「终渲」是渲染开关、「终声」是音轨档位，两个概念不得互为定义；写终渲相关规格禁用 A/B 遍等两遍法术语作前置（那是 IndexTTS 存量集概念）；档位枚举必须同时写升档与不点名两条路径，单边升档叙事＝滑动面；配音授权语义表述统一为「人工审核认定可发布 → 本人显式点名 → 才启用」，不得把启用时点绑在「出成品」上。
 
 **同类问题影响**：凡只消费既有产物、不触发上游合成的阶段（⑩ captions/deliver 同理）都适用「阶段说明须声明其消费的产物档位」规则；机制正确而规格空白的领域，优先补显式声明+锚点执法而非再造机制门。
 
-## RSI-048 镜头语言·节奏·动画原则等导演知识全仓零覆盖：视频专业表达缺理论坐标系
+<a id="I-048"></a>
+## I-048：镜头语言·节奏·动画原则等导演知识全仓零覆盖：视频专业表达缺理论坐标系
 
-**表因**：用户点名要求融入「专业动画制作导演」的知识与机制以提升视频专业性与表达能力；调研实证（2026-10-07，双 Explore + 六路联网调研）：`景别`/`运镜`/`anticipation`/`staging`/`eye-trace`/`转场语义`/`视觉节奏曲线` 在 references/scripts/tests/SKILL 全仓零命中——导演语言体系性缺失，仅有零散实战定式（四定式 RSI-032、Visual Hook RSI-039、Morph Continuity、声音表演导演规则 03:99-107——音频侧有导演学、视觉侧无对应物）。
+**表因**：用户点名要求融入「专业动画制作导演」的知识与机制以提升视频专业性与表达能力；调研实证（2026-10-07，双 Explore + 六路联网调研）：`景别`/`运镜`/`anticipation`/`staging`/`eye-trace`/`转场语义`/`视觉节奏曲线` 在 references/scripts/tests/SKILL 全仓零命中——导演语言体系性缺失，仅有零散实战定式（四定式 I-032、Visual Hook I-039、Morph Continuity、声音表演导演规则 03:99-107——音频侧有导演学、视觉侧无对应物）。
 
 **根因**：既有视觉质量资产是「实战事故驱动的补丁式积累」，每条都有实证锚点但无理论坐标系组织——补丁只在已知失败形态上生效，未知形态（节奏均质化、焦点漂移、眼动跳切、镜头无动机）无判据可依。08 运动层（frozen）只管「怎么动」的机制正确，MODELING-PLAYBOOK 只管「画什么」的策略经验，「怎么导」（景别/运镜/转场/节奏/构图/动画原则）恰落两层都不管的夹缝。
 
@@ -741,7 +873,8 @@
 
 **同类问题影响**：02/06/08/09 四阶段规格的视觉规划面；后续若 @shot 标注使用率与失约样本积累（≥2 集），触发机械门族 RSI（触发条件详见研究文档 roadmap 节）。
 
-## RSI-049 字幕单行约束未规定长句切换，内容门与渲染层之间存在语义断层
+<a id="I-049"></a>
+## I-049：字幕单行约束未规定长句切换，内容门与渲染层之间存在语义断层
 
 **表因**：实际终渲中，过长的 zh 片头字幕在字幕容器内自动折成两行；即使 `Subtitle.tsx` 已有 `whiteSpace: 'nowrap'` 路径，系列片头等 seeded 组件仍可能保留 `overflowWrap: 'break-word'`，且 Stage ⑥ 只写「底部单行」没有规定长句如何前后切换。
 
@@ -749,13 +882,14 @@
 
 **定性**：非阻断改进（补齐字幕内容与渲染契约；既有 frozen `Subtitle.tsx` 机制不变；用户在终渲验收中显式提出）。
 
-**处理方式**：[PR #40](https://github.com/ThreeFish-AI/vibe-video/pull/40)。原登记号 RSI-048 与先合入的 PR #41（导演手艺知识库）撞号——按「首创得号」纪律让位重编号为 RSI-049。更新 [06 分镜规格](../../references/06-storyboard.md)、[08 Remotion 实现规格](../../references/08-remotion-implementation.md) 与 [09 渲染 QA](../../references/09-render-qa.md)：zh 强制单行；过长句必须按语义边界拆为连续字幕窗口并用淡入淡出切换；禁止依赖自动换行、压缩字距、持续缩小字号或画布外溢；抽帧验收覆盖第二行、裁切、挤压、外溢及切换帧。视频侧同步修复系列片头组件，将两句长字幕拆为五个单行显示窗口并完成 IndexTTS 2.5 终声集的终渲验收。
+**处理方式**：[PR #40](https://github.com/ThreeFish-AI/vibe-video/pull/40)。原登记号 I-048 与先合入的 PR #41（导演手艺知识库）撞号——按「首创得号」纪律让位重编号为 I-049。更新 [06 分镜规格](../../references/06-storyboard.md)、[08 Remotion 实现规格](../../references/08-remotion-implementation.md) 与 [09 渲染 QA](../../references/09-render-qa.md)：zh 强制单行；过长句必须按语义边界拆为连续字幕窗口并用淡入淡出切换；禁止依赖自动换行、压缩字距、持续缩小字号或画布外溢；抽帧验收覆盖第二行、裁切、挤压、外溢及切换帧。视频侧同步修复系列片头组件，将两句长字幕拆为五个单行显示窗口并完成 IndexTTS 2.5 终声集的终渲验收。
 
 **后续防范**：字幕内容门与 `fitText` 渲染适配不得互相替代；zh 字幕出现第二行即 FAIL，优先回到 narration/storyboard 在语义边界拆句，再回到 Remotion 做窗口时序；每次字幕布局变更必须抽查长句本身及其前后切换帧。
 
 **同类问题影响**：所有自定义字幕 overlay、系列片头和未来双语字幕都适用该边界；en 仍按 frozen `Subtitle.tsx` 的两行 `textWrap: balance` 回落规则处理，不得把 zh 的单行约束泛化为英文实现。
 
-## RSI-050 check_series 规则1 只扫 narration.md，组件口播字面量（NARRATION/SUBS）是顺序词执法盲区
+<a id="I-050"></a>
+## I-050：check_series 规则1 只扫 narration.md，组件口播字面量（NARRATION/SUBS）是顺序词执法盲区
 
 **表因**（2026-10-08，上游 ISSUE-208 回流）：Claude Code 系列片头组件 `series-intro.tsx` 的 NARRATION/SUBS 字面量口播首词「本系列视频」违反系列禁词表（顺序词），`check_series.py` 规则1 全绿漏放行——该组件在 `video/src/components/` 而非 `scenes/`，连规则 7 的 AUDIENCE_GLOBS 都不覆盖；靠 2026-10-07 评审轮人工按禁词表核对才发现，收口须重配音（take 18.08s）并按新静音带全量重排 T 表（上游修复 commit 595b8bfdf）。上游台账：https://github.com/ThreeFish-AI/negentropy/blob/ThreeFish-AI/claude-code-video-opening/docs/.agents/issue.md（分支 ThreeFish-AI/claude-code-video-opening）。
 
@@ -763,15 +897,16 @@
 
 **定性**：阻断性缺陷（机器门漏放行已上线违规口播；收口代价＝整段重配音 + 重排 T 表）。
 
-**处理方式**：[PR #42](https://github.com/ThreeFish-AI/vibe-video/pull/42)（commit 1b34f55，分支 ThreeFish-AI/rsi-050-series-intro-knowledge-batch）。`scripts/check_series.py` 规则1 新增扫描面：`episodes/*/video/src/{scenes,components}/*.tsx` 中 `const (NARRATION|SUBS) = …;` 块（DOTALL 非贪婪到首个分号）内的单/双引号字符串字面量，过 ORDINAL_WORDS / EN_ORDINAL_WORDS / 他集标题互查（跨系列全局、与 narration 扫描同权；组件按宿主集路径段排除自身标题）。容器名 NARRATION/SUBS 硬编码为机制契约，不进 toml——与 course_series_ids 的内容策略分置。方案比选：**B**（全量扫 tsx 观众层文本）否决——实测误伤 self-evolving 系 P6Ending.tsx 合法视觉层 `ep: '第一集'` 进度卡序数词（「序号活在视觉层」是既定不变量；常假报的门等于被关掉的门）；**C**（组件口播与 narration.md 对账）否决——片头口播设计上就不入 narration.md（独立音轨资产契约），对账要么恒 FAIL 要么排除后零对象，结构性不可行。红绿闭环：tests/test_check_series.py 新节「组件口播字面量（RSI-050）」首版 +7、评审加固后共 23 例（NARRATION 顺序词 FAIL 事故复刻 / SUBS 数组序数词 FAIL / 场景内联视觉层序数词 PASS 钉死方案 B 否决 / 干净容器 PASS / en 顺序词 FAIL / 他集标题 FAIL / 宿主集自身标题 PASS），扩面前 4 条命中型用例全红（rc==0 漏放行）、扩面后全绿。**评审加固**（2026-10-08，PR #42 评审 15 条，+16 例）：①单引号空串 `''` 曾让 `group(1) or group(2)` 取到 None、`t in s` 抛 TypeError（规则1 整体崩溃、其余规则不再执行，fail-closed 但门不可用）——改词法单元逐项取、`is not None` 判；②类型注解 `const X: T =` 与 en 后缀 `NARRATION_EN`/`SUBS_EN` 曾整块逃出执法面；③无分号写法（合法 TS）曾被 `.*?;` 吞到后文视觉层造成假 FAIL（与「常假报的门等于被关掉的门」冲突）——容器体改终止于分号 / 下一条声明起点 / 文件尾；④注释内分号曾截断容器体、注释内字符串曾被误收——体内按词法单元跳过注释；⑤他集标题被 `+` 折行或 SUBS 切窗切在两个字面量之间曾静默漏检——改按容器内字面量拼接串判（顺序词仍逐字面量判）。另补 scenes/ 路径、跨系列、容器边界三条变异杀手（首版 7 例在收窄 glob / 收窄候选标题 / 贪婪匹配下仍全绿）。真实树对拍：修复前组件（595b8bfdf^ 版本）放入 15 集真实 series.json 的 tmp 工作区，旧门规则1 零命中、新门报出 NARRATION/SUBS 两条「本系列」FAIL；修复后真实工作区（negentropy ulaanbaatar-v1）新门 FAIL 0（存量 WARN 5 条为规则 6 既有，零新增误报）。PIPELINE.md 脚本表与 03 系列纪律条同步。
+**处理方式**：[PR #42](https://github.com/ThreeFish-AI/vibe-video/pull/42)（commit 1b34f55，分支 ThreeFish-AI/rsi-050-series-intro-knowledge-batch）。`scripts/check_series.py` 规则1 新增扫描面：`episodes/*/video/src/{scenes,components}/*.tsx` 中 `const (NARRATION|SUBS) = …;` 块（DOTALL 非贪婪到首个分号）内的单/双引号字符串字面量，过 ORDINAL_WORDS / EN_ORDINAL_WORDS / 他集标题互查（跨系列全局、与 narration 扫描同权；组件按宿主集路径段排除自身标题）。容器名 NARRATION/SUBS 硬编码为机制契约，不进 toml——与 course_series_ids 的内容策略分置。方案比选：**B**（全量扫 tsx 观众层文本）否决——实测误伤 self-evolving 系 P6Ending.tsx 合法视觉层 `ep: '第一集'` 进度卡序数词（「序号活在视觉层」是既定不变量；常假报的门等于被关掉的门）；**C**（组件口播与 narration.md 对账）否决——片头口播设计上就不入 narration.md（独立音轨资产契约），对账要么恒 FAIL 要么排除后零对象，结构性不可行。红绿闭环：tests/test_check_series.py 新节「组件口播字面量（I-050）」首版 +7、评审加固后共 23 例（NARRATION 顺序词 FAIL 事故复刻 / SUBS 数组序数词 FAIL / 场景内联视觉层序数词 PASS 钉死方案 B 否决 / 干净容器 PASS / en 顺序词 FAIL / 他集标题 FAIL / 宿主集自身标题 PASS），扩面前 4 条命中型用例全红（rc==0 漏放行）、扩面后全绿。**评审加固**（2026-10-08，PR #42 评审 15 条，+16 例）：①单引号空串 `''` 曾让 `group(1) or group(2)` 取到 None、`t in s` 抛 TypeError（规则1 整体崩溃、其余规则不再执行，fail-closed 但门不可用）——改词法单元逐项取、`is not None` 判；②类型注解 `const X: T =` 与 en 后缀 `NARRATION_EN`/`SUBS_EN` 曾整块逃出执法面；③无分号写法（合法 TS）曾被 `.*?;` 吞到后文视觉层造成假 FAIL（与「常假报的门等于被关掉的门」冲突）——容器体改终止于分号 / 下一条声明起点 / 文件尾；④注释内分号曾截断容器体、注释内字符串曾被误收——体内按词法单元跳过注释；⑤他集标题被 `+` 折行或 SUBS 切窗切在两个字面量之间曾静默漏检——改按容器内字面量拼接串判（顺序词仍逐字面量判）。另补 scenes/ 路径、跨系列、容器边界三条变异杀手（首版 7 例在收窄 glob / 收窄候选标题 / 贪婪匹配下仍全绿）。真实树对拍：修复前组件（595b8bfdf^ 版本）放入 15 集真实 series.json 的 tmp 工作区，旧门规则1 零命中、新门报出 NARRATION/SUBS 两条「本系列」FAIL；修复后真实工作区（negentropy ulaanbaatar-v1）新门 FAIL 0（存量 WARN 5 条为规则 6 既有，零新增误报）。PIPELINE.md 脚本表与 03 系列纪律条同步。
 
-**后续防范**：新增口播承载形态（片头/预告/品牌声画组件）时，口播文本一律进 NARRATION/SUBS 命名容器——容器名是规则1 扩面的执法锚（命名约定见 references/SERIES-INTRO.md §五，RSI-051）；改稿先过机器门、再人工核对禁词表（机器门拦形态、人工拦语义——五同步检查单第 5 条）。已知残余不改判（近似口径，同 check_scenes 家族既定声明）以 `scripts/check_series.py` 容器正则旁注为**唯一声明处**，此处不复述（评审实证原三处声明互相不一致）。
+**后续防范**：新增口播承载形态（片头/预告/品牌声画组件）时，口播文本一律进 NARRATION/SUBS 命名容器——容器名是规则1 扩面的执法锚（命名约定见 references/SERIES-INTRO.md §五，I-051）；改稿先过机器门、再人工核对禁词表（机器门拦形态、人工拦语义——五同步检查单第 5 条）。已知残余不改判（近似口径，同 check_scenes 家族既定声明）以 `scripts/check_series.py` 容器正则旁注为**唯一声明处**，此处不复述（评审实证原三处声明互相不一致）。
 
 **同类问题影响**：所有独立挂载音轨的组件（片头、预告、品牌声画）；en 侧组件口播（EN_ORDINAL_WORDS 同权执法）；两集字幕容器复述口播的形态（SUBS 与 NARRATION 同容器族执法）。
 
-## RSI-051 系列片头资产契约零覆盖：独立音轨/T 表方法论/改稿五同步无 SSOT 落册
+<a id="I-051"></a>
+## I-051：系列片头资产契约零覆盖：独立音轨/T 表方法论/改稿五同步无 SSOT 落册
 
-**表因**：系列片头的资产形态知识（独立音轨不入 narration、静音带 T 表实测方法论、改稿五同步、双语 drift 登记、NARRATION/SUBS 容器命名）全部活在单集组件头注与上游事故台账里——skill 仓 references 零覆盖，`check_series.py` 规则1 扩面（RSI-050）落地的机制契约「容器名 NARRATION/SUBS 是命名约定」在册面上无发现通道；下一系列做片头只能靠考古上游 commit。
+**表因**：系列片头的资产形态知识（独立音轨不入 narration、静音带 T 表实测方法论、改稿五同步、双语 drift 登记、NARRATION/SUBS 容器命名）全部活在单集组件头注与上游事故台账里——skill 仓 references 零覆盖，`check_series.py` 规则1 扩面（I-050）落地的机制契约「容器名 NARRATION/SUBS 是命名约定」在册面上无发现通道；下一系列做片头只能靠考古上游 commit。
 
 **根因**：片头资产是「分集口播」（03 管）、「配音档位」（07 管）、「骨架档位」（08 管）、「抽帧验收」（09 管）都不管的夹缝层——上游 ISSUE-208 的三方漂移（文案/字幕/音轨）正是该夹缝无册可依的实证；知识只随事故逐条补丁，未结晶成资产契约。
 
@@ -781,9 +916,10 @@
 
 **后续防范**：片头/预告/品牌声画类系列资产的新形态先查 SERIES-INTRO 是否已有契约，再决定扩节或立新册；组件头注写方法论时同步自查是否已有册面（头注是本集数字 SSOT，册是跨集方法论 SSOT，两层不复制）。
 
-**同类问题影响**：一切「独立挂载音轨」的系列级资产；RSI-050 的容器命名执法从此有册面发现通道（文档—执法互锚闭环）。
+**同类问题影响**：一切「独立挂载音轨」的系列级资产；I-050 的容器命名执法从此有册面发现通道（文档—执法互锚闭环）。
 
-## RSI-052 共享冻结件修复的波及面对账无机制：重渲待办与交付验收线全靠人记
+<a id="I-052"></a>
+## I-052：共享冻结件修复的波及面对账无机制：重渲待办与交付验收线全靠人记
 
 **表因**（上游 ISSUE-207 回流）：多集共享冻结件（Archify 三件/Subtitle/i18n 系）的修复天然使全系列成片陈旧，而重渲登记按「直接涉事集」窄登记——上游 09-30 修复批（6973c570f 等）落地后五集 v1 成片全部不含修复，ISSUE-205/206 只登记了 ep5/ep1 重渲，同样吃到共享件修复的 ep2/3/4 无登记，评审再挖出 10 处视觉缺陷后才补全量重渲对账。上游台账：https://github.com/ThreeFish-AI/negentropy/blob/feature/1.x.x/docs/.agents/issue.md（分支 feature/1.x.x）。
 
@@ -797,7 +933,8 @@
 
 **同类问题影响**：一切跨集共享资产（frozen 组件、模板、Subtitle/ChapterProgress、系列片头 seeded 复制件——SERIES-INTRO §一第 4 条已按此口径引用本条）。
 
-## RSI-053 交付登记数字无机器对账：时长/锚定率/块数/归档计数散文手写即漂移
+<a id="I-053"></a>
+## I-053：交付登记数字无机器对账：时长/锚定率/块数/归档计数散文手写即漂移
 
 **表因**（上游 ISSUE-204 回流）：v1 评审 13 条中 6 条集中在人写登记层——series.json statusNote、series.md、CHANGELOG 三处时长全部虚高 6–8s（三个不同实测被统一抄成一个数）；锚定率自矛盾（同句「锚定 36.6%」与门输出 39.0% 打架）；「43 块 cues」无源（cues.toml 从未存在）；五集 README 停在脚手架占位态；`_captions/` 归档缺口（CHANGELOG 称 ×5 实得 1）。上游台账：https://github.com/ThreeFish-AI/negentropy/blob/feature/1.x.x/docs/.agents/issue.md（分支 feature/1.x.x）。
 
@@ -811,7 +948,8 @@
 
 **同类问题影响**：所有系列的 statusNote/README/CHANGELOG 交付登记面；`_captions` 归档验收（find 实物计数）。
 
-## RSI-054 渲染产物完整性预检缺失：损坏 mp4 让整轮抽帧 QA 输出伪信号
+<a id="I-054"></a>
+## I-054：渲染产物完整性预检缺失：损坏 mp4 让整轮抽帧 QA 输出伪信号
 
 **表因**（上游 ISSUE-181 回流）：两个 remotion render 进程并发写同一 `out/draft.mp4` 致索引损坏，`ffmpeg -ss <任意时间戳>` 全部解码回第 0 帧——`--check` 报出 52 条伪 WARN（伪冻帧+伪字幕缺失），同代码态 `remotion still` 直渲却完全正常；干净重渲后恢复 FAIL 0 · WARN 1 基线。上游台账：https://github.com/ThreeFish-AI/negentropy/blob/master/docs/.agents/issue.md（分支 master）。
 
@@ -825,7 +963,8 @@
 
 **同类问题影响**：所有 `out/*.mp4` 产物；A/B 对拍尤险（两个损坏文件对拍得出「差异为 0」假结论）。
 
-## RSI-055 useCurrentFrame 语境随宿主搬迁漂移：窗口类 hooks 内联搬运即语境错位
+<a id="I-055"></a>
+## I-055：useCurrentFrame 语境随宿主搬迁漂移：窗口类 hooks 内联搬运即语境错位
 
 **表因**（上游 ISSUE-205 回流）：ep5 终幕修复把渐黑遮罩+完结语的 hooks 从子组件内联搬到 P6 场景主体——`useCurrentFrame` 语境从镜内局部帧变成场景局部帧，`tailKeep` 在该镜全程为 0、遮罩满黑盖死整幕；`remotion still` 亮度抽样抓出（机器门全盲），改回组件化放归镜内语境后逐帧复验通过。上游台账：https://github.com/ThreeFish-AI/negentropy/blob/feature/1.x.x/docs/.agents/issue.md（分支 feature/1.x.x）。
 
@@ -839,7 +978,8 @@
 
 **同类问题影响**：一切跨 Sequence/跨宿主的 hooks 层搬迁；收尾层与常驻 chrome 层。
 
-## RSI-056 archify 录制帧率门只 WARN 不拦：capture_fps 低于下限可静默入成片
+<a id="I-056"></a>
+## I-056：archify 录制帧率门只 WARN 不拦：capture_fps 低于下限可静默入成片
 
 **表因**（上游 ISSUE-206 回流）：ep1 checkchain-order 图 scan-claim 章 capture_fps=17.0（五集其余 59 图全部 ≥23），`check_archify` 仅 WARN 不拦门——录制期负载瞬时退化（CDP 档补帧合成 CFR25 掩盖低采集率）直接进了成片。上游台账：https://github.com/ThreeFish-AI/negentropy/blob/feature/1.x.x/docs/.agents/issue.md（分支 feature/1.x.x）。
 
@@ -853,25 +993,27 @@
 
 **同类问题影响**：全部 archify 资产章节；未来任何「质量下限只 WARN」的判据都应按「下限=交付线=FAIL」口径重审。
 
-## RSI-057 规则7 AUDIENCE_GLOBS 不含 components/：组件内观众可见口播串不受站点标识执法
+<a id="I-057"></a>
+## I-057：规则7 AUDIENCE_GLOBS 不含 components/：组件内观众可见口播串不受站点标识执法
 
-**表因**（2026-10-08，PR #42 对抗核验 warning）：课程型系列（course_series_ids）的片头等组件（`episodes/*/video/src/components/*.tsx`）内观众可见口播串（NARRATION/SUBS 容器）出现课程站点标识词时规则7 全绿漏放行——与 RSI-050 修复的规则1 盲区同源不同面：规则1 已扩面至 components/ 的口播容器，规则7 的受检面仍停在 scenes/。
+**表因**（2026-10-08，PR #42 对抗核验 warning）：课程型系列（course_series_ids）的片头等组件（`episodes/*/video/src/components/*.tsx`）内观众可见口播串（NARRATION/SUBS 容器）出现课程站点标识词时规则7 全绿漏放行——与 I-050 修复的规则1 盲区同源不同面：规则1 已扩面至 components/ 的口播容器，规则7 的受检面仍停在 scenes/。
 
-**根因**：`scripts/check_series.py` 的 `AUDIENCE_GLOBS` 枚举只含 `episodes/*/script/narration.md`、`narration.en.md`、`storyboard.md`、`episodes/*/video/src/scenes/*.tsx` 四类 glob——规则7（去站点化）先于组件承载形态落地，components/ 出现后受检面未随之对账扩面（RSI-050 只补了规则1）。
+**根因**：`scripts/check_series.py` 的 `AUDIENCE_GLOBS` 枚举只含 `episodes/*/script/narration.md`、`narration.en.md`、`storyboard.md`、`episodes/*/video/src/scenes/*.tsx` 四类 glob——规则7（去站点化）先于组件承载形态落地，components/ 出现后受检面未随之对账扩面（I-050 只补了规则1）。
 
 **定性**：非阻断改进（排队待议；组件口播撞站点标识词属低频形态，改稿五同步第 5 条人工核对兜底）。
 
-**处理方式**：排队待处理。候选方向：按 RSI-050 同一容器锚（NARRATION/SUBS）扩规则7 受检面——只扫组件口播容器字面量而非全量 components/ 字符串（防误伤视觉层合法具名，同规则1 扩面方案 B 的否决口径）；或直接把 AUDIENCE_GLOBS 扩至 `components/*.tsx`（升门前须真树实测误报面）。
+**处理方式**：排队待处理。候选方向：按 I-050 同一容器锚（NARRATION/SUBS）扩规则7 受检面——只扫组件口播容器字面量而非全量 components/ 字符串（防误伤视觉层合法具名，同规则1 扩面方案 B 的否决口径）；或直接把 AUDIENCE_GLOBS 扩至 `components/*.tsx`（升门前须真树实测误报面）。
 
 **后续防范**：扩「观众可见层」执法面时同步对账规则1 与规则7 的受检面覆盖是否一致；新增口播承载组件时自查两条规则都罩得住。
 
 **同类问题影响**：课程型系列（COURSE_SERIES_IDS）一切 components/ 观众可见文本；未来预告/品牌声画组件。
 
-## RSI-058 check_series 模块 docstring 计数漂移：「六条规则」实际列 8 条
+<a id="I-058"></a>
+## I-058：check_series 模块 docstring 计数漂移：「六条规则」实际列 8 条
 
 **表因**（2026-10-08，PR #42 对抗核验 warning）：`scripts/check_series.py` 模块 docstring 写「本脚本按价值降序执行六条规则」而其下枚举 1..8 共八条——规则 7（去站点化）与规则 8（下期卡同步）追加后计数句未随迁。
 
-**根因**：规则追加只扩枚举、不更新计数句——origin/main 既有债（非本批引入；RSI-050 规则1 扩面同样只改规则描述、未触碰计数），「计数 + 枚举」同文件的注释面漂移实例。
+**根因**：规则追加只扩枚举、不更新计数句——origin/main 既有债（非本批引入；I-050 规则1 扩面同样只改规则描述、未触碰计数），「计数 + 枚举」同文件的注释面漂移实例。
 
 **定性**：非阻断改进（排队待议；纯注释口径，零行为影响）。
 
@@ -881,7 +1023,8 @@
 
 **同类问题影响**：一切「计数 + 枚举」同文件的注释面。
 
-## RSI-059 RSI 协议上收至统一仓库 ThreeFish-AI/rsi
+<a id="I-059"></a>
+## I-059：RSI 协议上收至统一仓库 ThreeFish-AI/rsi
 
 **表因**（2026-10-11，RSI 协议上收批次）：RSI 通用协议（门禁、状态机、派发、降级）与 preening-substrate/guided-learn 仓互为孪生拷贝，机制改进需逐仓修改，且沉淀后需人工到目标仓上下文反复 Review-Fix。
 
@@ -895,15 +1038,16 @@
 
 **同类问题影响**：preening-substrate 与 guided-learn 同批切换；review-once 待其 PR #7 合并后切换。
 
-## RSI-060 B 型纯代码仓库无结构输入：建模/编导缺结构原料，UA 评估融入
+<a id="I-060"></a>
+## I-060：B 型纯代码仓库无结构输入：建模/编导缺结构原料，UA 评估融入
 
-**表因**（2026-10-12，用户点名）：用户要求评估 `Egonex-AI/Understand-Anything`（UA，MIT，钉版 `000fbf3`）的工程能力能否融入本 pipeline 增强建模与编导。两轮 Workflow 调研（15 子代理 + 3 份对抗核验）定位真问题：RSI-030 评审二把 B 型记忆点素材兜底为「source-notes 叙事正文（B 轨）」，而**纯代码仓库**（无站点）的 B 集 B 轨为空——骨架无源；RSI-015 jev 集实证句级五判据全过、幕级仍先用后讲（无「前置概念」审计面）。
+**表因**（2026-10-12，用户点名）：用户要求评估 `Egonex-AI/Understand-Anything`（UA，MIT，钉版 `000fbf3`）的工程能力能否融入本 pipeline 增强建模与编导。两轮 Workflow 调研（15 子代理 + 3 份对抗核验）定位真问题：I-030 评审二把 B 型记忆点素材兜底为「source-notes 叙事正文（B 轨）」，而**纯代码仓库**（无站点）的 B 集 B 轨为空——骨架无源；I-015 jev 集实证句级五判据全过、幕级仍先用后讲（无「前置概念」审计面）。
 
 **根因**：01 B 型只有取证纪律（双轨/三级/数字/分歧/图片）、没有结构输入规格；02 分幕表没有依赖列；06 四定式引导只对齐 C 型「七、素材映射」——三处合起来使「无站点的纯代码仓 B 集」在 ② 色彩契约/分幕与 ⑥ Map-First 全景/走查链上没有结构原料。UA 评估只是触发器，缺口本身与工具无关。
 
 **定性**：非阻断改进 · **T3 制度变更**（01 新节含外部工具抓取命令与运行指引，按统一协议分级表属运行指令扩散面，仅 Draft PR）。
 
-**处理方式**：PR：[#44](https://github.com/ThreeFish-AI/vibe-video/pull/44)（squash 合并为 36c188d；分支 `ThreeFish-AI/rsi-060-b-structure-skeleton` 的 commit 934eb40 主体、1fc85cd 人工占位门、1b7edc2 Verifier 审查修复、fe887a7/f0f45db Context-Reviewer 审阅追加、316eb1d review-once 收敛修复、b85a981 台账回填均为 squash 前的分支 commit，不在 main 祖先链上，以 36c188d 为准）。① [01](../../references/01-source-extraction.md) B 型新增「六、结构骨架与素材映射」节（骨架 = source-notes 内「派生视图，非证据」一节；强制两构件 = 层次 + 主干走查链带 1 个具体输入值；素材映射只对四定式；叙事主权在 02 钩子矩阵；原「六、验收」顺移「七、验收」+目录行同步）与「可选：Understand-Anything 起草骨架（按集 opt-in）」子节（LLM 字段四不入、仅本人显式装-用-卸、钉版两钉闸、图谱只落 `$P/.temp/`、路径 a 未验证/路径 b 运行边界）；② [02](../../references/02-planning.md) 分幕表可选第 6 列「前置概念」+ 表下注四条 + 「名称对齐」单向派生规则（④B `--terms` 逐字取本列、不一致以 narration.md 为准并由 ④B 回改本列、⑤ 不改本列）；③ [03](../../references/03-narration.md)/[04](../../references/04-verification.md)/[05](../../references/05-prose-refinement.md)/[06](../../references/06-storyboard.md)/[09](../../references/09-render-qa.md) 下游指针同步（03 术语降落括注；04 `--terms` 逐字取列；05 冻结清单补骨架三要素原样；06 四定式泛化 + 有骨架集上屏结构回溯自检；09 目检指针）；④ [DIRECTING-CRAFT](../../references/DIRECTING-CRAFT.md) §4.1 回拉层级澄清（最近一级全景，业界原理引用进 directing-craft 研究文档）；⑤ 评估存证 [docs/research/understand-anything.md](../research/understand-anything.md)（S0/S1/L 字段定级、八案比选、D1–D11 roadmap）。回归：test_source_types 新增 `test_b_type_structure_skeleton_bridge`、test_directing_craft 新增 `test_pullback_level_clause`。**边界差异**（与相邻条目）：RSI-015 给的是「幕级先用后讲」的实证信号（本条前置概念列承接其修复面）；RSI-030 定型别三行 SSOT（本条骨架不进分流表、不加 kind）；RSI-032 定 C 型五元映射（本条四定式映射与之同构、非复制）；RSI-048 定导演工艺层（本条只补 §4.1 一句回拉层级，不做结构类条款批——D4）。
+**处理方式**：PR：[#44](https://github.com/ThreeFish-AI/vibe-video/pull/44)（squash 合并为 36c188d；分支 `ThreeFish-AI/rsi-060-b-structure-skeleton` 的 commit 934eb40 主体、1fc85cd 人工占位门、1b7edc2 Verifier 审查修复、fe887a7/f0f45db Context-Reviewer 审阅追加、316eb1d review-once 收敛修复、b85a981 台账回填均为 squash 前的分支 commit，不在 main 祖先链上，以 36c188d 为准）。① [01](../../references/01-source-extraction.md) B 型新增「六、结构骨架与素材映射」节（骨架 = source-notes 内「派生视图，非证据」一节；强制两构件 = 层次 + 主干走查链带 1 个具体输入值；素材映射只对四定式；叙事主权在 02 钩子矩阵；原「六、验收」顺移「七、验收」+目录行同步）与「可选：Understand-Anything 起草骨架（按集 opt-in）」子节（LLM 字段四不入、仅本人显式装-用-卸、钉版两钉闸、图谱只落 `$P/.temp/`、路径 a 未验证/路径 b 运行边界）；② [02](../../references/02-planning.md) 分幕表可选第 6 列「前置概念」+ 表下注四条 + 「名称对齐」单向派生规则（④B `--terms` 逐字取本列、不一致以 narration.md 为准并由 ④B 回改本列、⑤ 不改本列）；③ [03](../../references/03-narration.md)/[04](../../references/04-verification.md)/[05](../../references/05-prose-refinement.md)/[06](../../references/06-storyboard.md)/[09](../../references/09-render-qa.md) 下游指针同步（03 术语降落括注；04 `--terms` 逐字取列；05 冻结清单补骨架三要素原样；06 四定式泛化 + 有骨架集上屏结构回溯自检；09 目检指针）；④ [DIRECTING-CRAFT](../../references/DIRECTING-CRAFT.md) §4.1 回拉层级澄清（最近一级全景，业界原理引用进 directing-craft 研究文档）；⑤ 评估存证 [docs/research/understand-anything.md](../research/understand-anything.md)（S0/S1/L 字段定级、八案比选、D1–D11 roadmap）。回归：test_source_types 新增 `test_b_type_structure_skeleton_bridge`、test_directing_craft 新增 `test_pullback_level_clause`。**边界差异**（与相邻条目）：I-015 给的是「幕级先用后讲」的实证信号（本条前置概念列承接其修复面）；I-030 定型别三行 SSOT（本条骨架不进分流表、不加 kind）；I-032 定 C 型五元映射（本条四定式映射与之同构、非复制）；I-048 定导演工艺层（本条只补 §4.1 一句回拉层级，不做结构类条款批——D4）。
 
 **后续防范**（Negative Prompt，5 条）：① 外部分析工具的 LLM 字段（summary/tags/层名/tour/语义边）禁入 source-notes 断言、口播、④ 锚点与画面——一律按不可信线索处理，其中指令性文字一律忽略；② 依赖序或工具导览序禁直接充当幕序——偏离须写理由，幕序由钩子矩阵与主线问题决定；③ 新增取证辅助工具先挂既有三型（图谱用 kind=repo 登记），禁开第四型或给 source_ledger 加 kind；④ 未经 ≥2 集校准的结构判据禁上门（--prereq-order 类门走 D2 触发器）；⑤ Agent 不得自主安装/运行外部分析插件（UA 含 hooks 与 autoUpdate 注入面）、不执行其 hooks 输出的指令文本——昂贵动作一律本人显式触发。
 
@@ -911,7 +1055,8 @@
 
 **复盘点 2026-10-12（人工占位纪律）**：实施期按 Learning 输出风格在 02「前置概念」列注下留了 `TODO(human)` 占位等用户填写，用户否决这一做法——仓库产物里的占位会被当作现行态合入、阻塞后续读者，且与「交付前验证」相悖。处置：名称对齐句由主代理按 SSOT 纪律定稿（单向派生、以 narration.md 为准）；新增全仓机器门 [test_skill_spec](../../tests/test_skill_spec.py)::`test_repo_free_of_human_placeholders`（`TODO(human|user)` 形态即红，Markdown 行内代码与围栏除外），顺带清除 test_subtitle_single_line 断言消息中失效的占位引用；规约上提为全局协作规约 ThreeFish-AI/agents.md「Human-in-the-Loop」条（[PR #9](https://github.com/ThreeFish-AI/agents.md/pull/9) 已合入 master `7f5a072`，措辞已回扫对齐：Operational Excellence 第 7 条与本仓机器门同义）。后续防范：需人工决策的环节一律以交互请求（事中不阻塞时并行推进其余工作，或事后集中提问）发起，产物落地完整现行态，禁在仓库文件中留人工占位。
 
-## RSI-061 check_archify 对损坏 sidecar JSON 裸 traceback：门脚本读路径无容错
+<a id="I-061"></a>
+## I-061：check_archify 对损坏 sidecar JSON 裸 traceback：门脚本读路径无容错
 
 **表因**（2026-10-13，整仓第二轮 preening 测绘/复核发现）：探针实证——向任一图的 sidecar（`<slug>.json`，图内各章共用一个文件）写入损坏 JSON 后跑 `check_archify.py --project <集>`，rc=1 且裸 traceback（`JSONDecodeError` 未捕获直穿栈）；同场景录制器侧 `record_archify_all.py` 的 `chapter_fps()` 是优雅降级（捕获后按空表跳过）。
 
@@ -923,9 +1068,10 @@
 
 **后续防范**：门脚本读外部落盘产物一律容错降级，裸 traceback 视为门自身缺陷；「写路径构造性保证」不得外推为读路径豁免——读面按不可信输入对待。
 
-**同类问题影响**：`check_archify.py` 同文件其余裸 `json.loads` 读点（`archify.manifest.ts` 模板字面量、`audio/manifest.json`、`views/<slug>.json`——原措辞「vids 清单」是变量名）同族；check_archify_coverage.py 对损坏 sidecar 的两处读点（type 判定吞掉损坏记 untyped、lead_sec 判定直接跳过）是本条的反面形态（静默丢失而非裸 traceback），修复须同批对齐；与 RSI-056/RSI-064 同块不同面（同在 check_archify.py ③ 素材完整判据块），任一改动须同块对账；一切以「生产者已保证合法」为前提的脚本读面。
+**同类问题影响**：`check_archify.py` 同文件其余裸 `json.loads` 读点（`archify.manifest.ts` 模板字面量、`audio/manifest.json`、`views/<slug>.json`——原措辞「vids 清单」是变量名）同族；check_archify_coverage.py 对损坏 sidecar 的两处读点（type 判定吞掉损坏记 untyped、lead_sec 判定直接跳过）是本条的反面形态（静默丢失而非裸 traceback），修复须同批对齐；与 I-056/I-064 同块不同面（同在 check_archify.py ③ 素材完整判据块），任一改动须同块对账；一切以「生产者已保证合法」为前提的脚本读面。
 
-## RSI-062 parse_annotation 以「章」单字切分图名：图名含「章」字即静默截断丢字
+<a id="I-062"></a>
+## I-062：parse_annotation 以「章」单字切分图名：图名含「章」字即静默截断丢字
 
 **表因**（2026-10-13，整仓第二轮 preening 测绘/复核发现）：探针实证——storyboard 图名含「章」字（如「他章」）时，图名部分被在首个「章」处截断，解析出的图名只剩「他」；`parse_board_annotations` 的计数断言只对账标注条数、不对账图名完整性，丢字全程零告警。
 
@@ -937,9 +1083,10 @@
 
 **后续防范**：解析器分隔符不得复用内容字符集中的常用单字；新解析约定落地前先扫「内容含分隔符」反例；对账断言从「条数」扩到「字段完整性」当解析产物参与后续映射时。
 
-**同类问题影响**：一切「以内容字符当分隔符」的解析点；图名/章节命名约定与解析器的耦合面（约定放宽 = 解析器同批改）；与 RSI-037 同门不同面——同在覆盖门：037 是场景代码 cue 提取正则，本条是 storyboard 标注解析；「当前资产无含『章』实例」是对集工作区资产的判定，本仓内不可复核，修复排期时宜对真实语料再扫一遍。
+**同类问题影响**：一切「以内容字符当分隔符」的解析点；图名/章节命名约定与解析器的耦合面（约定放宽 = 解析器同批改）；与 I-037 同门不同面——同在覆盖门：037 是场景代码 cue 提取正则，本条是 storyboard 标注解析；「当前资产无含『章』实例」是对集工作区资产的判定，本仓内不可复核，修复排期时宜对真实语料再扫一遍。
 
-## RSI-063 cmd_tts 不透传 tts.server：doctor 健康检查地址与合成地址可分叉
+<a id="I-063"></a>
+## I-063：cmd_tts 不透传 tts.server：doctor 健康检查地址与合成地址可分叉
 
 **表因**（2026-10-13，整仓第二轮 preening 测绘/复核发现）：复核发现——`pipeline.py doctor` 健康检查读 `tts.server`（`INDEXTTS_SERVER` env 覆盖生效），而 `cmd_tts` 组装 tts.py 命令从不传 `--server`；`INDEXTTS_SERVER` 覆盖为非默认地址时（`tts.server` 属机器属性，约定不进 toml——[PIPELINE.md](../../references/PIPELINE.md) §字段表），doctor 探 A 地址、合成仍打 tts.py argparse 缺省 8766——健康检查绿不保证打的是同一服务。[VOICE-CLONING.md](../../references/VOICE-CLONING.md)「端口取自 `tts.server`」的口径对合成路径不成立。
 
@@ -951,9 +1098,10 @@
 
 **后续防范**：配置键新增消费者时对账「同键所有读点口径一致」；健康检查与实跑必须同址——健康检查的价值 = 预检实跑路径，异址检查给出的是假安心。
 
-**同类问题影响**：与 RSI-035/RSI-036 同族不同面（那两条是 tts_resume 编排器的服务 argv 与 MPS flag 口径，本条是 cmd_tts 的 `--server` 传递）；同族实锤两处独立缺省（均不读 `tts.server`/env）：`tts_resume.py` 自身 `--server`（健康检查/冷重启端口判据，`scripts/tts_resume.py:389`，且不转发进 tts.py——长跑推荐路径经 tts_resume 而非 cmd_tts；经代码走读核实、未实跑复现）与 `tts_sample.py`（`scripts/tts_sample.py:359`）；一切「env/config 覆盖只被部分消费者读取」的分叉面。
+**同类问题影响**：与 I-035/I-036 同族不同面（那两条是 tts_resume 编排器的服务 argv 与 MPS flag 口径，本条是 cmd_tts 的 `--server` 传递）；同族实锤两处独立缺省（均不读 `tts.server`/env）：`tts_resume.py` 自身 `--server`（健康检查/冷重启端口判据，`scripts/tts_resume.py:389`，且不转发进 tts.py——长跑推荐路径经 tts_resume 而非 cmd_tts；经代码走读核实、未实跑复现）与 `tts_sample.py`（`scripts/tts_sample.py:359`）；一切「env/config 覆盖只被部分消费者读取」的分叉面。
 
-## RSI-064 capture_fps 回退用 or 链把 0.0 当缺失：与录制器 is-None 语义分叉
+<a id="I-064"></a>
+## I-064：capture_fps 回退用 or 链把 0.0 当缺失：与录制器 is-None 语义分叉
 
 **表因**（2026-10-13，整仓第二轮 preening 测绘/复核发现）：三处回退口径对照——门侧逐章回退用 or 链（`scripts/check_archify.py:135` 的 `capture_fps or measured_fps`），录后基线对比 `record_archify_all.chapter_fps()` 同为 or 链（`scripts/record_archify_all.py:181`），录制器 `eff` 用 is-None 链（`scripts/record_archify.py:904`）；手改 sidecar 章 `capture_fps=0.0` 时，门与基线两处读点都把 0.0 当缺失回退到 measured（CFR 档恒 25 → 放行），录制器写入侧语义下 0.0 是有效值（< min_fps → 低帧率告警）——同一字段三处读点/写入点的回退语义分叉。现状已由特征测试 `test_zero_capture_fps_treated_as_missing_by_or_chain` 钉住（[PR #46](https://github.com/ThreeFish-AI/vibe-video/pull/46) 分支，main 尚无此测试）。
 
@@ -961,20 +1109,22 @@
 
 **定性**：非阻断改进 · T3（排队待议；现状由特征测试显式钉住——or 链行为是已声明的现状而非无意识 bug，统一为 is-None 属行为变更（0.0 章将触发告警而非静默回退），需单独裁决；风险面仅在「录制器构造性保证被绕过」的手改 sidecar 场景）。
 
-**处理方式**：已复现（锚点 `scripts/check_archify.py:135` 的 or 链，对照 `scripts/record_archify.py:904` 的 is-None 链与 `scripts/record_archify_all.py:181` 的同款 or 链（chapter_fps）；特征测试钉现状于 [PR #46](https://github.com/ThreeFish-AI/vibe-video/pull/46) 分支 `tests/test_check_archify.py`），修复排期待办（[PR #47](https://github.com/ThreeFish-AI/vibe-video/pull/47) 登记，2026-10-13；线索出自整仓第二轮 preening 收尾建议）。候选方向：统一 is-None 语义（行为变更），建议随 RSI-056 的门档位裁决一并走——`:135`、`:181` 与 RSI-056 三处同批改，一次真树误报面实测，省一轮重复验证。
+**处理方式**：已复现（锚点 `scripts/check_archify.py:135` 的 or 链，对照 `scripts/record_archify.py:904` 的 is-None 链与 `scripts/record_archify_all.py:181` 的同款 or 链（chapter_fps）；特征测试钉现状于 [PR #46](https://github.com/ThreeFish-AI/vibe-video/pull/46) 分支 `tests/test_check_archify.py`），修复排期待办（[PR #47](https://github.com/ThreeFish-AI/vibe-video/pull/47) 登记，2026-10-13；线索出自整仓第二轮 preening 收尾建议）。候选方向：统一 is-None 语义（行为变更），建议随 I-056 的门档位裁决一并走——`:135`、`:181` 与 I-056 三处同批改，一次真树误报面实测，省一轮重复验证。
 
 **后续防范**：回退链语义（falsy-vs-is-None）作为可数口径显式对账——同一字段的门侧、基线与写入侧回退必须同源；特征测试钉住的是「现状」不是「正确」，钉住只为让裁决显式。
 
-**同类问题影响**：与 RSI-002（字段选择）、RSI-056（门档位）同域不同面——三者在同一判据表达式上叠加，任一改动须三面对账；一切 `x or fallback` 与 `x if x is not None else fallback` 混用的回退链。另有一处既有措辞漂移宜随修复同批勘误：RSI-002 根因段与 `tests/test_record_archify_all.py:91` 的 docstring 都把录制器 `eff` 写成 `capture_fps or measured_fps`，与实码（`record_archify.py:904`）的 is-None 链不符，`record_archify_all.py:169` 与 `check_archify.py:129` 的「同 eff 口径/同构」注释同病；RSI-002 历史文字按「复发不新开编号」纪律留原条目，此处只立指针。
-## RSI-065 配音机制上收独立 Skill dub：本仓 tts.py 内联副本改为委托
+**同类问题影响**：与 I-002（字段选择）、I-056（门档位）同域不同面——三者在同一判据表达式上叠加，任一改动须三面对账；一切 `x or fallback` 与 `x if x is not None else fallback` 混用的回退链。另有一处既有措辞漂移宜随修复同批勘误：I-002 根因段与 `tests/test_record_archify_all.py:91` 的 docstring 都把录制器 `eff` 写成 `capture_fps or measured_fps`，与实码（`record_archify.py:904`）的 is-None 链不符，`record_archify_all.py:169` 与 `check_archify.py:129` 的「同 eff 口径/同构」注释同病；I-002 历史文字按「复发不新开编号」纪律留原条目，此处只立指针。
+
+<a id="I-065"></a>
+## I-065：配音机制上收独立 Skill dub：本仓 tts.py 内联副本改为委托
 
 **表因**（2026-10-13，用户点名）：用户要求把配音（TTS）抽成独立 Skill——给文本和风格就产出 mp3，且 edge 引擎没有任何「文本 → mp3」独立入口、输出目录无环境变量可控。本仓的 TTS 机制（风格预设、摘要、HTTP 客户端、版本库原语、服务端）只能服务整集流水线。
 
-**根因**：机制层与编排层（`narration.json` 逐句循环、manifest、story 块规划、RSI-040 门）揉在 `tts.py` 一个 2366 行文件里，从未分层；`tts_server.py` 对 `tts.py` 仅两处 import 耦合（采样默认值、四个块切分纯函数），说明切口天然存在。
+**根因**：机制层与编排层（`narration.json` 逐句循环、manifest、story 块规划、I-040 门）揉在 `tts.py` 一个 2366 行文件里，从未分层；`tts_server.py` 对 `tts.py` 仅两处 import 耦合（采样默认值、四个块切分纯函数），说明切口天然存在。
 
 **定性**：非阻断改进 · 结构性重构（行为等价：缓存摘要逐字节不变，存量缓存零失效）。
 
-**处理方式**：PR [#48](https://github.com/ThreeFish-AI/vibe-video/pull/48)（分支 `feat/dub-delegation`，commit 36d082c、0bccc49、e0105e2、3a056db）。机制原语上收 [ThreeFish-AI/dub](https://github.com/ThreeFish-AI/dub)，本仓 `tts.py` 按 [PIPELINE.md「环境变量」节](../../references/PIPELINE.md)的定位顺序定位后 import 并再导出（`tts.X` 命名空间不变，`tts_sample.py`、`tts_resume.py` 依赖面零改动；测试面 `test_tts_resume.py` 41 例零改动，`test_digest.py` 17 例与纯 dub 用例迁出 dub，`test_tts_blocks.py` 67→54 例、`test_tts_store.py` 13→5 例、`test_tts_lang_mirror.py` 9→8 例瘦身，新增 `test_dub_delegation.py` 27 例与 `test_tts_resolve.py` 4 例）；`tts.py` 2366 → 1728 行，`tts_server.py` 删除（git 历史保留）。留在本仓的是视频特定编排：narration 循环、manifest、`.engine` 标记与 RSI-040 门、`plan_blocks` / `sentence_weight` / `block_synth_text`（硬依赖台本的 `blockStart` / `scene`）、argparse 面。`pron_marks.py` 与 `tts_sample.py` 不动（前者是 narration 管道策略，后者 16 处文档引用且 import 全部经再导出解析）。`dub` 缺位即大声退出，列出候选与安装命令，禁止静默降级到内联副本。同批配套收紧（均属本条登记的处理面）：`DUB_HOME` 入环境变量注册表、文档约 6 处服务端路径改指 dub、RSI.md 增不变量 16。
+**处理方式**：PR [#48](https://github.com/ThreeFish-AI/vibe-video/pull/48)（分支 `feat/dub-delegation`，commit 36d082c、0bccc49、e0105e2、3a056db）。机制原语上收 [ThreeFish-AI/dub](https://github.com/ThreeFish-AI/dub)，本仓 `tts.py` 按 [PIPELINE.md「环境变量」节](../../references/PIPELINE.md)的定位顺序定位后 import 并再导出（`tts.X` 命名空间不变，`tts_sample.py`、`tts_resume.py` 依赖面零改动；测试面 `test_tts_resume.py` 41 例零改动，`test_digest.py` 17 例与纯 dub 用例迁出 dub，`test_tts_blocks.py` 67→54 例、`test_tts_store.py` 13→5 例、`test_tts_lang_mirror.py` 9→8 例瘦身，新增 `test_dub_delegation.py` 27 例与 `test_tts_resolve.py` 4 例）；`tts.py` 2366 → 1728 行，`tts_server.py` 删除（git 历史保留）。留在本仓的是视频特定编排：narration 循环、manifest、`.engine` 标记与 I-040 门、`plan_blocks` / `sentence_weight` / `block_synth_text`（硬依赖台本的 `blockStart` / `scene`）、argparse 面。`pron_marks.py` 与 `tts_sample.py` 不动（前者是 narration 管道策略，后者 16 处文档引用且 import 全部经再导出解析）。`dub` 缺位即大声退出，列出候选与安装命令，禁止静默降级到内联副本。同批配套收紧（均属本条登记的处理面）：`DUB_HOME` 入环境变量注册表、文档约 6 处服务端路径改指 dub、RSI.md 增不变量 16。
 
 **后续防范**：
 
@@ -986,7 +1136,8 @@
 
 **同类问题影响**：分集 `scripts/tts.py` 薄包装（15 份逐字节相同）不动——它们转调本仓 `scripts/tts.py`，委托发生在其内部；`VIBE_VIDEO_TTS_STORE` 默认目录与摘要格式均不变，零重合成。dub 自己的版本库 `DUB_STORE` 是独立的，不与本仓共享。
 
-## RSI-066 上游配音仓更名 dub → vibe-tts：本仓委托层命名契约同步迁移
+<a id="I-066"></a>
+## I-066：上游配音仓更名 dub → vibe-tts：本仓委托层命名契约同步迁移
 
 **表因**（2026-10-13，用户点名）：上游配音仓 ThreeFish-AI/dub 整体更名为 [ThreeFish-AI/vibe-tts](https://github.com/ThreeFish-AI/vibe-tts)（更名 commit 047b334 已入其 main），本仓 `feat/dub-delegation` 分支的委托层代码、测试与文档仍引用旧名——按 `dub.py` 入口、`dub_*` 模块名与 `DUB_HOME` 定位会在已更名的环境里立即失配（本仓 pytest 硬依赖 skill 已挂载，找不到即大声退出）。
 
@@ -998,23 +1149,25 @@
 
 **后续防范**：跨仓命名契约（入口脚本 `vibe_tts.py`、模块前缀 `vibe_tts_*`、六个 `VIBE_TTS_*` 环境变量、skill 目录名）以 vibe-tts 仓为 SSOT，上游再有更名或契约变化时本仓须同步一次；委托发现逻辑内联在 `_find_vibe_tts_scripts`（不 import 兄弟模块，test_tts_lang_mirror 钉死），与上游 `vibe_tts_paths.find_vibe_tts_root` 同构可对照。
 
-**同类问题影响**：缓存摘要 `digest_indextts` 更名前后逐字节相同（上游黄金哈希测试钉值零改动、经本仓委托继承），15 集存量缓存零失效；vibe-tts 仓自己的数据目录从 `Application Support/dub` 迁至 `Application Support/vibe-tts`，属上游仓内部迁移，本仓 `VIBE_VIDEO_TTS_STORE` 不受影响。分集 `scripts/tts.py` 薄包装（15 份逐字节相同）不动，委托发生在其转调的本仓 `scripts/tts.py` 内部。本条目之前的存量登记（RSI-065 等）为冻结历史，不再改写。
+**同类问题影响**：缓存摘要 `digest_indextts` 更名前后逐字节相同（上游黄金哈希测试钉值零改动、经本仓委托继承），15 集存量缓存零失效；vibe-tts 仓自己的数据目录从 `Application Support/dub` 迁至 `Application Support/vibe-tts`，属上游仓内部迁移，本仓 `VIBE_VIDEO_TTS_STORE` 不受影响。分集 `scripts/tts.py` 薄包装（15 份逐字节相同）不动，委托发生在其转调的本仓 `scripts/tts.py` 内部。本条目之前的存量登记（I-065 等）为冻结历史，不再改写。
 
-## RSI-068 Opus 5.5 视频生态五仓评估：概念借鉴存证与引入形态裁决
+<a id="I-068"></a>
+## I-068：Opus 5.5 视频生态五仓评估：概念借鉴存证与引入形态裁决
 
-**表因**（2026-10-13，用户点名评估）：用户提供微信文章《用 Claude Opus 5.5 做视频堪称一绝》，问其中工具与方法是否有值得本 Skill 学习、借鉴、引入的。文章提及五仓（onetake / lemo-opuscar / remotion-dev/skills / opus-video-prompts / awesome-opus5-5-videos）全部核实存在并钉版取证，但本仓对外部方法论生态的映射此前无存证。（编号注：本条并行会话曾登记为 RSI-066，与上方更名随迁条撞号，合并时按「首创得号」重编号 068；原 RSI-067（dub resolve 断裂实证）与上方 RSI-066 为同一问题，按「同一问题只维护一处」并入该条，此处只留实证指针——评估任务按旧指引 clone dub main 即失配，随迁 PR #49 落地后闭环，本分支相应临时修复（精确诊断 + 测试 2 例）在合并中撤除。）
+**表因**（2026-10-13，用户点名评估）：用户提供微信文章《用 Claude Opus 5.5 做视频堪称一绝》，问其中工具与方法是否有值得本 Skill 学习、借鉴、引入的。文章提及五仓（onetake / lemo-opuscar / remotion-dev/skills / opus-video-prompts / awesome-opus5-5-videos）全部核实存在并钉版取证，但本仓对外部方法论生态的映射此前无存证。（编号注：本条并行会话曾登记为 I-066，与上方更名随迁条撞号，合并时按「首创得号」重编号 068；原 I-067（dub resolve 断裂实证）与上方 I-066 为同一问题，按「同一问题只维护一处」并入该条，此处只留实证指针——评估任务按旧指引 clone dub main 即失配，随迁 PR #49 落地后闭环，本分支相应临时修复（精确诊断 + 测试 2 例）在合并中撤除。）
 
 **根因**：非缺陷登记，属外部生态扫描的评估存证。映射缺口三处——① onetake carry score（元素级加权 Jaccard 连续性 oracle，`probe.py::continuity()`）恰落在 qa_frames 像素级判据「FAIL 0 ≠ 视觉正确」的语义盲区（转场交换 vs 物体位移不可分）；② lemo-opuscar STYLE.md 11 节固定骨架证明「风格 = 生产约束文档」形态可行，本仓建模手册只管「画什么」不管「什么画风」；③ 02 留白 cue 系统在 opuscar（CC0 音源 + Karplus–Strong + `window.EV` 事件驱动音效 + −14 LUFS）、onetake（实测峰值对齐事件、−16 LUFS）与 Austerlitz 案例仓（`events.js` 画面事件推导音效 + 距离衰减/声像/343 m/s 声速延迟）有三源已验证路线。
 
 **定性**：非阻断改进 · 评估存证 + 规格落地（业界原理级四项二轮落规格 + cue 路线存证，见处理方式；待信号七项住研究文档 §四，核心两项 carry score/风格库——实现路径未验证/零消费者，伪锚禁令只约束建模手册）。
 
-**处理方式**：评估存证 [docs/research/opus5-video-techniques.md](../research/opus5-video-techniques.md)（五仓钉版事实快照 + 逐仓净增量判定 + 引入形态七案比选 + 采纳/不采纳/待信号三档清单 + cue 系统路线图输入 §五）；PR [#50](https://github.com/ThreeFish-AI/vibe-video/pull/50)（commit adbb6cf）。二轮经用户复核校正归引（首轮误把建模手册伪锚禁令套到 DIRECTING-CRAFT——后者准入是业界已验证原理，RSI-048 先例），落地四项：反模式表 A-29（metronome 等长镜头）/A-30（硬交换冒充承接）、08 帧驱动条款 CSS transition/animation 禁令、08 Motion Blur 启用时机（>80px/帧，180° 快门法则）。三轮复核补证 Austerlitz 案例仓（无 LICENSE，仅存证）入 §五路线图。
+**处理方式**：评估存证 [docs/research/opus5-video-techniques.md](../research/opus5-video-techniques.md)（五仓钉版事实快照 + 逐仓净增量判定 + 引入形态七案比选 + 采纳/不采纳/待信号三档清单 + cue 系统路线图输入 §五）；PR [#50](https://github.com/ThreeFish-AI/vibe-video/pull/50)（commit adbb6cf）。二轮经用户复核校正归引（首轮误把建模手册伪锚禁令套到 DIRECTING-CRAFT——后者准入是业界已验证原理，I-048 先例），落地四项：反模式表 A-29（metronome 等长镜头）/A-30（硬交换冒充承接）、08 帧驱动条款 CSS transition/animation 禁令、08 Motion Blur 启用时机（>80px/帧，180° 快门法则）。三轮复核补证 Austerlitz 案例仓（无 LICENSE，仅存证）入 §五路线图。
 
-**后续防范**：外部工具/方法引入一律走「钉版取证（raw @ sha）→ 许可核实（NC/无许可禁代码与文本级复用，只提炼归纳性规则要点）→ 净增量判定 → 引入形态比选」四步（对齐 RSI-060 UA 评估先例）；无锚点概念一律待信号清单管理（每项带触发条件），候选条目正文不入手册条目与规格正文——规格层仅许一行指针指向清单（指针不构成候选区，DIRECTING-CRAFT「不设候选区」纪律不变；此指针许可 2026-10-15 被 RSI-070 修订段废止：跟踪一律住 ledger 暂缓跟踪表，Skill 工程文件不铺指针）。
+**后续防范**：外部工具/方法引入一律走「钉版取证（raw @ sha）→ 许可核实（NC/无许可禁代码与文本级复用，只提炼归纳性规则要点）→ 净增量判定 → 引入形态比选」四步（对齐 I-060 UA 评估先例）；无锚点概念一律待信号清单管理（每项带触发条件），候选条目正文不入手册条目与规格正文——规格层仅许一行指针指向清单（指针不构成候选区，DIRECTING-CRAFT「不设候选区」纪律不变；此指针许可 2026-10-15 被 I-070 修订段废止：跟踪一律住 ledger 暂缓跟踪表，Skill 工程文件不铺指针）。
 
-**同类问题影响**：RSI-060（UA 融入评估）同范式先例；待信号七项（carry score 语义连续性判据 / 风格库 11 节骨架 / 反模式两条〔镜头抖动·背景噪声〕/ 循环末帧=首帧逐像素口径 / contact sheet 逐拍预检 / 案例拆解档案形态）住研究文档 §四（2026-10-15 起全量迁入 RSI-071 暂缓跟踪表 W5–W12）；cue 系统后续 RSI 立项时以研究文档 §五为路线图输入（同批迁入 RSI-071 暂缓跟踪表 W9）。
+**同类问题影响**：I-060（UA 融入评估）同范式先例；待信号七项（carry score 语义连续性判据 / 风格库 11 节骨架 / 反模式两条〔镜头抖动·背景噪声〕/ 循环末帧=首帧逐像素口径 / contact sheet 逐拍预检 / 案例拆解档案形态）住研究文档 §四（2026-10-15 起全量迁入 I-071 暂缓跟踪表 W5–W12）；cue 系统后续 RSI 立项时以研究文档 §五为路线图输入（同批迁入 I-071 暂缓跟踪表 W9）。
 
-## RSI-069 反模式表节标题条目计数无机器执法：表行增删后计数漂移只靠评审人眼
+<a id="I-069"></a>
+## I-069：反模式表节标题条目计数无机器执法：表行增删后计数漂移只靠评审人眼
 
 **表因**（2026-10-13，RSI 回路捕获）：在途评估存证条（A-29/A-30 两条新反模式入表，表 28→30 行，PR #50）落地迭代中，[DIRECTING-CRAFT.md](../../references/DIRECTING-CRAFT.md) §七节标题的计数「28 条」未随表行数同步，由独立收敛门 reviewer 在评审中人工抓到后修复——评审漏看即静默合入。
 
@@ -1028,7 +1181,8 @@
 
 **同类问题影响**：DIRECTING-CRAFT 其余节标题（§1.1 景别表等）目前无内嵌计数，无同型漂移面；SKILL.md 等其他文档若未来加入内嵌计数须同步此门先例。
 
-## RSI-070 评估类条目「待信号/路线图须在规格层铺运行时指针」纪律化
+<a id="I-070"></a>
+## I-070：评估类条目「待信号/路线图须在规格层铺运行时指针」纪律化
 
 **表因**（2026-10-14，用户点名立项）：外部生态评估（Opus 5.5 视频生态五仓评估，[PR #50](https://github.com/ThreeFish-AI/vibe-video/pull/50)，存证 `docs/research/opus5-video-techniques.md`）产出的待信号候选与 cue 技术路线图曾全部住 docs/research/——流水线运行时只加载 references/ 规格，触发场景无锚可循，触发条件形同虚设；后人工补 5 处触发场景指针（DIRECTING-CRAFT×2、09、PIPELINE、10）方才可达。
 
@@ -1036,39 +1190,40 @@
 
 **定性**：非阻断改进 · 流程纪律增补（统一分级 T2）。
 
-**处理方式**：[RSI.md](../../RSI.md) 第四节「仓内附加执法资产」后追加评估类条目 G3 自查项——待信号候选与技术路线图不得仅住流水线运行时不加载的文档，须在每个触发场景对应的规格文件（references/NN-*.md 等）铺一行指针（SSOT 留研究文档），正例即 PR #50 的 5 处指针实践。落位比选：门禁节 vs PR 规范节 vs 触发分流表——取门禁节（「统一协议无此仓内资产 → 触发条件住本节」的定位先例见 commit ec986b2〔RSI-059 追记二〕的 evals 对拍句；G3 判据语义归位，PR 规范节已引用统一 G0–G4 回执、不另设第二定义点）。编号注：本条与在途 PR #50（占 067/068）、PR #51（占 067）三向撞号，合并时按「首创得号 + 单遍重编号」处置。
+**处理方式**：[RSI.md](../../RSI.md) 第四节「仓内附加执法资产」后追加评估类条目 G3 自查项——待信号候选与技术路线图不得仅住流水线运行时不加载的文档，须在每个触发场景对应的规格文件（references/NN-*.md 等）铺一行指针（SSOT 留研究文档），正例即 PR #50 的 5 处指针实践。落位比选：门禁节 vs PR 规范节 vs 触发分流表——取门禁节（「统一协议无此仓内资产 → 触发条件住本节」的定位先例见 commit ec986b2〔I-059 追记二〕的 evals 对拍句；G3 判据语义归位，PR 规范节已引用统一 G0–G4 回执、不另设第二定义点）。编号注：本条与在途 PR #50（占 067/068）、PR #51（占 067）三向撞号，合并时按「首创得号 + 单遍重编号」处置。
 
 **后续防范**：评估类条目（text-to-cad / UA / HyperFrames 先例族）核验时按自查项逐场景核对指针覆盖；研究文档新增触发条件或待信号项时，同步自查其触发场景在规格层是否有锚。
 
-**同类问题影响**：既有评估先例大体合规——RSI-016 依赖评估的再评估触发器在 [PIPELINE](../../references/PIPELINE.md) §七/§九与 [08](../../references/08-remotion-implementation.md) 均有复述/指针，RSI-060 在 [01](../../references/01-source-extraction.md) 铺研究文档 §七指针；本条把隐性实践显式化为条款，防 RSI-068 形态复发。
+**同类问题影响**：既有评估先例大体合规——I-016 依赖评估的再评估触发器在 [PIPELINE](../../references/PIPELINE.md) §七/§九与 [08](../../references/08-remotion-implementation.md) 均有复述/指针，I-060 在 [01](../../references/01-source-extraction.md) 铺研究文档 §七指针；本条把隐性实践显式化为条款，防 I-068 形态复发。
 
-**修订（2026-10-15，用户评审 RSI-071 时否决）**：原条款「在规格层铺一行指针」被否——暂缓项写进 Skill 工程文件会让现行规格混入未落地的待办，Agent 运行时加载规格即读到一堆「未来可能做」的条目。改为：Skill 工程文件只承载已落地规格；暂缓项一律住 ledger 对应条目，逐项写明触发条件与预期落位文件，触发后走 RSI 立项。[RSI.md](../../RSI.md) G3 自查项同步改写；RSI-068 铺设的 5 处指针（09 连续性、10 断点续跑、DIRECTING-CRAFT 表外候选与 cue 路线图、PIPELINE breakdown 档案）撤出并迁入 RSI-071 暂缓跟踪表 W5–W8 与 W9。
+**修订（2026-10-15，用户评审 I-071 时否决）**：原条款「在规格层铺一行指针」被否——暂缓项写进 Skill 工程文件会让现行规格混入未落地的待办，Agent 运行时加载规格即读到一堆「未来可能做」的条目。改为：Skill 工程文件只承载已落地规格；暂缓项一律住 ledger 对应条目，逐项写明触发条件与预期落位文件，触发后走 RSI 立项。[RSI.md](../../RSI.md) G3 自查项同步改写；I-068 铺设的 5 处指针（09 连续性、10 断点续跑、DIRECTING-CRAFT 表外候选与 cue 路线图、PIPELINE breakdown 档案）撤出并迁入 I-071 暂缓跟踪表 W5–W8 与 W9。
 
-## RSI-071 Anatomy skill 精读与机制映射评估：外部借鉴四步协议回执、净增量收敛于规模成本门控行为学
+<a id="I-071"></a>
+## I-071：Anatomy skill 精读与机制映射评估：外部借鉴四步协议回执、净增量收敛于规模成本门控行为学
 
 **表因**：用户点名评估开源 skill Anatomy（wheresryan22/anatomy，10.6k★，MIT）对本研究仓的可借鉴引入项（信源三路：官网 / GitHub 仓库 / 微信实测文）。
 
-**根因**：外部 skill 的机制层与本仓「SSOT + 机器门 + 失败沉淀」三层范式高度同构，未经钉版取证与净增量判定的印象式借鉴会重复引入已有等价物；需要一次循 RSI-068 四步协议（钉版取证 → 许可核实 → 净增量判定 → 形态比选）的系统性评估存证。
+**根因**：外部 skill 的机制层与本仓「SSOT + 机器门 + 失败沉淀」三层范式高度同构，未经钉版取证与净增量判定的印象式借鉴会重复引入已有等价物；需要一次循 I-068 四步协议（钉版取证 → 许可核实 → 净增量判定 → 形态比选）的系统性评估存证。
 
 **定性**：非阻断改进（评估类，T2）。
 
-**处理方式**：本分支交付 [anatomy-skill.md](../research/anatomy-skill.md)（精读与通俗拆解：五组机制 + 本机复跑取证 + 纯标准库破坏性实验）与 [anatomy-skill-mapping.md](../research/anatomy-skill-mapping.md)（10 条映射判定：7 ✅ 已对齐 / 2 ✅ 弱增量并入既有实践 / 1 ✅ 本分支落地；另 4 项 ⏸ 暂缓带触发条件住下方跟踪表）；图资产 anatomy--workflow 四件套入 docs/assets；知识索引同步登记。钉版 `bc943e4`（2026-10-15，MIT）。净增量已随本条目落地规格层：[02-planning.md](../../references/02-planning.md) 新增「成本档位与开工门」节（草集/正集/大集三档、大集两项及以上高成本要素不启动给缩配替代、超两倍耗时上报；IndexTTS 与 RSI-040 硬闸正交不入档位判据），② gate 增「档位声明」（[stages.toml](../../references/stages.toml) 与 SKILL.md 速查表同步、test_stages 同源执法覆盖），scaffold 提示语与 SKILL.md 速查表 ② 行「做什么」列同步精简（色彩语义括注缩写，无语义损失）；暂缓项不进 Skill 工程文件，统一住本条目「暂缓跟踪表」（见同类问题影响）。
+**处理方式**：本分支交付 [anatomy-skill.md](../research/anatomy-skill.md)（精读与通俗拆解：五组机制 + 本机复跑取证 + 纯标准库破坏性实验）与 [anatomy-skill-mapping.md](../research/anatomy-skill-mapping.md)（10 条映射判定：7 ✅ 已对齐 / 2 ✅ 弱增量并入既有实践 / 1 ✅ 本分支落地；另 4 项 ⏸ 暂缓带触发条件住下方跟踪表）；图资产 anatomy--workflow 四件套入 docs/assets；知识索引同步登记。钉版 `bc943e4`（2026-10-15，MIT）。净增量已随本条目落地规格层：[02-planning.md](../../references/02-planning.md) 新增「成本档位与开工门」节（草集/正集/大集三档、大集两项及以上高成本要素不启动给缩配替代、超两倍耗时上报；IndexTTS 与 I-040 硬闸正交不入档位判据），② gate 增「档位声明」（[stages.toml](../../references/stages.toml) 与 SKILL.md 速查表同步、test_stages 同源执法覆盖），scaffold 提示语与 SKILL.md 速查表 ② 行「做什么」列同步精简（色彩语义括注缩写，无语义损失）；暂缓项不进 Skill 工程文件，统一住本条目「暂缓跟踪表」（见同类问题影响）。
 
 **后续防范**：外部 skill 借鉴一律先过四步协议；「已有等价物」判定须 grep -n 实测锚点——本次 M7/M8 两个印象式候选增量即被 [evals/evals.json](../../evals/evals.json) 的过程证据断言与 [test_qa_checks.py](../../tests/test_qa_checks.py) 的合成坏帧负例测试实锚否决（印象式评估会高估净增量）。
 
-**同类问题影响**：暂缓项的唯一跟踪处是下表（Skill 工程文件不留指针；触发条件成立时按 RSI 立项、落规格、在本表标「已立项 RSI-xxx」）。表中 W5–W8 为 RSI-068 评估遗留、原以指针形式散落在 09/10/DIRECTING-CRAFT/PIPELINE，本条一并迁回；W9 为同批撤出的 DIRECTING-CRAFT cue 路线图指针；W10–W12 为 RSI-068 待信号清单中从未铺指针的三项，随本条全量入表（清单原文见 [opus5 §四](../research/opus5-video-techniques.md)）：
+**同类问题影响**：暂缓项的唯一跟踪处是下表（Skill 工程文件不留指针；触发条件成立时按 RSI 立项、落规格、在本表标「已立项 I-xxx」）。表中 W5–W8 为 I-068 评估遗留、原以指针形式散落在 09/10/DIRECTING-CRAFT/PIPELINE，本条一并迁回；W9 为同批撤出的 DIRECTING-CRAFT cue 路线图指针；W10–W12 为 I-068 待信号清单中从未铺指针的三项，随本条全量入表（清单原文见 [opus5 §四](../research/opus5-video-techniques.md)）：
 
 | # | 暂缓项 | 触发条件 | 预期落位 | 来源 |
 | :--- | :--- | :--- | :--- | :--- |
-| W1 | 失败类目完备枚举（qa 判据由逐案增补转向具名类目枚举） | `qa --check` 漏抓一类新缺陷 | [09-render-qa.md](../../references/09-render-qa.md) 自动体检表 + `scripts/qa_frames.py` 新判据 + 合成坏例负例测试 | RSI-071（Anatomy M4） |
-| W2 | 单句核心锚 | [SKILL.md](../../SKILL.md) 结构性改版 | SKILL.md 开篇 | RSI-071（Anatomy M1） |
-| W3 | 编排器分阶段耗时打点与超时上报机器面 | 出现一次生产阶段耗时失控 | [PIPELINE.md](../../references/PIPELINE.md) §三 + `scripts/pipeline.py`（行为学条款已在 [02](../../references/02-planning.md) 成本档位节） | RSI-071（Anatomy M2） |
-| W4 | Anatomy 产页作视觉信源 | 用户点名制作等距机器图解类集子 | [01-source-extraction.md](../../references/01-source-extraction.md) B 型取证 | RSI-071（映射报告暂缓④） |
-| W5 | carry score 类语义连续性判据 | 出现「转场交换 vs 物体位移」人工误判 | [09-render-qa.md](../../references/09-render-qa.md) 导演级四维 · 连续性 + `qa_frames --check` | RSI-068（[opus5 §四](../research/opus5-video-techniques.md)） |
-| W6 | 渲染断点续跑 | 片长增长或中断重跑成本显现 | [10-final-render.md](../../references/10-final-render.md) + render 分块 | RSI-068 |
-| W7 | 成片旁 breakdown 档案（节拍表/验收分/被否记录） | 交付复盘人工档案成本显现，或相邻集复用节拍结构 | [PIPELINE.md](../../references/PIPELINE.md) 交付归档节 | RSI-068 |
-| W8 | 表外反模式候选（镜头抖动 / 背景噪声等，清单见 [opus5 §四](../research/opus5-video-techniques.md)） | 成片出现反模式表外病灶 | [DIRECTING-CRAFT.md](../../references/DIRECTING-CRAFT.md) §七 | RSI-068 |
-| W9 | cue 系统（配乐/音效技术路线：CC0 音源/事件驱动音效/画面推导音效与空间属性） | 用户点名制作含 cue 的集子 | [02-planning.md](../../references/02-planning.md)「边界与不做的事」节（BGM 留空轨）+ 新 cue 规格文件 | RSI-068（[opus5 §五](../research/opus5-video-techniques.md)） |
-| W10 | 风格库（11 节骨架形态） | 首个真实风格化分集需求 | 独立 bounded 手册（对齐 MODELING-PLAYBOOK 治理） | RSI-068（opus5 §四） |
-| W11 | 循环判据升级为末帧 = 首帧逐像素 | loop 型内容出现指纹误放行 | `qa_frames --loop` 口径 | RSI-068（opus5 §四） |
-| W12 | contact sheet 逐拍预检（每拍一帧拼图，全量渲染前抽查） | beat 级预检需求（分幕复检粒度不足） | `qa_frames` 抽帧模式扩展 | RSI-068（opus5 §四） |
+| W1 | 失败类目完备枚举（qa 判据由逐案增补转向具名类目枚举） | `qa --check` 漏抓一类新缺陷 | [09-render-qa.md](../../references/09-render-qa.md) 自动体检表 + `scripts/qa_frames.py` 新判据 + 合成坏例负例测试 | I-071（Anatomy M4） |
+| W2 | 单句核心锚 | [SKILL.md](../../SKILL.md) 结构性改版 | SKILL.md 开篇 | I-071（Anatomy M1） |
+| W3 | 编排器分阶段耗时打点与超时上报机器面 | 出现一次生产阶段耗时失控 | [PIPELINE.md](../../references/PIPELINE.md) §三 + `scripts/pipeline.py`（行为学条款已在 [02](../../references/02-planning.md) 成本档位节） | I-071（Anatomy M2） |
+| W4 | Anatomy 产页作视觉信源 | 用户点名制作等距机器图解类集子 | [01-source-extraction.md](../../references/01-source-extraction.md) B 型取证 | I-071（映射报告暂缓④） |
+| W5 | carry score 类语义连续性判据 | 出现「转场交换 vs 物体位移」人工误判 | [09-render-qa.md](../../references/09-render-qa.md) 导演级四维 · 连续性 + `qa_frames --check` | I-068（[opus5 §四](../research/opus5-video-techniques.md)） |
+| W6 | 渲染断点续跑 | 片长增长或中断重跑成本显现 | [10-final-render.md](../../references/10-final-render.md) + render 分块 | I-068 |
+| W7 | 成片旁 breakdown 档案（节拍表/验收分/被否记录） | 交付复盘人工档案成本显现，或相邻集复用节拍结构 | [PIPELINE.md](../../references/PIPELINE.md) 交付归档节 | I-068 |
+| W8 | 表外反模式候选（镜头抖动 / 背景噪声等，清单见 [opus5 §四](../research/opus5-video-techniques.md)） | 成片出现反模式表外病灶 | [DIRECTING-CRAFT.md](../../references/DIRECTING-CRAFT.md) §七 | I-068 |
+| W9 | cue 系统（配乐/音效技术路线：CC0 音源/事件驱动音效/画面推导音效与空间属性） | 用户点名制作含 cue 的集子 | [02-planning.md](../../references/02-planning.md)「边界与不做的事」节（BGM 留空轨）+ 新 cue 规格文件 | I-068（[opus5 §五](../research/opus5-video-techniques.md)） |
+| W10 | 风格库（11 节骨架形态） | 首个真实风格化分集需求 | 独立 bounded 手册（对齐 MODELING-PLAYBOOK 治理） | I-068（opus5 §四） |
+| W11 | 循环判据升级为末帧 = 首帧逐像素 | loop 型内容出现指纹误放行 | `qa_frames --loop` 口径 | I-068（opus5 §四） |
+| W12 | contact sheet 逐拍预检（每拍一帧拼图，全量渲染前抽查） | beat 级预检需求（分幕复检粒度不足） | `qa_frames` 抽帧模式扩展 | I-068（opus5 §四） |

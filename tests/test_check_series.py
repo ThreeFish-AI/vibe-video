@@ -759,7 +759,7 @@ def test_rules_7_8_inactive_without_workspace_config(tmp_path):
     assert rc == 0 and "规则7" not in out and "规则8" not in out
 
 
-# ── en 译稿：规则 1 英文顺序词 + 规则 7 受检面（RSI-004）──────────────────────
+# ── en 译稿：规则 1 英文顺序词 + 规则 7 受检面（I-004）──────────────────────
 
 
 def test_rule1_en_ordinal_word_fails(tmp_path):
@@ -819,7 +819,7 @@ def test_rule7_en_narration_in_audience_globs(tmp_path):
     assert rc == 1 and "规则7" in out and "s01" in out and "narration.en.md" in out
 
 
-# ── 组件口播字面量容器（RSI-050）──────────────────────────────────────────────
+# ── 组件口播字面量容器（I-050）──────────────────────────────────────────────
 #: 系列片头等组件的口播是独立音轨资产、设计上不入 narration.md——规则 1 若只扫
 #: narration.md，组件 NARRATION/SUBS 字面量即执法盲区（上游 ISSUE-208：「本系列」
 #: 在 series-intro.tsx NARRATION 漏网，人工核对才发现、重配音收口）。判据与
@@ -928,7 +928,7 @@ def test_rule1_component_own_title_passes(tmp_path):
 
 
 # ── 组件口播容器加固（PR #42 评审 15 条）──────────────────────────────────────
-#: 容器正则的边界形态：评审用内存变异实证，下列每条都能让 RSI-050 首版 7 例仍全绿。
+#: 容器正则的边界形态：评审用内存变异实证，下列每条都能让 I-050 首版 7 例仍全绿。
 #: 分「修复型」（首版红）与「钉住型」（首版也绿，防加固后又被改坏——变异杀手）两类。
 SCENE_TSX = "episodes/ep-a/video/src/scenes/P0Hook.tsx"
 EP_X_TITLE_SUBS = "const SUBS = ['我们接着《丙集标题》讲'] as const;\n"
@@ -1064,7 +1064,7 @@ def test_rule1_component_title_split_across_literals_fails(tmp_path):
 def test_rule1_component_container_boundary_exempts_rest_of_file(tmp_path):
     """钉住型：同一 series-intro.tsx 内，干净容器之后的视觉层 `ep: '第一集'`
     进度卡必须放行——这才是真实 series-intro.tsx 的形态。把扫描改成贪婪匹配
-    或扫到文件尾，本例立刻变红（RSI-050 首版的 P0Hook 用例里根本没有容器，
+    或扫到文件尾，本例立刻变红（I-050 首版的 P0Hook 用例里根本没有容器，
     只证明了「无容器文件不扫」，没证明「同文件容器之外豁免」）。"""
     ws = build_workspace(
         tmp_path,

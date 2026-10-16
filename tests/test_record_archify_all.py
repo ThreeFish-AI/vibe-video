@@ -1,4 +1,4 @@
-"""record_archify_all 的跳过资格判据 + 录制前置预检（RSI-018）。"""
+"""record_archify_all 的跳过资格判据 + 录制前置预检（I-018）。"""
 
 from __future__ import annotations
 
@@ -123,7 +123,7 @@ def test_fps_baseline_falls_back_to_measured_and_tolerates_missing(tmp_path):
     assert raa.fps_degraded({}, {"c1": 10.0}) == []
 
 
-# ── 录制前置预检（RSI-018）──────────────────────────────────────────────────
+# ── 录制前置预检（I-018）──────────────────────────────────────────────────
 # 病理（上游 ISSUE-201，五集系列重制）：全局 archify CLI 3.0.0 删除 guided-views
 # 模块后，建图产物天然无嵌入——录制/预检双双放行，缺陷拖到录制中段或覆盖门才红；
 # sidecar 手工回填 type=state（archify 出图词汇含 state）则被录制器 argparse 拒绝

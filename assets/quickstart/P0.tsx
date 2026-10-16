@@ -1,6 +1,6 @@
 // Quickstart 最小场景组件（根 README「快速上手」的 cp 源）。
 // 动效全部来自 frozen 运动层与 cards 原语：FadeUp = spring 淡入上移，delay 做错峰。
-// 开场形态对齐 06「开篇首镜视听合力定式」（RSI-039）：首秒是高反差 accent 视觉锚
+// 开场形态对齐 06「开篇首镜视听合力定式」（I-039）：首秒是高反差 accent 视觉锚
 // 快速弹簧入场，不是静止文字墙——frozen 词表内无冲击原语，模板级升级须动
 // skeleton + 全集同步（另走 RSI），故以 oversized accent Pill 作核心意象；
 // 真实制作规格见 references/08-remotion-implementation.md。

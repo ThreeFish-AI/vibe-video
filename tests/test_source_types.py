@@ -1,4 +1,4 @@
-"""Stage ① 三型信源（A paper-notes / B source-notes / C gl-notes）的锚定执法（RSI-030）。
+"""Stage ① 三型信源（A paper-notes / B source-notes / C gl-notes）的锚定执法（I-030）。
 
 C 型（guided-learn 精读产物）落地后的纪律：**文件名清单只在 01 顶部分流表一处枚举**，
 下游规格一律三型泛引（指针指向 01），防第四型出现时再复制十余处。本文件钉四个字符串
@@ -6,7 +6,7 @@ C 型（guided-learn 精读产物）落地后的纪律：**文件名清单只在
 类脆断言——01 的 A 型正文与各规格对 A 型的具名使用（如「A 型即 paper-notes」括注）是
 合法形态，一刀切禁词会把它们误判成漂移。
 
-RSI-060 追加：B 型纯代码仓库「结构骨架与素材映射」节（骨架是派生视图非证据）与
+I-060 追加：B 型纯代码仓库「结构骨架与素材映射」节（骨架是派生视图非证据）与
 Understand-Anything 按集 opt-in 子节的桥接锚，下游 02/03/04/05/06/09 同步指针——跨文件指针
 按节名断言、不带节号（01 自身标题除外），防节号顺移再复制一份脆锚。
 """
@@ -71,12 +71,12 @@ def test_skill_router_has_c_type_entry():
     text = read_skill_md()
     assert "GL 精读产物" in text, (
         "SKILL.md 任务表缺「GL 精读产物成片」入口——上游 guided-learn 产物无路由，"
-        "Stage ① 会被迫重复精读（RSI-030 表因）"
+        "Stage ① 会被迫重复精读（I-030 表因）"
     )
 
 
 def test_guided_learn_process_concretization_bridges():
-    """RSI-032：GL 伴生资产直通承接、五元过程具象化映射、被动收看双门、成文护栏与四大分镜/动效定式须在位。"""
+    """I-032：GL 伴生资产直通承接、五元过程具象化映射、被动收看双门、成文护栏与四大分镜/动效定式须在位。"""
     s01 = read_ref("01-source-extraction.md")
     s02 = read_ref("02-planning.md")
     s04 = read_ref("04-verification.md")
@@ -102,21 +102,19 @@ def test_guided_learn_process_concretization_bridges():
 
 
 def test_b_type_structure_skeleton_bridge():
-    """RSI-060：B 型纯代码仓库结构骨架节 + UA 按集 opt-in 纪律在位，下游六规格同步指针。
+    """I-060：B 型纯代码仓库结构骨架节 + UA 按集 opt-in 纪律在位，下游六规格同步指针。
 
     跨文件断言一律按节名（「结构骨架与素材映射」）、不带节号——01 节号再顺移不破此门；
     01 自身的「六、结构骨架与素材映射」标题是唯一带节号锚（目录行 TOC 门另案执法）。
     """
     s01 = read_ref("01-source-extraction.md")
-    assert "## 六、结构骨架与素材映射" in s01, (
-        "01 缺 B 型结构骨架节（RSI-060 主体收益）"
-    )
+    assert "## 六、结构骨架与素材映射" in s01, "01 缺 B 型结构骨架节（I-060 主体收益）"
     for anchor in ("派生视图，非证据", "按集 opt-in", "不进口播", "gitCommitHash"):
         assert anchor in s01, f"01 结构骨架节缺锚点：{anchor}"
 
     s02 = read_ref("02-planning.md")
     assert "前置概念" in s02, (
-        "02 分幕表缺可选「前置概念」列（幕级先释后用，RSI-015 承接）"
+        "02 分幕表缺可选「前置概念」列（幕级先释后用，I-015 承接）"
     )
     assert lines_with(s02, "60–90 秒", "结构骨架与素材映射"), (
         "02 记忆点括注缺 B 型骨架指针（01/02 双处同步；行级共现，防同名他处代偿）"

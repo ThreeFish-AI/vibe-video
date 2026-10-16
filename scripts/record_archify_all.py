@@ -77,7 +77,7 @@ def run_batch_reusing_browser(
     tasks: list[dict],
     record_fn=record_one_diagram,
 ) -> tuple[list[str], list[str]]:
-    """单 Headless Chrome 跨图复用 + 单图异常隔离重启 supervisor（RSI-033）。
+    """单 Headless Chrome 跨图复用 + 单图异常隔离重启 supervisor（I-033）。
 
     进程内共享单个 headless browser、每章独立 BrowserContext，省去逐图冷启动浏览器进程树
     的开销；单图抛 Exception / SystemExit 或连接断开时立即关闭旧实例并在下张图按需重拉，

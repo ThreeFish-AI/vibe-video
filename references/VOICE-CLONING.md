@@ -18,7 +18,7 @@
 
 ## 一、总览与架构
 
-**能力**：用一段 **10–14 秒**（硬上限 15 秒）的本人录音作为参考音色，零样本（zero-shot）克隆出本人音色，逐句合成整集配音；并通过情感向量注入轻快、自信、正能量等风格。整集克隆合成**须本人显式点名**（`--final-voice` 具名授权，RSI-040 人为触发原则见 [07-tts-voice.md](./07-tts-voice.md)；zh/en 每语言各算一次独立要求）；整集要跑数小时，故**定稿前先用单句小样试听择优**（§5.1），再全量合成（§5.2）。
+**能力**：用一段 **10–14 秒**（硬上限 15 秒）的本人录音作为参考音色，零样本（zero-shot）克隆出本人音色，逐句合成整集配音；并通过情感向量注入轻快、自信、正能量等风格。整集克隆合成**须本人显式点名**（`--final-voice` 具名授权，I-040 人为触发原则见 [07-tts-voice.md](./07-tts-voice.md)；zh/en 每语言各算一次独立要求）；整集要跑数小时，故**定稿前先用单句小样试听择优**（§5.1），再全量合成（§5.2）。
 
 **架构**（管线脚本轻依赖 与 重型推理环境 完全解耦）：
 
@@ -251,7 +251,7 @@ uv run --no-project --with soundfile --with numpy \
 
 0.5–2.0（>1 变慢、<1 变快）。仅 v2.5 支持；`--emo-vector` 模式默认 1.0（手动传 df 需服务为 v2.5）。
 
-**整集校准走配置通道**（RSI-044）：per-episode 的语速校准值声明在分集 `pipeline.toml` 的 `tts.duration_factor`（编排入口自动透传本参数，勿在命令行另写；取值域同上，显式值进缓存摘要）。本节余下内容是参数语义与试听方法论，**数值决策（选哪档）仍以实测为准**。
+**整集校准走配置通道**（I-044）：per-episode 的语速校准值声明在分集 `pipeline.toml` 的 `tts.duration_factor`（编排入口自动透传本参数，勿在命令行另写；取值域同上，显式值进缓存摘要）。本节余下内容是参数语义与试听方法论，**数值决策（选哪档）仍以实测为准**。
 
 **它改的是什么**：S2M 阶段的时间轴重采样（`infer_v2_5.py:832`，`F.interpolate(mode='nearest')` 把已生成完的语义 token 序列拉伸/压缩到目标梅尔帧数；常数 1.72 = 梅尔帧率 86.13 ÷ 语义特征帧率 50）。因此语速与总时长是同一件事、无法解耦，且**整段均匀**伸缩。它**不做**信号域重采样、`f0_condition: false`，故不会出现「花栗鼠」式音高偏移；也**不消耗** mel token 预算（放慢语速不会提高溢出风险）。
 
@@ -294,7 +294,7 @@ GPT 声码段的束搜索宽度，**缺省随风格**（多数预设 1、`sunny-
 
 5. **最后定束宽**：想让语气更"稳/可信"就上 3 束（`--style sunny-steady`），代价是整集墙钟 ×2–5；赶工或改稿频繁期用 1 束的 `sunny`。
 
-**推荐位（2026-09-25 起）**：默认 **`story`（段落演绎，§4.5）**——逐句档里 `sunny`（明快阳光）是备选：改稿频繁期可用它快速迭代（块缓存改一句重录整块，逐句缓存改一句只重录一句），定稿再回 `story`。`sunny-steady` 为 14 个存量集的锁定档，不再推荐新集使用。以上均配 `$V/me-bright.wav`。**任何情况下都先跑小样确认，再全量合成**（全量合成另须本人显式点名——`--final-voice`，RSI-040）。
+**推荐位（2026-09-25 起）**：默认 **`story`（段落演绎，§4.5）**——逐句档里 `sunny`（明快阳光）是备选：改稿频繁期可用它快速迭代（块缓存改一句重录整块，逐句缓存改一句只重录一句），定稿再回 `story`。`sunny-steady` 为 14 个存量集的锁定档，不再推荐新集使用。以上均配 `$V/me-bright.wav`。**任何情况下都先跑小样确认，再全量合成**（全量合成另须本人显式点名——`--final-voice`，I-040）。
 
 ### 4.5 段落演绎（story 档，默认）与配音台本
 
@@ -303,11 +303,11 @@ GPT 声码段的束搜索宽度，**缺省随风格**（多数预设 1、`sunny-
 - **块划分**：幕界 + 台本块起点为硬边界；其余自动划分（按位置切 6 句定长窗、1 句尾窗并入前窗，窗内 ≤3 句、≤90 字取可行的最少块数）；台本块超限被拆开时，子块沿用块首情绪。块文本按原稿标点拼接，`，：、——` 结尾原样保留（续接语气），无标点结尾才补 `。`（收引号/括号不算末字，`！”` 按 `！` 判定）。EN 未验证，story 档下自动回退逐句。
 - **块情绪**：台本 `[block.<句id>] emo = "afraid:0.18,surprised:0.12"`（方向归一 Σ=1，强度＝预设 α0.28，可 `alpha=` 覆盖）；无台本块用预设向量（happy 1/3 + surprised 2/3）。
 - **表演标点**：`[say] <句id> = "…"` 只进合成文本（校验与正文去标点全等，`——` 计入标点；字幕不动；读法陷阱门同扫 say 文本）；story 档下 `……` 保留为 `…`（上游按标点给拖长停顿，`tts_sample --style story` 小样同口径）。
-- **台本文件**：`script/narration.cues.toml`，**写稿阶段与 narration.md 一同产出**（[references/03](./03-narration.md) 规约）；`build_narration.py` 校验后落进 narration.json（`blockStart`/`cue`/`ttsText`），无台本文件时输出不因台本而变（RSI-015 起幕/beat 首句另落 beatStart，对拍除该键外逐字节一致）。
+- **台本文件**：`script/narration.cues.toml`，**写稿阶段与 narration.md 一同产出**（[references/03](./03-narration.md) 规约）；`build_narration.py` 校验后落进 narration.json（`blockStart`/`cue`/`ttsText`），无台本文件时输出不因台本而变（I-015 起幕/beat 首句另落 beatStart，对拍除该键外逐字节一致）。
 - **停顿**：切分时句界静音正中丢弃恰好 `sentenceGapSec`，时间轴再加回同值 ⇒ 听感＝自然停顿原值；块末尾垫 0.18s + 0.32s 句距 ＝ 0.5s 块间停顿。**不改时间轴、不改 frozen 模板。**
 - **缓存**：块＝缓存单位（摘要含块后缀）——**改一句重录整块**（无台本段偶尔连带同窗邻块，至多 7 句；14 集对拍 94.7% 仅本块）；插/删句会重排同一段内其后各窗——台本块起点是硬边界，可把波及收在段内；seed 固定 4242（定档 take 可复现）。
 - **换 take（重掷）**：块是重掷单位——台本 `[take] <句id> = N`（1–999）把该句所在块的种子 +N，只重录这一块；定稿值留在台本，即可复现的 canonical（同块只许一条，`--plan` 即报错）。`--seed-offset` 叠加在全局种子上，是**整集口径**（全部块换摘要、整集重录，`.engine` 签名不含 seed、护栏不拦），只用于整集 A/B。
-- **重制存量集**（旧档 → story）：改 pipeline.toml `style = "story"` + 补写该集 cues.toml + 显式 `--allow-voice-switch --final-voice`（后者＝本人显式点名的具名授权，RSI-040）。
+- **重制存量集**（旧档 → story）：改 pipeline.toml `style = "story"` + 补写该集 cues.toml + 显式 `--allow-voice-switch --final-voice`（后者＝本人显式点名的具名授权，I-040）。
 - `--steady` 与 story 冲突（逐句升束 vs 一个请求一块），硬拒；显式 `--num-beams` 仍可。EN 版回退逐句，`--steady` 照常可用。
 - 切分失败自动逐句兜底（沿用块情绪、尾垫只给末句；产物仍按块成员摘要缓存，复跑直接命中；当次 manifest 标 `blockSplit: "fallback"`）；服务端 `/health` 的 `supports_blocks` 预检——IndexTTS-2 与上游 low_vram 路径（CUDA 显存 <10 GB 自动开启，`/health` 回报 `low_vram`）不支持且重启不会变，报错点名成因并给出换档出路（本集改逐句档 `sunny`）；仅字段缺失才提示服务端代码过旧。
 
@@ -417,7 +417,7 @@ cd $P   # 工程内薄包装等价于中心脚本；风格取 5.1 试听定稿�
 uv run --no-project --with mutagen scripts/tts.py --engine indextts \
     --ref <样本绝对路径>/me-bright.wav --style sunny --plan
 
-# 1) 全量合成（--final-voice＝本人显式点名的具名授权，RSI-040）
+# 1) 全量合成（--final-voice＝本人显式点名的具名授权，I-040）
 uv run --no-project --with mutagen scripts/tts.py --engine indextts --final-voice \
     --ref <样本绝对路径>/me-bright.wav --style sunny
 ```
@@ -525,7 +525,7 @@ cd video && pnpm run render:draft && pnpm run render   # render 脚本定义在 
 
 - **模型许可**：IndexTTS-2.5 按 [bilibili 模型使用许可协议](https://github.com/index-tts/index-tts/blob/main/LICENSE)（bilibili Model Use License）发布——**个人/研究用途可用；商用需联系 indexspeech@bilibili.com**。制作对外发布的视频前请自行评估许可范围。
 - **声音权利**：克隆他人声音必须获得本人书面同意；`$V/`（工作区 `voices/`）下样本已被工作区根 `.gitignore` 忽略，绝不入库。
-- **edge-tts 义务**：edge-tts 为微软服务免费接口，成品需遵守微软服务条款；全程（含终渲与交付）草声默认走 edge（RSI-034 两档策略），克隆仅本人显式点名（`--final-voice`，RSI-040 人为触发），见 07-tts-voice.md。
+- **edge-tts 义务**：edge-tts 为微软服务免费接口，成品需遵守微软服务条款；全程（含终渲与交付）草声默认走 edge（I-034 两档策略），克隆仅本人显式点名（`--final-voice`，I-040 人为触发），见 07-tts-voice.md。
 
 ## 九、备选方案与参考文献
 
