@@ -214,11 +214,11 @@ def test_glossary_points_to_scanner_not_a_second_table():
     assert "--pron-candidates" in glossary, (
         "须给出精确命令（check_script.py --pron-candidates）"
     )
-    # 纪律句必须保留（RSI-014 后两段式）：规则命中写稿即标、无规则依据不预防性标注
+    # 纪律句必须保留（I-014 后两段式）：规则命中写稿即标、无规则依据不预防性标注
     assert "写稿即标注" in glossary and "无规则依据的预防性标注" in glossary
 
 
-# ---------------- 语义规则表（RSI-014）：结构合法性与文档同源 ----------------
+# ---------------- 语义规则表（I-014）：结构合法性与文档同源 ----------------
 #
 # 规则是「命中即建议标注」的高危面——错规则会把可能读对强推成必然读错（上游
 # 丢弃原字无兜底），故表本身先过三道结构门：正则锚本字、读音是合法拼音、
@@ -286,7 +286,7 @@ def test_glossary_quickref_in_sync_with_rules():
     )
 
 
-# ---------------- 语义消歧（semantic_missing，RSI-014 核心）----------------
+# ---------------- 语义消歧（semantic_missing，I-014 核心）----------------
 
 
 def test_semantic_missing_recommends_hang_for_table_contexts():

@@ -299,7 +299,7 @@ def test_cue_count_assertion(tmp_path):
     assert "只识别出" in out
 
 
-# ---------------- cue 形态对 prettier 默认格式化的容忍（RSI-037） ----------------
+# ---------------- cue 形态对 prettier 默认格式化的容忍（I-037） ----------------
 
 SCENE_P0_PRETTIER = """export const P0X = () => (
   <ArchifyRecap
@@ -320,7 +320,7 @@ SCENE_P0_PRETTIER = """export const P0X = () => (
 
 
 def test_prettier_multiline_cue_objects_parse(tmp_path):
-    """RSI-037 回归：prettier 默认格式化（`{` 后换行缩进/加空格、逐键换行）不再
+    """I-037 回归：prettier 默认格式化（`{` 后换行缩进/加空格、逐键换行）不再
     把合法 cue 打成「声明 N 只识别 M」——多行与 `{ ` 空格两形态均可解析，锚定
     统计与单行基线逐数一致。"""
     root = build(tmp_path, scenes={"P0X.tsx": SCENE_P0_PRETTIER, "P1X.tsx": SCENE_P1})
@@ -354,7 +354,7 @@ def test_prettier_form_count_assertion_still_fires(tmp_path):
 
 
 def test_prettier_double_quote_cues_parse(tmp_path):
-    """RSI-037 回归补：prettier 出厂默认 singleQuote=false 会把字符串翻双引号
+    """I-037 回归补：prettier 出厂默认 singleQuote=false 会把字符串翻双引号
     ——只容多行不容引号时「容 prettier 默认格式化」只修一半（双引号形态整块
     零识别、报错却指向 at/dur 写法，易误诊）。双引号多行形态可解析且锚定
     统计与单引号基线逐数一致。"""
@@ -374,7 +374,7 @@ def test_prettier_double_quote_cues_parse(tmp_path):
 
 
 def test_prettier_double_quote_fit_extracted(tmp_path):
-    """RSI-037 回归补二：引号放宽曾漏同循环第 4 处单引号正则（fit）——
+    """I-037 回归补二：引号放宽曾漏同循环第 4 处单引号正则（fit）——
     `fit: "stretch"` 此前静默解析为 None，下游 check_archify 的 explicit_stretch
     集合漏收、「显式 stretch 越界」FAIL 不再触发（该门防的正是渲染期抛错）。
     直调单一提取器 extract_cues 观测 fit 字段（CLI 门输出不含 fit）。"""
@@ -611,7 +611,7 @@ def test_multi_sentence_duration_form_fails(tmp_path):
 
 
 def test_sum_form_duration_is_recognized(tmp_path):
-    """求和形态 dur('a') + dur('b') = 合规扩窗拼写（FAIL 文案给的改法，RSI-023）：
+    """求和形态 dur('a') + dur('b') = 合规扩窗拼写（FAIL 文案给的改法，I-023）：
     正则命中首段并与 at 锚对账，cue 正常计数、门放行。"""
     scene = SCENE_P1.replace(
         "at: at('p1-01a') - bA.from, durationInFrames: dur('p1-01a')",

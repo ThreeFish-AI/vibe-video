@@ -1,4 +1,4 @@
-"""record_archify 会话生命周期：异常路径浏览器/context 必关（RSI-031）。
+"""record_archify 会话生命周期：异常路径浏览器/context 必关（I-031）。
 
 browser.close 与每章 ctx.close 原是顺序语句非结构保证——pump_until/encode_frames
 的 sys.exit、wait_for_* 的 TimeoutError、激活失败等路径全部跳过关闭，长批次一次
@@ -26,7 +26,7 @@ def _chromium() -> tuple[MagicMock, MagicMock]:
 
 
 def test_launched_browser_closes_on_system_exit():
-    """pump_until / encode_frames 的 sys.exit 出口：SystemExit 也必关（RSI-031 表因）。"""
+    """pump_until / encode_frames 的 sys.exit 出口：SystemExit 也必关（I-031 表因）。"""
     chromium, browser = _chromium()
     with pytest.raises(SystemExit):
         with ra.launched_browser(chromium, channel="chrome", headless=True):
@@ -124,7 +124,7 @@ def test_record_chapters_activation_failure_closes_ctx(tmp_path):
 
 
 def test_run_batch_reuses_single_browser_across_multiple_diagrams(tmp_path):
-    """RSI-033：正常批次跨图共享同一 Headless Chrome 实例，全程只 launch 1 次、close 1 次。"""
+    """I-033：正常批次跨图共享同一 Headless Chrome 实例，全程只 launch 1 次、close 1 次。"""
     import record_archify_all as raa
 
     chromium, browser = _chromium()
@@ -157,7 +157,7 @@ def test_run_batch_reuses_single_browser_across_multiple_diagrams(tmp_path):
 
 
 def test_run_batch_restarts_browser_after_diagram_failure(tmp_path, capsys):
-    """RSI-033：单图抛 SystemExit/Exception 时立即关闭旧 browser、污染既有产物 mtime 防下次静默跳过，并在下张图重拉新实例。"""
+    """I-033：单图抛 SystemExit/Exception 时立即关闭旧 browser、污染既有产物 mtime 防下次静默跳过，并在下张图重拉新实例。"""
     import json
     import time
 
@@ -249,7 +249,7 @@ def test_run_batch_restarts_browser_after_diagram_failure(tmp_path, capsys):
 
 
 def test_run_batch_launch_failure_isolated_per_diagram(tmp_path, capsys):
-    """RSI-033 回归：chromium.launch 失败按单图失败隔离——不穿透 for 循环、逐图重试、
+    """I-033 回归：chromium.launch 失败按单图失败隔离——不穿透 for 循环、逐图重试、
     既有产物被 taint、failed 全记录（与 --no-reuse-browser 子进程路径语义对齐）。"""
     import json
     import time

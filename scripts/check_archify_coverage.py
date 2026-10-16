@@ -67,7 +67,7 @@ from storyboard import parse_storyboard, parse_storyboard_visual
 # ---------------- cue 提取（单一事实源，episode check_archify 反向 import） ----------------
 
 CUE_BLOCK_RE = re.compile(r"<ArchifyRecap\b([\s\S]{0,2200}?)/>")
-# `{` 与 chapterId 之间容空白、字符串引号单双均容（RSI-037：prettier 默认格式化
+# `{` 与 chapterId 之间容空白、字符串引号单双均容（I-037：prettier 默认格式化
 # 把 cue 对象拆多行/`{` 后加空格，出厂默认 singleQuote=false 还会把字符串翻成
 # 双引号——只容多行不容引号，「容 prettier 默认格式化」只修一半）；chapterId
 # 仍须是首键，at('句id')/dur 单参/同锚句等形态断言不变。

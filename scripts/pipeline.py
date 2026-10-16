@@ -337,7 +337,7 @@ _VISIBLE_AUTOMATION_RE = re.compile(
 
 
 def scan_automation_browsers(ps_text: str | None = None) -> list[dict]:
-    """扫描系统中的自动化 Chrome/Chromium 主进程（含 Headless 与自动化可见实例，RSI-033）。
+    """扫描系统中的自动化 Chrome/Chromium 主进程（含 Headless 与自动化可见实例，I-033）。
 
     安全边界（绝不误伤用户日常 Chrome）：
       1. 必须校验首个可执行文件名为 `_BROWSER_MAIN_EXES`，并排除 `--type=` / `Helper` /
@@ -504,7 +504,7 @@ def cmd_doctor(
         print(f"  ❌ {e}")
         ok = False
     if tts.get("engine") == "indextts":
-        # 客户端依赖预检（RSI-022）：mutagen 是 tts.py 两引擎共用的惰性 import（MP3
+        # 客户端依赖预检（I-022）：mutagen 是 tts.py 两引擎共用的惰性 import（MP3
         # 实测时长），缺失的历史崩溃形态是「首句合成成功、写完 mp3 测时长才
         # ModuleNotFoundError」（uv --no-project 裸调漏 --with）——长跑空转数小时后才
         # 暴露。⚠️ 不计失败：doctor 的规范调用本就不带 --with（依赖装进跑 tts 的那次
@@ -720,7 +720,7 @@ def cmd_tts(
             # --style CLI 覆写对两语言同传（现状语义）。
             cmd += ["--style", style or tts["style"]]
             if tts.get("duration_factor") is not None:
-                # 本集语速校准（RSI-044）：键缺省不加 token ⇒ 命令字节与通道落地前
+                # 本集语速校准（I-044）：键缺省不加 token ⇒ 命令字节与通道落地前
                 # 一致 ⇒ 摘要不变，存量集零重合成；显式值进缓存摘要（改值＝整集重配）。
                 cmd += ["--duration-factor", str(tts["duration_factor"])]
         elif tts.get("voice"):
@@ -739,7 +739,7 @@ def cmd_tts(
         if no_store:
             cmd.append("--no-store")
         if final_voice:
-            # RSI-040 具名授权透传：indextts 实跑（非 --plan）必须由本人显式要求，
+            # I-040 具名授权透传：indextts 实跑（非 --plan）必须由本人显式要求，
             # flag 即可审计的意图声明。刻意不按 engine 过滤——edge + 该 flag 交给
             # tts.py clone_only 族硬失败（漏改 toml 引擎的 typo 检测同款）。
             cmd.append("--final-voice")
@@ -953,7 +953,7 @@ def cmd_all(root: Path, cfg: dict, langs: list[str] | None = None) -> int:
     语言语义：all 属昂贵命令，缺省只跑主语言（声明多语言须显式 --lang）；
     显式多值时逐语言跑完整链（每语言一条独立产物链，语言完成行由各步分打）。"""
     lang_list = langs or declared_langs(cfg)
-    # RSI-040 入口预检（fail-fast UX，执法 SSOT 在 tts.py 主闸）：all 是草声链专用——
+    # I-040 入口预检（fail-fast UX，执法 SSOT 在 tts.py 主闸）：all 是草声链专用——
     # indextts 集在 tts 步会被缺 --final-voice 硬拦，先在这里报清楚，免得 build+check
     # 白跑后才在 tts 步拿到一段没有 all 上下文的报错。
     for lang in lang_list:
@@ -961,7 +961,7 @@ def cmd_all(root: Path, cfg: dict, langs: list[str] | None = None) -> int:
         if engine == "indextts":
             print(
                 f"❌ all 一键链不串联克隆长跑（语言 {lang} 的 tts.engine=indextts，"
-                "RSI-040：克隆只由本人显式触发）。其余子命令（build/check/render/qa）"
+                "I-040：克隆只由本人显式触发）。其余子命令（build/check/render/qa）"
                 "可单跑；终声操作走 tts 子命令显式授权：pipeline.py tts --final-voice"
                 "（跨会话整集重配＝新的一次显式要求；流程见 references/07-tts-voice.md「重配」）"
             )
@@ -971,7 +971,7 @@ def cmd_all(root: Path, cfg: dict, langs: list[str] | None = None) -> int:
         for step in (
             lambda: cmd_build(root, cfg, langs=[lang]),
             lambda: cmd_check(root, cfg, langs=[lang]),
-            # 刻意不带 final_voice：一键链永不实跑克隆（RSI-040——indextts 集已被
+            # 刻意不带 final_voice：一键链永不实跑克隆（I-040——indextts 集已被
             # 上方入口预检拦下；重配只走 tts 子命令显式授权路径）。
             lambda: cmd_tts(
                 root,
@@ -1214,7 +1214,7 @@ def main() -> None:
     p.add_argument(
         "--final-voice",
         action="store_true",
-        help="终稿配音具名授权（RSI-040 人为触发原则）：indextts 实跑必带（--plan 除外），"
+        help="终稿配音具名授权（I-040 人为触发原则）：indextts 实跑必带（--plan 除外），"
         "每次/每语言各对应一次本人显式要求；all 一键链刻意永不带上——克隆只由本人显式触发",
     )
     p.add_argument(

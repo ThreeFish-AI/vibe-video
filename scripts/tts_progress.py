@@ -187,10 +187,10 @@ def main() -> None:
     print(f"   秒/{unit}：滚动{n_win}句中位 {roll:.3f}")
     if lang != "zh":
         # 基线是 zh（字符）口径的实测：en 用词口径对不上分母，任何「比值」都是
-        # 假判——点名跳过，首集英文长跑实测后再立基线（issue.md RSI-004）。
+        # 假判——点名跳过，首集英文长跑实测后再立基线（issue.md I-004）。
         print(
             f"   ⚠️  en 秒/{unit}基线未标定：仅报进度与滚动速率，不判定热节流"
-            "（基线校准见 issue.md RSI-004 同类问题影响）"
+            "（基线校准见 issue.md I-004 同类问题影响）"
         )
     else:
         ratio = roll / SEC_PER_CHAR_BASELINE

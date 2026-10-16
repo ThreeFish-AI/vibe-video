@@ -29,7 +29,7 @@
     真仓文件分毫不动。
   - **平铺工作区**（`flat_ws`）：哨兵 + series.json + episodes/。工作区锚由
     CWD 哨兵搜索提供（subprocess 传 `cwd=工作区根`）。drift/generation 登记
-    写进它的 vibe-video.toml `[skeleton]`（登记面住工作区，RSI-010）。
+    写进它的 vibe-video.toml `[skeleton]`（登记面住工作区，I-010）。
 
 沙箱里的分集不再从真树复制：由（副本里的真）scaffold 实例化——scaffold 产物
 与模板字节相同正是 scaffold 自身的执法对象（见
@@ -319,7 +319,7 @@ def test_gate_catches_structured_drift_via_tmpl_fallback(tmp_path):
 
 
 def test_template_pins_remotion_family_exact_and_identical():
-    """**模板内侧写（RSI-016）**：Remotion 官方硬约束全部 `@remotion/*` 与 `remotion`
+    """**模板内侧写（I-016）**：Remotion 官方硬约束全部 `@remotion/*` 与 `remotion`
     版本严格一致——`^` 与精确混排会在 `pnpm update` 后分叉、触发版本不一致错误
     （本仓模板曾踩此病灶）。structured 门只执法「集 vs 模板」结构一致，不管模板
     自身的说明符形态，此缺口由本测试钉死：全家桶全精确（无 `^`/`~`）且版本全等；
@@ -385,7 +385,7 @@ def test_registered_drift_is_pinned_to_its_fingerprint(tmp_path):
     assert r.returncode == 1, f"豁免未随偏离改变而失效：\n{r.stdout}"
     assert "DRIFT-CHANGED" in r.stdout, r.stdout
     # 处置指引须指向工作区登记面：照旧文案改 skill 侧 skeleton.toml 会被
-    # load_registry() 大声拒收，豁免永远改不对（RSI-010 评审回归）
+    # load_registry() 大声拒收，豁免永远改不对（I-010 评审回归）
     line = next(ln for ln in r.stdout.splitlines() if "DRIFT-CHANGED" in ln)
     assert "vibe-video.toml" in line and "skeleton.toml" not in line, line
 
@@ -413,7 +413,7 @@ def test_i2_honours_the_drift_registry(tmp_path):
 
 
 def test_family_bump_needs_drift_per_episode(tmp_path):
-    """**正控（PIPELINE §九 追新协议，RSI-016 评审回归）**：drift 按「集 × 文件」
+    """**正控（PIPELINE §九 追新协议，I-016 评审回归）**：drift 按「集 × 文件」
     登记，首集的条目不覆盖续集——续集跟随系列追新却不另登记，I2 报 STALE；逐集
     登记后放行。反面（续集停在模板版）门不报：系列里仍有一集等于模板指纹时 I1
     参照系取模板，此时系列内一致靠人工核对，§九 已如实写明。
@@ -480,7 +480,7 @@ def test_i2_honours_the_overridable_class(tmp_path):
     assert "STALE" not in r.stdout, r.stdout
 
 
-# ── 登记面住工作区（RSI-010）：登记指向具体集 = 内容，不随模板分发 ──────────
+# ── 登记面住工作区（I-010）：登记指向具体集 = 内容，不随模板分发 ──────────
 
 
 def test_template_carries_no_workspace_registry():
@@ -498,7 +498,7 @@ def test_template_carries_no_workspace_registry():
     [
         # 旧版 skill 侧写法：须加前缀
         ("drift", "加 skeleton. 前缀", "原样移入"),
-        # 照抄 skeleton.toml 格式说明里的工作区示例（RSI-010 评审回归）：已带前缀，
+        # 照抄 skeleton.toml 格式说明里的工作区示例（I-010 评审回归）：已带前缀，
         # 再教「加前缀」会得到 [[skeleton.skeleton.drift]]，登记被静默忽略
         ("skeleton.drift", "原样移入", "加 skeleton. 前缀"),
     ],
@@ -520,7 +520,7 @@ def test_skill_side_registry_is_refused(tmp_path, table, hint, wrong_hint):
     assert hint in r.stderr and wrong_hint not in r.stderr, r.stderr
 
 
-# ── 工作区登记的载入期校验：登记住工作区后本仓测试管不到它（RSI-010 三次评审）──
+# ── 工作区登记的载入期校验：登记住工作区后本仓测试管不到它（I-010 三次评审）──
 
 
 def _valid_registry() -> dict:
@@ -691,7 +691,7 @@ def test_scaffold_rejects_bad_slug_and_existing_dir(tmp_path):
 
 
 def test_scaffold_pin_hint_reads_template_not_rendered_output(tmp_path):
-    """建集结尾的钉版提示读**渲染前**的模板（RSI-016 评审回归）：`--title` 原样
+    """建集结尾的钉版提示读**渲染前**的模板（I-016 评审回归）：`--title` 原样
     插进 package.json 的 description，标题含 ASCII 双引号时渲染产物不是合法 JSON，
     读产物即在全部文件落盘后 traceback 退出、其后的提示一并被吞。"""
     ws = flat_ws(tmp_path)

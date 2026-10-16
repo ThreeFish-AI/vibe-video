@@ -96,7 +96,7 @@ EN_ORDINAL_WORDS = re.compile(
     r"\b(?:previous|next|last) episode\b|\bepisode \d+\b|\bthis series\b(?!\s+of\b)",
     re.I,
 )
-#: 规则 1 组件口播字面量容器（RSI-050）：片头/预告等组件的口播是独立音轨资产，
+#: 规则 1 组件口播字面量容器（I-050）：片头/预告等组件的口播是独立音轨资产，
 #: 设计上不入 narration.md——只扫 narration.md 时组件字面量即执法盲区（上游
 #: ISSUE-208：「本系列」在 series-intro.tsx NARRATION 漏网，人工核对才发现、
 #: 重配音收口）。容器名 NARRATION/SUBS 硬编码为机制契约（组件口播面的命名

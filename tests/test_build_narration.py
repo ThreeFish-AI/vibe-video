@@ -46,7 +46,7 @@ def test_happy_path_and_golden_json(tmp_path):
 
 
 def test_beat_start_marks_blank_line_beats(tmp_path):
-    """beatStart（RSI-015）：幕首句与幕内空行后的首句落 True、`>` 备注行不断 beat、
+    """beatStart（I-015）：幕首句与幕内空行后的首句落 True、`>` 备注行不断 beat、
     幕切换天然开 beat——beat 边界是 --term-density 逐 beat 统计的输入。"""
     root = make_project(
         tmp_path,

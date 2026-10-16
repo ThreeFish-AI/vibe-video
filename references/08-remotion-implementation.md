@@ -122,7 +122,7 @@ md5 门执法——判据与「不读 theme token」约束见 tests/test_skeleto
 
 Motion Blur 只在场景明确 opt-in 时启用；本规格不新增依赖、不实现新的 blur backend，也不改变默认 `30fps` 或时间 SSOT。它只能作用于被明确隔离的运动视觉层，字幕、字幕背景、角标、关键文字和其他需清晰阅读的层必须保持 crisp，并在合成后置于 blur 层之上。禁止对整帧做 temporal mix（`tmix`）或把字幕一起模糊；Motion Blur 也不能替代 Morph Continuity 的建模与人工 QA。
 
-**启用时机建议**（180° 快门经验法则，onetake 硬规则实证 @RSI-068）：被隔离运动层的单帧位移超过约 `80px`（1080p 口径）时才值得 opt-in；慢速位移与静态层开了只会损失锐度。
+**启用时机建议**（180° 快门经验法则，onetake 硬规则实证 @I-068）：被隔离运动层的单帧位移超过约 `80px`（1080p 口径）时才值得 opt-in；慢速位移与静态层开了只会损失锐度。
 
 ## 3D 点缀（`@remotion/three`，2026-09 EP1 落地）
 
@@ -220,14 +220,14 @@ export const P2FiveObjects: React.FC<{scene: SceneRange}> = ({scene}) => {
 
 - 一幕一文件 `P<n><Name>.tsx`；一「镜」一内部子组件；
 - `Sequence name` 与 storyboard 镜号一一对应（QA 时可对照）；
-- beat 内动画优先走 `src/motion/` 运动模型（见上节铁律）；裸 `interpolate`/`spring` 是逃生舱而非默认。一律帧驱动，禁 `Date.now()`/随机数，禁 CSS `transition`/`animation`（Remotion 官方 skill 同款禁令，RSI-068 对读引入；不受帧时钟驱动、渲染不正确，Studio 生成物与外部代码最易携带，复制适配时先摘除）——渲染必须确定。
-- **过程具象化四大定式动效落地（RSI-032）**：对照 [06](./06-storyboard.md)「画面感与过程具象化四定式」——
+- beat 内动画优先走 `src/motion/` 运动模型（见上节铁律）；裸 `interpolate`/`spring` 是逃生舱而非默认。一律帧驱动，禁 `Date.now()`/随机数，禁 CSS `transition`/`animation`（Remotion 官方 skill 同款禁令，I-068 对读引入；不受帧时钟驱动、渲染不正确，Studio 生成物与外部代码最易携带，复制适配时先摘除）——渲染必须确定。
+- **过程具象化四大定式动效落地（I-032）**：对照 [06](./06-storyboard.md)「画面感与过程具象化四定式」——
   1. **全景坐标先行**：幕首镜或换焦点时以全景架构/因果图底图 + 高亮视框（Map-First Anchor），让观众瞬时建立宏观坐标；
   2. **机制必演单步流转**：核心机制通过 `rel(beat, '句id')` + `useTravel`/`useFlowDash` 驱动具象数据流经组件、逐拍改写状态标签（Animated State Trace），严禁静止文字卡片；
   3. **反例必演消融对比**：破坏性实验采用左/右或前/后同屏消融，警示红 `#FF5C5C` 演崩溃链路与退化数据 ↔ 确认绿 `#7ED321` 演机制在位拦截（Counterfactual Ablation Contrast）；
   4. **数字必带基线标尺**：实证对比通过 `useCount` 驱动动态计数，标尺底部恒常驻基线值与基准标签（Baseline-Anchored Counter）。
-- **开篇首镜视听合力（RSI-039）**：对照 [06](./06-storyboard.md)「开篇首镜视听合力定式」——0-A 首镜第一秒以高反差核心意象或动态冲击入场（入场动画 / `useCount` 冲击计数 / 核心意象放大定格），与口播「这是 XXX ……」同步发力，严禁静止文字卡；P0 首镜与全景坐标冲突时以本定式优先（坐标后移一镜或动态高亮融入）。
-- **导演级动画三则（RSI-048，判据与原理见 [导演手艺](./DIRECTING-CRAFT.md)）**：
+- **开篇首镜视听合力（I-039）**：对照 [06](./06-storyboard.md)「开篇首镜视听合力定式」——0-A 首镜第一秒以高反差核心意象或动态冲击入场（入场动画 / `useCount` 冲击计数 / 核心意象放大定格），与口播「这是 XXX ……」同步发力，严禁静止文字卡；P0 首镜与全景坐标冲突时以本定式优先（坐标后移一镜或动态高亮融入）。
+- **导演级动画三则（I-048，判据与原理见 [导演手艺](./DIRECTING-CRAFT.md)）**：
   1. **AAS（Anticipation-Action-Settle）**：关键揭示用「主作用前 ≤3 帧小反相位移（`useEnter` 组合）+ 主作用 + `SPRING.settle` 收束」表达预备与落定，**零新 hook**；settle 窗（0.2–0.3s）内禁叠第二个动画；
   2. **Eye-Trace**：镜切换前后焦点位移 ≤1/3 屏宽，超限须引导动画（`@travel` 接力、连线延伸）——相邻镜焦点衔接与新元素入场落点对齐句内关键词（Land on the Word，词级落点细化）；
   3. **数据本体红线**：柱高/点位/数值标注等数据语义元素**永不吃过冲弹簧**（钳 seat=1，3D「弹簧过冲要钳行程」实践泛化）——squash/夸张只作用于概念隐喻层。
@@ -242,7 +242,7 @@ export const P2FiveObjects: React.FC<{scene: SceneRange}> = ({scene}) => {
 - **章节条标题自动双语**：chapters.json 条目的 `i18n.en` 由 build 从 `narration.en.md` 幕标题派生（声明见 references/03「英文译稿」）；series.json 集条目可选 `i18n: {"en": …}` 会以 `titleI18n`/`nextI18n` 透传进 series-layers.json，P6 身份卡/下期卡按需消费。
 - **archify 录制件保持 zh**：英文版 = 英文配音 + 中文图示（录制件文字已焙进画面；`archify/en/` 重录机制属后续演进，先在 planning.md 声明该取舍）。
 - **英文字幕两行回落（frozen Subtitle.tsx）**：en 单行 fitText < 30px 时回落两行 30px（`textWrap: balance`）；盒几何 `marginBottom 35 + padding 24 + 2×30×1.3 = 137 ≤ 137.4`（zh 单行满字号包络）——**守恒设计**：字幕带侵入检测（qa `SUBTITLE_BOX_H_PX=132`）两语言共用同一判据，无需豁免。
-- **字幕单行契约**：zh 路径必须 `whiteSpace: 'nowrap'`，不得用 CSS 自动换行解决过长文案；当单句超出或逼近单行内容门上限（全角当量 ≤50，RSI-024，`check_script` 执法）时，先在 narration/storyboard 层按语义边界拆成连续字幕窗口，再由窗口间淡入淡出完成前后切换。不得靠继续缩小字号、压缩字距或让文字溢出画布换取单行。`fitText` 只负责渲染层适配，不能替代内容长度门。en 仍遵守上一条 frozen 两行回落规则。
+- **字幕单行契约**：zh 路径必须 `whiteSpace: 'nowrap'`，不得用 CSS 自动换行解决过长文案；当单句超出或逼近单行内容门上限（全角当量 ≤50，I-024，`check_script` 执法）时，先在 narration/storyboard 层按语义边界拆成连续字幕窗口，再由窗口间淡入淡出完成前后切换。不得靠继续缩小字号、压缩字距或让文字溢出画布换取单行。`fitText` 只负责渲染层适配，不能替代内容长度门。en 仍遵守上一条 frozen 两行回落规则。
 
 ## 顶部章节进度条（frozen chrome · ChapterProgress）
 
@@ -272,7 +272,7 @@ export const P2FiveObjects: React.FC<{scene: SceneRange}> = ({scene}) => {
 4. 若覆写底座语义色（如 ok 与主色合一），在 theme.ts 注释 + planning.md + README 三处记录。
 5. 时间/顺序等非色彩维度用**位置、线型、亮度**编码，不用色相。
 6. **色相距离人工核验**（撞值门之外的一半）：机器只拦精确同值，近色相不拦（判据松紧权衡见 check_series 规则 4 docstring——蓝青相邻共存是接受态，假报一多门被关掉）；故新选色须对着 INFO 行人工核色相距离（角度取统一色相模型，如 Python colorsys `rgb_to_hls` 的 h×360），肉眼同族即换槽（实测教训 2026-09：初选玫红 #E85D75=350° 与既有玫红 #FF6F91=346° 仅差 4°，撞值门全绿但视觉同色相，最终换品红 #D65DB1=318° 空槽）。**未登记进 series.json `accents` 的色不进 INFO 清单**（如材料色数组 token `sourceFlows`）——这类色在 theme.ts 注释里自证「与全系列已用色的色相距离」，必要时临时并进 accents 比对后再移出。
-7. **theme token 只许常量引用、不许带引号**：批量替换裸 hex 时保留引号会产出 `'theme.bgDeep'` 死字符串——非法 CSS 色值被浏览器静默丢弃（背景透明），tsc 放行（style 值类型是 string）、色值探针也失明（ep1 实锤 12 处、8 轮门全绿）。`check_script.py` 的 theme 死字符串门（RSI-043，FAIL，缺省执法）逐行扫描 scenes/ 与 components/ 的 TSX：引号内整串恰为 `theme.<标识符>` 即拦（注释行与 `theme.ts` 文件名上屏豁免，`quoted-theme-ok: <理由>` 可降级留痕）。
+7. **theme token 只许常量引用、不许带引号**：批量替换裸 hex 时保留引号会产出 `'theme.bgDeep'` 死字符串——非法 CSS 色值被浏览器静默丢弃（背景透明），tsc 放行（style 值类型是 string）、色值探针也失明（ep1 实锤 12 处、8 轮门全绿）。`check_script.py` 的 theme 死字符串门（I-043，FAIL，缺省执法）逐行扫描 scenes/ 与 components/ 的 TSX：引号内整串恰为 `theme.<标识符>` 即拦（注释行与 `theme.ts` 文件名上屏豁免，`quoted-theme-ok: <理由>` 可降级留痕）。
 
 ## 渲染缺陷自检清单（历史教训公共化）
 

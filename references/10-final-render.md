@@ -64,7 +64,7 @@ uv run --no-project $T/scripts/pipeline.py --project $P deliver
 - **配置渠道**：`--root ~/Documents/video`（一次性 / prompt 指定）或 `export VIBE_VIDEO_DELIVER_ROOT=~/Documents/video`（持久统一配置，可写 shell profile / Claude Code settings env）。根路径是机器属性，不写进受版本控制的 toml（同 tts.server / tts-store 立场）；两渠道皆无时 deliver 大声退出并列出用法。
 - **agent 契约**：用户在 prompt 中给出目标路径时，`render --final` 成功后**显式**执行 `pipeline.py --project $P deliver --root <路径>`，并建议用户以 env 固化。`render --final` 刻意不自动串联 deliver——本规格把编排层 `>> render 完成` 标记钉为判完成唯一信号，串联外部写操作会在失败时产生「标记已打 + 退出码非零」的混合信号。
 - 先 `deliver --dry-run` 预览目的地与下一版本号，确认后再实投。
-- **收尾关服务与浏览器终扫（RSI-033）**：deliver 成功后，按 [07-tts-voice.md](./07-tts-voice.md)「服务生命周期」判在用并关闭 IndexTTS 服务端（同机无其他使用者时），并执行一次 `uv run --no-project $T/scripts/pipeline.py --project $P doctor --clean-browsers`（详见 [PIPELINE.md §十](./PIPELINE.md)）回收任何 `ppid=1` 的自动化 Chrome 孤儿进程（含 Headless 与自动化可见实例，不动用户日常 Chrome）——制片会话不留常驻服务、不留浏览器孤儿进程。
+- **收尾关服务与浏览器终扫（I-033）**：deliver 成功后，按 [07-tts-voice.md](./07-tts-voice.md)「服务生命周期」判在用并关闭 IndexTTS 服务端（同机无其他使用者时），并执行一次 `uv run --no-project $T/scripts/pipeline.py --project $P doctor --clean-browsers`（详见 [PIPELINE.md §十](./PIPELINE.md)）回收任何 `ppid=1` 的自动化 Chrome 孤儿进程（含 Headless 与自动化可见实例，不动用户日常 Chrome）——制片会话不留常驻服务、不留浏览器孤儿进程。
 
 ## 平台合规（发布前自查）
 
@@ -84,13 +84,13 @@ git 只带走入库字节——`out/` 渲染产物、archify 的 mp4/末帧 PNG�
    录制器要起 Remotion 打包浏览器，`node_modules` 半残会在录制中途裸 traceback。构建许可配在
    `video/pnpm-workspace.yaml` 的 `allowBuilds`——加 `--ignore-workspace` 会把它一并忽略，
    直接以 `ERR_PNPM_IGNORED_BUILDS` 中断安装留下半残。
-3. **TTS 恢复（按引擎分派，RSI-040）**：
+3. **TTS 恢复（按引擎分派，I-040）**：
    - **edge 终声集**（合法路径，见 [07「两档生命周期」](07-tts-voice.md)）：无需 IndexTTS
      服务，原参数重跑 `pipeline.py tts`（秒级幂等回收）。
    - **indextts 集**：先起 IndexTTS 服务（[VOICE-CLONING §二](VOICE-CLONING.md)）→
      `pipeline.py tts --plan` 对账——**零待合成**：原参数照带 `--final-voice` 重跑
      `pipeline.py tts`（机器级 tts-store 按 digest 逐句回收、整集零重合成，缓存口径见
-     [VOICE-CLONING §六](VOICE-CLONING.md)；RSI-040 延续条款：恢复操作照带授权即可）；
+     [VOICE-CLONING §六](VOICE-CLONING.md)；I-040 延续条款：恢复操作照带授权即可）；
      **有待合成**（store 丢失即整集重合成）＝新的一次显式要求，先向本人确认再跑。
      换 worktree 须先从旧工作区/私有录音恢复 `voices/` 并过 `refs.py verify`（参考音频
      不随 git 走）；换机则随行拷贝 tts-store 目录（或以 `VIBE_VIDEO_TTS_STORE` 指位）。

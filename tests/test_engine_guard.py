@@ -69,7 +69,7 @@ def test_server_launch_hint_has_no_placeholder():
     assert "checkpoints" in hint
 
 
-# ── RSI-040 人为触发原则主闸 ─────────────────────────────────────────
+# ── I-040 人为触发原则主闸 ─────────────────────────────────────────
 
 
 def test_indextts_synthesis_requires_final_voice(tmp_path):
@@ -194,7 +194,7 @@ def test_preexisting_indextts_marker_still_blocks_without_flag(tmp_path):
 
 
 def test_wrong_signature_marker_cannot_preempt_gate(tmp_path):
-    """顺序性不变量（RSI-040）：授权闸先于 .engine 签名比对——签名**不符** + 无 flag
+    """顺序性不变量（I-040）：授权闸先于 .engine 签名比对——签名**不符** + 无 flag
     时，报错必须是授权错而非「音色签名」错（若未来有人把闸挪到比对之后，本测试
     会先炸出签名消息而红）。"""
     import subprocess

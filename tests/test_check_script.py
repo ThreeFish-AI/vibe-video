@@ -136,7 +136,7 @@ def test_measured_budget_uses_manifest(project):
     assert "实测口径" in out
 
 
-# -------- RSI-034：实测门只对「属于当前生效引擎」的 manifest 执法 --------
+# -------- I-034：实测门只对「属于当前生效引擎」的 manifest 执法 --------
 
 
 def test_draft_voice_anchor_skips_measured_budget(project):
@@ -167,7 +167,7 @@ def test_edge_final_without_anchor_enforces_measured_budget(project):
 
 
 def test_upgrade_midstate_marker_mismatch_skips_measured_budget(project):
-    """升档中间态（RSI-034 核心钉子）：toml 已翻 indextts、.engine 标记还是
+    """升档中间态（I-034 核心钉子）：toml 已翻 indextts、.engine 标记还是
     edge 草声——--pre-tts 前置门不得拿旧引擎墙钟对新档窗口假红拦死重配。"""
     write_board(project, BOARD_OK)
     write_config(
@@ -297,7 +297,7 @@ def test_model_designator_warns_not_fails(project):
     assert "WARN" in out and "一千零八十" in out
 
 
-# ---------------- zh 字幕单行宽度门（RSI-024：物理上限 50 全角当量） ----------------
+# ---------------- zh 字幕单行宽度门（I-024：物理上限 50 全角当量） ----------------
 
 
 def _write_current_gen_subtitle(root: Path) -> None:
@@ -353,7 +353,7 @@ def test_subtitle_width_runs_in_pre_tts(project):
     assert "超字幕单行上限" in out
 
 
-# ---------------- p0-01 开篇钩子句式 WARN（RSI-039；执法主体=④ 评审门） ----------------
+# ---------------- p0-01 开篇钩子句式 WARN（I-039；执法主体=④ 评审门） ----------------
 
 
 def test_opening_hook_plain_opener_warns(project):
@@ -369,7 +369,7 @@ def test_opening_hook_plain_opener_warns(project):
 
 
 def test_opening_hook_negation_prefix_passes(project):
-    """「这不是」起头零 WARN——否定式悬念钩合法（RSI-039 判定口径）。"""
+    """「这不是」起头零 WARN——否定式悬念钩合法（I-039 判定口径）。"""
     write_board(project, BOARD_OK)
     write_config(project, CFG_OK)
     write_narration(project, ["这不是一支普通的科普视频。", BENIGN, BENIGN, BENIGN])
@@ -462,7 +462,7 @@ def test_pre_tts_json_output_without_storyboard(project):
     # 输出 = 前置门头部行（人读）+ 多行 JSON（indent=1）；从第一个 "{" 起解析
     payload = _j.loads(out[out.index("{") :])
     assert payload["fails"] == []
-    # 夹具 p0-01 是平铺开场，触发已知的开篇钩子 WARN（RSI-039，WARN 不判死）——
+    # 夹具 p0-01 是平铺开场，触发已知的开篇钩子 WARN（I-039，WARN 不判死）——
     # JSON 面关心 fails 清零与 warns 可消费，不锁定 WARN 明细。
     assert all(w.startswith("WARN") for w in payload["warns"]), payload["warns"]
     assert any("p0-01" in w and "开篇钩子" in w for w in payload["warns"])
@@ -491,7 +491,7 @@ def test_pron_candidates_silent_on_clean_text(project):
     assert "候选命中 0 处" in out
 
 
-# ---------------- --term-density：④B 密度预算的机器面（RSI-015，WARN 级）----------------
+# ---------------- --term-density：④B 密度预算的机器面（I-015，WARN 级）----------------
 #
 # 病理（jev 集）：三个名词系统（集中度/门槛/计费单位）全部先用后讲，④B 五条
 # 全检通过而普通观众一脸懵。中文术语机器分不出来——由评审员经 --terms 声明
@@ -803,7 +803,7 @@ def test_check_motion_unknown_verb_and_missing_layer(project):
 
 
 def test_shot_tag_in_visual_column_is_motion_silent(project):
-    """RSI-048：@shot 景别标注约定落画面列——check-motion 只读动效列，零干扰（parser 零改动回归钉）。"""
+    """I-048：@shot 景别标注约定落画面列——check-motion 只读动效列，零干扰（parser 零改动回归钉）。"""
     board = BOARD_MOTION.replace(
         "| 0-A | p0-01..02 | x |", "| 0-A | p0-01..02 | `@shot:CU` 单主体特写 |"
     )
@@ -823,7 +823,7 @@ def test_shot_tag_in_visual_column_is_motion_silent(project):
 
 
 def test_shot_tag_in_effect_column_gets_free_guardrail(project):
-    """RSI-048：@shot 误写动效列 → 「不在词表」WARN——免费护栏是预期行为，防未来被"修掉"。"""
+    """I-048：@shot 误写动效列 → 「不在词表」WARN——免费护栏是预期行为，防未来被"修掉"。"""
     board = BOARD_MOTION.replace(
         "| 1-A | p1-01..02 | x | `@stagger` 依次点亮 |",
         "| 1-A | p1-01..02 | x | `@shot:CU` `@stagger` 依次点亮 |",
@@ -877,7 +877,7 @@ def dup_lines(out: str) -> list[str]:
 
 
 def test_caption_duplication_fails(project):
-    """RSI-007：画面文字逐字复述口播 → FAIL（烧录字幕已逐句上屏，同屏两层重复）。
+    """I-007：画面文字逐字复述口播 → FAIL（烧录字幕已逐句上屏，同屏两层重复）。
 
     钉实测形态：整句照抄、去掉句首连接词的复述（覆盖率判据）、带发音标注的
     口播句（比对字幕面 text——build 期已剥标注，ttsText 不参与）、短于覆盖率
@@ -959,7 +959,7 @@ def test_caption_duplication_fails(project):
     ],
 )
 def test_caption_duplication_literal_shapes(project, sentence, scene_src):
-    """RSI-007 评审回归：场景代码的常见上屏写法都须被提取——此前多行 JSX 文本
+    """I-007 评审回归：场景代码的常见上屏写法都须被提取——此前多行 JSX 文本
     全漏，已合入的 jev 集因此残留 9 处复述而门报 0。"""
     write_board(project, DUP_BOARD)
     write_config(project, CFG_OK)
@@ -972,7 +972,7 @@ def test_caption_duplication_literal_shapes(project, sentence, scene_src):
 
 
 def test_caption_duplication_spares_keyword_anchors(project):
-    """RSI-007：关键词 / 数字 / 标签锚点、注释、跨幕回扣均不误伤——字幕只在该句
+    """I-007：关键词 / 数字 / 标签锚点、注释、跨幕回扣均不误伤——字幕只在该句
     播出时上屏，别幕引用同句不构成同屏两层。"""
     write_board(project, DUP_BOARD)
     write_config(project, CFG_OK)
@@ -994,7 +994,7 @@ def test_caption_duplication_spares_keyword_anchors(project):
 
 
 def test_caption_duplication_opt_out_needs_reason(project):
-    """RSI-007：刻意复述（章节标题卡、同幕跨镜回扣）以 `caption-dup-ok: <理由>`
+    """I-007：刻意复述（章节标题卡、同幕跨镜回扣）以 `caption-dup-ok: <理由>`
     逐处豁免——命中行或上一行注明，降为 WARN 留痕；无理由的标记不算豁免。"""
     write_board(project, DUP_BOARD)
     write_config(project, CFG_OK)
@@ -1016,7 +1016,7 @@ def test_caption_duplication_opt_out_needs_reason(project):
     assert len(dup_lines(out)) == 1, out
 
 
-# ---------------- --lang en：译稿门集（RSI-004）----------------
+# ---------------- --lang en：译稿门集（I-004）----------------
 #
 # fixture 的 zh narration.json 有 4 句（p0-01/02 · P0，p1-01/02 · P1），en 侧
 # 镜像同 id 集。锁期望值按 zh fixture 文本现算（与 build_narration.sentence_digest
@@ -1224,7 +1224,7 @@ def test_pre_tts_en_runs_text_gates_and_blocks_on_stale_lock(project):
 
 
 def test_caption_duplication_en_checks_english_subtitle_face(project):
-    """RSI-007 双语：en 版字幕是英文，`<L en>` 与英文字幕逐字相同同样叠层——en 门
+    """I-007 双语：en 版字幕是英文，`<L en>` 与英文字幕逐字相同同样叠层——en 门
     缺省执法、对英文字幕面比对；中文画面文字不与英文字幕互判。"""
     setup_en(project)
     write_scene(
@@ -1279,7 +1279,7 @@ def test_subtitle_width_skips_old_gen_subtitle(project):
     assert "门不适用，点名跳过" in out
 
 
-# ---------- theme 死字符串门（RSI-043） ----------
+# ---------- theme 死字符串门（I-043） ----------
 
 
 def test_quoted_theme_literal_fails(project):
@@ -1324,7 +1324,7 @@ def test_quoted_theme_comments_skipped(project):
     write_scene(
         project,
         "P1Card.tsx",
-        "// 原 '#0B0E13' 已收敛为 'theme.bgDeep'（RSI-043 判例）\n"
+        "// 原 '#0B0E13' 已收敛为 'theme.bgDeep'（I-043 判例）\n"
         "const card = {\n"
         "  background: theme.bgDeep,\n"
         "};\n"
