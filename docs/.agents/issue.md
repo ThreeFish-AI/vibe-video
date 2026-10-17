@@ -91,6 +91,7 @@
 | I-073 | 主题门表面绑定色误报：--check-theme 全量扫描把 paper*/terminal* 槽按「概念色 on bg」判 FAIL | ✅ 已完成 | 2026-10-16 | [详情](#I-073) |
 | I-074 | 媒体面派生链与改稿再生纪律成文——图示真源链、指纹清单禁手改与 TTS 降级出路 | ✅ 已完成 | 2026-10-16 | [详情](#I-074) |
 | I-075 | 主题门论据句文档债：I-073 豁免落地后 references/08 读色契约仍称「遍历全部色 token」 | ✅ 已完成 | 2026-10-16 | [详情](#I-075) |
+| I-076 | 改图重录指引与齐备跳过行为自相矛盾：PIPELINE 图示链句缺 --force 前提（齐备判定不感知内容漂移） | 🔄 进行中 | — | [详情](#I-076) |
 
 ---
 
@@ -1291,3 +1292,17 @@
 **后续防范**：改 `check_theme` 辖域（扩/缩豁免面、调阈值）时，references/08 论据句随动核对——文档只留语义类别与 SSOT 指针的式样使常规演进不再强制改文档，仅当语义类别本身变化时须同步。
 
 **同类问题影响**：check-theme 辖域的其余文档面无同型漂移——[PIPELINE](../../references/PIPELINE.md) 工具表与 [09](../../references/09-render-qa.md) FAIL 表只述用途与阈值、不述扫描辖域；qa_frames.py FAIL 消息内嵌「references/08 视觉契约：概念色须 ≥4.5:1」指称与模块 docstring 豁免口径（I-073 已同步）在新表述下均仍成立。
+<a id="I-076"></a>
+## I-076：改图重录指引与齐备跳过行为自相矛盾——「产物已齐」判定不感知内容漂移，缺省静默跳过致 draft 假绿
+
+**表因**：媒体面收敛轮实录——分集改 views json note 并重出 HTML（mp4/png 未删）后，按 [PIPELINE.md §五](../../references/PIPELINE.md) 图示链指引跑 `record_archify_all.py --project $P`（无 `--force`），干跑与实跑均按「产物已齐」逐图跳过（12/12、mp4 为旧录），下游 build/check/qa 全绿而 draft 吸收的仍是旧素材（静默假绿）。
+
+**根因**：图示链句（I-074/PR #59 引入）写了三步指引但未写齐备判定的存在性前提；`record_archify_all.py` 的齐备判定（`stale_reason`）只查产物 mtime vs sidecar mtime 与 views 章节集对齐两道，不感知 HTML/candidate/views note 内容漂移，且 `--help`（:251）自述「缺省跳过已齐的图」——两处文本对「图已改、产物未删」场景指令相反。
+
+**定性**：T1（规约自相矛盾，免盲评；净增 0 行）。`--force` 与缺省跳过自 PR #16（d02992d）即有，脚本侧自洽，缺陷纯在规约侧。
+
+**处理方式**：[PIPELINE.md](../../references/PIPELINE.md) 图示链句原句全文保留、段内追加从句——改图/改 views 后旧产物未删时，重录必须加 `--force`（或 `--only <slug> --force` 定点）；齐备判定只看产物文件是否齐，不感知 HTML/candidate 内容漂移。新增回归测试 `test_pipeline_diagram_chain_carries_force_anchor` 双锚存在性断言（红绿对拍：origin/main 两锚串 0 必红）。四案比选（改脚本感知 HTML mtime＝行为变更 T2 级且 gitignored 本地产 mtime 易误报／`--force` 缺省 True＝回退 I-031/033 增量录制成本设计／另开新节＝第二定义处，均不取）。PR [#61](https://github.com/ThreeFish-AI/vibe-video/pull/61)（分支 ThreeFish-AI/rsi-076-rerun-force-skip-drift，commit 7e922e6＋763e539）。
+
+**后续防范**：媒体面改稿重录（改 candidate/HTML/views）时按新前提从句执行——产物未删一律 `--force`；引用本条锚点判据的测试已钉住指引句，删改即红。
+
+---
