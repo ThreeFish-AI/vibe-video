@@ -46,3 +46,23 @@ def test_pipeline_has_sidecar_candidate_distinction():
         "PIPELINE 缺「勿手改 manifest 文本」红线指纹——配音链改稿再生纪律"
         "（durationSec 实测、TTS 降级出路）失守，手改 manifest 无门可拦（I-074）"
     )
+
+
+def test_pipeline_diagram_chain_carries_force_anchor():
+    """PIPELINE §五 图示链须含 --force 重录前提锚：改图/改 views 后旧产物
+    未删时，批量器按「产物已齐」跳过的判定不感知内容漂移，缺省静默跳过
+    会让 draft 吸收旧素材而下游全绿（I-076 表因）。锚串取
+    「--only <slug> --force」定点形态而非裸「--force」（裸词会被 §六
+    scaffold 的「--force 才覆盖」独活满足，删掉图示链句测试仍绿——
+    I-047 反假绿惯例）。"""
+    text = (REFERENCES / "PIPELINE.md").read_text(encoding="utf-8")
+    assert "--only <slug> --force" in text, (
+        "PIPELINE 图示链缺 '--only <slug> --force' 锚——改图/改 views 后旧产物"
+        "未删时必须 --force 重录的前提不在规约可见，缺省按「产物已齐」逐图跳过、"
+        "draft 吸收旧素材而下游 build/check/qa 全绿（I-076 表因）"
+    )
+    assert "不感知 HTML/candidate 内容漂移" in text, (
+        "PIPELINE 图示链缺「不感知 HTML/candidate 内容漂移」判定盲区指纹——"
+        "齐备跳过的存在性前提失明，指引句会退回与 --force 缺省跳过行为自相"
+        "矛盾的原形态（I-076 表因）"
+    )
