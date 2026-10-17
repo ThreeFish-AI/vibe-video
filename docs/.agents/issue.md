@@ -1292,6 +1292,7 @@
 **后续防范**：改 `check_theme` 辖域（扩/缩豁免面、调阈值）时，references/08 论据句随动核对——文档只留语义类别与 SSOT 指针的式样使常规演进不再强制改文档，仅当语义类别本身变化时须同步。
 
 **同类问题影响**：check-theme 辖域的其余文档面无同型漂移——[PIPELINE](../../references/PIPELINE.md) 工具表与 [09](../../references/09-render-qa.md) FAIL 表只述用途与阈值、不述扫描辖域；qa_frames.py FAIL 消息内嵌「references/08 视觉契约：概念色须 ≥4.5:1」指称与模块 docstring 豁免口径（I-073 已同步）在新表述下均仍成立。
+
 <a id="I-076"></a>
 ## I-076：改图重录指引与齐备跳过行为自相矛盾——「产物已齐」判定不感知内容漂移，缺省静默跳过致 draft 假绿
 
