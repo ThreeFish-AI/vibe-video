@@ -92,6 +92,7 @@
 | I-074 | 媒体面派生链与改稿再生纪律成文——图示真源链、指纹清单禁手改与 TTS 降级出路 | ✅ 已完成 | 2026-10-16 | [详情](#I-074) |
 | I-075 | 主题门论据句文档债：I-073 豁免落地后 references/08 读色契约仍称「遍历全部色 token」 | ✅ 已完成 | 2026-10-16 | [详情](#I-075) |
 | I-076 | 改图重录指引与齐备跳过行为自相矛盾——「产物已齐」判定不感知内容漂移，缺省静默跳过致 draft 假绿 | ✅ 已完成 | 2026-10-18 | [详情](#I-076) |
+| I-078 | 归属句模板与示例文本仍示范上游已整改的「拆过/失效形态」旧句式 | ✅ 已完成 | 2026-10-22 | [详情](#I-078) |
 
 ---
 
@@ -1307,3 +1308,18 @@
 **后续防范**：媒体面改稿重录（改 candidate/HTML/views）时按新前提从句执行——产物未删一律 `--force`；引用本条锚点判据的测试已钉住指引句，删改即红。
 
 **同类问题影响**：媒体面重录指引的其余文档面无同型漂移——[SKILL.md](../../SKILL.md) 图示资产句为路由指针非命令副本（详细前提归 §五），[10](../../references/10-final-render.md) 定点重录本就在用 `--only <slug> --force` 形态，[PIPELINE](../../references/PIPELINE.md) 工具表只述用途不述缺省跳过语义；录制器侧 `--help` 自述与 `stale_reason` 实现自 PR #16 起自洽，缺陷纯在规约侧，脚本零改动。
+
+<a id="I-078"></a>
+## I-078：归属句模板与示例文本仍示范上游已整改的「拆过/失效形态」旧句式
+
+**表因**：上游内容仓完成「拆/失效」词族整改（2026-10-22）后回扫 skill 文本面：[references/01](../../references/01-source-extraction.md) 三级证据【三】归属句模板（:112「作者拆过源码，他说…」）、[check_series.py](../../scripts/check_series.py) 规则 7 改写示例（:35 两处「课程作者拆过源码…」「有人拆过它的源码…」）、[PIPELINE](../../references/PIPELINE.md) :92 与三份包装器 docstring（assets/video-skeleton/scripts/{qa_frames,tts,build_narration}.py:8）的同款句「静默跳过是被禁止的失效形态」共三簇旧句式仍在示范位——新分集照模板起草会复写已整改用词（origin/main `58f45a4` 现文实测）。
+
+**根因**：示例句式由 `d02992d`（PR #16，2.0.0 全新维护重构）一次性引入，当时无词族口径约束；上游内容仓完成词族整改后 skill 侧未随动。非刻意坚持的措辞决策（`git log -S` 证明相关字符串自引入后零改动），无历史决策冲突。
+
+**定性**：T2（模板缺位的口径分叉类，盲评三子代理结构 specB 胜出）。
+
+**处理方式**：7 文件 +10/−10 纯等量替换——归属句模板改「作者拆解过源码，他说…」（SSOT 定义处）；规则 7 示例两处与 [test_check_series.py](../../tests/test_check_series.py) 4 处 fixture/docstring 逐字同步（断言信号是「课程」标识与标题/顺序词，改字面不影响判定）；PIPELINE:92 与三包装器 :8「失效形态」→「问题形态」四处同改保持口径一致。触碰不变量 3（frozen Remotion skeleton）带权衡：改的是模板侧 SSOT 定义处非任何集的复制件，工作区既有集副本走 verify_skeleton 既有 drift 登记机制（skeleton.toml 注明的合法逃逸口），机器执法为模板↔副本动态比对、无字节硬锚定（machine_checks 全绿实证）。全仓另 6 处「失效形态」工程注释位（scripts/pipeline.py:654/1078、check_archify_coverage.py:51、tests/test_stages.py:174、tests/test_paths.py:97、tests/test_wrapper_resolver.py:3，ISSUE-168 对账/failure mode 名词）刻意不改——非给起草者的示范位，超出最小干预面。PR [#62](https://github.com/ThreeFish-AI/vibe-video/pull/62)（分支 rsi/attribution-template-term-sweep，commit 1b3506c）。
+
+**后续防范**：上游内容仓做词族/口径类整改后，回扫 skill 文本面（references/ 示例句、scripts/ docstring 示例、assets/ 模板注释）核对示范位是否随动——示范位是口径的放大器，漏一处即新分集复写一处。
+
+**同类问题影响**：全仓孪生位已尽——「拆过」零残留、「失效形态」仅存上述申报 6 处工程注释位；「拆解过」6 行、「问题形态」4 处逐字同款到位；钉词形回归测试经裁决不加（规则 7 执法词面为站点标识、与「拆」字无关，改示例字面不影响判定方向）。
