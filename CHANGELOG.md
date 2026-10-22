@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-### Breaking（更名 to-video → vibe-video + 阶段重编号 I-013 + 模板钉版追新 I-016；建议发版 3.0.0）
+### Breaking（更名 to-video → vibe-video + 阶段重编号 I-013 + 模板钉版追新 I-016；建议发版 0.0.3）
 
 - skill 整体更名 **to-video → vibe-video**（GitHub 仓名、SKILL.md `name`、安装软链名同步；旧仓名靠 GitHub 重定向存活，不得复用）。运行时标识符全部随名：6 个 env `TO_VIDEO_*` → `VIBE_VIDEO_*`（WORKSPACE / HOME / DELIVER_ROOT / INDEX_TTS_ROOT / TEST_WORKSPACE / TTS_STORE）、工作区哨兵 `.to-video-root` → `.vibe-video-root`、工作区配置 `to-video.toml` → `vibe-video.toml`、tts-store 默认目录 `~/Library/Application Support/to-video` → `…/vibe-video`。无旧名 fallback（干净切换）。**既有工作区迁移**：① `mv .to-video-root .vibe-video-root`、`mv to-video.toml vibe-video.toml`（tracked 文件用 `git mv`）；② 各包装器按新模板整文件覆盖（resolver 链与 `VIBE_VIDEO_WORKSPACE` 注入行随名）；③ `mkdir -p ~/Library/Application\ Support/vibe-video && mv ~/Library/Application\ Support/to-video/tts-store ~/Library/Application\ Support/vibe-video/`（目标已存在改 `rsync -a` 合并，勿 mv 嵌套）；④ shell profile 与 Claude settings 里的 env 键同步改名（值不变）。
 - 新增正式阶段 **⑤ 成文优化**（④ 双重校验之后、分镜之前），原 ⑤–⑨ 顺移为 ⑥–⑩，规格文件同步改名：`05-storyboard.md → 06-storyboard.md`、`06-tts-voice.md → 07-tts-voice.md`、`07-remotion-implementation.md → 08-remotion-implementation.md`、`08-render-qa.md → 09-render-qa.md`、`09-final-render.md → 10-final-render.md`（`git mv` 保留历史）。外部指向旧文件名的链接会 404；负责方的已发布集只有 1 处外链，且原本就是 404。
@@ -64,6 +64,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- **版本维护口径切换为 0.0.x patch 递增**（I-079）：放弃 semver major 口径，历史发版整体改号——`1.0.0 → 0.0.1`、`2.0.0 → 0.0.2`（CHANGELOG 节名与节内自指同步），[SKILL.md](SKILL.md) `metadata.version` 由未发版批次预埋的 `3.0.0` 归一为 `0.0.2`；此后发版一律自 `0.0.3` 起 patch 递增（Unreleased 批次建议发版号随改）。不可变的 commit/PR 历史标题保留旧版本号字样，引用时按数字对应；外部版本号（archify CLI 3.0.0 等）不受影响。背景见 [台账](docs/.agents/issue.md)。
 - **RSI ledger 整改为「头部索引表 + 主体详情」双层结构**：[docs/.agents/issue.md](docs/.agents/issue.md) 新增五列索引表（ID / 标题 / 完成状态 ✅🔄⏸ / 完成时间 / 详情锚点），70 条详情块补 `<a id="I-xxx">` 锚点与 `## I-xxx：<标题>` 标题形态；状态与完成时间逐条经 PR 合并记录与 git 历史取证回填，17 条登记待处理项置 ⏸、完成时间如实置 `—`。Issue 编号方案由 `RSI-xxx` 整体更名为 `I-xxx`（对齐全局 AGENTS.md 的 Issue ID 规约），仓内 71 文件 479 处引用随迁；不可变的 commit/PR 历史标题与小写历史分支名保留旧编号字样，引用时以编号数字对应。`test_docs_paths` 新增台账结构门与旧编号禁用门（结构漂移由静默变红灯）。
 - **首屏 Demo 动图重录并归位 assets**：按根 README Quickstart 全流程重录 hello-video（vibe-video 更名后 Pill 与字幕首次以现名出镜，旧 gif 为 to-video 时代产物），`render --final` 成片（qa 全绿）转 960px/10fps 调色板 gif；自 docs/assets/demo/ 迁入 [assets/quickstart/](assets/quickstart/hello-video.gif) 与两幕示例场景同址，docs/assets/ 目录随之整体退役。
 - **架构图源入库对齐全局 Archify 规范**：`docs/assets/{architecture,mermaid}/` 的 7 图四件套（archify HTML、dark/light PNG、mermaid 源）平铺迁入 `docs/diagrams/<slug>/` 每图一目录（纯搬家，28 文件内容零改动）；文档嵌入链接同步（[README](README.md)、[references/PIPELINE.md](references/PIPELINE.md)、docs/research 三篇、[知识索引](docs/.agents/knowledge-map.md)）；`test_docs_paths` 执法面 mermaid glob 同步新路径。Demo 动图留 `docs/assets/demo/`；指向 negentropy 源仓的外链（VOICE-CLONING / INDEXTTS-2.5-ADVANCED）不变。
@@ -99,7 +100,7 @@ All notable changes to this project will be documented in this file.
 - 文档勘误（I-012）：`tts_server.py` 注释与 ADVANCED §3.1 此前声称「向量与情感音频同传时，音频仍会以 (1−Σw) 权重混进最终 emovec」——错误。上游 `infer_v2_5.py:582-585` 只要给了 `emo_vector` 就把 `emo_audio_prompt` 置 None，**音频被整个丢弃**（同传与纯向量输出逐字节一致的实测佐证）；`(1−Σw)` 份额实际来自本人样本的情感编码。生产行为无影响（服务本就拒绝同传），但曾误导第三轮试听中一个对照组的标签（#07「博主语调 × 段落」实为纯本人音色的段落演绎）。
 - **录制器异常路径泄漏整套 headless Chrome + 浏览器进程纪律成文**（I-031）：提取 `launched_browser` contextmanager（finally 覆盖 BaseException）+ 每章 context try/finally，长批次超时不再残留整套 headless Chrome。细节见 [台账](docs/.agents/issue.md)。
 
-## [2.0.0] - 2026-09-25
+## [0.0.2] - 2026-09-25
 
 ### Breaking（移除全部历史兼容面，negentropy 侧自行适配；I-009）
 
@@ -108,7 +109,7 @@ All notable changes to this project will be documented in this file.
 - `skeleton.toml` 历史登记清零：33 条 `[[drift]]`、2 组 `[[generation]]`（均为旧仓集名）与 `baselineOf` 全部移除；`.npmrc` 纯注释占位文件删除。**合法偏离登记面迁至工作区**（I-010）：`verify_skeleton.py` 改读 `$W/to-video.toml` 的 `[[skeleton.drift]]` / `[[skeleton.generation]]`（字段不变，表名加 `skeleton.` 前缀即可原样搬运；格式说明恢复在 skeleton.toml「合法偏离登记」「骨架分代」两节）；skill 侧 skeleton.toml 再出现登记键（含照抄工作区示例的 `[[skeleton.*]]` 形态）即大声退出，并按写法指路（旧表名加前缀 / 已带前缀原样搬）——登记指向具体集，属内容，不随模板分发；工作区登记载入期校验（`registry_problems`：drift 的 fingerprint / reason 必填、指纹 12 位 hex 或「缺失」、路径须在受门档位、同集同文件不重复，generation 的 legacy 不得等于当前模板指纹），非法即大声退出——登记住工作区后本仓测试管不到它，不钉指纹即永久免检。
 - 阶段编号对齐（原 ⑥↔07、⑦↔06 错位废除）：`06-tts-voice.md` ↔ Stage ⑥、`07-remotion-implementation.md` ↔ Stage ⑦，stages.toml、SKILL.md 速查表、全部交叉引用与执法测试（`test_stage_numbers_align_spec_files`）同步。
 - 旧资产与叙述清理：`influence--pipeline-layers.*` 更名 `pipeline-layers.*`（HTML/PNG/mermaid + 链接与 slug）；frozen 文件内陈旧路径注释（`pipeline/skills/…` 等）修正为现行路径；`check_series.py` 的 `COVERED_GLOBS_INFLUENCE` 更名 `COVERED_GLOBS` 并删旧嵌套布局的 `templates/` 过滤；tests/模板中 negentropy 具名叙述改中性措辞（上游 ISSUE 与 blob 引证保留）。
-- negentropy 侧自适配五步（本仓不提供迁移工程）：①61 个包装器的 `_skill_scripts` 与 2.0.0 模板同步（探测 `pipeline" / "scripts` → `scripts`，并加 `SKILL.md` 哨兵条件）；其中分集 frozen 包装器（tts / build_narration / qa_frames）须按 2.0.0 模板整文件覆盖——docstring 同批改过，只改探测行字节仍不等；②frozen 注释同步：本版修正了 7 个 frozen TS/TSX 的陈旧路径注释（`remotion.config.ts`、`i18n.tsx`、`NarrationAudio.tsx`、`Subtitle.tsx`、`SceneFade.tsx`、`ChapterProgress.tsx`、`motion/window.ts`，均为纯注释改动），md5 随之变化——当代集逐集整组拷齐后跑 `tsc --noEmit`，停在旧代的集只拷分代组外的文件、分代组按 ⑤ 登记（不做半同步）；漏掉此步则 `verify_skeleton --strict` 仍报 STALE，且 `render --lang en` 被骨架预检拦下（预检直比 NarrationAudio / Subtitle / ChapterProgress 字节、不查登记）；③工作区根补 `.to-video-root` 哨兵；④`mkdir -p ~/Library/Application\ Support/to-video && mv ~/Library/Application\ Support/negentropy-influence/tts-store ~/Library/Application\ Support/to-video/tts-store`（1.x 在旧目录存在时从不建新目录，缺 `mkdir` 则 mv 报 No such file or directory；若 `to-video/tts-store` 已存在勿直接 mv——会嵌套成 `tts-store/tts-store`、缓存全 miss，改用 `rsync -a <旧>/ <新>/` 合并后再删旧目录）；⑤旧 skeleton.toml 中仍成立的 `[[drift]]` / `[[generation]]` 条目加 `skeleton.` 前缀搬入工作区 `to-video.toml`（已整组同步到模板的集不必搬；`npmrc-inert-key` 代随 `.npmrc` 退出受门作废，勿搬——载入期校验会拒收）。
+- negentropy 侧自适配五步（本仓不提供迁移工程）：①61 个包装器的 `_skill_scripts` 与 0.0.2 模板同步（探测 `pipeline" / "scripts` → `scripts`，并加 `SKILL.md` 哨兵条件）；其中分集 frozen 包装器（tts / build_narration / qa_frames）须按 0.0.2 模板整文件覆盖——docstring 同批改过，只改探测行字节仍不等；②frozen 注释同步：本版修正了 7 个 frozen TS/TSX 的陈旧路径注释（`remotion.config.ts`、`i18n.tsx`、`NarrationAudio.tsx`、`Subtitle.tsx`、`SceneFade.tsx`、`ChapterProgress.tsx`、`motion/window.ts`，均为纯注释改动），md5 随之变化——当代集逐集整组拷齐后跑 `tsc --noEmit`，停在旧代的集只拷分代组外的文件、分代组按 ⑤ 登记（不做半同步）；漏掉此步则 `verify_skeleton --strict` 仍报 STALE，且 `render --lang en` 被骨架预检拦下（预检直比 NarrationAudio / Subtitle / ChapterProgress 字节、不查登记）；③工作区根补 `.to-video-root` 哨兵；④`mkdir -p ~/Library/Application\ Support/to-video && mv ~/Library/Application\ Support/negentropy-influence/tts-store ~/Library/Application\ Support/to-video/tts-store`（旧版 1.x（现 0.0.1）在旧目录存在时从不建新目录，缺 `mkdir` 则 mv 报 No such file or directory；若 `to-video/tts-store` 已存在勿直接 mv——会嵌套成 `tts-store/tts-store`、缓存全 miss，改用 `rsync -a <旧>/ <新>/` 合并后再删旧目录）；⑤旧 skeleton.toml 中仍成立的 `[[drift]]` / `[[generation]]` 条目加 `skeleton.` 前缀搬入工作区 `to-video.toml`（已整组同步到模板的集不必搬；`npmrc-inert-key` 代随 `.npmrc` 退出受门作废，勿搬——载入期校验会拒收）。
 
 ### Added
 
@@ -127,7 +128,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- 按 Agent Skills 规范重构（I-008）。**目录布局**：用 `git mv` 保留历史，迁移为 `pipeline/scripts` → `scripts/`、`pipeline/skills/NN-*.md` → `references/`（⑥⑦ 文件号随 I-009 对齐，见 Breaking）、`pipeline/README.md` → `references/PIPELINE.md`、四本手册与 `stages.toml` → `references/`、`pipeline/templates` → `assets/`、`pipeline/tests` → `tests/`、`docs/quickstart` → `assets/quickstart/`。**不留兼容面**：旧 `pipeline/` 路径（含迁移过渡期的软链 ABI 与迁移桩）在 2.0.0 一并移除，包装器探测路径改指 `scripts/`，旧工作区适配见 Breaking。**SKILL.md**：frontmatter 只用规范六字段（metadata 块式、allowed-tools 空格分隔、新增 compatibility；description 改写为「做什么 + Use when + 不用于」，去掉实现细节，补英文触发词）；正文重构为任务分流 → 工作流（显式修复重跑循环，去掉安装步）→ 九阶段速查 → 关键不变量 → 运行时陷阱（Bash 调用间变量不保留、脚本当黑盒先 `--help`）→ 按需加载（文件 → 何时读）。env 表从 SKILL.md 迁入 `references/PIPELINE.md`「环境变量（机器属性注册处）」节，补登漏掉的 `INDEXTTS_SERVER`；PIPELINE.md 增加 `$T/` 布局树；PIPELINE / RSI / 01 / 07 / 08 各加一行目录；stages.toml 中 ⑦ 的 gate 补上「运动层铁律」；RSI.md 不变量 8、11 补执法指针，G3 纳入 evals 对拍；README 文档地图收敛为入口文档加知识索引指针。pytest 与 ruff 的路径同步为 `tests` 与 `^(scripts|tests|assets)/`（assets 覆盖分集薄包装模板）。
+- 按 Agent Skills 规范重构（I-008）。**目录布局**：用 `git mv` 保留历史，迁移为 `pipeline/scripts` → `scripts/`、`pipeline/skills/NN-*.md` → `references/`（⑥⑦ 文件号随 I-009 对齐，见 Breaking）、`pipeline/README.md` → `references/PIPELINE.md`、四本手册与 `stages.toml` → `references/`、`pipeline/templates` → `assets/`、`pipeline/tests` → `tests/`、`docs/quickstart` → `assets/quickstart/`。**不留兼容面**：旧 `pipeline/` 路径（含迁移过渡期的软链 ABI 与迁移桩）在 0.0.2 一并移除，包装器探测路径改指 `scripts/`，旧工作区适配见 Breaking。**SKILL.md**：frontmatter 只用规范六字段（metadata 块式、allowed-tools 空格分隔、新增 compatibility；description 改写为「做什么 + Use when + 不用于」，去掉实现细节，补英文触发词）；正文重构为任务分流 → 工作流（显式修复重跑循环，去掉安装步）→ 九阶段速查 → 关键不变量 → 运行时陷阱（Bash 调用间变量不保留、脚本当黑盒先 `--help`）→ 按需加载（文件 → 何时读）。env 表从 SKILL.md 迁入 `references/PIPELINE.md`「环境变量（机器属性注册处）」节，补登漏掉的 `INDEXTTS_SERVER`；PIPELINE.md 增加 `$T/` 布局树；PIPELINE / RSI / 01 / 07 / 08 各加一行目录；stages.toml 中 ⑦ 的 gate 补上「运动层铁律」；RSI.md 不变量 8、11 补执法指针，G3 纳入 evals 对拍；README 文档地图收敛为入口文档加知识索引指针。pytest 与 ruff 的路径同步为 `tests` 与 `^(scripts|tests|assets)/`（assets 覆盖分集薄包装模板）。
 
 ### Fixed
 
@@ -136,7 +137,7 @@ All notable changes to this project will be documented in this file.
 - scaffold 结尾提示与 skeleton.toml 注释不再教人加 `--ignore-workspace`（I-005）：ISSUE-175 后分集 `pnpm-workspace.yaml` 已自锚，该参数会连本工程 workspace 一并忽略致 `ERR_PNPM_IGNORED_BUILDS`；新增测试跨行拦截用户可见文案（含模板）中的该命令形态。模板 `video/.npmrc` 的 `ignore-workspace=true` 经探针确认在 pnpm ≥11 下不被读取（死配置），改为只含说明，已发布 14 集登记 `[[generation]] npmrc-inert-key` 停旧代；顺带补齐 jev 集的 bilingual-i18n 花名册、为 agent-skills 集 Main 空行偏离登记 `[[drift]]`，真树骨架门 `--strict` 由 7 处未登记转为 0。
 - 覆盖门「sidecar 缺 type」WARN 不再指向不存在的 `scripts/archify_types.py`（I-006）：三处文案改为如实指路（在 sidecar JSON 顶层写回 `type`；`record_archify_all` 重录经 `prior_type` 保留，单图 `record_archify.py` 重录须带 `--type`）；新增测试要求用户可见文案（脚本 / 文档 / 模板）点名的 `scripts/*.py` 必须真实存在。
 
-## [1.0.0] - 2026-09-21
+## [0.0.1] - 2026-09-21
 
 ### Added
 

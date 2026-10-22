@@ -4,7 +4,7 @@ description: 把论文、技术文档、代码仓库、课程站点或 guided-le
 license: MIT
 compatibility: 渲染与抽帧 QA 仅支持 macOS（场景字体依赖系统 CJK 字体栈）；需要 uv、pnpm 与 Node.js（版本要求见 README 前置依赖）；全程（含终渲与交付）edge-tts 草声默认（需联网），IndexTTS-2.5 本人声音克隆仅本人显式点名启用（实跑带 --final-voice 具名授权，需本地服务）；宿主须能执行 Bash。
 metadata:
-  version: "3.0.0"
+  version: "0.0.2"
   author: "ThreeFish-AI"
   source: "extracted from ThreeFish-AI/negentropy apps/negentropy-influence"
 allowed-tools: Read Write Edit Glob Grep Bash

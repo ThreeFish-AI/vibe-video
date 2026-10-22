@@ -398,7 +398,7 @@ def test_no_instruction_to_add_ignore_workspace():
 def current_docs_and_code() -> list[Path]:
     """现行文案面 = 用户照做面 + references/ 全部手册 + 根 README + 知识索引 + mermaid
     图源（首行 `%% source:` 指回文档章节）+ docs/research（设计依据文档，编号对齐后
-    `skills/NN` 简写会被误读为同号新规格）。frozen 档不再豁免：2.0.0 起模板即唯一
+    `skills/NN` 简写会被误读为同号新规格）。frozen 档不再豁免：0.0.2 起模板即唯一
     事实源（I-009），陈旧注释一律清到现行路径。issue 台账与 CHANGELOG 是历史
     记录，不在面内。"""
     docs = skill_root() / "docs"
