@@ -5,7 +5,7 @@
 （uv run --no-project scripts/build_narration.py）。
 
 skill 解析：VIBE_VIDEO_HOME → ~/.claude/skills/vibe-video → ~/.agents/skills/vibe-video，
-全部未命中即**大声退出**并打印安装指令——静默跳过是被禁止的失效形态。
+全部未命中即**大声退出**并打印安装指令——静默跳过是被禁止的问题形态。
 包装器刻意零依赖单文件（与既有冻结档纪律一致）：修缺陷 = 改模板 + 全集同步，
 由 verify_skeleton.py 字节执法。
 """

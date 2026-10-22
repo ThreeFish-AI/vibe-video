@@ -514,7 +514,7 @@ def test_rule7_course_word_in_narration_fails(tmp_path):
         tmp_path, [S("claude-code-explained", COURSE_S)], {}, toml=COURSE_TOML
     )
     (ep_root(ws, COURSE_S) / "script/narration.md").write_text(
-        "## P0\n\n- [p0-02] 课程作者拆过源码，他说……\n", encoding="utf-8"
+        "## P0\n\n- [p0-02] 课程作者拆解过源码，他说……\n", encoding="utf-8"
     )
     rc, out = run_series_check(ws)
     assert rc == 1 and "规则7" in out and "课程" in out
@@ -545,12 +545,12 @@ def test_rule7_site_url_in_scene_fails(tmp_path):
 
 
 def test_rule7_anonymized_attribution_passes(tmp_path):
-    """三级证据归属匿名化后的合法形态：有人拆过它的源码。"""
+    """三级证据归属匿名化后的合法形态：有人拆解过它的源码。"""
     ws = build_workspace(
         tmp_path, [S("claude-code-explained", COURSE_S)], {}, toml=COURSE_TOML
     )
     (ep_root(ws, COURSE_S) / "script/narration.md").write_text(
-        "## P0\n\n- [p0-02] 有人拆过它的源码，他说……\n", encoding="utf-8"
+        "## P0\n\n- [p0-02] 有人拆解过它的源码，他说……\n", encoding="utf-8"
     )
     rc, out = run_series_check(ws)
     assert rc == 0, out
@@ -563,7 +563,7 @@ def test_rule7_research_layer_not_policed(tmp_path):
     )
     (ep_root(ws, COURSE_S) / "research").mkdir(parents=True)
     (ep_root(ws, COURSE_S) / "research/source-notes.md").write_text(
-        "课程作者拆过源码（具名归属，仓内义务）。\n", encoding="utf-8"
+        "课程作者拆解过源码（具名归属，仓内义务）。\n", encoding="utf-8"
     )
     rc, out = run_series_check(ws)
     assert rc == 0, out
