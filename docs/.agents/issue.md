@@ -1318,8 +1318,8 @@
 
 **定性**：T2（模板缺位的口径分叉类，盲评三子代理结构 specB 胜出）。
 
-**处理方式**：7 文件 +10/−10 纯等量替换——归属句模板改「作者拆解过源码，他说…」（SSOT 定义处）；规则 7 示例两处与 [test_check_series.py](../../tests/test_check_series.py) 4 处 fixture/docstring 逐字同步（断言信号是「课程」标识与标题/顺序词，改字面不影响判定）；PIPELINE:92 与三包装器 :8「失效形态」→「问题形态」四处同改保持口径一致。触碰不变量 3（frozen Remotion skeleton）带权衡：改的是模板侧 SSOT 定义处非任何集的复制件，工作区既有集副本走 verify_skeleton 既有 drift 登记机制（skeleton.toml 注明的合法逃逸口），机器执法为模板↔副本动态比对、无字节硬锚定（machine_checks 全绿实证）。全仓另 6 处「失效形态」工程注释位（scripts/pipeline.py:654/1078、check_archify_coverage.py:51、tests/test_stages.py:174、tests/test_paths.py:97、tests/test_wrapper_resolver.py:3，ISSUE-168 对账/failure mode 名词）刻意不改——非给起草者的示范位，超出最小干预面。PR [#62](https://github.com/ThreeFish-AI/vibe-video/pull/62)（分支 rsi/attribution-template-term-sweep，commit 1b3506c）。
+**处理方式**：7 文件 +10/−10 纯等量替换——归属句模板改「作者拆解过源码，他说…」（SSOT 定义处）；规则 7 示例两处与 [test_check_series.py](../../tests/test_check_series.py) 4 处 fixture/docstring 逐字同步（断言信号是「课程」标识与标题/顺序词，改字面不影响判定）；PIPELINE:92 与三包装器 :8「失效形态」→「问题形态」四处同改保持口径一致。触碰不变量 3（frozen Remotion skeleton）带权衡：改的是模板侧 SSOT 定义处非任何集的复制件，工作区既有集副本按包装器 docstring「修缺陷 = 改模板 + 全集同步」整组拷齐三份包装器（纯 docstring 改动、行为零风险；暂不同步的集按 skeleton.toml 口径登记 `[[skeleton.generation]]` 代际滞后，不走 `[[skeleton.drift]]`——drift 只收该集特有偏离），本仓机器执法为模板↔副本动态比对、无字节硬锚定（machine_checks 全绿实证）。全仓另 6 处「失效形态」工程注释位（scripts/pipeline.py:654/1078、check_archify_coverage.py:51、tests/test_stages.py:174、tests/test_paths.py:97、tests/test_wrapper_resolver.py:3，ISSUE-168 对账/failure mode 名词）刻意不改——非给起草者的示范位，超出最小干预面。PR [#62](https://github.com/ThreeFish-AI/vibe-video/pull/62)（分支 rsi/attribution-template-term-sweep，commit 1b3506c）。
 
-**后续防范**：上游内容仓做词族/口径类整改后，回扫 skill 文本面（references/ 示例句、scripts/ docstring 示例、assets/ 模板注释）核对示范位是否随动——示范位是口径的放大器，漏一处即新分集复写一处。
+**后续防范**：上游内容仓做词族/口径类整改后，回扫 skill 文本面（references/ 示例句、scripts/ docstring 示例、assets/ 模板注释）核对示范位是否随动——示范位是口径的放大器，漏一处即新分集复写一处。本条合并后，下游内容仓须把三份包装器整组同步到全部既有集（否则 `verify_skeleton --strict` 每系列各报 3 处 STALE）。
 
-**同类问题影响**：全仓孪生位已尽——「拆过」零残留、「失效形态」仅存上述申报 6 处工程注释位；「拆解过」6 行、「问题形态」4 处逐字同款到位；钉词形回归测试经裁决不加（规则 7 执法词面为站点标识、与「拆」字无关，改示例字面不影响判定方向）。
+**同类问题影响**：全仓示范位孪生已尽——「拆过」示范位零残留（台账与 CHANGELOG 的 A→B 引文除外）、「失效形态」仅存上述申报 6 处工程注释位；「拆解过」6 行、「问题形态」4 处逐字同款到位；钉词形回归测试经裁决不加（规则 7 执法词面为站点标识、与「拆」字无关，改示例字面不影响判定方向）。
