@@ -34,6 +34,15 @@
      从「介绍开源课程」转为「拆解 harness 工程」——站点只作组织骨架，观众
      不得感知其存在。改写示例：「课程作者拆解过源码，他说…」→「有人拆解过它的
      源码，他说…」（三级证据归属保留、不点名）。
+     署源豁免（I-080，2026-10-29 用户审批）：归属义务上移到首尾两个**既定署源位**
+     （片头署源角标 + 片尾署源句，说明源信息来自 Learn Claude Code），其余观众
+     层保持零信源痕迹。豁免是白名单制而非按位开关：允许站点标识的口播句 id
+     （narration_ids）与场景组件文件 stem（scene_stems）双键显式登记进工作区
+     vibe-video.toml 的 `[check_series.source_credit."<slug>"]`，豁免面且仅覆盖
+     四处——登记句的口播行、该句所属 beat 的画面备注块、storyboard 中含登记
+     句 id 的表格行、具名场景文件全文；未登记位置仍全量执法。配置引用不存在的
+     slug / 句 id / 场景 stem 直接 FAIL（防 typo 静默空转，见
+     _validate_source_credit）。
   8. 下期卡同步：配了「系列身份卡 + 下期预告卡」收尾装置的系列（见
      NEXT_CARD_SERIES_IDS），P6 场景文本必须含本集标题与下集标题的主段
      ——硬编码标题在系列更名/改题时会静默变陈旧，此处在提交前拦住。
@@ -81,6 +90,26 @@ def _cfg_list(section_key: str) -> tuple[str, ...]:
     data = tomllib.loads(WORKSPACE_TOML.read_text(encoding="utf-8"))
     sec = data.get("check_series", {})
     return tuple(sec.get(section_key, ()))
+
+
+def _cfg_source_credit() -> object:
+    """读工作区 vibe-video.toml 的 `[check_series.source_credit."<slug>"]` 嵌套表。
+
+    返回 toml 解析出的**原始值**（形态校验不在此做——加载期拿不到 msgs 输出面，
+    坏形态由 _validate_source_credit 响亮 FAIL，绝不静默忽略）。文件/键缺失 =
+    None（未声明署源位 = 全量执法，与 2026-08 匿名化决策的原始行为逐字一致）。
+
+    与 _cfg_list 同一「内容策略住工作区配置」先例：署源位是审批出来的内容决策，
+    skill 不携带任何具体系列/分集的署源身份。"""
+    if not WORKSPACE_TOML.is_file():
+        return None
+    import tomllib
+
+    data = tomllib.loads(WORKSPACE_TOML.read_text(encoding="utf-8"))
+    sec = data.get("check_series", {})
+    if not isinstance(sec, dict):
+        return None
+    return sec.get("source_credit")
 
 
 #: 顺序词。白名单：「下期」顺序无关收尾语；「前两集」从终集视角恒真（相对表述，改序仍成立）
@@ -164,6 +193,14 @@ AUDIENCE_GLOBS = (
     "episodes/*/script/storyboard.md",
     "episodes/*/video/src/scenes/*.tsx",
 )
+#: 署源豁免位的原始配置（I-080）：`{slug: {narration_ids: [...], scene_stems:
+#: [...]}}`。原始值直存（可能是任意 toml 形态），形态与引用健康校验统一在
+#: _validate_source_credit 执行——分层理由见 _cfg_source_credit docstring。
+SOURCE_CREDIT_RAW = _cfg_source_credit()
+#: storyboard 表格行内的句 id token（`p0-01..p0-06` 区间 / 单 id 同形态）：
+#: 行内任一 token 命中该集 narration_ids 即整行豁免——storyboard 行是句 id 的
+#: 派生面，句已获豁免则其分镜行跟随，与 beat 备注块的跟随语义同构。
+CREDIT_ROW_ID_RE = re.compile(r"p\d+-[a-z0-9]+")
 
 CN_NUM = {
     "一": 1,
@@ -575,8 +612,151 @@ def rule_renderability(series_list: list[dict], msgs: list[str]) -> None:
                 )
 
 
+#: narration 的 beat 画面备注行（`>` 引用块）。lstrip 容忍缩进（备注行在
+#: 真实稿中顶格，但判定不依赖排版细节）。
+_NOTE_LINE_RE = re.compile(r"^\s*>")
+
+
+def _beat_note_lines(lines: list[str], spoken_idx: int) -> set[int]:
+    """口播行所属 beat 的画面备注块行号——自该口播行向上回溯。
+
+    回溯只跨两类行：同口播块中更早的口播行（beat = 备注块 + 连续口播行，
+    豁免 beat 内任一句都指向同一备注块）、备注块与口播块之间的单个空行。
+    备注块本身必须**连续**（`>` 行序列）——文件头部的格式约定 note 被幕标题
+    与空行隔在第一个 beat 之外，不会因首句豁免被连带；口播行上方无备注块
+    （裸 beat）时自然返回空集。"""
+    j = spoken_idx - 1
+    while j >= 0 and SPOKEN_LINE_RE.match(lines[j]):
+        j -= 1
+    if j >= 0 and not lines[j].strip():
+        j -= 1
+    out: set[int] = set()
+    while j >= 0 and _NOTE_LINE_RE.match(lines[j]):
+        out.add(j)
+        j -= 1
+    return out
+
+
+def _narration_credit_lines(text: str, ids: frozenset[str]) -> set[int]:
+    """narration（zh/en 同 id）中获署源豁免的行号集：登记句口播行 + 其 beat 备注。"""
+    lines = text.splitlines(keepends=True)
+    exempt: set[int] = set()
+    for i, line in enumerate(lines):
+        m = SPOKEN_LINE_RE.match(line)
+        if m and m.group("id") in ids:
+            exempt.add(i)
+            exempt |= _beat_note_lines(lines, i)
+    return exempt
+
+
+def _storyboard_credit_lines(text: str, ids: frozenset[str]) -> set[int]:
+    """storyboard 中获署源豁免的行号集：句 id token 与 narration_ids 有交集的行。"""
+    return {
+        i
+        for i, line in enumerate(text.splitlines(keepends=True))
+        if ids.intersection(CREDIT_ROW_ID_RE.findall(line))
+    }
+
+
+def _line_spans(text: str, line_nums: set[int]) -> list[tuple[int, int]]:
+    """行号集 → 字符区间集（keepends 累计偏移；豁免判定按 hit 起点落点）。"""
+    spans: list[tuple[int, int]] = []
+    off = 0
+    for i, line in enumerate(text.splitlines(keepends=True)):
+        if i in line_nums:
+            spans.append((off, off + len(line)))
+        off += len(line)
+    return spans
+
+
+def _validate_source_credit(
+    series_list: list[dict], msgs: list[str]
+) -> dict[str, tuple[frozenset[str], frozenset[str]]]:
+    """署源豁免配置的形态与引用健康校验——白名单制的防静默空转门。
+
+    豁免是「删执法」操作，配置 typo 的静默形态恰好是**门变松而无人知晓**
+    （句 id 拼错 = 署源句照常 FAIL 制片被堵；slug 拼错 = 豁免整体落空）。
+    故引用物必须响亮 FAIL：source_credit 形态、slug 未登记、该集缺
+    narration.md（署源位前置条件 = 口播已落盘）、句 id 无对应口播行、
+    stem 无对应场景文件（storyboard 已定稿时——未定稿时 scenes/ 留空是
+    合法脚手架期，与规则 6 触发条件同构，不校验存在性）。
+
+    校验只发消息不改语义：typo 的 id/stem 天然豁免不到任何行/文件，合法
+    条目照常注册——门已因 FAIL 变红，修复后重跑即收敛。"""
+    if SOURCE_CREDIT_RAW is None:
+        return {}
+    if not isinstance(SOURCE_CREDIT_RAW, dict):
+        msgs.append(
+            "FAIL 规则7：check_series.source_credit 须为表"
+            f'（[check_series.source_credit."<slug>"]），当前是 {type(SOURCE_CREDIT_RAW).__name__}'
+        )
+        return {}
+    by_slug = {e["slug"]: e for e in all_episodes(series_list)}
+    out: dict[str, tuple[frozenset[str], frozenset[str]]] = {}
+    for slug, entry in SOURCE_CREDIT_RAW.items():
+        if not isinstance(entry, dict):
+            msgs.append(
+                f"FAIL 规则7：source_credit[{slug!r}] 须为表"
+                "（narration_ids / scene_stems），当前是"
+                f" {type(entry).__name__}"
+            )
+            continue
+        bad = False
+        for key in ("narration_ids", "scene_stems"):
+            val = entry.get(key, [])
+            if not isinstance(val, list) or not all(isinstance(x, str) for x in val):
+                msgs.append(
+                    f"FAIL 规则7：source_credit[{slug!r}].{key} 须为字符串列表"
+                    f"，当前是 {val!r}"
+                )
+                bad = True
+        if bad:
+            continue
+        ids = frozenset(entry.get("narration_ids", []))
+        stems = frozenset(entry.get("scene_stems", []))
+        ep = by_slug.get(slug)
+        if ep is None:
+            msgs.append(
+                f"FAIL 规则7：source_credit 的 slug {slug!r} 不在 series.json"
+                " 任何系列的 episodes 里（防 typo 静默空转）"
+            )
+            continue
+        root = WORKSPACE / ep["path"]
+        narration = root / "script" / "narration.md"
+        if not narration.is_file():
+            msgs.append(
+                f"FAIL 规则7：{slug} 已登记署源位但缺 script/narration.md"
+                "（署源位前置条件 = 口播已落盘）"
+            )
+            continue
+        spoken = {
+            m.group("id")
+            for m in SPOKEN_LINE_RE.finditer(narration.read_text(encoding="utf-8"))
+        }
+        for sid in sorted(ids - spoken):
+            msgs.append(
+                f"FAIL 规则7：{slug} 署源句 id {sid!r} 在其 narration.md"
+                " 口播行中找不到（防 typo 静默空转）"
+            )
+        if (root / "script" / "storyboard.md").is_file():
+            scenes_dir = root / "video" / "src" / "scenes"
+            on_disk = (
+                {p.stem for p in scenes_dir.glob("*.tsx")}
+                if scenes_dir.is_dir()
+                else set()
+            )
+            for stem in sorted(stems - on_disk):
+                msgs.append(
+                    f"FAIL 规则7：{slug} 署源场景 stem {stem!r} 在其"
+                    " video/src/scenes/ 下无对应 .tsx（storyboard 已定稿；"
+                    "防 typo 静默空转）"
+                )
+        out[slug] = (ids, stems)
+    return out
+
+
 def rule_site_marker(series_list: list[dict], msgs: list[str]) -> None:
-    """规则 7：去站点化——观众可见层不得出现课程站点标识。
+    """规则 7：去站点化——观众可见层不得出现课程站点标识（既定署源位除外）。
 
     受检面刻意只收**观众会看到的**三类文件（narration 口播+画面备注、
     storyboard、scenes 的字符串字面量），而 research/、sources.toml、
@@ -586,7 +766,12 @@ def rule_site_marker(series_list: list[dict], msgs: list[str]) -> None:
     按系列分级：强标识（learn.shareai / Learn Claude Code / shareAI / 课程 /
     章号 s01–s20）全系列执法（其他系列本不该出现这些词，出现即异常）；
     「站点」一词只对课程系执法——论文系用它指论文配套网站，属正常用法。
-    """
+
+    署源豁免（I-080）：`_validate_source_credit` 校验后的白名单把豁免收敛到
+    四处——登记句的口播行与其 beat 画面备注块（narration zh/en）、含登记句
+    id 的 storyboard 行、具名场景文件全文。有界是承重设计：全文豁免会让
+    「多写一句」静默滑过门，按位登记则每多一个署源位都要显式过一次配置评审。"""
+    credit = _validate_source_credit(series_list, msgs)
     course_paths = set()
     for series in series_list:
         if series["id"] in COURSE_SERIES_IDS:
@@ -598,17 +783,25 @@ def rule_site_marker(series_list: list[dict], msgs: list[str]) -> None:
             except UnicodeDecodeError:
                 continue
             rel = f.relative_to(PROJECT)
-            hits = list(SITE_MARKER_RE.finditer(text))
-            is_course = f.relative_to(WORKSPACE).parts[1] in {
-                p.split("/")[-1] for p in course_paths
-            }
-            if is_course:
-                hits.extend(SITE_WORD_RE.finditer(text))
-            for m in hits:
-                msgs.append(
-                    f"FAIL 规则7：{rel} 出现课程站点标识「{m.group(0)}」"
-                    "（观众可见层须匿名化，改法见模块 docstring 规则 7）"
-                )
+            slug = f.relative_to(WORKSPACE).parts[1]
+            is_course = slug in {p.split("/")[-1] for p in course_paths}
+            ids, stems = credit.get(slug, (frozenset(), frozenset()))
+            if f.name in ("narration.md", "narration.en.md"):
+                spans = _line_spans(text, _narration_credit_lines(text, ids))
+            elif f.name == "storyboard.md":
+                spans = _line_spans(text, _storyboard_credit_lines(text, ids))
+            else:  # scenes/*.tsx：stem 级豁免——整文件是署源位（片头角标）
+                spans = [(0, len(text))] if f.stem in stems else []
+            patterns = [SITE_MARKER_RE] + ([SITE_WORD_RE] if is_course else [])
+            for pat in patterns:
+                for m in pat.finditer(text):
+                    if any(a <= m.start() < b for a, b in spans):
+                        continue  # 既定署源位（I-080 白名单登记处）
+                    msgs.append(
+                        f"FAIL 规则7：{rel} 出现课程站点标识「{m.group(0)}」"
+                        "（观众可见层除既定署源位外须匿名化，"
+                        "改法见模块 docstring 规则 7）"
+                    )
 
 
 def rule_next_ep_card(series_list: list[dict], msgs: list[str]) -> None:

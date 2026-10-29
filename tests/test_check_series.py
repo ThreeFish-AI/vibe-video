@@ -9,8 +9,9 @@ seriesList[]）也在此固定：规则 1 跨系列全局，规则 2/3/4 按系�
 PROJECT 锚（工作区所在 git 仓库根）的两种形态各有专门用例：tmp 树无 .git 时
 回退工作区自身；宿主层 .git 为**文件**（git worktree 指针，内容 `gitdir: …`）
 时锚到宿主层——FAIL 消息里的 `relative_to(PROJECT)` 路径形态即锚点的可观测
-证据。工程级受检面（project_globs）与规则 7/8 的系列 id 集都住工作区
-vibe-video.toml（内容策略随内容走），空默认的「不激活」态同样被钉住。
+证据。工程级受检面（project_globs）、规则 7/8 的系列 id 集与规则 7 的署源
+豁免位（source_credit，I-080）都住工作区 vibe-video.toml（内容策略随内容走），
+空默认的「不激活」态同样被钉住。
 """
 
 from __future__ import annotations
@@ -639,6 +640,318 @@ def test_rule7_chapter_id_prefix_suffix_ascii_still_exempt(tmp_path):
     )
     rc, out = run_series_check(ws)
     assert rc == 0, out
+
+
+# ── 规则 7 · 署源豁免（I-080，2026-10-29「首尾署源」审批）─────────────────────
+#: 用户审批政策：视频首尾部各设一个既定署源位（片头署源角标 + 片尾署源句，
+#: 说明源信息来自 Learn Claude Code），其余观众层保持零信源痕迹。豁免是白名单
+#: 双键（narration_ids 句 id + scene_stems 场景 stem），住工作区
+#: vibe-video.toml——与 course_series_ids 同构的内容策略分置。「无配置 =
+#: 现状」由本文件既有规则 7 用例（全部不带 source_credit）整体回归钉住。
+
+
+def credit_toml(
+    ids: str = 'narration_ids = ["p0-02"]',
+    stems: str = 'scene_stems = ["P0Hook"]',
+    slug: str = "ep-course",
+) -> str:
+    """署源豁免 toml 生成器——键形态对齐真配置面（嵌套表带引号 slug 键）。"""
+    return (
+        "[check_series]\n"
+        'course_series_ids = ["claude-code-explained"]\n'
+        "\n"
+        f'[check_series.source_credit."{slug}"]\n'
+        f"{ids}\n"
+        f"{stems}\n"
+    )
+
+
+#: 署源用例的基准 narration：p0-02 是登记句，其 beat 备注块随之豁免——
+#: note 内容保持干净（「豁免面吃掉禁词」的判定走各用例自己的注入）。
+CREDIT_NARRATION = (
+    "## P0 冷开场\n"
+    "\n"
+    "> 画面：干净 beat 备注\n"
+    "\n"
+    "- [p0-01] 普通句。\n"
+    "- [p0-02] 既定署源位句。\n"
+    "- [p0-03] 普通句。\n"
+)
+
+
+def test_rule7_credit_line_and_beat_note_pass(tmp_path):
+    """豁免句口播行 + 其 beat 画面备注块同随豁免——署源角标与署源句的合法形态。"""
+    ws = build_workspace(
+        tmp_path, [S("claude-code-explained", COURSE_S)], {}, toml=credit_toml()
+    )
+    (ep_root(ws, COURSE_S) / "script/narration.md").write_text(
+        "## P0 冷开场\n"
+        "\n"
+        "> 画面：片头署源角标——learn.shareai 出处在既定位展示\n"
+        "\n"
+        "- [p0-01] 普通句。\n"
+        "- [p0-02] 本片改编自开源课程 Learn Claude Code。\n"
+        "- [p0-03] 普通句。\n",
+        encoding="utf-8",
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 0, out
+
+
+def test_rule7_credit_same_beat_other_line_fails(tmp_path):
+    """同一 beat 内未登记句照常执法——豁免是句 id 白名单，不是 beat 全免。"""
+    ws = build_workspace(
+        tmp_path, [S("claude-code-explained", COURSE_S)], {}, toml=credit_toml()
+    )
+    (ep_root(ws, COURSE_S) / "script/narration.md").write_text(
+        CREDIT_NARRATION.replace("- [p0-03] 普通句。\n", "- [p0-03] 课程作者说……\n"),
+        encoding="utf-8",
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 1 and "规则7" in out and "课程" in out
+
+
+def test_rule7_credit_header_note_still_policed(tmp_path):
+    """文件头部格式约定 note 不属于任何 beat——不因首句豁免被连带（边界钉死）。"""
+    ws = build_workspace(
+        tmp_path, [S("claude-code-explained", COURSE_S)], {}, toml=credit_toml()
+    )
+    (ep_root(ws, COURSE_S) / "script/narration.md").write_text(
+        "# 逐字稿\n\n> **格式约定**：参照课程站点规范。\n\n" + CREDIT_NARRATION,
+        encoding="utf-8",
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 1 and "规则7" in out and "课程" in out
+
+
+def test_rule7_credit_zhandian_word_also_exempt(tmp_path):
+    """「站点」词（课程系执法）与强标识共用同一豁免滤网——登记句内允许站点指称。"""
+    ws = build_workspace(
+        tmp_path, [S("claude-code-explained", COURSE_S)], {}, toml=credit_toml()
+    )
+    (ep_root(ws, COURSE_S) / "script/narration.md").write_text(
+        CREDIT_NARRATION.replace(
+            "- [p0-02] 既定署源位句。\n", "- [p0-02] 课程站点上还有一张图。\n"
+        ),
+        encoding="utf-8",
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 0, out
+
+
+def test_rule7_credit_en_narration_same_ids_pass(tmp_path):
+    """en 译稿按同一句 id 豁免（zh/en 同 id 契约）；未登记句在 en 仍执法。
+    zh 主稿须同步落 p0-02——句 id 存在性校验以 zh 主稿为准（规格：防 typo）。"""
+    ws = build_workspace(
+        tmp_path, [S("claude-code-explained", COURSE_S)], {}, toml=credit_toml()
+    )
+    (ep_root(ws, COURSE_S) / "script/narration.md").write_text(
+        CREDIT_NARRATION, encoding="utf-8"
+    )
+    (ep_root(ws, COURSE_S) / "script/narration.en.md").write_text(
+        "## P0\n\n- [p0-02] Adapted from Learn Claude Code.\n", encoding="utf-8"
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 0, out
+    (ep_root(ws, COURSE_S) / "script/narration.en.md").write_text(
+        "## P0\n\n- [p0-02] Adapted from Learn Claude Code.\n"
+        "- [p0-03] See learn.shareai for more.\n",
+        encoding="utf-8",
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 1 and "规则7" in out and "learn.shareai" in out
+
+
+def test_rule7_credit_storyboard_row_passes(tmp_path):
+    """storyboard 行内句 id token 与白名单有交集即整行豁免（句的派生面跟随）。"""
+    ws = build_workspace(
+        tmp_path, [S("claude-code-explained", COURSE_S)], {}, toml=credit_toml()
+    )
+    (ep_root(ws, COURSE_S) / "script/narration.md").write_text(
+        CREDIT_NARRATION, encoding="utf-8"
+    )
+    (ep_root(ws, COURSE_S) / "script/storyboard.md").write_text(
+        "## P0\n"
+        "\n"
+        "| 镜 | 句区间 | 画面 |\n"
+        "|---|---|---|\n"
+        "| 0-A | p0-01..p0-02 | 片头署源角标（learn.shareai） |\n"
+        "| 0-B | p0-03..p0-04 | 普通镜 |\n",
+        encoding="utf-8",
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 0, out
+
+
+def test_rule7_credit_storyboard_other_row_fails(tmp_path):
+    """未登记句区间的 storyboard 行照常执法——行级豁免不外溢。"""
+    ws = build_workspace(
+        tmp_path, [S("claude-code-explained", COURSE_S)], {}, toml=credit_toml()
+    )
+    (ep_root(ws, COURSE_S) / "script/narration.md").write_text(
+        CREDIT_NARRATION, encoding="utf-8"
+    )
+    (ep_root(ws, COURSE_S) / "script/storyboard.md").write_text(
+        "## P0\n"
+        "\n"
+        "| 镜 | 句区间 | 画面 |\n"
+        "|---|---|---|\n"
+        "| 0-A | p0-01..p0-02 | 片头署源角标（learn.shareai） |\n"
+        "| 0-B | p0-03..p0-04 | 对照 s01 讲解 |\n",
+        encoding="utf-8",
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 1 and "规则7" in out and "s01" in out
+
+
+def test_rule7_credit_scene_stem_passes(tmp_path):
+    """具名场景文件（片头角标组件）整文件豁免；同集其他场景仍执法（下一用例）。"""
+    ws = build_workspace(
+        tmp_path,
+        [S("claude-code-explained", COURSE_S)],
+        {},
+        scene_names={COURSE_S["slug"]: ("P0ColdOpen", "P1Ending")},
+        toml=credit_toml(stems='scene_stems = ["P0ColdOpen"]'),
+    )
+    (ep_root(ws, COURSE_S) / "script/narration.md").write_text(
+        CREDIT_NARRATION, encoding="utf-8"
+    )
+    (ep_root(ws, COURSE_S) / "video/src/scenes/P0ColdOpen.tsx").write_text(
+        "export const P0ColdOpen = () => null;\n"
+        "// 片头署源角标：learn.shareai.run/zh/\n",
+        encoding="utf-8",
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 0, out
+
+
+def test_rule7_credit_scene_other_stem_fails(tmp_path):
+    """未登记 stem 的场景文件出现站点标识照常 FAIL。"""
+    ws = build_workspace(
+        tmp_path,
+        [S("claude-code-explained", COURSE_S)],
+        {},
+        scene_names={COURSE_S["slug"]: ("P0ColdOpen", "P1Ending")},
+        toml=credit_toml(stems='scene_stems = ["P0ColdOpen"]'),
+    )
+    (ep_root(ws, COURSE_S) / "script/narration.md").write_text(
+        CREDIT_NARRATION, encoding="utf-8"
+    )
+    (ep_root(ws, COURSE_S) / "video/src/scenes/P1Ending.tsx").write_text(
+        "export const P1Ending = () => null;\n// 信源：learn.shareai\n",
+        encoding="utf-8",
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 1 and "规则7" in out and "learn.shareai" in out
+
+
+def test_rule7_credit_unknown_id_fails(tmp_path):
+    """白名单句 id 在该集口播行中找不到——响亮 FAIL（防 typo 静默空转）。"""
+    ws = build_workspace(
+        tmp_path,
+        [S("claude-code-explained", COURSE_S)],
+        {},
+        toml=credit_toml(ids='narration_ids = ["p0-99"]'),
+    )
+    (ep_root(ws, COURSE_S) / "script/narration.md").write_text(
+        CREDIT_NARRATION, encoding="utf-8"
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 1 and "规则7" in out and "p0-99" in out and "找不到" in out
+
+
+def test_rule7_credit_unknown_slug_fails(tmp_path):
+    """source_credit 引用 series.json 之外的 slug——响亮 FAIL。"""
+    ws = build_workspace(
+        tmp_path,
+        [S("claude-code-explained", COURSE_S)],
+        {},
+        toml=credit_toml(slug="ep-ghost"),
+    )
+    (ep_root(ws, COURSE_S) / "script/narration.md").write_text(
+        CREDIT_NARRATION, encoding="utf-8"
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 1 and "规则7" in out and "ep-ghost" in out
+
+
+def test_rule7_credit_missing_narration_fails(tmp_path):
+    """已登记署源位但该集 narration.md 未落盘——前置条件缺失，响亮 FAIL。"""
+    ws = build_workspace(
+        tmp_path, [S("claude-code-explained", COURSE_S)], {}, toml=credit_toml()
+    )
+    (ep_root(ws, COURSE_S) / "script/narration.md").unlink()
+    rc, out = run_series_check(ws)
+    assert rc == 1 and "已登记署源位但缺 script/narration.md" in out
+
+
+def test_rule7_credit_unknown_stem_fails_when_storyboard_exists(tmp_path):
+    """stem 无对应 .tsx 且 storyboard 已定稿——响亮 FAIL（与规则 6 触发条件同构）。"""
+    ws = build_workspace(
+        tmp_path,
+        [S("claude-code-explained", COURSE_S)],
+        {},
+        toml=credit_toml(stems='scene_stems = ["P0Ghost"]'),
+    )
+    (ep_root(ws, COURSE_S) / "script/narration.md").write_text(
+        CREDIT_NARRATION, encoding="utf-8"
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 1 and "规则7" in out and "P0Ghost" in out and ".tsx" in out
+
+
+def test_rule7_credit_unknown_stem_tolerated_before_storyboard(tmp_path):
+    """storyboard 未落盘时 scenes/ 留空是合法脚手架期——stem 存在性不校验。"""
+    ws = build_workspace(
+        tmp_path,
+        [S("claude-code-explained", COURSE_S)],
+        {},
+        scene_names={COURSE_S["slug"]: None},
+        toml=credit_toml(
+            ids='narration_ids = ["p0-01"]', stems='scene_stems = ["P0Ghost"]'
+        ),
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 0 and "P0Ghost" not in out
+
+
+@pytest.mark.parametrize(
+    "toml",
+    [
+        # narration_ids 非字符串列表（裸字符串是最顺手的 typo 形态）
+        '[check_series]\n\n[check_series.source_credit."ep-course"]\nnarration_ids = "p0-02"\n',
+        # 列表元素非字符串
+        '[check_series]\n\n[check_series.source_credit."ep-course"]\nnarration_ids = [1]\n',
+        # source_credit 本体非表
+        '[check_series]\nsource_credit = ["ep-course"]\n',
+        # 条目值非表（slug 键直接取字符串值）
+        '[check_series]\n\n[check_series.source_credit]\nep-course = "x"\n',
+    ],
+)
+def test_rule7_credit_bad_shape_fails(tmp_path, toml):
+    """配置形态错（非字符串列表 / 非表）→ FAIL，不静默忽略——豁免是删执法
+    的操作，坏形态静默等于门变松而无人知晓。"""
+    ws = build_workspace(
+        tmp_path, [S("claude-code-explained", COURSE_S)], {}, toml=toml
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 1 and "规则7" in out and "source_credit" in out
+
+
+def test_rule7_credit_empty_table_behaves_as_absent(tmp_path):
+    """`[check_series.source_credit]` 显式空表 = 未声明任何署源位——全量执法，
+    与无配置的现状一致（既有规则 7 用例整体回归「完全无键」形态，此处钉空表）。"""
+    ws = build_workspace(
+        tmp_path,
+        [S("claude-code-explained", COURSE_S)],
+        {},
+        toml='[check_series]\ncourse_series_ids = ["claude-code-explained"]\n\n[check_series.source_credit]\n',
+    )
+    (ep_root(ws, COURSE_S) / "script/narration.md").write_text(
+        "## P0\n\n- [p0-02] 课程作者拆解过源码。\n", encoding="utf-8"
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 1 and "规则7" in out and "课程" in out
 
 
 # ── 规则 8 · 下期卡与 series.json 同步（2026-08-23 评审修复引入）──────────────
