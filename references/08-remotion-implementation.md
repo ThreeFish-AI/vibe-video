@@ -396,4 +396,4 @@ QA 验收：逐幕抽帧目检色契约遵守、beat 窗口不越界、角标不
 
 行固定四条：①官方文档 `code.claude.com` + 取数日期；②Anthropic Engineering 博客；
 ③第三方源码分析（不点名，「片中已逐处标注」）；④「画面数字均为实测口径」。
-课程站点与仓库链接**不进观众层**（仓内 `sources.toml` 保留全指纹——两层口径见 check_series.py 规则 7）。
+课程站点与仓库链接**默认不进观众层**（未登记署源位的系列仍全量匿名；登记了 `[check_series.source_credit]` 署源位的系列，其片头/片尾既定署源位放行。仓内 `sources.toml` 保留全指纹——两层口径见 check_series.py 规则 7）。
