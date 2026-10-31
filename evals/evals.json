@@ -7,7 +7,7 @@
       "expected_output": "在 ~/videos/ws 内用 scaffold.py 建集（如 episodes/react-video），该集 pipeline.toml 设 tts.engine=edge、时长预算窗约 3 分钟；按 Stage ① A 型规格取证 ReAct（arXiv:2210.03629），落 research/paper-notes.md（来源引用 + 断言锚到论文章节/图表号或英文原句）；撰写 planning.md（叙事策略含 3–5 个钩子候选矩阵与「★ 选定」标记）、narration.md（`## Pn 幕名` 分幕 + `- [pn-01]` 一句一行，首句 p0-01 以「这是 XXX ……」钩子入场）与覆盖全部句 id 的 storyboard.md；逐字稿过 ④ 双重校验后按 Stage ⑤ 成文优化规格润色（幕内空行分 beat，事实与句 id 不动，独立子代理成文评审 REWRITE=0，改动句回 ④ 复核）再切镜；依序跑 pipeline.py build → check，有 FAIL 就改源稿重跑，直到 check 零 FAIL 并报告；止步于内容层（①–⑥），不启动 TTS 正式合成（至多 tts --plan），并给出下一步建议。",
       "files": [],
       "assertions": [
-        "在 ~/videos/ws（含 .vibe-video-root 哨兵）内以 `scaffold.py <slug>-video --title …` 建集，而非手工 mkdir 或拷贝骨架；分集目录名以 -video 结尾，且该集 pipeline.toml 的 tts.engine 被设为 edge",
+        "在 ~/videos/ws（含 .vibe-video-root 哨兵）内以 `scaffold.py <slug> --title …` 建集，而非手工 mkdir 或拷贝骨架；且该集 pipeline.toml 的 tts.engine 被设为 edge",
         "产出 research/paper-notes.md：头部含 ReAct 来源引用（作者 + arXiv:2210.03629），断言带论文章节/图表号或英文原句锚点；narration.md 中凡出现的基准名与数字（如 HotpotQA、FEVER、ALFWorld、WebShop 及成功率提升幅度）都能在 notes 中找到对应条目",
         "script/narration.md 由 agent 撰写，采用 `## P0 <幕名>` 分幕 + `- [p0-01] <一句>` 一句一行，句 id 以本幕小写幕名为前缀且全片唯一；同时写有覆盖全部句 id 的 script/storyboard.md",
         "planning.md 叙事策略含开篇钩子候选矩阵：3–5 个不同维度的备选 Hook（各阐明钩子文本/留存逻辑/主干锚点/引子）且带「★ 选定」标记；narration.md 首句 p0-01 以「这是 XXX ……」句式入场（句首无寒暄唤语），并与选定 Hook 对应",

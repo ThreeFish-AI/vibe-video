@@ -727,13 +727,30 @@ def test_scaffolded_config_does_not_block_authoring_stages(tmp_path):
     assert not fails, f"scaffold 产物未通过配置校验：{fails}"
 
 
-def test_scaffold_rejects_bad_slug_and_existing_dir(tmp_path):
+def test_scaffold_accepts_suffix_free_slug(tmp_path):
+    """集目录命名已去 -video 后缀（I-083）：无后缀 slug 必须可建集。"""
     ws = flat_ws(tmp_path)
-    r = run(SCAFFOLD, "no-suffix", "--title", "x", cwd=ws)
-    assert r.returncode != 0 and "-video" in (r.stdout + r.stderr)
-    (ws / "episodes" / "claude-code-explained-video").mkdir()
-    r = run(SCAFFOLD, "claude-code-explained-video", "--title", "x", cwd=ws)
+    r = run(SCAFFOLD, "demo-ep", "--title", "x", cwd=ws)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert (ws / "episodes" / "demo-ep").is_dir()
+
+
+def test_scaffold_rejects_existing_dir(tmp_path):
+    ws = flat_ws(tmp_path)
+    # 既有带 -video 后缀 slug 仍合法（历史形态向后兼容）
+    assert run(SCAFFOLD, "demo-ep-video", "--title", "x", cwd=ws).returncode == 0
+    r = run(SCAFFOLD, "demo-ep-video", "--title", "x", cwd=ws)
     assert r.returncode != 0 and "已存在" in (r.stdout + r.stderr)
+
+
+def test_scaffold_rejects_path_segment_slug(tmp_path):
+    """slug 是 episodes/ 下单段目录名：路径段与空串拒绝、零落盘（I-083 评审修复）。"""
+    ws = flat_ws(tmp_path)
+    for bad in ("../escape", "a/b", "/tmp/abs-ep", "", ".", ".."):
+        r = run(SCAFFOLD, bad, "--title", "x", cwd=ws)
+        assert r.returncode != 0, bad
+        assert "单段目录名" in (r.stdout + r.stderr), bad
+    assert not (ws / "escape").exists() and not (ws / "abs-ep").exists()
 
 
 def test_scaffold_pin_hint_reads_template_not_rendered_output(tmp_path):

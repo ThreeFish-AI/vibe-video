@@ -20,8 +20,11 @@
    漂移（`--strict` 不失败）。故下方 step 6 必须由人执行，别指望门兜住。
 
 用法：
-  uv run --no-project $T/scripts/scaffold.py <slug>-video --title "本集标题"
+  uv run --no-project $T/scripts/scaffold.py <slug> --title "本集标题"
   uv run --no-project $T/scripts/scaffold.py --init-workspace [dir]
+
+slug 即分集目录名（= series.json 的 slug），机制对 -video 后缀无假设；
+既有集目录带 -video 后缀仍合法（历史命名形态）。
 """
 
 from __future__ import annotations
@@ -100,7 +103,7 @@ def init_workspace(ws: Path, force: bool) -> int:
     print("  4. （可选）git init；README.md 按本工作区实态改写")
     print(
         "\n  建集：uv run --no-project "
-        f"{Path(__file__).resolve()} <slug>-video --title 本集标题"
+        f"{Path(__file__).resolve()} <slug> --title 本集标题"
         "（开箱即 edge 草声，无需样本；--style 是终声档锚点）"
     )
     return 0
@@ -109,7 +112,9 @@ def init_workspace(ws: Path, force: bool) -> int:
 def main() -> int:
     ap = argparse.ArgumentParser(description="从模板实例化新集工程")
     ap.add_argument(
-        "slug", nargs="?", help="工程目录名，须以 -video 结尾（= series.json 的 slug）"
+        "slug",
+        nargs="?",
+        help="工程目录名（= series.json 的 slug；既有集可带 -video 后缀）",
     )
     ap.add_argument(
         "--title", help="本集标题（写入 README 与 package.json；建集模式必填）"
@@ -147,10 +152,13 @@ def main() -> int:
     if args.init_workspace is not None:
         sys.exit(init_workspace(Path(args.init_workspace).resolve(), args.force))
     if args.slug is None or args.title is None:
-        ap.error("建集须提供 <slug>-video 与 --title（或改用 --init-workspace [DIR]）")
+        ap.error("建集须提供 <slug> 与 --title（或改用 --init-workspace [DIR]）")
 
-    if not args.slug.endswith("-video"):
-        sys.exit(f"slug 须以 -video 结尾（与既有四集一致）：{args.slug!r}")
+    #: slug 是 episodes/ 下单段目录名（scaffold 落单层，嵌套归位走 mv + series.json
+    #: path 同步）：拒路径段防穿越逃逸——文件系统安全不变量，非命名约定（I-083）。
+    if not args.slug or "/" in args.slug or args.slug in {".", ".."}:
+        sys.exit(f"slug 须为非空单段目录名（不含 /、不能是 . 或 ..）：{args.slug!r}")
+
     episodes_dir = paths.WORKSPACE / "episodes"
     dest = episodes_dir / args.slug
     if dest.exists() and not args.force:

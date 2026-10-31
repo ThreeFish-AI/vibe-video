@@ -1,7 +1,7 @@
 # 科普视频制作 Pipeline（公共基建）
 
 > 从「论文精读 → 逐字稿 → 配音 → 代码动画 → 终渲」全链路中沉淀的**可复用流水线机制**：抽取自 negentropy 仓，以 vibe-video 技能仓为家，安装在任意内容工作区上使用。
-> 首个建成的完整范例：《AI 如何自己变强？》（`$W/episodes/self-improving-agents-video/`；建成时间上的第一个，非系列首集，发布顺序见 `$W/series.json`）。
+> 首个建成的完整范例：《AI 如何自己变强？》（`$W/episodes/self-evolution/self-improving-agents/`；建成时间上的第一个，非系列首集，发布顺序见 `$W/series.json`）。
 
 **目录**：一、Pipeline 总览 · 路径变量约定（含环境变量） · 二、工程目录约定 · 三、公共脚本与编排入口（含 pipeline.toml 字段表、交付归档） · 四、复用边界 · 五、音画同步机制（含媒体面派生链与改稿再生、双语渲染） · 六、新集脚手架清单 · 七、工程模式 · 八、许可注意 · 九、依赖与版本策略 · 十、浏览器进程纪律
 
@@ -22,7 +22,7 @@
 ```bash
 T=~/.claude/skills/vibe-video   # skill 根（机制的家 = 本仓；env VIBE_VIDEO_HOME 或任意 clone + 软链皆可）
 W=<内容工作区根>              # 含 .vibe-video-root 哨兵的目录（env VIBE_VIDEO_WORKSPACE 显式指派）
-P=$W/episodes/<slug>-video    # 目标分集工程（各集 README 里换成本集 slug）
+P=$W/episodes/<slug>          # 目标分集工程（各集 README 里换成本集 slug；既有集目录可带 -video 后缀）
 V=$W/voices                   # 音色样本目录（整目录 gitignored，生物特征）
 ```
 
@@ -68,7 +68,7 @@ $W/
 ├── voices/            # 参考音色样本（gitignored 生物特征；refs.toml 只存指纹）= $V
 ├── vibe-video.toml      # 工作区机制配置（check_series 工程级受检面、系列 id 集与署源豁免位、骨架合法偏离登记）
 ├── scripts/*.py       # 工作区级薄包装 → skill（自证工作区锚并硬性覆写 VIBE_VIDEO_WORKSPACE）
-└── episodes/          # 每集一个 <slug>-video 工程（下）；可选一级系列子文件夹 episodes/<组>/<集目录>——series.json 以 `path` 字段登记落点，scaffold 建集仍落单层、挪入子文件夹由使用者 mv 后同步 `path`（多级嵌套不支持）
+└── episodes/          # 每集一个 <slug> 工程（下）；可选一级系列子文件夹 episodes/<组>/<集目录>——series.json 以 `path` 字段登记落点，scaffold 建集仍落单层、挪入子文件夹由使用者 mv 后同步 `path`（多级嵌套不支持）
 ```
 
 每集视频一个 `$P/` 工程：
@@ -247,10 +247,10 @@ uv run --no-project $T/scripts/pipeline.py --project $P deliver [--root ~/Docume
    落盘哨兵 `.vibe-video-root`、空 series.json/series.md、voices/ 模板、vibe-video.toml 与工作区级薄包装。（可选）`export VIBE_VIDEO_DELIVER_ROOT=<目录>` 持久配置交付归档根——机器属性不进 toml，见 §三「交付归档」。结尾点名的登记系列 / 录样本指纹 / 声明受检面等人工事项是刻意不代做的内容决策。
 1. 实例化骨架（替代旧的「`cp -r` 任一既有集」——那句话给 391 行冻结基建留了 4 个同权真理声明者；建集模式自 CWD 锚定 `$W/episodes/`，须在工作区内执行）：
    ```bash
-   uv run --no-project $T/scripts/scaffold.py <slug>-video --title "本集标题"
+   uv run --no-project $T/scripts/scaffold.py <slug> --title "本集标题"
    # 开箱即 edge 草声（无需样本）；--ref/--ref-sha1 首次重配前补齐、--style 是终声档锚点
    ```
-   scaffold 按 skeleton.toml 复制 frozen 文件 + 渲染 4 个模板（package.json / theme.ts / pipeline.toml / README），**刻意不生成 scenes/**（样例留在模板里）、不改 .gitignore（ignore 规则随工作区模板落盘、已通配到分集级）、不写 series.json。跑完立刻 `uv run --no-project $T/scripts/verify_skeleton.py` 确认新集与模板零漂移。
+   scaffold 按 skeleton.toml 复制 frozen 文件 + 渲染 4 个模板（package.json / theme.ts / pipeline.toml / README），**刻意不生成 scenes/**（样例留在模板里）、不改 .gitignore（ignore 规则随工作区模板落盘、已通配到分集级）、不写 series.json。slug 即目录名（= series.json 的 slug），机制对 -video 后缀无假设；既有集目录带 -video 后缀仍合法（历史命名形态）。跑完立刻 `uv run --no-project $T/scripts/verify_skeleton.py` 确认新集与模板零漂移。
 2. `theme.ts` 换本集概念色；`video/src/scenes/*` 与 `Main.tsx` 注册表全部新写。
 3. `cd video && pnpm install`（**裸 install，勿加 `--ignore-workspace`**）；装完检查宿主仓库根 lockfile 零变更。
    > pnpm ≥12 加 `--ignore-workspace` 会把工程自身 `video/pnpm-workspace.yaml`（`packages: []`
