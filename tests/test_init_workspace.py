@@ -127,3 +127,68 @@ def test_machine_readable_defaults_parse_empty(tmp_path: Path):
     assert json.loads((tmp_path / "series.json").read_text(encoding="utf-8")) == {
         "seriesList": []
     }
+
+
+# ── 分发模板的布局口径（I-082 表因②③ + I-083 随带）─────────────────────────
+# gitignore 单星 episodes/*/ 行只盖平面布局：全量嵌套工作区的 audio/ 与 archify
+# 派生物不被 ignore，git status 整屏污染；README 的 <slug>-video 示范会让新工作区
+# 复写已废除的命名约定（I-083）。
+
+
+def test_gitignore_template_covers_nested_episode_artifacts(tmp_path: Path):
+    """嵌套集与平面集的大件派生物同被 .gitignore 覆盖（真 git 语义，非文本形态）。"""
+    ws = tmp_path / "ws"
+    ws.mkdir()
+    (ws / ".gitignore").write_bytes((WS_TEMPLATE / "gitignore.tmpl").read_bytes())
+    # GIT_CONFIG_*=/dev/null 隔离全局/系统 excludesFile，只验模板自身的规则
+    subprocess.run(
+        ["git", "init", "-q"],
+        cwd=ws,
+        capture_output=True,
+        env={
+            **os.environ,
+            "GIT_CONFIG_GLOBAL": os.devnull,
+            "GIT_CONFIG_SYSTEM": os.devnull,
+        },
+        check=True,
+    )
+    rels = [
+        # audio/ 以目录本身判定（目录内 mp3 会被 **/*.mp3 兜底、测不出单星缺陷）
+        "demo-group/ep-n1/video/public/audio",
+        "demo-group/ep-n1/video/public/archify/d1.webm",
+        "demo-group/ep-n1/video/public/archify/d1.mp4",
+        "demo-group/ep-n1/video/public/archify/d1-end.png",
+        "demo-group/ep-n1/video/public/out/draft.mp4",
+        "ep-f1/video/public/audio",  # 平面布局同盖（** 匹配零层）
+    ]
+    for rel in rels:
+        p = ws / "episodes" / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        if p.suffix:
+            p.write_bytes(b"x")
+        else:
+            p.mkdir(exist_ok=True)
+    r = subprocess.run(
+        ["git", "check-ignore", *[f"episodes/{rel}" for rel in rels]],
+        cwd=ws,
+        capture_output=True,
+        text=True,
+        env={
+            **os.environ,
+            "GIT_CONFIG_GLOBAL": os.devnull,
+            "GIT_CONFIG_SYSTEM": os.devnull,
+        },
+        check=False,
+    )
+    ignored = set(r.stdout.split())
+    missing = [rel for rel in rels if f"episodes/{rel}" not in ignored]
+    assert not missing, f"以下派生物未被 .gitignore 覆盖：{missing}"
+
+
+def test_workspace_readme_template_is_layout_neutral():
+    """工作区 README 模板不再示范 <slug>-video 与单层 episodes 假设（I-082/I-083）。"""
+    text = (WS_TEMPLATE / "README.md.tmpl").read_text(encoding="utf-8")
+    assert "<slug>-video" not in text, "已废除的 -video 命名不得再被模板示范"
+    # 嵌套口径从句在位（$P 定义行指向 series.json `path`）
+    assert "$P = $W/episodes/<slug>" in text
+    assert "`path`" in text

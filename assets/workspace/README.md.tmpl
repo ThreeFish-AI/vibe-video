@@ -16,18 +16,18 @@
 ├── voices/             # 参考音色样本（gitignored 生物特征；refs.toml 只存指纹）
 ├── vibe-video.toml       # 工作区机制配置（check_series 工程级受检面与系列 id 集）
 ├── scripts/            # 工作区级薄包装（pipeline.py / check_series.py → skill）
-└── episodes/<slug>-video/   # 每集独立工程（research/ script/ scripts/ video/）
+└── episodes/<slug>/       # 每集独立工程（research/ script/ scripts/ video/；可选一级系列子文件夹 episodes/<组>/<slug>，嵌套看 series.json `path`）
 ```
 
 ## 常用命令
 
 ```bash
-# $T = skill 根（安装位置），$W = 本工作区根，$P = $W/episodes/<slug>-video
+# $T = skill 根（安装位置），$W = 本工作区根，$P = $W/episodes/<slug>（嵌套集为 episodes/<组>/<slug>，以 series.json `path` 为准；既有集可带 -video 后缀）
 T=~/.claude/skills/vibe-video
 W="$(pwd)"
 
-uv run --no-project scripts/pipeline.py --project episodes/<slug>-video status   # 阶段新鲜度
-uv run --no-project scripts/pipeline.py --project episodes/<slug>-video check   # ④⑥ 内容门
+uv run --no-project scripts/pipeline.py --project episodes/<slug> status   # 阶段新鲜度
+uv run --no-project scripts/pipeline.py --project episodes/<slug> check   # ④⑥ 内容门
 uv run --no-project scripts/check_series.py                                    # 系列一致性
 ```
 

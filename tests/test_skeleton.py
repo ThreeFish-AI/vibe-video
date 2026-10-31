@@ -837,6 +837,22 @@ def test_template_readme_qa_commands_are_runnable():
         )
 
 
+def test_template_readme_project_anchor_notes_nested_layout():
+    """模板 README 的 $P 锚与 series.json 相对链补嵌套从句（I-082 表因③）。
+
+    seeded 档无指纹门，改模板不触发全集同步义务（skeleton.toml seeded 列表）；
+    但 scaffold 落的锚是单层假设——集挪入一级系列子文件夹后 $P 与 ../../ 链
+    都差一层，照抄即错。"""
+    text = (TEMPLATE / "README.md.tmpl").read_text(encoding="utf-8")
+    anchor = next(
+        (ln for ln in text.splitlines() if ln.startswith("P=$W/episodes/")), None
+    )
+    assert anchor, "$P 锚行形态变化，检测器该更新了"
+    assert "`path`" in anchor, f"$P 锚缺嵌套指引（series.json path）：{anchor}"
+    link = next(ln for ln in text.splitlines() if "series.json" in ln)
+    assert "../../../series.json" in link, f"series.json 相对链缺嵌套深度注：{link}"
+
+
 def test_paths_docstring_lists_all_real_importers():
     """paths.py 的「导入边界（承重，勿破）」须与实际导入方一致——契约在落地时
     就与代码矛盾的话，下一位读者会误判新增脚本违规。
