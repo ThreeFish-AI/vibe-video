@@ -96,6 +96,7 @@
 | I-079 | 版本号放弃 semver major 口径：历史 1.0.0/2.0.0 与未发版预埋的 3.0.0 整体归一为 0.0.x patch 递增 | ✅ 已完成 | 2026-10-22 | [详情](#I-079) |
 | I-080 | 规则 7 观众层无署源豁免：用户审批的「首尾署源」设计与全量匿名门正面冲突 | ✅ 已完成 | 2026-10-29 | [详情](#I-080) |
 | I-081 | episodes 系列子文件夹布局扫描盲区：check_series/verify_skeleton 单层假设致嵌套集零扫描与指纹误报 | 🔄 进行中 | — | [详情](#I-081) |
+| I-082 | episodes 嵌套布局在制片工具与分发模板的残余单层假设（record_archify 定位器、gitignore/README 模板） | ⏸ 暂不处理 | — | [详情](#I-082) |
 
 ---
 
@@ -1364,8 +1365,23 @@
 
 **定性**：阻断性缺陷（嵌套布局下制片门假绿放行违规内容、漂移门假红阻塞提交）；静默盲区形态优先级高于误报。
 
-**处理方式**：分支 ThreeFish-AI/rsi-081-episodes-subfolder-layout——glob 双档枚举（每模式补 `episodes/*/*/…` 变体，刻意不用 `**`：pathlib 语义匹配任意深度，多级嵌套是非目标形态却会隐性获得执法面、零层误匹配让归因错乱）；规则 7 归因改 `path` 建表 + 文件前缀最长匹配（未登记文件回退单层段取，孤儿语义不变）；`verify_skeleton` 集工程根按 `path` 解析（缺省回退平面惯例）；两门孤儿发现下探组目录一层（含 `video/` 或 `script/` 判集目录，组目录自身不点名、组内未登记集照常点名）。测试 +7 例（嵌套布局全绿 / 规则 7 嵌套标识 FAIL / 署源豁免归因生效 / 嵌套孤儿点名 / 组件容器第二档 / 指纹经 path 解析 / 孤儿点名不点组目录）。
+**处理方式**：分支 ThreeFish-AI/rsi-081-episodes-subfolder-layout——glob 双档枚举（每模式补 `episodes/*/*/…` 变体，刻意不用 `**`：pathlib 语义匹配任意深度，多级嵌套是非目标形态却会隐性获得执法面、零层误匹配让归因错乱）；规则 7 归因改 `path` 建表 + 文件前缀最长匹配（未登记文件回退单层段取，孤儿语义不变）；`verify_skeleton` 集工程根按 `path` 解析（缺省回退平面惯例）；两门孤儿发现下探组目录一层（含 `video/` 或 `script/` 判集目录，组目录自身不点名、组内未登记集照常点名）；评审追加 build_narration.py `emit_series_layers` 嵌套修复——series.json 锚定改 `paths.find_upward` 哨兵搜索（无哨兵独立工程回退旧平铺锚，行为不变）、本集归属按登记 `path` 解析比对（旧 `root.parent.parent` 锚与 `episodes/{root.name}` 字面比对让嵌套集 series-layers.json 静默不刷新，P6 身份卡/下期卡数据面陈旧）。测试 +8 例（嵌套布局全绿 / 规则 7 嵌套标识 FAIL / 署源豁免归因生效 / 嵌套孤儿点名 / 组件容器第二档 / 指纹经 path 解析 / 孤儿点名不点组目录 / build 嵌套派生 series-layers）。
 
 **后续防范**：布局类假设不允许绕过 series.json `path` 字段自行拼路径——凡按集定位的代码一律经 `path` 解析（本次三处中两处是绕开 SSOT 的直拼）；glob 受检面新增布局形态时同步补双档枚举并用「干净嵌套布局全绿」负控钉住（无假报）与「嵌套违规仍 FAIL」正控钉住（无盲区）。
 
 **同类问题影响**：规则 1 主体（narration 反串线）/ 规则 4 正向 / 规则 6 / 规则 8 均按 `path` 拼接、本就兼容嵌套（复现实证）；scaffold 建集仍落单层（挪入子文件夹 = mv 后同步 `path`，见 PIPELINE.md 工作区布局节），多级嵌套与迁移工具非目标不做。
+
+<a id="I-082"></a>
+## I-082：episodes 嵌套布局在制片工具与分发模板的残余单层假设（record_archify 定位器、gitignore/README 模板）
+
+**表因**：I-081 让执法门（check_series/verify_skeleton）与 build 链（build_narration）支持一级系列子文件夹后，同源单层假设在其余按集定位处仍有三处残余：①`scripts/record_archify.py` 的 `find_remotion` 以 `episodes/*/video` 一层 glob 定位已装好的 remotion CLI——全嵌套工作区下 cdp 采集预检误报「未找到任何集的 node_modules」（装了也找不到）、`probe_dims` 静默降级（仅提示不阻塞）；②`assets/workspace/gitignore.tmpl` 的 audio/ 与 archify 派生物 ignore 行是 `episodes/*/…` 单星——嵌套集的大件派生物不被 ignore（mp4/mp3/wav 三行走 `episodes/**` 已覆盖嵌套），纯嵌套工作区 git status 被污染；③`assets/workspace/README.md.tmpl` 与 `assets/video-skeleton/README.md.tmpl` 的目录树 / `$P` 展开式 / 命令示例仍单层表述。
+
+**根因**：与 I-081 同根——episodes 单层是历史偶然事实，被编码进 glob 与 scaffold 分发模板；I-081 按「执法门受检面 + build 链派生」划定修复白名单，制片工具与分发模板不在门禁路径上、未随动。
+
+**定性**：非阻断改进。无执法盲区（执法门已全覆盖嵌套）；record_archify 是 best-effort 定位器且当前真实工作区仍有平铺集可命中，gitignore/README 只影响全量嵌套工作区的仓库卫生与新人可读性。
+
+**处理方式**：⏸ 登记排队，未修。触发条件：真实工作区全量嵌套化（无平铺集可命中 record_archify 定位器时其降级开始伤及流水线），或下次触碰对应文件的条目顺带捎带。修法预告：`find_remotion` 补双档 glob（同 I-081 比选结论，不用 `**`）；`gitignore.tmpl` 单星行改 `episodes/**`；README 模板补嵌套从句（口径同 SKILL.md `$P` 行「嵌套看`path`」）。
+
+**后续防范**：同 I-081 防范条——凡按集定位的代码一律经 series.json `path` 解析；scaffold 分发模板（gitignore/README）属布局表述的第三事实源，布局形态演进时随 PIPELINE.md 同步。
+
+**同类问题影响**：deliver.py / pipeline.py / tts 族 / qa_frames / captions 等经 `--project` 入参或 `ep["path"]` 定位，不受影响（I-081 评审期逐一核验，见 PR #65 评审记录）。
