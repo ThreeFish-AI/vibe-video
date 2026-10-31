@@ -14,7 +14,7 @@ allowed-tools: Read Write Edit Glob Grep Bash
 
 本 Skill 是**路由层**：内容 SSOT 在 `references/NN-*.md`，工具 SSOT 在 `scripts/`，阶段唯一机器可读声明是 [references/stages.toml](references/stages.toml)；只给路由、指针与不变量，不复制正文。
 
-命令统一用路径变量（唯一定义处 [PIPELINE.md](references/PIPELINE.md)）：`$T` = skill 根（本文件所在目录；Claude Code 下即 `${CLAUDE_SKILL_DIR}`），`$W` = 内容工作区根（含 `.vibe-video-root` 哨兵），`$P` = `$W/episodes/<slug>-video` 分集工程，`$V` = `$W/voices` 音色样本目录（gitignored）。
+命令统一用路径变量（唯一定义处 [PIPELINE.md](references/PIPELINE.md)）：`$T` = skill 根（本文件所在目录；Claude Code 下即 `${CLAUDE_SKILL_DIR}`），`$W` = 内容工作区根（含 `.vibe-video-root` 哨兵），`$P` = `$W/episodes/<slug>-video` 分集工程（嵌套看`path`），`$V` = `$W/voices` 音色样本目录（gitignored）。
 
 ## 先判任务类型
 

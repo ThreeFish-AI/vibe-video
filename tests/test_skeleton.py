@@ -145,7 +145,11 @@ def flat_ws(tmp_path: Path, sentinel: str = ".vibe-video-root") -> Path:
     return ws
 
 
-def write_series(ws: Path, series: list[tuple[str, list[str]]]) -> None:
+def write_series(
+    ws: Path, series: list[tuple[str, list[str]]], paths: dict[str, str] | None = None
+) -> None:
+    """写 series.json；paths 可按 slug 覆盖 path（一级系列子文件夹形态的登记面，
+    I-081——缺省仍是平面惯例 episodes/<slug>）。"""
     (ws / "series.json").write_text(
         json.dumps(
             {
@@ -155,7 +159,11 @@ def write_series(ws: Path, series: list[tuple[str, list[str]]]) -> None:
                         "title": sid,
                         "rule": "",
                         "episodes": [
-                            {"episode": i, "slug": s, "path": f"episodes/{s}"}
+                            {
+                                "episode": i,
+                                "slug": s,
+                                "path": (paths or {}).get(s, f"episodes/{s}"),
+                            }
                             for i, s in enumerate(slugs, 1)
                         ],
                     }
@@ -625,6 +633,44 @@ def test_stale_registry_entry_is_flagged(tmp_path):
     r = run(skill / "scripts" / "verify_skeleton.py", "--strict", cwd=ws)
     assert r.returncode == 0, r.stdout + r.stderr
     assert "gone-video" in r.stdout and "陈旧登记" in r.stdout, r.stdout
+
+
+# ── 一级系列子文件夹（I-081）：series.json path 登记的嵌套布局 ─────────────
+
+
+def test_nested_episode_resolves_via_series_json_path(tmp_path):
+    """嵌套集指纹按 path 字段解析：scaffold 产物（=模板字节）挪入组目录并登记
+    后 --strict 全绿——旧直拼 episodes/<slug> 口径对嵌套集全数落空、受门文件
+    齐刷 STALE 假报（改动前实测单集 28 处）。"""
+    skill = mirror_skill(tmp_path)
+    ws = flat_ws(tmp_path)
+    assert scaffold_into(skill, ws, PROBE_A).returncode == 0
+    group = ws / "episodes" / "demo-group"
+    group.mkdir()
+    shutil.move(str(ws / "episodes" / PROBE_A), str(group / PROBE_A))
+    write_series(
+        ws, [("solo", [PROBE_A])], paths={PROBE_A: f"episodes/demo-group/{PROBE_A}"}
+    )
+    r = run(skill / "scripts" / "verify_skeleton.py", "--strict", cwd=ws)
+    assert r.returncode == 0, r.stdout
+    assert "STALE" not in r.stdout and "缺失" not in r.stdout, r.stdout
+
+
+def test_nested_orphan_named_group_dir_not(tmp_path):
+    """孤儿发现下探组目录一层：嵌套未登记集点名集名，组目录自身不点名
+    （布局容器；旧口径反把组目录当孤儿、组内真孤儿不可见）。"""
+    skill = mirror_skill(tmp_path)
+    ws = flat_ws(tmp_path)
+    assert scaffold_into(skill, ws, PROBE_A).returncode == 0
+    assert scaffold_into(skill, ws, PROBE_B).returncode == 0
+    group = ws / "episodes" / "demo-group"
+    group.mkdir()
+    shutil.move(str(ws / "episodes" / PROBE_B), str(group / PROBE_B))
+    write_series(ws, [("solo", [PROBE_A])])
+    out = run(skill / "scripts" / "verify_skeleton.py", cwd=ws).stdout
+    assert "未登记到 series.json" in out, out
+    assert PROBE_B in out, out
+    assert "demo-group" not in out, out
 
 
 def test_scaffold_produces_gate_clean_episode(tmp_path):

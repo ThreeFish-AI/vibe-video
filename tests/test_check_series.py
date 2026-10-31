@@ -1419,3 +1419,101 @@ def test_rule1_component_cross_series_title_fails(tmp_path):
     )
     rc, out = run_series_check(ws)
     assert rc == 1 and "规则1" in out and "丙集标题" in out and "他集标题" in out
+
+
+# ── 一级系列子文件夹布局（I-081）──────────────────────────────────────────────
+#: episodes/<组>/<集目录>（series.json 以 path 字段登记）。判据：嵌套集与平面
+#: 集同权执法（规则 7 受检 / 组件容器受检 / 孤儿点名），组目录自身不当孤儿
+#: 点名。旧单层 glob 与 parts[1] 归因对嵌套集零扫描——静默假绿比 FAIL 更危险。
+NESTED_EP = {
+    "episode": 2,
+    "slug": "ep-n1",
+    "path": "episodes/demo-group/ep-n1",
+    "title": "丁集标题",
+    "accents": ["#4A9EFF"],
+    "paper": {},
+}
+NESTED_INTRO_TSX = "episodes/demo-group/ep-n1/video/src/components/series-intro.tsx"
+#: 嵌套用例的课程系 toml（系列 id 与 S("t", …) 对齐）；「站点」词的执法需要它，
+#: 强标识（课程/章号）则不随配置。
+NESTED_COURSE_TOML = '[check_series]\ncourse_series_ids = ["t"]\n'
+
+
+def nested_credit_toml(slug: str = "ep-n1") -> str:
+    """嵌套集署源豁免 toml——归因验证需豁免与课程系两键齐走。"""
+    return (
+        "[check_series]\n"
+        'course_series_ids = ["t"]\n'
+        "\n"
+        f'[check_series.source_credit."{slug}"]\n'
+        'narration_ids = ["p0-01"]\n'
+        "scene_stems = []\n"
+    )
+
+
+def test_nested_layout_clean_passes(tmp_path):
+    """嵌套集干净工作区整体全绿——布局支持本身不制造任何假报（含组目录）。"""
+    ws = build_workspace(tmp_path, [S("t", EP1, NESTED_EP)], {})
+    rc, out = run_series_check(ws)
+    assert rc == 0, out
+    assert "未登记到 series.json" not in out  # 组目录不是孤儿
+
+
+def test_rule7_nested_episode_marker_fails(tmp_path):
+    """防盲区回归核心断言：嵌套集 narration 的站点标识照常被抓。「站点」词
+    同时钉住 is_course 归因——组内集须随其所属系列吃到课程系执法，而不是按
+    组名（旧 parts[1] 口径）判空放行。"""
+    ws = build_workspace(
+        tmp_path, [S("t", EP1, NESTED_EP)], {}, toml=NESTED_COURSE_TOML
+    )
+    (ep_root(ws, NESTED_EP) / "script/narration.md").write_text(
+        "## P0\n\n- [p0-02] 课程作者拆解过源码，他说……\n"
+        "- [p0-03] 配套站点上还有一张图。\n",
+        encoding="utf-8",
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 1 and out.count("规则7") == 2
+    assert "demo-group/ep-n1/script/narration.md" in out
+    assert "「课程」" in out and "「站点」" in out
+
+
+def test_rule7_nested_credit_exempt_passes(tmp_path):
+    """嵌套集署源豁免生效 = 归因正确：登记句按 slug 命中豁免白名单。归因若取
+    组名（旧 parts[1] 口径），credit.get(组名) 落空、登记句照常 FAIL。"""
+    ws = build_workspace(
+        tmp_path, [S("t", EP1, NESTED_EP)], {}, toml=nested_credit_toml()
+    )
+    (ep_root(ws, NESTED_EP) / "script/narration.md").write_text(
+        "## P0\n\n- [p0-01] 本片改编自开源课程 Learn Claude Code。\n",
+        encoding="utf-8",
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 0, out
+
+
+def test_nested_orphan_with_narration_fails(tmp_path):
+    """组目录下的未登记集（narration.md 已落盘）必须 FAIL 点名——旧口径对组内
+    一级不可见；组目录自身不进消息（布局容器不是工程）。"""
+    ws = build_workspace(tmp_path, [S("t", EP1, NESTED_EP)], {})
+    orphan = ws / "episodes" / "demo-group" / "orphan-n-video"
+    (orphan / "script").mkdir(parents=True)
+    (orphan / "script" / "narration.md").write_text(
+        "## P0\n\n- [p0-01] 独立成片。\n", encoding="utf-8"
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 1 and "规则4" in out and "orphan-n-video" in out
+    assert "已有 narration.md" in out
+    assert "demo-group 未登记" not in out
+
+
+def test_rule1_nested_component_container_fails(tmp_path):
+    """嵌套集的组件口播容器（SPOKEN_CONTAINER_GLOBS 第二档）照常受检——旧
+    单层 glob 对 episodes/<组>/ 内的 NARRATION/SUBS 零扫描。"""
+    ws = build_workspace(
+        tmp_path,
+        [S("t", EP1, NESTED_EP)],
+        {NESTED_INTRO_TSX: "const NARRATION = '本系列视频讲一个循环。';\n"},
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 1 and "规则1" in out and "本系列" in out
+    assert "demo-group/ep-n1" in out

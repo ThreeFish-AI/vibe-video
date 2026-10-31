@@ -639,15 +639,24 @@ def emit_series_layers(root: Path) -> None:
     首段（「执行层 · 循环」→「执行层」）。next 为下一集标题（P6 呼吸预告用）。
     集条目与 next 的可选 `i18n: {"en": …}` 透传为 titleI18n / nextI18n（P6 身份
     卡/下期卡按渲染语言取用；无则不加键，zh-only 集字节不变）。
+
+    工作区锚定与本集归属（I-081）：series.json 定位走哨兵搜索而非
+    `root.parent.parent` 数层数（后者把 episodes 单层偶然事实编码进锚点——
+    嵌套集取到 episodes/、series-layers.json 静默不刷新），本集匹配按登记
+    `path` 解析比对而非 `episodes/{root.name}` 字面拼接。无哨兵的独立工程
+    回退旧平铺锚（跳过语义不变）。
     """
-    series_json = root.parent.parent / "series.json"
+    import paths  # noqa: E402 - 函数域窄用：只借 find_upward 哨兵搜索，不触发 WORKSPACE 惰性锚（导入边界见 paths.py 文件头）
+
+    ws = paths.find_upward(root, paths.WORKSPACE_MARKERS)
+    series_json = (ws if ws is not None else root.parent.parent) / "series.json"
     if not series_json.is_file():
         return
     series_list = json.loads(series_json.read_text(encoding="utf-8"))["seriesList"]
     for series in series_list:
         eps = series["episodes"]
         for k, ep in enumerate(eps):
-            if ep["path"] != f"episodes/{root.name}":
+            if (series_json.parent / ep["path"]).resolve() != root:
                 continue
             layers = [
                 {
