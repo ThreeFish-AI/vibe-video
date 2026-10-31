@@ -97,7 +97,7 @@
 | I-080 | 规则 7 观众层无署源豁免：用户审批的「首尾署源」设计与全量匿名门正面冲突 | ✅ 已完成 | 2026-10-29 | [详情](#I-080) |
 | I-081 | episodes 系列子文件夹布局扫描盲区：check_series/verify_skeleton 单层假设致嵌套集零扫描与指纹误报 | ✅ 已完成 | 2026-10-31 | [详情](#I-081) |
 | I-082 | episodes 嵌套布局在制片工具与分发模板的残余单层假设（record_archify 定位器、gitignore/README 模板） | ⏸ 暂不处理 | — | [详情](#I-082) |
-| I-083 | scaffold 建集 -video 后缀硬校验与已废除的集目录命名约定冲突——按现行约定新建集被拒 | 🔄 进行中 | — | [详情](#I-083) |
+| I-083 | scaffold 建集 -video 后缀硬校验与已废除的集目录命名约定冲突——按现行约定新建集被拒 | ✅ 已完成 | 2026-10-31 | [详情](#I-083) |
 
 ---
 
@@ -1396,7 +1396,7 @@
 
 **定性**：阻断性缺陷（按现行约定无法新建集）；配套表述漂移非阻断但同源。
 
-**处理方式**：分支 ThreeFish-AI/rsi-083-scaffold-suffix-relax（PR 链接待回填）：删除硬校验两行——比选三案取直接删除（WARN 降级 / 新 flag 均以「后缀仍是值得提示的常态」为前提，该前提已假：WARN 对正常态必为噪声、flag 把现行默认约定做成 opt-in 例外语义颠倒，均违 YAGNI 与最小干预）；scaffold.py docstring / init 结尾提示 / `--help` / 缺参报错四处与 SKILL.md `$P` 行、PIPELINE.md 三处、references/08 命令示例、evals.json 断言串同步中性化为 `<slug>`，兼容口径「既有集可带 -video 后缀（历史命名形态）」在 docstring / `--help` / PIPELINE 建集节各一句；测试 `test_scaffold_rejects_bad_slug_and_existing_dir` 按新语义拆为 `test_scaffold_accepts_suffix_free_slug`（无后缀建集正例）+ `test_scaffold_rejects_existing_dir`（重名拒绝，顺带以 demo 词替换原用例里的真实系列名），既有带 -video 建集用例全数保留证向后兼容。复现对照：改前 demo-ep 拒绝 rc=1 / 改后建成 rc=0；demo-ep-video 改前后均 rc=0。评审修复轮（五维对抗复核 1 确认 finding + 用户确认补防）：① slug 补非空单段目录名守卫（拒含 `/` 与 `.`/`..`/空串，防 `../x`、`a/b`、`/abs` 写出 episodes/ 外——存量缺陷、旧 -video 校验本就不防穿越，恰在删码位顺手补齐；属文件系统安全不变量而非命名约定，目录名本就不含 `/`，与「机制面只认自由字符串」不冲突），新增 `test_scaffold_rejects_path_segment_slug` 钉住（五反例全拒 + 零落盘断言）；② PIPELINE.md 首行范例指针 `self-improving-agents-video` → `self-evolution/self-improving-agents`（上游 negentropy 1358bd467 去后缀 + 390c4fd9a 五系列分组后旧路径双重失效的清扫遗漏，经仓树取证钉定新落点）。
+**处理方式**：分支 ThreeFish-AI/rsi-083-scaffold-suffix-relax（[PR #66](https://github.com/ThreeFish-AI/vibe-video/pull/66)：364980f 实施 → c7e06b1 Context-Reviewer 补登 → 4fcc6cb / 22a1430 Review&Fix 修复轮）：删除硬校验两行——比选三案取直接删除（WARN 降级 / 新 flag 均以「后缀仍是值得提示的常态」为前提，该前提已假：WARN 对正常态必为噪声、flag 把现行默认约定做成 opt-in 例外语义颠倒，均违 YAGNI 与最小干预）；scaffold.py docstring / init 结尾提示 / `--help` / 缺参报错四处与 SKILL.md `$P` 行、PIPELINE.md 三处、references/08 命令示例、evals.json 断言串同步中性化为 `<slug>`，兼容口径「既有集可带 -video 后缀（历史命名形态）」在 docstring / `--help` / PIPELINE 建集节各一句；测试 `test_scaffold_rejects_bad_slug_and_existing_dir` 按新语义拆为 `test_scaffold_accepts_suffix_free_slug`（无后缀建集正例）+ `test_scaffold_rejects_existing_dir`（重名拒绝，顺带以 demo 词替换原用例里的真实系列名），既有带 -video 建集用例全数保留证向后兼容。复现对照：改前 demo-ep 拒绝 rc=1 / 改后建成 rc=0；demo-ep-video 改前后均 rc=0。评审修复轮（五维对抗复核 1 确认 finding + 用户确认补防）：① slug 补非空单段目录名守卫（拒含 `/` 与 `.`/`..`/空串，防 `../x`、`a/b`、`/abs` 写出 episodes/ 外——存量缺陷、旧 -video 校验本就不防穿越，恰在删码位顺手补齐；属文件系统安全不变量而非命名约定，目录名本就不含 `/`，与「机制面只认自由字符串」不冲突），新增 `test_scaffold_rejects_path_segment_slug` 钉住（五反例全拒 + 零落盘断言）；② PIPELINE.md 首行范例指针 `self-improving-agents-video` → `self-evolution/self-improving-agents`（上游 negentropy 1358bd467 去后缀 + 390c4fd9a 五系列分组后旧路径双重失效的清扫遗漏，经仓树取证钉定新落点）。核验：作者 G0–G4 全 ✅、Context-Reviewer 复审「可合并」；合并前 Review&Fix 五维对抗复核 3 raw → 1 确认（PIPELINE 范例指针）+ 2 驳回（references/01、08 的上游钉分支深链——目标分支上今日仍解析、改名仅存未合入分支，非本 diff 引入或暴露）；machine_checks 本机口径 1061 passed / 19 skipped RC=0（同环境基线对拍 main 1059/19：+1 用例拆 2、+1 守卫测试）；ruff==0.14.5 lint/format 零告警；冒烟 9 例对照（无后缀/带后缀建集 rc=0、穿越段/空串/./.. 全拒 rc=1、重名拒绝、零逃逸落盘）。
 
 **后续防范**：命名 / 布局类约定不得编码进 scaffold 校验——约定住 series.json（slug / path 字段）与文档表述，机制面只认自由字符串 + SSOT 字段定位（与 I-081「凡按集定位一律经 `path` 解析」同向）；既有集的历史命名形态一律向后兼容不破坏。
 
