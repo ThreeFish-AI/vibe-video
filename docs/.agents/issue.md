@@ -1400,4 +1400,4 @@
 
 **后续防范**：命名 / 布局类约定不得编码进 scaffold 校验——约定住 series.json（slug / path 字段）与文档表述，机制面只认自由字符串 + SSOT 字段定位（与 I-081「凡按集定位一律经 `path` 解析」同向）；既有集的历史命名形态一律向后兼容不破坏。
 
-**同类问题影响**：根 README quickstart `hello-video` 是 evals fixture 依赖的实例化示例（test_docs_paths 显式豁免），保留；`assets/workspace/README.md.tmpl` 的 4 处 `<slug>-video` 表述属 init-workspace 分发模板面（本条非目标「不动 init-workspace」），与 I-082 表因③的 README 模板残余同位，留 I-082 随带或另行处理；video-skeleton frozen 模板零 -video 表述，frozen 面零触碰。
+**同类问题影响**：根 README quickstart `hello-video` 是 evals fixture 依赖的实例化示例（test_docs_paths 显式豁免），保留；`assets/workspace/README.md.tmpl` 的 4 处 `<slug>-video` 表述属 init-workspace 分发模板面（本条非目标「不动 init-workspace」），与 I-082 表因③的 README 模板残余同位，留 I-082 随带或另行处理；[build_narration.py](../../scripts/build_narration.py) 文件头 docstring 的 `episodes/*-video/` 纯表述滞后（行为已按 series.json `path` 解析，I-081），随下次触碰该文件捎带；video-skeleton frozen 模板零 -video 表述，frozen 面零触碰。
