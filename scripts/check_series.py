@@ -136,6 +136,10 @@ EN_ORDINAL_WORDS = re.compile(
 SPOKEN_CONTAINER_GLOBS = (
     "episodes/*/video/src/scenes/*.tsx",
     "episodes/*/video/src/components/*.tsx",
+    # 一级系列子文件夹档（I-081）：episodes/<组>/<集目录>，series.json path 登记；
+    # 双档枚举而非 `**` 的比选见 AUDIENCE_GLOBS 注
+    "episodes/*/*/video/src/scenes/*.tsx",
+    "episodes/*/*/video/src/components/*.tsx",
 )
 #: 容器 = `const NARRATION|SUBS[_XX][: 类型] = …`，体到「分号」或「下一条声明起点」
 #: 或文件尾为止；体内按词法单元逐项吞（字符串 / 注释 / 其余字符），故串内与注释内
@@ -185,13 +189,22 @@ NEXT_CARD_SERIES_IDS = frozenset(_cfg_list("next_card_series_ids"))
 #: 规则 7 的受检文件（观众可见层）：口播/分镜/场景组件。research/、
 #: source-map/、series.json 属内部取证与元数据——具名归属的署名义务在
 #: 仓库层履行，观众层匿名化（系列改造决策 2026-08-23）。
+#: 双档枚举（I-081）：第二档覆盖**一级系列子文件夹**（episodes/<组>/<集目录>，
+#: series.json 以 path 字段登记）。刻意不用 `episodes/**/…`——pathlib 的 `**`
+#: 匹配任意深度：多级嵌套是非目标形态却会隐性获得执法面（口径与设计声明分叉），
+#: 且零层误匹配（`episodes/script/…` 的段取会拿到 script 而非集目录）让归因
+#: 错乱；枚举双档以模式数翻倍换误匹配面归零。
 AUDIENCE_GLOBS = (
     "episodes/*/script/narration.md",
+    "episodes/*/*/script/narration.md",
     # en 译稿同属观众可见层（ASCII 站点标识在英文稿更易顺手写出）；文件不存在
     # 时 glob 自然跳过——未声明双语的集是常态，不是漏检
     "episodes/*/script/narration.en.md",
+    "episodes/*/*/script/narration.en.md",
     "episodes/*/script/storyboard.md",
+    "episodes/*/*/script/storyboard.md",
     "episodes/*/video/src/scenes/*.tsx",
+    "episodes/*/*/video/src/scenes/*.tsx",
 )
 #: 署源豁免位的原始配置（I-080）：`{slug: {narration_ids: [...], scene_stems:
 #: [...]}}`。原始值直存（可能是任意 toml 形态），形态与引用健康校验统一在
@@ -496,9 +509,29 @@ def rule_manifest_integrity(series_list: list[dict], msgs: list[str]) -> None:
     episodes_dir = WORKSPACE / "episodes"
     if not episodes_dir.is_dir():
         return
-    for p in sorted(episodes_dir.iterdir()):
-        if not p.is_dir() or p.name in seen_slugs:
-            continue
+
+    def _orphan_dirs(root: Path) -> list[Path]:
+        """root 下的未登记集目录（I-081 一级系列子文件夹）：含 video/ 或
+        script/ 判集目录（scaffold 两件必落其一）；否则视为组目录下探一层
+        再判。组目录自身不点名（布局容器而非工程，旧口径会把它当孤儿假报），
+        其下的未登记集照常点名——孤儿 FAIL 语义不随布局放宽，防盲区回归。"""
+        out: list[Path] = []
+        for p in sorted(root.iterdir()):
+            if not p.is_dir() or p.name in seen_slugs:
+                continue
+            if (p / "video").is_dir() or (p / "script").is_dir():
+                out.append(p)
+            else:
+                out.extend(
+                    q
+                    for q in sorted(p.iterdir())
+                    if q.is_dir()
+                    and q.name not in seen_slugs
+                    and ((q / "video").is_dir() or (q / "script").is_dir())
+                )
+        return out
+
+    for p in _orphan_dirs(episodes_dir):
         if (p / "script" / "narration.md").is_file():
             msgs.append(
                 f"FAIL 规则4：{p.name} 未登记到 series.json"
@@ -773,9 +806,17 @@ def rule_site_marker(series_list: list[dict], msgs: list[str]) -> None:
     「多写一句」静默滑过门，按位登记则每多一个署源位都要显式过一次配置评审。"""
     credit = _validate_source_credit(series_list, msgs)
     course_paths = set()
+    #: 集目录归因表（I-081）：嵌套布局（episodes/<组>/<集目录>）下
+    #: `parts[1]` 取到的是组名——署源豁免与 is_course 判定全部错位。归因改为
+    #: series.json path 建表、文件按前缀最长匹配；未登记文件回退单层段取
+    #: （孤儿文件的豁免天然落空、is_course 维持目录名判定，语义与旧口径一致）。
+    by_dir: dict[tuple[str, ...], tuple[str, bool]] = {}
     for series in series_list:
-        if series["id"] in COURSE_SERIES_IDS:
-            course_paths.update(e["path"] for e in series["episodes"])
+        is_course_series = series["id"] in COURSE_SERIES_IDS
+        for e in series["episodes"]:
+            if is_course_series:
+                course_paths.add(e["path"])
+            by_dir[tuple(e["path"].split("/"))] = (e["slug"], is_course_series)
     for g in AUDIENCE_GLOBS:
         for f in sorted(WORKSPACE.glob(g)):
             try:
@@ -783,8 +824,15 @@ def rule_site_marker(series_list: list[dict], msgs: list[str]) -> None:
             except UnicodeDecodeError:
                 continue
             rel = f.relative_to(PROJECT)
-            slug = f.relative_to(WORKSPACE).parts[1]
-            is_course = slug in {p.split("/")[-1] for p in course_paths}
+            parts = f.relative_to(WORKSPACE).parts
+            slug = is_course = None
+            for n in range(len(parts), 1, -1):  # 前缀最长匹配（嵌套集目录优先）
+                if (hit := by_dir.get(parts[:n])) is not None:
+                    slug, is_course = hit
+                    break
+            if slug is None:  # 未登记文件：回退单层段取（孤儿语义不变）
+                slug = parts[1]
+                is_course = slug in {p.split("/")[-1] for p in course_paths}
             ids, stems = credit.get(slug, (frozenset(), frozenset()))
             if f.name in ("narration.md", "narration.en.md"):
                 spans = _line_spans(text, _narration_credit_lines(text, ids))

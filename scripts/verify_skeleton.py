@@ -313,6 +313,14 @@ def main() -> int:
 
     for series in series_list:
         eps = [e["slug"] for e in series["episodes"]]
+        #: 集工程根按 series.json `path` 字段解析（I-081）：一级系列子文件夹
+        #: （episodes/<组>/<集目录>）经它登记；缺省回退平面惯例 episodes/<slug>
+        #: （存量清单兼容）。旧口径直拼 episodes/<slug> 对嵌套集全数落空、
+        #: 齐刷 STALE 假报（改动前实测单集 28 处）。
+        dir_of = {
+            e["slug"]: paths.WORKSPACE / e.get("path", f"episodes/{e['slug']}")
+            for e in series["episodes"]
+        }
         is_baseline = series["id"] == baseline_series
         tag = " [模板基线]" if is_baseline else ""
         print(f"  系列 {series['id']}（{len(eps)} 集）{tag}")
@@ -320,8 +328,7 @@ def main() -> int:
             tmpl_path = template_source(rel)
             tmpl_fp = fingerprint(tmpl_path, rel, cls)
             fps = {
-                slug: fingerprint(paths.WORKSPACE / "episodes" / slug / rel, rel, cls)
-                or "缺失"
+                slug: fingerprint(dir_of[slug] / rel, rel, cls) or "缺失"
                 for slug in eps
             }
 
@@ -413,11 +420,30 @@ def main() -> int:
     # 与死锁分析见其 rule_manifest_integrity）；本门保持 WARN——漂移门的
     # 职责是骨架一致性，登记是清单问题，只在报告里点名即可。
     registered_slugs = {e["slug"] for s in series_list for e in s["episodes"]}
-    orphans = sorted(
-        p.name
-        for p in (paths.WORKSPACE / "episodes").iterdir()
-        if p.is_dir() and p.name not in registered_slugs
-    )
+
+    def _looks_like_episode(p: Path) -> bool:
+        """集工程目录判型：video/ 或 script/ 任一在场（scaffold 两件必落其一）。"""
+        return (p / "video").is_dir() or (p / "script").is_dir()
+
+    #: 一级系列子文件夹（I-081）：组目录下探一层，未登记集照常点名；组目录
+    #: 自身不点名（布局容器而非工程，旧口径会把它当孤儿假报）。
+    orphans: list[str] = []
+    episodes_root = paths.WORKSPACE / "episodes"
+    if episodes_root.is_dir():
+        for p in sorted(episodes_root.iterdir()):
+            if not p.is_dir() or p.name in registered_slugs:
+                continue
+            if _looks_like_episode(p):
+                orphans.append(p.name)
+            else:
+                orphans.extend(
+                    q.name
+                    for q in sorted(p.iterdir())
+                    if q.is_dir()
+                    and q.name not in registered_slugs
+                    and _looks_like_episode(q)
+                )
+        orphans.sort()
     if orphans:
         print(
             f"\n  ⚠️  未登记到 series.json 的工程目录（阻塞门在 check_series.py 规则4；"

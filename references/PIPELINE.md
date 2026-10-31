@@ -68,7 +68,7 @@ $W/
 ├── voices/            # 参考音色样本（gitignored 生物特征；refs.toml 只存指纹）= $V
 ├── vibe-video.toml      # 工作区机制配置（check_series 工程级受检面、系列 id 集与署源豁免位、骨架合法偏离登记）
 ├── scripts/*.py       # 工作区级薄包装 → skill（自证工作区锚并硬性覆写 VIBE_VIDEO_WORKSPACE）
-└── episodes/          # 每集一个 <slug>-video 工程（下）
+└── episodes/          # 每集一个 <slug>-video 工程（下）；可选一级系列子文件夹 episodes/<组>/<集目录>——series.json 以 `path` 字段登记落点，scaffold 建集仍落单层、挪入子文件夹由使用者 mv 后同步 `path`（多级嵌套不支持）
 ```
 
 每集视频一个 `$P/` 工程：
