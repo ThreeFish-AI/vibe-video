@@ -97,6 +97,7 @@
 | I-080 | 规则 7 观众层无署源豁免：用户审批的「首尾署源」设计与全量匿名门正面冲突 | ✅ 已完成 | 2026-10-29 | [详情](#I-080) |
 | I-081 | episodes 系列子文件夹布局扫描盲区：check_series/verify_skeleton 单层假设致嵌套集零扫描与指纹误报 | ✅ 已完成 | 2026-10-31 | [详情](#I-081) |
 | I-082 | episodes 嵌套布局在制片工具与分发模板的残余单层假设（record_archify 定位器、gitignore/README 模板） | ⏸ 暂不处理 | — | [详情](#I-082) |
+| I-083 | scaffold 建集 -video 后缀硬校验与已废除的集目录命名约定冲突——按现行约定新建集被拒 | 🔄 进行中 | — | [详情](#I-083) |
 
 ---
 
@@ -1385,3 +1386,18 @@
 **后续防范**：同 I-081 防范条——凡按集定位的代码一律经 series.json `path` 解析；scaffold 分发模板（gitignore/README）属布局表述的第三事实源，布局形态演进时随 PIPELINE.md 同步。
 
 **同类问题影响**：deliver.py / pipeline.py / tts 族 / qa_frames / captions 等经 `--project` 入参或 `ep["path"]` 定位，不受影响（I-081 评审期逐一核验，见 PR #65 评审记录）。
+
+<a id="I-083"></a>
+## I-083：scaffold 建集 -video 后缀硬校验与已废除的集目录命名约定冲突——按现行约定新建集被拒
+
+**表因**：上游内容工作区已按用户决策全面废除集目录 `-video` 后缀（35 集改名、全门禁全绿，series.json slug 即目录名），而 [scripts/scaffold.py](../../scripts/scaffold.py) 建集仍硬校验 `slug.endswith("-video")`——按现行约定新建无后缀集直接被拒（复现：`scaffold.py demo-ep --title x` → `slug 须以 -video 结尾` rc=1）。SKILL.md `$P` 变量行与建集用法行、PIPELINE.md 变量定义 / 目录树 / 建集节、references/08 实例化命令、evals.json 断言串的 `<slug>-video` 表述同源滞后。
+
+**根因**：校验由仓库早期提交（f418950，2026-09-21；随 PR #16 规范重构迁至 scripts/ 不改行为）引入，报错文案「与既有四集一致」自证初衷——把当时「工作区仅有四集且全带 -video」的**存量现状**固化为建集硬约束。命名约定属内容侧决策（series.json slug 即目录名，机制无后缀假设：check_series / verify_skeleton 均按 `path` 字段定位），存量现状翻转后校验失去事实锚点，从「固化约定」变成「与现行约定正面冲突」；scaffold 是模板实例化器，slug 本就是自由字符串，该校验是多余的一层约定耦合。
+
+**定性**：阻断性缺陷（按现行约定无法新建集）；配套表述漂移非阻断但同源。
+
+**处理方式**：分支 ThreeFish-AI/rsi-083-scaffold-suffix-relax（PR 链接待回填）：删除硬校验两行——比选三案取直接删除（WARN 降级 / 新 flag 均以「后缀仍是值得提示的常态」为前提，该前提已假：WARN 对正常态必为噪声、flag 把现行默认约定做成 opt-in 例外语义颠倒，均违 YAGNI 与最小干预）；scaffold.py docstring / init 结尾提示 / `--help` / 缺参报错四处与 SKILL.md `$P` 行、PIPELINE.md 三处、references/08 命令示例、evals.json 断言串同步中性化为 `<slug>`，兼容口径「既有集可带 -video 后缀（历史命名形态）」在 docstring / `--help` / PIPELINE 建集节各一句；测试 `test_scaffold_rejects_bad_slug_and_existing_dir` 按新语义拆为 `test_scaffold_accepts_suffix_free_slug`（无后缀建集正例）+ `test_scaffold_rejects_existing_dir`（重名拒绝，顺带以 demo 词替换原用例里的真实系列名），既有带 -video 建集用例全数保留证向后兼容。复现对照：改前 demo-ep 拒绝 rc=1 / 改后建成 rc=0；demo-ep-video 改前后均 rc=0。
+
+**后续防范**：命名 / 布局类约定不得编码进 scaffold 校验——约定住 series.json（slug / path 字段）与文档表述，机制面只认自由字符串 + SSOT 字段定位（与 I-081「凡按集定位一律经 `path` 解析」同向）；既有集的历史命名形态一律向后兼容不破坏。
+
+**同类问题影响**：根 README quickstart `hello-video` 是 evals fixture 依赖的实例化示例（test_docs_paths 显式豁免），保留；`assets/workspace/README.md.tmpl` 的 4 处 `<slug>-video` 表述属 init-workspace 分发模板面（本条非目标「不动 init-workspace」），与 I-082 表因③的 README 模板残余同位，留 I-082 随带或另行处理；video-skeleton frozen 模板零 -video 表述，frozen 面零触碰。
