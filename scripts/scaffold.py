@@ -154,6 +154,11 @@ def main() -> int:
     if args.slug is None or args.title is None:
         ap.error("建集须提供 <slug> 与 --title（或改用 --init-workspace [DIR]）")
 
+    #: slug 是 episodes/ 下单段目录名（scaffold 落单层，嵌套归位走 mv + series.json
+    #: path 同步）：拒路径段防穿越逃逸——文件系统安全不变量，非命名约定（I-083）。
+    if not args.slug or "/" in args.slug or args.slug in {".", ".."}:
+        sys.exit(f"slug 须为非空单段目录名（不含 /、不能是 . 或 ..）：{args.slug!r}")
+
     episodes_dir = paths.WORKSPACE / "episodes"
     dest = episodes_dir / args.slug
     if dest.exists() and not args.force:

@@ -743,6 +743,16 @@ def test_scaffold_rejects_existing_dir(tmp_path):
     assert r.returncode != 0 and "已存在" in (r.stdout + r.stderr)
 
 
+def test_scaffold_rejects_path_segment_slug(tmp_path):
+    """slug 是 episodes/ 下单段目录名：路径段与空串拒绝、零落盘（I-083 评审修复）。"""
+    ws = flat_ws(tmp_path)
+    for bad in ("../escape", "a/b", "/tmp/abs-ep", "", ".", ".."):
+        r = run(SCAFFOLD, bad, "--title", "x", cwd=ws)
+        assert r.returncode != 0, bad
+        assert "单段目录名" in (r.stdout + r.stderr), bad
+    assert not (ws / "escape").exists() and not (ws / "abs-ep").exists()
+
+
 def test_scaffold_pin_hint_reads_template_not_rendered_output(tmp_path):
     """建集结尾的钉版提示读**渲染前**的模板（I-016 评审回归）：`--title` 原样
     插进 package.json 的 description，标题含 ASCII 双引号时渲染产物不是合法 JSON，
