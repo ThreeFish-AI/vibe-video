@@ -150,6 +150,55 @@ def test_series_layer_published_requires_ready_and_online_marker(tmp_path):
     assert [layer["published"] for layer in layers] == [False, True]
 
 
+def test_series_layers_nested_episode_via_sentinel(tmp_path):
+    """一级系列子文件夹（I-081）：series.json 锚定走哨兵搜索、本集归属按登记
+    `path` 解析比对——嵌套集 build 照常落盘 series-layers.json。旧口径
+    `root.parent.parent` 锚与 `episodes/{root.name}` 字面比对对其双双落空、
+    静默跳过（P6 身份卡/下期卡数据面陈旧）。"""
+    ws = tmp_path / "ws"
+    root = ws / "episodes" / "demo-group" / "episode-one"
+    (root / "script").mkdir(parents=True)
+    (root / "script" / "narration.md").write_text(
+        "## P0\n- [p0-01] 测试。\n", encoding="utf-8"
+    )
+    (ws / ".vibe-video-root").write_text("# 哨兵\n", encoding="utf-8")
+    (ws / "series.json").write_text(
+        json.dumps(
+            {
+                "seriesList": [
+                    {
+                        "id": "series-one",
+                        "episodes": [
+                            {
+                                "path": "episodes/demo-group/episode-one",
+                                "cardSub": "第一层 · 循环",
+                                "title": "本集",
+                            },
+                            {
+                                "path": "episodes/demo-group/episode-two",
+                                "cardSub": "第二层 · 循环",
+                                "title": "下集",
+                            },
+                        ],
+                    }
+                ]
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    r = run_build(root)
+
+    assert r.returncode == 0, r.stderr
+    data = json.loads(
+        (root / "video" / "src" / "series-layers.json").read_text(encoding="utf-8")
+    )
+    assert data["seriesId"] == "series-one"
+    assert [layer["layer"] for layer in data["layers"]] == ["第一层", "第二层"]
+    assert data["activeIndex"] == 1 and data["next"] == "下集"
+
+
 def test_chapters_json_emitted_from_scene_titles(tmp_path):
     """`## Pn 标题` 的标题文字此前被 SCENE_RE 丢弃；现须落盘 chapters.json（顶部
     进度条数据面），按 narration.md 出现序；重跑 build 字节不变（纯派生幂等）。"""
