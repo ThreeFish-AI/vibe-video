@@ -71,7 +71,7 @@
 
 # B 型信源 · 文档 / 代码 / 课程站点
 
-> 首次实践：[claude-code-explained-video](https://github.com/ThreeFish-AI/negentropy/blob/master/apps/negentropy-influence/episodes/claude-code-explained-video/research/source-notes.md)
+> 首次实践：[claude-code-explained-video](https://github.com/ThreeFish-AI/negentropy/blob/1998183a7a23e32f9ae69d1ef392f0e7e66309ef/apps/negentropy-influence/episodes/claude-code-explained-video/research/source-notes.md)
 > （课程站点 4 页 + 代码仓库 @ 固定提交）。产出文件名用 `research/source-notes.md`
 > 以区别于 A 型的 `paper-notes.md`。
 

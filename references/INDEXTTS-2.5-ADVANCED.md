@@ -55,9 +55,9 @@
 
 ### 2.1 中文归一化链路（wetext，不是 NeMo）
 
-![IndexTTS 逐句合成流程：narration.md 逐字稿经 build_narration.py 派生 text／ttsText、tts.py tts_text() 标点规整后 POST /synthesize 送入上游，在 infer_v2_5.py 内按 :699 lang_prefix、:701 clean_pattern、:703-707 归一化分支（zh 走 wetext TextNormalizer）、:711 全局小写、:714 发音标注展开为 SPECIAL_TOKEN、:719 按 118 token 预算分段、:723 tiktoken 编码的固定顺序流转，最终进入 T2S 自回归产出语义码。](https://github.com/ThreeFish-AI/negentropy/blob/master/docs/assets/architecture/apps/indextts--synthesis-flow-dark.png)
+![IndexTTS 逐句合成流程：narration.md 逐字稿经 build_narration.py 派生 text／ttsText、tts.py tts_text() 标点规整后 POST /synthesize 送入上游，在 infer_v2_5.py 内按 :699 lang_prefix、:701 clean_pattern、:703-707 归一化分支（zh 走 wetext TextNormalizer）、:711 全局小写、:714 发音标注展开为 SPECIAL_TOKEN、:719 按 118 token 预算分段、:723 tiktoken 编码的固定顺序流转，最终进入 T2S 自回归产出语义码。](../docs/diagrams/indextts--synthesis-flow/indextts--synthesis-flow-dark.png)
 
-> 图源（可 diff 文本，存于源仓）：[`indextts--synthesis-flow.mmd`](https://github.com/ThreeFish-AI/negentropy/blob/master/docs/assets/mermaid/apps/indextts--synthesis-flow.mmd) · 交互版（下载到本地打开）：[`indextts--synthesis-flow.html`](https://github.com/ThreeFish-AI/negentropy/blob/master/docs/assets/architecture/apps/indextts--synthesis-flow.html)
+> 图源（可 diff 文本）：[`indextts--synthesis-flow.mmd`](../docs/diagrams/indextts--synthesis-flow/indextts--synthesis-flow.mmd) · 交互版（下载到本地打开）：[`indextts--synthesis-flow.html`](../docs/diagrams/indextts--synthesis-flow/indextts--synthesis-flow.html)
 
 三条容易踩空的事实：
 
@@ -168,9 +168,9 @@
 
 ### 3.1 融合公式与 alpha 的物理含义
 
-![IndexTTS-2.5 中一条 12 秒参考音频分出 CAMPPlus 风格、w2v-BERT L17 语义、log-mel 前缀三路信号：风格向量既作余弦最近邻查询从 73 行情感原型库挑出「最像你」的原型行、又经 spk_emb_proj 投影成为 conds_latent 基底；语义嵌入作为 E_self 基底参与 emovec 加权融合，融合结果与音色投影在同一 1280 维槽位相加后驱动 T2S 自回归与 25 步 CFM 扩散。](https://github.com/ThreeFish-AI/negentropy/blob/master/docs/assets/architecture/apps/indextts--reference-audio-dark.png)
+![IndexTTS-2.5 中一条 12 秒参考音频分出 CAMPPlus 风格、w2v-BERT L17 语义、log-mel 前缀三路信号：风格向量既作余弦最近邻查询从 73 行情感原型库挑出「最像你」的原型行、又经 spk_emb_proj 投影成为 conds_latent 基底；语义嵌入作为 E_self 基底参与 emovec 加权融合，融合结果与音色投影在同一 1280 维槽位相加后驱动 T2S 自回归与 25 步 CFM 扩散。](../docs/diagrams/indextts--reference-audio/indextts--reference-audio-dark.png)
 
-> 图源（可 diff 文本，存于源仓）：[`indextts--reference-audio.mmd`](https://github.com/ThreeFish-AI/negentropy/blob/master/docs/assets/mermaid/apps/indextts--reference-audio.mmd) · 交互版（下载到本地打开）：[`indextts--reference-audio.html`](https://github.com/ThreeFish-AI/negentropy/blob/master/docs/assets/architecture/apps/indextts--reference-audio.html)
+> 图源（可 diff 文本）：[`indextts--reference-audio.mmd`](../docs/diagrams/indextts--reference-audio/indextts--reference-audio.mmd) · 交互版（下载到本地打开）：[`indextts--reference-audio.html`](../docs/diagrams/indextts--reference-audio/indextts--reference-audio.html)
 
 `emovec = Σ(wᵢ·Bᵢ) + (1 − Σwᵢ)·E_self`（`:766-767`），其中 `wᵢ` 是 alpha 缩放后的分量。
 把它写成 `Σ(wᵢ°·α)·Bᵢ + (1 − α·Σwᵢ°)·E_self` 就能看清：
