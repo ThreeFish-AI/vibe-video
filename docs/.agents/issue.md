@@ -95,7 +95,7 @@
 | I-078 | 归属句模板与示例文本仍示范上游已整改的「拆过/失效形态」旧句式 | ✅ 已完成 | 2026-10-22 | [详情](#I-078) |
 | I-079 | 版本号放弃 semver major 口径：历史 1.0.0/2.0.0 与未发版预埋的 3.0.0 整体归一为 0.0.x patch 递增 | ✅ 已完成 | 2026-10-22 | [详情](#I-079) |
 | I-080 | 规则 7 观众层无署源豁免：用户审批的「首尾署源」设计与全量匿名门正面冲突 | ✅ 已完成 | 2026-10-29 | [详情](#I-080) |
-| I-081 | episodes 系列子文件夹布局扫描盲区：check_series/verify_skeleton 单层假设致嵌套集零扫描与指纹误报 | 🔄 进行中 | — | [详情](#I-081) |
+| I-081 | episodes 系列子文件夹布局扫描盲区：check_series/verify_skeleton 单层假设致嵌套集零扫描与指纹误报 | ✅ 已完成 | 2026-10-31 | [详情](#I-081) |
 | I-082 | episodes 嵌套布局在制片工具与分发模板的残余单层假设（record_archify 定位器、gitignore/README 模板） | ⏸ 暂不处理 | — | [详情](#I-082) |
 
 ---
@@ -1365,7 +1365,7 @@
 
 **定性**：阻断性缺陷（嵌套布局下制片门假绿放行违规内容、漂移门假红阻塞提交）；静默盲区形态优先级高于误报。
 
-**处理方式**：分支 ThreeFish-AI/rsi-081-episodes-subfolder-layout——glob 双档枚举（每模式补 `episodes/*/*/…` 变体，刻意不用 `**`：pathlib 语义匹配任意深度，多级嵌套是非目标形态却会隐性获得执法面、零层误匹配让归因错乱）；规则 7 归因改 `path` 建表 + 文件前缀最长匹配（未登记文件回退单层段取，孤儿语义不变）；`verify_skeleton` 集工程根按 `path` 解析（缺省回退平面惯例）；两门孤儿发现下探组目录一层（含 `video/` 或 `script/` 判集目录，组目录自身不点名、组内未登记集照常点名）；评审追加 build_narration.py `emit_series_layers` 嵌套修复——series.json 锚定改 `paths.find_upward` 哨兵搜索（无哨兵独立工程回退旧平铺锚，行为不变）、本集归属按登记 `path` 解析比对（旧 `root.parent.parent` 锚与 `episodes/{root.name}` 字面比对让嵌套集 series-layers.json 静默不刷新，P6 身份卡/下期卡数据面陈旧）。测试 +8 例（嵌套布局全绿 / 规则 7 嵌套标识 FAIL / 署源豁免归因生效 / 嵌套孤儿点名 / 组件容器第二档 / 指纹经 path 解析 / 孤儿点名不点组目录 / build 嵌套派生 series-layers）。
+**处理方式**：[PR #65](https://github.com/ThreeFish-AI/vibe-video/pull/65)（分支 ThreeFish-AI/rsi-081-episodes-subfolder-layout：649b877 实施与测试 → 70e3e4a 索引行预合并态修正 → 评审追加 19ad502 build_narration 嵌套修复 / 9e5082e SKILL.md 嵌套口径与 I-082 登记）；核验：作者 G0–G4 全 ✅、Context-Reviewer 复审「可合并」、评审端三维对抗复核零确认 finding、machine_checks 1059 passed / 21 skipped RC=0——glob 双档枚举（每模式补 `episodes/*/*/…` 变体，刻意不用 `**`：pathlib 语义匹配任意深度，多级嵌套是非目标形态却会隐性获得执法面、零层误匹配让归因错乱）；规则 7 归因改 `path` 建表 + 文件前缀最长匹配（未登记文件回退单层段取，孤儿语义不变）；`verify_skeleton` 集工程根按 `path` 解析（缺省回退平面惯例）；两门孤儿发现下探组目录一层（含 `video/` 或 `script/` 判集目录，组目录自身不点名、组内未登记集照常点名）；评审追加 build_narration.py `emit_series_layers` 嵌套修复——series.json 锚定改 `paths.find_upward` 哨兵搜索（无哨兵独立工程回退旧平铺锚，行为不变）、本集归属按登记 `path` 解析比对（旧 `root.parent.parent` 锚与 `episodes/{root.name}` 字面比对让嵌套集 series-layers.json 静默不刷新，P6 身份卡/下期卡数据面陈旧）。测试 +8 例（嵌套布局全绿 / 规则 7 嵌套标识 FAIL / 署源豁免归因生效 / 嵌套孤儿点名 / 组件容器第二档 / 指纹经 path 解析 / 孤儿点名不点组目录 / build 嵌套派生 series-layers）。
 
 **后续防范**：布局类假设不允许绕过 series.json `path` 字段自行拼路径——凡按集定位的代码一律经 `path` 解析（本次三处中两处是绕开 SSOT 的直拼）；glob 受检面新增布局形态时同步补双档枚举并用「干净嵌套布局全绿」负控钉住（无假报）与「嵌套违规仍 FAIL」正控钉住（无盲区）。
 
