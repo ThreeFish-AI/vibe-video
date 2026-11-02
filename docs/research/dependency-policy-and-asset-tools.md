@@ -76,7 +76,7 @@ HyperFrames（HeyGen，2026-03-10 建仓）："Write HTML. Render video. Built f
 
 ## 参考文献
 
-[1] ThreeFish-AI, "动效建模与 Web 可视化搭建工具调研（160-video-motion-modeling-web-visual-tooling）," negentropy docs/research. [Online]. Available: https://github.com/ThreeFish-AI/negentropy/blob/master/docs/research/video-production/160-video-motion-modeling-web-visual-tooling.md（数据快照 2026-09-04）
+[1] ThreeFish-AI, "动效建模与 Web 可视化搭建工具调研（160-video-motion-modeling-web-visual-tooling）," negentropy docs/research. [Online]. Available: <https://github.com/ThreeFish-AI/negentropy/blob/master/docs/research/video-production/160-video-motion-modeling-web-visual-tooling.md>（数据快照 2026-09-04）
 
 [2] Remotion, "remotion / @remotion/cli / @remotion/three," npm registry（version / peerDependencies / time / dist-tags，实测 2026-09-27：latest = 4.0.529，2026-09-25 发布；@remotion/three peer 对 remotion 精确锁定）. [Online]. Available: https://www.npmjs.com/package/remotion
 

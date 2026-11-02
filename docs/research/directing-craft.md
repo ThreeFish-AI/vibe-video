@@ -105,7 +105,7 @@ parser 顺序修正（必钉回归测试）：parse_motion_tags 先剥离 @cam/@
 [6] D. E. Muller, "Designing effective multimedia for physics education," Ph.D. dissertation, Univ. of Sydney, Sydney, Australia, 2008（clear-explanation 零增益与 misconception-first 三段式实证——Veritasium 创始人的博士研究）.
 [7] J. Hullman, "Why authors don't visualize uncertainty," *IEEE Trans. Vis. Comput. Graph.*, vol. 26, no. 1, pp. 10–14, 2020（图解叙事的注意力引导）.
 [8] B. Tversky, J. B. Morrison, and M. Bétrancourt, "Animation: Can it facilitate?," *Int. J. Hum.-Comput. Stud.*, vol. 57, no. 4, pp. 247–262, 2002（动画有效性的边界条件——时机与编排）.
-[9] Kurzgesagt 团队制作流程与色彩策略的公开分享 [Online]. Available: https://kurzgesagt.org/；3Blue1Brown（G. Sanderson）关于 Manim 设计哲学与动画作为注意力语言的公开访谈 [Online]. Available: https://www.dwarkesh.com/p/grant-sanderson；TED-Ed 动画协作模式（educator–animator collaboration，动画承载讲解的一部分）[Online]. Available: https://ed.ted.com/。
+[9] Kurzgesagt 团队制作流程与色彩策略的公开分享 [Online]. Available: <https://kurzgesagt.org/>；3Blue1Brown（G. Sanderson）关于 Manim 设计哲学与动画作为注意力语言的公开访谈 [Online]. Available: <https://www.dwarkesh.com/p/grant-sanderson>；TED-Ed 动画协作模式（educator–animator collaboration，动画承载讲解的一部分）[Online]. Available: <https://ed.ted.com/>。
 
 [10] B. Shneiderman, "The eyes have it: A task by data type taxonomy for information visualizations," in *Proc. IEEE Symp. Visual Languages*, Boulder, CO, USA, 1996, pp. 336–343, doi: 10.1109/VL.1996.545307（"Overview first, zoom and filter, then details-on-demand" 信息检索 mantra 的原始出处——回拉层级澄清的主依据）.
 
