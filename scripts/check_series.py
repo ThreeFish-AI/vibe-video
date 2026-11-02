@@ -75,6 +75,7 @@ from pathlib import Path
 
 # 同目录模块：作为脚本运行时脚本目录即 sys.path[0]，无需注入
 from paths import PROJECT, WORKSPACE
+
 # WCAG 对比度执法三件（令牌正则 / 比值算法 / 阈值）复用 qa_frames 既有实现
 # ——单一事实源，防本脚本另拷一套算法后两门漂移（qa_frames 顶层零重依赖，
 # --check-theme 本就零依赖设计，import 实测 <0.1s）
@@ -498,8 +499,7 @@ def rule_manifest_integrity(series_list: list[dict], msgs: list[str]) -> None:
             if theme.is_file():
                 src = theme.read_text(encoding="utf-8")
                 tokens = {
-                    m.group("key"): m.group("val")
-                    for m in THEME_COLOR_RE.finditer(src)
+                    m.group("key"): m.group("val") for m in THEME_COLOR_RE.finditer(src)
                 }
                 bg = tokens.get("bg")
                 for hexv in e.get("accents", []):
