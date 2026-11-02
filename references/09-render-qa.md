@@ -93,7 +93,7 @@ uv run --no-project --with pillow --with numpy $T/scripts/qa_frames.py \
 | 黑帧/早渐黑（均值 <0.02；末 beat 且分镜标「渐黑」豁免） | FAIL | 查尾幕渐黑是否从**末 beat** 而非末句推导（references/08 红线 4）；查 SceneFade 末幕是否误开淡出 |
 | 纯底色段（内容区无内容像素持续 ≥ `qa.max_dark_sec`，默认 8s；末幕豁免；须句中点采样形态） | FAIL | 场景组件整段渲染为空（仅字幕无画面）——查场景文件是否整段返回 null / 声称「另一半场在另一文件」而该文件不存在（场景分片并行代理的高发形态） |
 | 字幕带侵入（字幕框 x 区间外有独立亮块） | WARN | 角标/图形挪出 bottom≥160px 安全区（角标一律绝对定位并写死 `bottom ≥ 150`） |
-| 冻帧（相邻采样帧 16×16 指纹相同） | WARN | 查 beat 窗口是否错位/句子未被分镜覆盖（`check_script.py --check-scenes`） |
+| 冻帧（相邻采样帧 16×16 指纹相同 → 像素级复核 `frame_diff`（JND=12）两帧仍全同才 WARN；复核有实差降 INFO——静持幕跨句/仅字幕换字形态指纹必碰撞而时间在走） | WARN/INFO | WARN：查 beat 窗口是否错位/句子未被分镜覆盖（`check_script.py --check-scenes`）；INFO：像素复核已证有实差（烧录字幕推进即时间在走的证据），静持幕/字幕更换的合法态留痕免追（I-085） |
 | 字幕缺失（字幕带无文字亮度像素） | WARN | 查该句 Subtitle 是否被遮挡或文本为空 |
 | 主题对比度 <4.5:1 | FAIL | 换色或加深；概念色清单见 references/08 视觉契约 |
 
