@@ -155,7 +155,7 @@ def test_split_forwarded():
     )
 
 
-# ---------------- 透传用法提示（RSI-087：报错路径 argparse 不显示 epilog） ----------------
+# ---------------- 透传用法提示（I-087：报错路径 argparse 不显示 epilog） ----------------
 
 
 def test_parser_error_appends_passthrough_usage(capsys):
@@ -197,7 +197,7 @@ def test_passthrough_usage_examples_anchored_to_docstring():
 
     doc = _normalize(tts_resume.__doc__ or "")
     usage = _normalize(tts_resume.PASSTHROUGH_USAGE)
-    example = usage[usage.index("uv run"):]  # 首行说明按场景各自表述，锚命令段
+    example = usage[usage.index("uv run") :]  # 首行说明按场景各自表述，锚命令段
     assert example in doc, "PASSTHROUGH_USAGE 示例与模块 docstring 漂移"
 
 

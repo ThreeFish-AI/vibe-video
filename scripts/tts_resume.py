@@ -380,7 +380,7 @@ def require_client_deps() -> None:
         )
 
 
-#: `--` 透传用法的唯一事实源（RSI-087）：--help 的 epilog 与报错路径的追加提示共用；
+#: `--` 透传用法的唯一事实源（I-087）：--help 的 epilog 与报错路径的追加提示共用；
 #: 示例命令行与模块 docstring「用法」段逐字同源（测试钉死防第二事实源漂移）。
 PASSTHROUGH_USAGE = (
     "用法（`--` 之后的参数原样转发 tts.py；--project/--engine 等 tts.py 旗标须放 `--` 之后）：\n"
@@ -392,7 +392,7 @@ PASSTHROUGH_USAGE = (
 
 class _ParserWithUsageHint(argparse.ArgumentParser):
     """argparse 原生 error 只打印 usage 行、不显示 epilog（实测）——覆写使报错
-    时刻也带 PASSTHROUGH_USAGE，修「报错无用法提示」（RSI-087）。"""
+    时刻也带 PASSTHROUGH_USAGE，修「报错无用法提示」（I-087）。"""
 
     def error(self, message):
         self.print_usage(sys.stderr)
