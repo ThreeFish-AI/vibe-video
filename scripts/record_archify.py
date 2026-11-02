@@ -105,15 +105,22 @@ FPS_OUT = 25  # 合成恒定帧率：与 Playwright 录像的名义 CFR 一致�
 
 
 def find_remotion() -> tuple[Path, Path] | None:
-    """→ (remotion CLI, 工程 video 根)。任一集 video/node_modules 装好即可用。"""
+    """→ (remotion CLI, 工程 video 根)。任一集 video/node_modules 装好即可用。
+
+    双档枚举（I-082）：第二档覆盖一级系列子文件夹（episodes/<组>/<集目录>，
+    series.json 以 path 登记）——全嵌套工作区下单层 glob 会误报「未找到任何集的
+    node_modules」。刻意不用 `**`（比选见 check_series.AUDIENCE_GLOBS 注，I-081）：
+    任意深度匹配让多级嵌套这个非目标形态隐性获得支持面。
+    """
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     import paths  # noqa: E402 - 工作区惰性锚（取代 parents[2] 数层数）
 
     video_root = paths.WORKSPACE / "episodes"
-    for proj in video_root.glob("*/video"):
-        exe = proj / "node_modules" / ".bin" / "remotion"
-        if exe.is_file():
-            return exe, proj
+    for pattern in ("*/video", "*/*/video"):
+        for proj in video_root.glob(pattern):
+            exe = proj / "node_modules" / ".bin" / "remotion"
+            if exe.is_file():
+                return exe, proj
     return None
 
 

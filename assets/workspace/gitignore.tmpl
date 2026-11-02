@@ -8,13 +8,13 @@ voices/*
 !voices/README.md
 !voices/refs.toml
 
-# TTS 与渲染产物（通配到分集级，新集自动覆盖）
-episodes/*/video/public/audio/
+# TTS 与渲染产物（通配到分集级，含一级系列子文件夹，新集自动覆盖）
+episodes/**/video/public/audio/
 episodes/**/*.mp4
 episodes/**/*.mp3
 episodes/**/*.wav
 
 # archify 录制派生物（HTML 是 SSOT，sidecar json 入库）
-episodes/*/video/public/archify/*.webm
-episodes/*/video/public/archify/*.mp4
-episodes/*/video/public/archify/*-end.png
+episodes/**/video/public/archify/*.webm
+episodes/**/video/public/archify/*.mp4
+episodes/**/video/public/archify/*-end.png
