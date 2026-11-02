@@ -96,7 +96,7 @@
 | I-079 | 版本号放弃 semver major 口径：历史 1.0.0/2.0.0 与未发版预埋的 3.0.0 整体归一为 0.0.x patch 递增 | ✅ 已完成 | 2026-10-22 | [详情](#I-079) |
 | I-080 | 规则 7 观众层无署源豁免：用户审批的「首尾署源」设计与全量匿名门正面冲突 | ✅ 已完成 | 2026-10-29 | [详情](#I-080) |
 | I-081 | episodes 系列子文件夹布局扫描盲区：check_series/verify_skeleton 单层假设致嵌套集零扫描与指纹误报 | ✅ 已完成 | 2026-10-31 | [详情](#I-081) |
-| I-082 | episodes 嵌套布局在制片工具与分发模板的残余单层假设（record_archify 定位器、gitignore/README 模板） | 🔄 进行中 | — | [详情](#I-082) |
+| I-082 | episodes 嵌套布局在制片工具与分发模板的残余单层假设（record_archify 定位器、gitignore/README 模板） | ✅ 已完成 | 2026-11-02 | [详情](#I-082) |
 | I-083 | scaffold 建集 -video 后缀硬校验与已废除的集目录命名约定冲突——按现行约定新建集被拒 | ✅ 已完成 | 2026-10-31 | [详情](#I-083) |
 
 ---
@@ -1381,7 +1381,7 @@
 
 **定性**：非阻断改进。无执法盲区（执法门已全覆盖嵌套）；record_archify 是 best-effort 定位器且当前真实工作区仍有平铺集可命中，gitignore/README 只影响全量嵌套工作区的仓库卫生与新人可读性。
 
-**处理方式**：分支 ThreeFish-AI/rsi-082-nested-residuals（本轮修复，PR 待建）：①`find_remotion` 补双档 glob（`*/*/video` 第二档，沿 I-081 比选结论不用 `**`——任意深度匹配让多级嵌套这个非目标形态隐性获得支持面；比 series.json `path` 建表更小干预：这是「任一集装好即可用」的能力探测而非按集归因，无需注册表）；②`gitignore.tmpl` audio/ 与 archify 派生物四行统一 `episodes/**`（与既有 mp4/mp3/wav 三行同口径；`**` 匹配零层故平面布局同盖，不改第二行枚举——gitignore 语义下两案等价、双行徒增行数）；③两份 README 模板目录树 / `$P` 展开式 / 命令示例补嵌套从句（口径同 SKILL.md `$P` 行「嵌套看`path`」）——video-skeleton README 属 skeleton.toml `seeded` 档（复制后自由、不设门，verify_skeleton `GATED_CLASSES` 不含 seeded），改模板不触发「改=模板+全集同步」义务与漂移，既有集零 STALE；随带 workspace README 四处 `<slug>-video` 中性化（`<slug>` + 兼容口径一句，I-083 ledger 移交）。溯源：三处残余同由 d02992d（PR #16，2026-09-25 的 2.0.0 规范重构）一次性引入，I-081/I-083（PR #65/#66）未触碰此四文件、非回退。复现对照（demo-group/ep-n1 合成 fixture）：改前 `find_remotion` 对嵌套集返回 None（cdp 预检误报根）、真 `git check-ignore` 下嵌套 audio/ 目录与 webm/end.png 派生物不被盖、README 模板含 `-video` 示范且锚无嵌套注；改后全绿。回归测试 +6（嵌套命中 / 平面向后兼容 / 多级嵌套非目标——最小 playwright stub 令 machine_checks 无 playwright 环境真跑而非跳过；git check-ignore 功能钉 / README 布局中性；$P 锚嵌套注）。
+**处理方式**：分支 ThreeFish-AI/rsi-082-nested-residuals（[PR #68](https://github.com/ThreeFish-AI/vibe-video/pull/68)：8f60519 实施 → f572f7b 合并前 Review&Fix 修复轮）：①`find_remotion` 补双档 glob（`*/*/video` 第二档，沿 I-081 比选结论不用 `**`——任意深度匹配让多级嵌套这个非目标形态隐性获得支持面；比 series.json `path` 建表更小干预：这是「任一集装好即可用」的能力探测而非按集归因，无需注册表）；②`gitignore.tmpl` audio/ 与 archify 派生物四行统一 `episodes/**`（与既有 mp4/mp3/wav 三行同口径；`**` 匹配零层故平面布局同盖，不改第二行枚举——gitignore 语义下两案等价、双行徒增行数）；③两份 README 模板目录树 / `$P` 展开式 / 命令示例补嵌套从句（口径同 SKILL.md `$P` 行「嵌套看`path`」）——video-skeleton README 属 skeleton.toml `seeded` 档（复制后自由、不设门，verify_skeleton `GATED_CLASSES` 不含 seeded），改模板不触发「改=模板+全集同步」义务与漂移，既有集零 STALE；随带 workspace README 四处 `<slug>-video` 中性化（`<slug>` + 兼容口径一句，I-083 ledger 移交）。溯源：三处残余同由 d02992d（PR #16，2026-09-25 的 2.0.0 规范重构）一次性引入，I-081/I-083（PR #65/#66）未触碰此四文件、非回退。复现对照（demo-group/ep-n1 合成 fixture）：改前 `find_remotion` 对嵌套集返回 None（cdp 预检误报根）、真 `git check-ignore` 下嵌套 audio/ 目录与 webm/end.png 派生物不被盖、README 模板含 `-video` 示范且锚无嵌套注；改后全绿；合并前 Review&Fix 补修 gitignore 测试隔离缺口（GIT_CONFIG_*/dev/null 不屏蔽默认 XDG ignore，check-ignore 改 -c core.excludesFile 置空——反证：XDG ignore=`*` 下 BASE 模板原测试假绿、修复后变红、HEAD 模板仍绿）。核验：作者 G0–G4 全 ✅；五维对抗复核 3 raw → 2 确认（缺台账回填、测试 excludesFile 隔离缺口）+ 1 驳回（CHANGELOG 自适配说明）；修复后盲审 0 确认；machine_checks 1067 passed / 21 skipped RC=0 对拍基线净增 +6 零回归；ruff==0.14.5 零告警。回归测试 +6（嵌套命中 / 平面向后兼容 / 多级嵌套非目标——最小 playwright stub 令 machine_checks 无 playwright 环境真跑而非跳过；git check-ignore 功能钉 / README 布局中性；$P 锚嵌套注）。
 
 **后续防范**：同 I-081 防范条——凡按集定位的代码一律经 series.json `path` 解析；scaffold 分发模板（gitignore/README）属布局表述的第三事实源，布局形态演进时随 PIPELINE.md 同步。
 
