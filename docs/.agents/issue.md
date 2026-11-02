@@ -1419,13 +1419,17 @@
 
 **同类问题影响**：[INDEXTTS-2.5-ADVANCED.md](../../references/INDEXTTS-2.5-ADVANCED.md)（58 / 60 / 171 / 173 行）与 [VOICE-CLONING.md](../../references/VOICE-CLONING.md)（25 / 27 行）共 9 个资产外链同因 404——negentropy master `docs/assets/architecture|mermaid/apps/` 下 indextts--synthesis-flow / indextts--reference-audio / voice-cloning--architecture 三图族（png + html + mmd）已随 negentropy PR #1160（aaa7c81dc，流水线机制外置为技能时删除管线侧图资产）删除，而三图族四件套（dark/light png + html + mmd）早已随「架构图源入库对齐全局 Archify 规范」迁移现存本仓 `docs/diagrams/<slug>/`（该迁移当时刻意保留的 negentropy 外链在源仓删除后腐烂）——已随本条经主 Agent 核准扩圈修复：9 链接改指本仓相对路径（PIPELINE.md 图源行同款惯例，「存于源仓」尾注随迁去除），四件套 12 文件在场核验、相对链接从 references/ 位置解析可达；negentropy 台账 / source-map / 调研文档各 master 链今日全 200 不动；I-050 表因上游台账链同因（浮动分支随上游合并删除）已随本条改钉 commit。
 
-
 <a id="I-085"></a>
 ## I-085：qa_frames 冻帧指纹对「装置静持+仅字幕在换」形态系统性误报
 
-- **表因**：16×16 mean_hash 的 cell 均值+单一全局阈值吞掉字幕带稀疏笔画重排（同带相邻帧必碰撞）；claude-code-chapters 四集 ≥8 处该 WARN 逐处人工 PIL diff 全证误报（diff max 196–253，实变落字幕带）。
-- **根因**：mean_hash 自 f418950 初始迁入即为单级判据；PR #34 已为 beat 头帧关判定（同判先例）而常规相邻句帧路径漏同款形态。运行时证据：门禁无法判定（该形态 WARN 误报率 100%）。
-- **定性**：误报（判据粒度不足，非回退）。
-- **处理方式**：指纹相同帧对追加全帧 frame_diff（--compare 的 SSOT 判据，JND=12 抗 jpeg 噪声）二次复核：有实差降 INFO（含 bbox 定位、仅打印不进 WARN/FAIL 计数）；两帧全同维持 WARN（真冻帧不漏）；亚 JND 噪声不误判「实差」。references/09-render-qa.md 判据表冻帧行同步两段式判据与双处置（Split-Brain 消除）。PR #69。
-- **后续防范**：判据修改须同步 references/09 判据表指针；「裁字幕带」方向不可行（内容区静持是误报本体、裁带后必报且丢字幕敏感度）。盲评：内容维新版胜出（场景 1+2 双贡献——零人工排查 vs 旧版空手后人工兜底）、结构维平局。
-- **同类问题影响**：任何用 mean_hash/降采样指纹做冻帧或重复帧判定的管线（静持幕、片尾卡、loading 循环段同族形态）。
+**表因**：16×16 mean_hash 的 cell 均值+单一全局阈值吞掉字幕带稀疏笔画重排（同带相邻帧必碰撞）；claude-code-chapters 四集 ≥8 处该 WARN 逐处人工 PIL diff 全证误报（diff max 196–253，实变落字幕带）。
+
+**根因**：mean_hash 自 f418950 初始迁入即为单级判据；同一初始迁入已为 `--beat-heads` 头帧关冻帧判定（「静止 beat 的头帧指纹相同是合法态」——同判先例，PR #34 的过渡/loop 抽帧沿用 `freeze_check=False`）而常规相邻句帧路径漏同款形态。运行时证据：门禁无法判定（该形态 WARN 误报率 100%）。
+
+**定性**：误报（判据粒度不足，非回退）。
+
+**处理方式**：指纹相同帧对追加全帧 frame_diff（--compare 的 SSOT 判据，JND=12 抗 jpeg 噪声）二次复核：有实差降 INFO（含 bbox 定位、仅打印不进 WARN/FAIL 计数）；两帧全同维持 WARN（真冻帧不漏）；亚 JND 噪声不误判「实差」。references/09-render-qa.md 判据表冻帧行同步两段式判据与双处置（Split-Brain 消除）。PR #69。
+
+**后续防范**：判据修改须同步 references/09 判据表指针；「裁字幕带」方向不可行（内容区静持是误报本体、裁带后必报且丢字幕敏感度）。盲评：内容维新版胜出（场景 1+2 双贡献——零人工排查 vs 旧版空手后人工兜底）、结构维平局。
+
+**同类问题影响**：任何用 mean_hash/降采样指纹做冻帧或重复帧判定的管线（静持幕、片尾卡、loading 循环段同族形态）。[I-029](#I-029)（⏸，草渲半分辨率指纹假阳挂起条目）的候选「像素级对账指引」由本条全帧复核机械化覆盖——合并后宜在 I-029 追加带日期复盘点回指本条（同一问题只维护一处）。
