@@ -903,7 +903,7 @@
 <a id="I-050"></a>
 ## I-050：check_series 规则1 只扫 narration.md，组件口播字面量（NARRATION/SUBS）是顺序词执法盲区
 
-**表因**（2026-10-08，上游 ISSUE-208 回流）：Claude Code 系列片头组件 `series-intro.tsx` 的 NARRATION/SUBS 字面量口播首词「本系列视频」违反系列禁词表（顺序词），`check_series.py` 规则1 全绿漏放行——该组件在 `video/src/components/` 而非 `scenes/`，连规则 7 的 AUDIENCE_GLOBS 都不覆盖；靠 2026-10-07 评审轮人工按禁词表核对才发现，收口须重配音（take 18.08s）并按新静音带全量重排 T 表（上游修复 commit 595b8bfdf）。上游台账：https://github.com/ThreeFish-AI/negentropy/blob/28eb49ee98251a1853fe5803e0414b9a47591d27/docs/.agents/issue.md#I-208（钉 commit；原分支 ThreeFish-AI/claude-code-video-opening 已随上游合并删除，条目合入后由 ISSUE-208 重编号为 I-208）。
+**表因**（2026-10-08，上游 ISSUE-208 回流）：Claude Code 系列片头组件 `series-intro.tsx` 的 NARRATION/SUBS 字面量口播首词「本系列视频」违反系列禁词表（顺序词），`check_series.py` 规则1 全绿漏放行——该组件在 `video/src/components/` 而非 `scenes/`，连规则 7 的 AUDIENCE_GLOBS 都不覆盖；靠 2026-10-07 评审轮人工按禁词表核对才发现，收口须重配音（take 18.08s）并按新静音带全量重排 T 表（上游修复 commit 595b8bfdf）。上游台账：<https://github.com/ThreeFish-AI/negentropy/blob/28eb49ee98251a1853fe5803e0414b9a47591d27/docs/.agents/issue.md#I-208>（钉 commit；原分支 ThreeFish-AI/claude-code-video-opening 已随上游合并删除，条目合入后由 ISSUE-208 重编号为 I-208）。
 
 **根因**：规则1 的受检面枚举只含 narration.md / narration.en.md，而系列片头口播是独立音轨资产、设计上**不入** narration SSOT——narration 扫描对它结构性失明。「口播永不出现顺序词」的不变量覆盖一切口播面，受检面枚举却漏了组件字面量这一承载形态（机制纵容了它）。
 
@@ -924,7 +924,7 @@
 
 **定性**：非阻断改进（知识融入·攒批启动；零 parser/frozen/机器门改动）。
 
-**处理方式**：[PR #42](https://github.com/ThreeFish-AI/vibe-video/pull/42)（commit 3e08878，分支 ThreeFish-AI/rsi-050-series-intro-knowledge-batch）。新建 [references/SERIES-INTRO.md](../../references/SERIES-INTRO.md)（资产层 SSOT，五节 ≤55 行：资产形态契约——独立音轨 gitignored/不入 narration SSOT 且显式声明这不是不变量 2 的例外而是系列级资产与分集 narration 并行/leadInSec 仍读 timing.json 的时序归属/五集同构 seeded 复制与逐集差异全数据驱动；静音带实测 T 表方法论——三阈值一致口径/起播偏移/词首非对称吸收/顿号间隙实测优先/改稿重测只改 T 表/重排后三处派生注释穷举对账且先排 T 后改注；改稿五同步检查单；双语 drift 登记范式；口播容器命名约定——文档执法互锚）。**评审订正**（2026-10-08，PR #42 评审）：①点火口径声明片头例外——片头点火是反应式脉冲（词首实测后 +4 帧触发），区别于 DIRECTING-CRAFT §5.1 正片预判式入场，不外推正片，M-005 同步收窄并指向 DC §5.1；②seeded 组件内偏离写组件头注、不进 `[[skeleton.drift]]`（该面只收受门档位路径，登记 seeded 路径会令 verify_skeleton 载入期退出）；③`$V/refs.toml` 记法、不变量改带 RSI 前缀链接、mech 派生口径订正。**实测数字不入册**：take 时长/阈值/帧数一律留在各集组件 T 表头注作 SSOT（防数字时鲜性，ISSUE-179 活数据教训：https://github.com/ThreeFish-AI/negentropy/blob/master/docs/.agents/issue.md）；命令全用 $T/$W/$P/$V 记法；音色只写 refs.toml 指纹记法不写样本文件名（生物特征纪律）。入链：07（独立音轨配方）/08（seeded 组件与 components/ 约定）/09（T 表验收目检条）各 +1 行指针、03 系列纪律条补约定链接、SKILL.md 按需加载表 +1 行（等量压缩守 8000 字符：GL 行/重配音行尾/双语行/排障行/ADVANCED 行五处压缩共 57 字符，压缩后 7996/8000，全部避开测试锚串）、knowledge-map references 表 +1 行（同 commit 纪律义务）。回归：tests/test_series_intro.py 5 锚点（存在+目录+≤500 行 / 07-08-09 指针 / 单行字幕切换只含指针不含契约正文锚串 / NARRATION-SUBS 命名约定声明 / SKILL 路由行）。
+**处理方式**：[PR #42](https://github.com/ThreeFish-AI/vibe-video/pull/42)（commit 3e08878，分支 ThreeFish-AI/rsi-050-series-intro-knowledge-batch）。新建 [references/SERIES-INTRO.md](../../references/SERIES-INTRO.md)（资产层 SSOT，五节 ≤55 行：资产形态契约——独立音轨 gitignored/不入 narration SSOT 且显式声明这不是不变量 2 的例外而是系列级资产与分集 narration 并行/leadInSec 仍读 timing.json 的时序归属/五集同构 seeded 复制与逐集差异全数据驱动；静音带实测 T 表方法论——三阈值一致口径/起播偏移/词首非对称吸收/顿号间隙实测优先/改稿重测只改 T 表/重排后三处派生注释穷举对账且先排 T 后改注；改稿五同步检查单；双语 drift 登记范式；口播容器命名约定——文档执法互锚）。**评审订正**（2026-10-08，PR #42 评审）：①点火口径声明片头例外——片头点火是反应式脉冲（词首实测后 +4 帧触发），区别于 DIRECTING-CRAFT §5.1 正片预判式入场，不外推正片，M-005 同步收窄并指向 DC §5.1；②seeded 组件内偏离写组件头注、不进 `[[skeleton.drift]]`（该面只收受门档位路径，登记 seeded 路径会令 verify_skeleton 载入期退出）；③`$V/refs.toml` 记法、不变量改带 RSI 前缀链接、mech 派生口径订正。**实测数字不入册**：take 时长/阈值/帧数一律留在各集组件 T 表头注作 SSOT（防数字时鲜性，ISSUE-179 活数据教训：<https://github.com/ThreeFish-AI/negentropy/blob/master/docs/.agents/issue.md>）；命令全用 $T/$W/$P/$V 记法；音色只写 refs.toml 指纹记法不写样本文件名（生物特征纪律）。入链：07（独立音轨配方）/08（seeded 组件与 components/ 约定）/09（T 表验收目检条）各 +1 行指针、03 系列纪律条补约定链接、SKILL.md 按需加载表 +1 行（等量压缩守 8000 字符：GL 行/重配音行尾/双语行/排障行/ADVANCED 行五处压缩共 57 字符，压缩后 7996/8000，全部避开测试锚串）、knowledge-map references 表 +1 行（同 commit 纪律义务）。回归：tests/test_series_intro.py 5 锚点（存在+目录+≤500 行 / 07-08-09 指针 / 单行字幕切换只含指针不含契约正文锚串 / NARRATION-SUBS 命名约定声明 / SKILL 路由行）。
 
 **后续防范**：片头/预告/品牌声画类系列资产的新形态先查 SERIES-INTRO 是否已有契约，再决定扩节或立新册；组件头注写方法论时同步自查是否已有册面（头注是本集数字 SSOT，册是跨集方法论 SSOT，两层不复制）。
 
@@ -933,7 +933,7 @@
 <a id="I-052"></a>
 ## I-052：共享冻结件修复的波及面对账无机制：重渲待办与交付验收线全靠人记
 
-**表因**（上游 ISSUE-207 回流）：多集共享冻结件（Archify 三件/Subtitle/i18n 系）的修复天然使全系列成片陈旧，而重渲登记按「直接涉事集」窄登记——上游 09-30 修复批（6973c570f 等）落地后五集 v1 成片全部不含修复，ISSUE-205/206 只登记了 ep5/ep1 重渲，同样吃到共享件修复的 ep2/3/4 无登记，评审再挖出 10 处视觉缺陷后才补全量重渲对账。上游台账：https://github.com/ThreeFish-AI/negentropy/blob/feature/1.x.x/docs/.agents/issue.md（分支 feature/1.x.x）。
+**表因**（上游 ISSUE-207 回流）：多集共享冻结件（Archify 三件/Subtitle/i18n 系）的修复天然使全系列成片陈旧，而重渲登记按「直接涉事集」窄登记——上游 09-30 修复批（6973c570f 等）落地后五集 v1 成片全部不含修复，ISSUE-205/206 只登记了 ep5/ep1 重渲，同样吃到共享件修复的 ep2/3/4 无登记，评审再挖出 10 处视觉缺陷后才补全量重渲对账。上游台账：<https://github.com/ThreeFish-AI/negentropy/blob/feature/1.x.x/docs/.agents/issue.md>（分支 feature/1.x.x）。
 
 **根因**：`deliver`/渲染链对「本次提交改了哪些共享冻结件、波及哪些集」零感知——波及面是 git diff 与 series.json 的派生信息，却没有任何门或检查单承接它；交付登记（statusNote/CHANGELOG）也不校验成片时间戳与修复提交的先后。
 
@@ -948,7 +948,7 @@
 <a id="I-053"></a>
 ## I-053：交付登记数字无机器对账：时长/锚定率/块数/归档计数散文手写即漂移
 
-**表因**（上游 ISSUE-204 回流）：v1 评审 13 条中 6 条集中在人写登记层——series.json statusNote、series.md、CHANGELOG 三处时长全部虚高 6–8s（三个不同实测被统一抄成一个数）；锚定率自矛盾（同句「锚定 36.6%」与门输出 39.0% 打架）；「43 块 cues」无源（cues.toml 从未存在）；五集 README 停在脚手架占位态；`_captions/` 归档缺口（CHANGELOG 称 ×5 实得 1）。上游台账：https://github.com/ThreeFish-AI/negentropy/blob/feature/1.x.x/docs/.agents/issue.md（分支 feature/1.x.x）。
+**表因**（上游 ISSUE-204 回流）：v1 评审 13 条中 6 条集中在人写登记层——series.json statusNote、series.md、CHANGELOG 三处时长全部虚高 6–8s（三个不同实测被统一抄成一个数）；锚定率自矛盾（同句「锚定 36.6%」与门输出 39.0% 打架）；「43 块 cues」无源（cues.toml 从未存在）；五集 README 停在脚手架占位态；`_captions/` 归档缺口（CHANGELOG 称 ×5 实得 1）。上游台账：<https://github.com/ThreeFish-AI/negentropy/blob/feature/1.x.x/docs/.agents/issue.md>（分支 feature/1.x.x）。
 
 **根因**：交付期的散文登记不走机器门——时长/锚定率/块数/归档计数无一处被 build 派生或 check 汇对账，「抄上次输出」与「占位态忘更新」零摩擦进入主干；mp4 与 manifest 逐位一致（渲染链无辜），错的只是纸面。
 
@@ -963,7 +963,7 @@
 <a id="I-054"></a>
 ## I-054：渲染产物完整性预检缺失：损坏 mp4 让整轮抽帧 QA 输出伪信号
 
-**表因**（上游 ISSUE-181 回流）：两个 remotion render 进程并发写同一 `out/draft.mp4` 致索引损坏，`ffmpeg -ss <任意时间戳>` 全部解码回第 0 帧——`--check` 报出 52 条伪 WARN（伪冻帧+伪字幕缺失），同代码态 `remotion still` 直渲却完全正常；干净重渲后恢复 FAIL 0 · WARN 1 基线。上游台账：https://github.com/ThreeFish-AI/negentropy/blob/master/docs/.agents/issue.md（分支 master）。
+**表因**（上游 ISSUE-181 回流）：两个 remotion render 进程并发写同一 `out/draft.mp4` 致索引损坏，`ffmpeg -ss <任意时间戳>` 全部解码回第 0 帧——`--check` 报出 52 条伪 WARN（伪冻帧+伪字幕缺失），同代码态 `remotion still` 直渲却完全正常；干净重渲后恢复 FAIL 0 · WARN 1 基线。上游台账：<https://github.com/ThreeFish-AI/negentropy/blob/master/docs/.agents/issue.md>（分支 master）。
 
 **根因**：`pipeline.py render` 无锁（渲染是独占写操作），且 qa_frames 抽帧前不验产物本身——判据正确不等于输入正确；异常数量的 WARN 集中在**未改动的幕**而改动幕反而干净，这个分布本身就是产物损坏的信号，但无人/无门去读它。
 
@@ -978,7 +978,7 @@
 <a id="I-055"></a>
 ## I-055：useCurrentFrame 语境随宿主搬迁漂移：窗口类 hooks 内联搬运即语境错位
 
-**表因**（上游 ISSUE-205 回流）：ep5 终幕修复把渐黑遮罩+完结语的 hooks 从子组件内联搬到 P6 场景主体——`useCurrentFrame` 语境从镜内局部帧变成场景局部帧，`tailKeep` 在该镜全程为 0、遮罩满黑盖死整幕；`remotion still` 亮度抽样抓出（机器门全盲），改回组件化放归镜内语境后逐帧复验通过。上游台账：https://github.com/ThreeFish-AI/negentropy/blob/feature/1.x.x/docs/.agents/issue.md（分支 feature/1.x.x）。
+**表因**（上游 ISSUE-205 回流）：ep5 终幕修复把渐黑遮罩+完结语的 hooks 从子组件内联搬到 P6 场景主体——`useCurrentFrame` 语境从镜内局部帧变成场景局部帧，`tailKeep` 在该镜全程为 0、遮罩满黑盖死整幕；`remotion still` 亮度抽样抓出（机器门全盲），改回组件化放归镜内语境后逐帧复验通过。上游台账：<https://github.com/ThreeFish-AI/negentropy/blob/feature/1.x.x/docs/.agents/issue.md>（分支 feature/1.x.x）。
 
 **根因**：Remotion 的 `useCurrentFrame`/`useVideoConfig` 等窗口类 hooks 语义绑定宿主 Sequence 的局部时间轴，跨 Sequence 移动带 hooks 的层时语境随宿主变——这是机制特性，但规格层（08）未把「窗口类 hooks 必须与消费点同语境、组件化而非内联搬运」写成纪律，修复者只能靠踩坑习得。
 
@@ -993,7 +993,7 @@
 <a id="I-056"></a>
 ## I-056：archify 录制帧率门只 WARN 不拦：capture_fps 低于下限可静默入成片
 
-**表因**（上游 ISSUE-206 回流）：ep1 checkchain-order 图 scan-claim 章 capture_fps=17.0（五集其余 59 图全部 ≥23），`check_archify` 仅 WARN 不拦门——录制期负载瞬时退化（CDP 档补帧合成 CFR25 掩盖低采集率）直接进了成片。上游台账：https://github.com/ThreeFish-AI/negentropy/blob/feature/1.x.x/docs/.agents/issue.md（分支 feature/1.x.x）。
+**表因**（上游 ISSUE-206 回流）：ep1 checkchain-order 图 scan-claim 章 capture_fps=17.0（五集其余 59 图全部 ≥23），`check_archify` 仅 WARN 不拦门——录制期负载瞬时退化（CDP 档补帧合成 CFR25 掩盖低采集率）直接进了成片。上游台账：<https://github.com/ThreeFish-AI/negentropy/blob/feature/1.x.x/docs/.agents/issue.md>（分支 feature/1.x.x）。
 
 **根因**：录制质量下限（min ≥18）在 check_archify 里是 WARN 档——低帧率章节是「可重录修复的资源态」而非「可接受的交付态」，但门不拦就意味着它可以在负载高的时候静默过检入片。
 
@@ -1412,8 +1412,8 @@
 
 **定性**：非阻断文档缺陷（例证链断 = 读者无法核验「首次实践」证据；锚失配 = 台账内跳转落空）；零行为影响。
 
-**处理方式**：分支 ThreeFish-AI/rsi-084-doc-deadlinks：① 首次实践外链三案比选取钉 commit 深链——ref 段 master → `1998183a7a23e32f9ae69d1ef392f0e7e66309ef`（文件删除前最后存在点 = 删除提交 10cfdc0285 的父提交）：(a) 改指现存等价物（该集 research/ 现行 `sources.toml` / `gl-notes.md`）语义错位——本句例证的产出物按规格就是 source-notes.md（同块下文「产出文件名用 `research/source-notes.md`」与 01 全文 B 型产出锚自洽），改指台账化后的 sources.toml 会让例证与规格自相矛盾，且 episodes 深路径在上游改名合入后必再断；(b) 去外链改描述式引用——长期稳定但句子手术大、丢失可核验的证据链；(c) 钉 commit——句法零变化仅换 URL ref、commit 不可变永久可达（api/html 双 200 复核）、语义保真（41KB 例证文件原样可读——删除前最后版本，即 2026-09-30 重调研版，信源分层登记与现行 01 规格一致），与 sources 锚行钉定 revision、PIPELINE「永久链」同纪律，采纳。② I-010 href 改 `#I-010`（现行锚）。修后复验：钉定 URL gh api 200、锚对账零失配。③ 同类面全量核查：全仓 grep `blob/master` 提取 15 个净 URL 逐条核验——5 可达（negentropy 台账、source-map 目录与首例、动效调研文档、本仓 PR #42）不动（I-083 评审裁定「目标分支上解析」非缺陷）；1 处即缺陷①已修；另发现 9 处确证死链（三图族资产，见同类问题影响）经主 Agent 核准扩圈随本条修复（涉圈两个 references 文件同步入白名单）；合并前评审补扫非 master 非 SHA 的浮动分支深链（`blob|tree/<branch>`）6 处——`feature/1.x.x` 5 处（台账 4 + references/08 1）可达不动，I-050 表因的上游台账链钉在已删分支 `claude-code-video-opening`（404）随本条改钉 commit + `#I-208`，合计修复 12 处。
+**处理方式**：分支 ThreeFish-AI/rsi-084-doc-deadlinks：① 首次实践外链三案比选取钉 commit 深链——ref 段 master → `1998183a7a23e32f9ae69d1ef392f0e7e66309ef`（文件删除前最后存在点 = 删除提交 10cfdc0285 的父提交）：(a) 改指现存等价物（该集 research/ 现行 `sources.toml` / `gl-notes.md`）语义错位——本句例证的产出物按规格就是 source-notes.md（同块下文「产出文件名用 `research/source-notes.md`」与 01 全文 B 型产出锚自洽），改指台账化后的 sources.toml 会让例证与规格自相矛盾，且 episodes 深路径在上游改名合入后必再断；(b) 去外链改描述式引用——长期稳定但句子手术大、丢失可核验的证据链；(c) 钉 commit——句法零变化仅换 URL ref、commit 不可变永久可达（api/html 双 200 复核）、语义保真（41KB 例证文件原样可读——删除前最后版本，即 2026-09-30 重调研版，信源分层登记与现行 01 规格一致），与 sources 锚行钉定 revision、PIPELINE「永久链」同纪律，采纳。② I-010 href 改 `#I-010`（现行锚）。修后复验：钉定 URL gh api 200、锚对账零失配。③ 同类面全量核查：全仓 grep `blob/master` 提取 15 个净 URL 逐条核验——5 可达（negentropy 台账、source-map 目录与首例、动效调研文档、本仓 PR #42）不动（I-083 评审裁定「目标分支上解析」非缺陷）；1 处即缺陷①已修；另发现 9 处确证死链（三图族资产，见同类问题影响）经主 Agent 核准扩圈随本条修复（涉圈两个 references 文件同步入白名单）；合并前评审补扫非 master 非 SHA 的浮动分支深链（`blob|tree/<branch>`）6 处——`feature/1.x.x` 5 处（台账 4 + references/08 1）可达不动，I-050 表因的上游台账链钉在已删分支 `claude-code-video-opening`（404）随本条改钉 commit + `#I-208`；另按读者实际点击的 GFM 渲染 href 复核，查出裸 URL 紧贴全角字符被扩展自动链接吞字（渲染 href 带中文尾巴 → 404，目标本身 200）14 处（台账 7，含上述 feature/1.x.x 4 处与 I-050 新钉链；docs/research 三文件 7），统一改 `<url>` 尖括号自动链接，渲染复验全 200。合计修复死链 12 处 + 渲染吞字 14 处。
 
-**后续防范**：skill 文档新增对「会变」上游内容仓的例证 / 证据外链一律钉 commit（或 tag 等不可变 ref），不裸用浮动分支深链；存量「目标分支上解析」的链不强制回改（I-083 裁定口径维持），断链一经发现即修。台账锚点命中性入机器门：href×`<a id=>` 全文件对账失配即红（本条复现所用对账脚本可直接转正为 test_docs_paths 用例）。
+**后续防范**：skill 文档新增对「会变」上游内容仓的例证 / 证据外链一律钉 commit（或 tag 等不可变 ref），不裸用浮动分支深链；存量「目标分支上解析」的链不强制回改（I-083 裁定口径维持），断链一经发现即修。裸 URL 后紧跟非 ASCII 字符（全角标点 / 中文）一律以 `<url>` 包裹——GFM 扩展自动链接延伸到下一个 ASCII 空白，链接核验以渲染后 href 为准，不以源码正则提取的 URL 为准。台账锚点命中性入机器门：href×`<a id=>` 全文件对账失配即红（本条复现所用对账脚本可直接转正为 test_docs_paths 用例）。
 
 **同类问题影响**：[INDEXTTS-2.5-ADVANCED.md](../../references/INDEXTTS-2.5-ADVANCED.md)（58 / 60 / 171 / 173 行）与 [VOICE-CLONING.md](../../references/VOICE-CLONING.md)（25 / 27 行）共 9 个资产外链同因 404——negentropy master `docs/assets/architecture|mermaid/apps/` 下 indextts--synthesis-flow / indextts--reference-audio / voice-cloning--architecture 三图族（png + html + mmd）已随 negentropy PR #1160（aaa7c81dc，流水线机制外置为技能时删除管线侧图资产）删除，而三图族四件套（dark/light png + html + mmd）早已随「架构图源入库对齐全局 Archify 规范」迁移现存本仓 `docs/diagrams/<slug>/`（该迁移当时刻意保留的 negentropy 外链在源仓删除后腐烂）——已随本条经主 Agent 核准扩圈修复：9 链接改指本仓相对路径（PIPELINE.md 图源行同款惯例，「存于源仓」尾注随迁去除），四件套 12 文件在场核验、相对链接从 references/ 位置解析可达；negentropy 台账 / source-map / 调研文档各 master 链今日全 200 不动；I-050 表因上游台账链同因（浮动分支随上游合并删除）已随本条改钉 commit。

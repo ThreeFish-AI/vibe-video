@@ -1,6 +1,6 @@
 # Anatomy Skill 精读与通俗拆解
 
-> [1] R. [@wheresryan22], "Anatomy: A Claude skill that explains an idea by building it as a real, working object," GitHub 仓库，commit `bc943e4`，2026-10-15。[Online]. Available: https://github.com/wheresryan22/anatomy（含 SKILL.md 与 references/ 九篇，正文引用以文件名定位；官网 [2] 与第三方实测 [3] 佐证。仓库 2026-10-10 发 1.0.0，本文所据为截至 2026-10-15 的 main 分支钉版——钉版即把材料固定在某次具体提交上取证，此后引用都以该版本为准。）
+> [1] R. [@wheresryan22], "Anatomy: A Claude skill that explains an idea by building it as a real, working object," GitHub 仓库，commit `bc943e4`，2026-10-15。[Online]. Available: <https://github.com/wheresryan22/anatomy>（含 SKILL.md 与 references/ 九篇，正文引用以文件名定位；官网 [2] 与第三方实测 [3] 佐证。仓库 2026-10-10 发 1.0.0，本文所据为截至 2026-10-15 的 main 分支钉版——钉版即把材料固定在某次具体提交上取证，此后引用都以该版本为准。）
 
 **一句话定位**：Anatomy 是一个教 AI「把抽象概念画成一台真实运转的等距机器、并用机器可证的手段保证这台机器放大四倍也无穿帮」的 agent skill——图解的可信度不靠在提示词（prompt：发给 AI 的指令文本）里恳求，靠「真实数字单一模型 + 几何审计归零 + 逐图自验」三条硬机制挣来。
 
@@ -172,8 +172,8 @@ Anatomy 自认「慢是有意的」：40 部件是下限不是目标，约 30 �
 ## 参考
 
 [1] R. (wheresryan22), *Anatomy: A Claude skill that explains an idea as a real, working object*. GitHub 仓库, commit `bc943e4`, Oct. 15, 2026. [Online]. Available: https://github.com/wheresryan22/anatomy
-[2] R. (wheresryan22), "Anatomy," skills.wheresryan.sh. [Online]. Available: https://skills.wheresryan.sh/anatomy（accessed Oct. 15, 2026）
-[3] 「分享一个最近很惊艳的开源 Skill，一句话让 AI 搓出任何原理的科普视频,」微信公众号文章. [Online]. Available: https://mp.weixin.qq.com/s/VuJsVTvyNIK8GRTL95n-Qw（accessed Oct. 15, 2026）
+[2] R. (wheresryan22), "Anatomy," skills.wheresryan.sh. [Online]. Available: <https://skills.wheresryan.sh/anatomy>（accessed Oct. 15, 2026）
+[3] 「分享一个最近很惊艳的开源 Skill，一句话让 AI 搓出任何原理的科普视频,」微信公众号文章. [Online]. Available: <https://mp.weixin.qq.com/s/VuJsVTvyNIK8GRTL95n-Qw>（accessed Oct. 15, 2026）
 [4] D. L. Parnas, "On the criteria to be used in decomposing systems into modules," *Commun. ACM*, vol. 15, no. 12, pp. 1053–1058, 1972.
 [5] B. Meyer, *Object-Oriented Software Construction*, 2nd ed. Upper Saddle River, NJ, USA: Prentice Hall, 1997.
 [6] R. A. DeMillo, R. J. Lipton, and F. G. Sayward, "Hints on test data selection: Help for the struggling programmer," *Software—Practice and Experience*, vol. 8, no. 5, pp. 531–542, 1978.
