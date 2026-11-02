@@ -99,6 +99,8 @@
 | I-082 | episodes 嵌套布局在制片工具与分发模板的残余单层假设（record_archify 定位器、gitignore/README 模板） | ✅ 已完成 | 2026-11-02 | [详情](#I-082) |
 | I-083 | scaffold 建集 -video 后缀硬校验与已废除的集目录命名约定冲突——按现行约定新建集被拒 | ✅ 已完成 | 2026-10-31 | [详情](#I-083) |
 | I-084 | 文档死链两处——B 型「首次实践」外链宿主文件已随上游换代删除（master 404）+ I-009 详情内 I-010 旧 slug 锚点失配 | ✅ 已完成 | 2026-11-02 | [详情](#I-084) |
+| I-085 | qa_frames 冻帧指纹对「装置静持+仅字幕在换」形态系统性误报 | ✅ 已完成 | 2026-11-02 | [详情](#I-085) |
+| I-086 | accents 可达性门执法点滞后于建档，登记层零预检 | ✅ 已完成 | 2026-11-02 | [详情](#I-086) |
 | I-087 | tts_resume 报错路径无透传用法提示，参数面与 pipeline.py tts 不一致 | 🔄 进行中 | — | [详情](#I-087) |
 
 ---
@@ -1419,6 +1421,34 @@
 
 **同类问题影响**：[INDEXTTS-2.5-ADVANCED.md](../../references/INDEXTTS-2.5-ADVANCED.md)（58 / 60 / 171 / 173 行）与 [VOICE-CLONING.md](../../references/VOICE-CLONING.md)（25 / 27 行）共 9 个资产外链同因 404——negentropy master `docs/assets/architecture|mermaid/apps/` 下 indextts--synthesis-flow / indextts--reference-audio / voice-cloning--architecture 三图族（png + html + mmd）已随 negentropy PR #1160（aaa7c81dc，流水线机制外置为技能时删除管线侧图资产）删除，而三图族四件套（dark/light png + html + mmd）早已随「架构图源入库对齐全局 Archify 规范」迁移现存本仓 `docs/diagrams/<slug>/`（该迁移当时刻意保留的 negentropy 外链在源仓删除后腐烂）——已随本条经主 Agent 核准扩圈修复：9 链接改指本仓相对路径（PIPELINE.md 图源行同款惯例，「存于源仓」尾注随迁去除），四件套 12 文件在场核验、相对链接从 references/ 位置解析可达；negentropy 台账 / source-map / 调研文档各 master 链今日全 200 不动；I-050 表因上游台账链同因（浮动分支随上游合并删除）已随本条改钉 commit。
 
+<a id="I-085"></a>
+## I-085：qa_frames 冻帧指纹对「装置静持+仅字幕在换」形态系统性误报
+
+**表因**：16×16 mean_hash 的 cell 均值+单一全局阈值吞掉字幕带稀疏笔画重排（同带相邻帧必碰撞）；claude-code-chapters 四集 ≥8 处该 WARN 逐处人工 PIL diff 全证误报（diff max 196–253，实变落字幕带）。
+
+**根因**：mean_hash 自 f418950 初始迁入即为单级判据；同一初始迁入已为 `--beat-heads` 头帧关冻帧判定（「静止 beat 的头帧指纹相同是合法态」——同判先例，PR #34 的过渡/loop 抽帧沿用 `freeze_check=False`）而常规相邻句帧路径漏同款形态。运行时证据：门禁无法判定（该形态 WARN 误报率 100%）。
+
+**定性**：误报（判据粒度不足，非回退）。
+
+**处理方式**：指纹相同帧对追加全帧 frame_diff（--compare 的 SSOT 判据，JND=12 抗 jpeg 噪声）二次复核：有实差降 INFO（含 bbox 定位、仅打印不进 WARN/FAIL 计数）；两帧全同维持 WARN（真冻帧不漏）；亚 JND 噪声不误判「实差」。references/09-render-qa.md 判据表冻帧行同步两段式判据与双处置（Split-Brain 消除）。落地 [PR #69](https://github.com/ThreeFish-AI/vibe-video/pull/69)：6c9180f 实施 → 14851b5 合并前上下文审阅订正轮。核验：作者 G0–G4 全 ✅（Verifier 终态 ready）；上下文审阅 2 发现（F1 beat 头帧关判归属订正、F2 台账六段式体例 + I-029 交叉引用）全数落地；主 Agent 合并前对抗复核（独立 worktree 全量 machine_checks + ruff 双门 + frame_diff JND 边界实证 |Δ|=12 属「无实差」）零 blocker；machine_checks 1070 passed / 21 skipped RC=0 对拍基线 1067 净增 +3 零回归；ruff==0.14.5 零告警。
+
+**后续防范**：判据修改须同步 references/09 判据表指针；「裁字幕带」方向不可行（内容区静持是误报本体、裁带后必报且丢字幕敏感度）。盲评：内容维新版胜出（场景 1+2 双贡献——零人工排查 vs 旧版空手后人工兜底）、结构维平局。
+
+**同类问题影响**：任何用 mean_hash/降采样指纹做冻帧或重复帧判定的管线（静持幕、片尾卡、loading 循环段同族形态）。[I-029](#I-029)（⏸，草渲半分辨率指纹假阳挂起条目）的候选「像素级对账指引」由本条全帧复核机械化覆盖——合并后宜在 I-029 追加带日期复盘点回指本条（同一问题只维护一处）。
+<a id="I-086"></a>
+## I-086：accents 可达性门执法点滞后于建档，登记层零预检
+
+**表因**：check_series 规则 4 只查 accents「theme.ts 存在+系列内不撞色」；对比度 ≥4.5:1 契约（references/08）由 qa_frames --check-theme 在 QA 末端（依赖渲染产物）才执法。实案：20 集系列 ep20 #8260E8 对 bg 4.31:1 在 QA 末端卡门，色值已在 series.json accents/theme.ts/storyboard/planning/series.md 五处登记，修复牵连五处同步。
+
+**根因**：两门分离系 f418950 泛化抽取时的先天形态（一管登记一致性、一管 QA 末端可达性）；对比度契约句同随 f418950 迁入（I-013 插入 ⑤ 时随规格文件顺移改名为 references/08）；scaffold 提示语一直口头提示 ≥4.5 但无机器执法。运行时证据：规约自相矛盾。
+
+**定性**：门禁执法点错位（登记期防护缺位）。
+
+**处理方式**：规则 4 内嵌 WCAG 对比度预检：from qa_frames import CONTRAST_MIN/THEME_COLOR_RE/wcag_ratio 三连同源（算法/阈值/基准单一事实源），accents 各色对该集 theme.ts bg <4.5:1 即 FAIL（错误信息含现值/比值/阈值/建议）；无 bg 令牌 WARN 跳过（对齐规则 4 分级哲学，末端 sys.exit 仍兜底）；不复制 I-073 豁免面（accents=登记语义）。存量核验：$B 版跑真实工作区 5 系列 35 集 FAIL 0 零命中（纯增量防护）。落地 [PR #70](https://github.com/ThreeFish-AI/vibe-video/pull/70)：fc638f8 实施 → 74599b3 合并前上下文审阅订正轮（台账溯源订正 + RSI- 旧前缀 token 清理 + ruff format 归位）。核验：作者 G0–G4a 全 ✅（盲评全门通过）；上下文审阅 3 发现（F1 legacy id 真红、F2 溯源事实错误、F3 format 漂移）全数落地；主 Agent 合并前对抗复核（独立 worktree 全量 machine_checks + ruff 双门 + bare env 零依赖 import 实测 + THEME_COLOR_RE 对 seeded 模板逐令牌对拍 + WCAG 数值复算）零 blocker；machine_checks 修复后复跑 1070 passed / 21 skipped RC=0 对拍基线 1067 净增 +3 零回归；ruff==0.14.5 零告警。
+
+**后续防范**：色值可达性执法与登记一致性应同点；新门上线先跑存量对账；算法 import 单源防两套漂移。盲评：内容维新版胜出（场景 1+2 双贡献、answer 自报 WCAG 数值经复算全准）、结构维平局。
+
+**同类问题影响**：任何「登记面与执法面分离」的视觉契约（字号、行高、色板族同族风险）。
 <a id="I-087"></a>
 ## I-087：tts_resume 报错路径无透传用法提示，参数面与 pipeline.py tts 不一致
 

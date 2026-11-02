@@ -24,8 +24,10 @@ A/B 对拍（有帧时 advisory；零匹配帧硬失败，供重制/重构回归
     黑帧/早渐黑    帧平均相对亮度 < 0.02 → FAIL（仅末 beat 且分镜末行前 4 列写「渐黑」时豁免）
     字幕区侵入     字幕框**上方**的安全带（y∈[H-160, H-132)）内出现宽度 ≥24px 的亮块
                    → WARN（对应 references/08 渲染缺陷清单第 2 条「角标 bottom ≥ 150」）
-    冻帧           同幕相邻采样帧 16×16 灰度均值哈希 Hamming 距离 0 → WARN
-                   （beat 窗口错位/未覆盖句区间渲染空白）
+    冻帧           同幕相邻采样帧 16×16 灰度均值哈希 Hamming 距离 0 → 像素级复核
+                   （frame_diff，JND=12）两帧仍全同才 WARN（beat 窗口错位/未覆盖
+                   句区间渲染空白）；复核有实差降 INFO——静持幕跨句/仅字幕换字形态
+                   指纹必碰撞而时间在走（烧录字幕推进即证据，I-085）
     字幕缺失       字幕带内无任何像素达文字亮度 → WARN（单句字幕渲染失败）
     纯底色段       画面内容区（顶部安全带 y<56 之下、字幕带之上）无内容像素持续
                    ≥ qa.max_dark_sec 秒（默认 8s，toml 可覆写；末幕豁免防片尾渐黑）
@@ -579,7 +581,11 @@ def check_theme(root: Path, msgs: list[str]) -> None:
 
 
 def mean_hash(gray) -> int:
-    """16×16 灰度均值哈希（dHash 简化版）：以均值为阈值的位图指纹。"""
+    """16×16 灰度均值哈希（dHash 简化版）：以均值为阈值的位图指纹。
+
+    已知失明面：同带稀疏笔画重排（换字幕文字）让 cell 均值全部留在阈值同侧、
+    一位不翻——冻帧判定对指纹相同帧对另做像素级复核（I-085），勿单独加密指纹。
+    """
     bits = 0
     avg = float(gray.mean())
     for v in gray.flatten():
@@ -691,10 +697,24 @@ def check_frames(
         )
 
     if freeze_check:
-        for (a, _), (b, _) in zip(ordered, ordered[1:], strict=False):
+        for (a, pa), (b, pb) in zip(ordered, ordered[1:], strict=False):
             if a.rsplit("-", 1)[0][:2] == b.rsplit("-", 1)[0][:2]:  # 同幕前缀
                 if hashes[a] == hashes[b]:
-                    msgs.append(f"WARN {a} 与 {b} 帧指纹相同（疑似冻帧/beat 窗口错位）")
+                    # 指纹相同不定罪：16×16 均值哈希对「装置静持 + 仅字幕换字」
+                    # 系统性失明（I-085），而静持幕跨句是合法形态（--beat-heads
+                    # 头帧早持同判）。像素级复核（JND=12 抗 jpeg 噪声）——两帧
+                    # 全同才 WARN；有实差说明时间在走（烧录字幕推进即证据），INFO。
+                    d = frame_diff(pa, pb)
+                    if d["frac"] == 0.0:
+                        msgs.append(
+                            f"WARN {a} 与 {b} 帧指纹相同（疑似冻帧/beat 窗口错位）"
+                        )
+                    else:
+                        msgs.append(
+                            f"INFO {a} 与 {b} 帧指纹相同，像素复核有实差"
+                            f"（{d['frac']:.2%}@{d['bbox']}"
+                            "——静持幕/字幕更换，不判冻帧）"
+                        )
 
     _check_blank_runs(blank_rows, timeline or {}, max_dark_sec, msgs)
 
