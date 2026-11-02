@@ -131,6 +131,75 @@ def test_frozen_frame_warns(tmp_path):
     assert any("冻帧" in m for m in msgs)
 
 
+def _subtitle_strokes(n_chars: int, char_w: int, gap: int, static: str) -> np.ndarray:
+    """静持幕帧：内容区形态由 static 选定（两帧逐位一致），字幕带稀疏笔画换字。
+
+    几何对齐真实形态：笔画稀疏分布让 16×16 降采样后字幕行 cell 均值全部留在
+    全局均值同侧——换字一位不翻，指纹必碰撞（I-085 复现前提）。
+    """
+    w, h = 1920, 1080
+    arr = np.full((h, w), 17, dtype=np.uint8)
+    if static == "card":  # 署源卡静持幕（上游 ep14 P5 形态）
+        arr[300:700, 500:1400] = 90
+        arr[320:680, 520:1380] = 45
+    else:  # 装置静持（上游 ep16/18/19 形态）
+        arr[400:650, 700:1250] = 60
+    x0 = (w - (n_chars * char_w + (n_chars - 1) * gap)) // 2
+    for k in range(n_chars):
+        x = x0 + k * (char_w + gap)
+        arr[h - 108 : h - 66, x : x + char_w] = 240
+    return arr
+
+
+@pytest.mark.parametrize("static", ["card", "device"])
+def test_static_hold_subtitle_change_not_frozen(tmp_path, static):
+    """I-085：静持幕 + 仅字幕换字 → 指纹碰撞但像素复核有实差，不判冻帧。
+
+    上游形态（claude-code-chapters ep14/16/18/19 四集 ≥8 处该 WARN 全误报，
+    人工 ImageChops diff max 196–253）：16×16 均值哈希对同带稀疏笔画重排失明。
+    修复 = 指纹相同帧对先做 frame_diff 像素级复核——字幕带有实差 = 烧录字幕
+    推进 = 时间在走 → 降 INFO 留痕；真冻帧正控见 test_frozen_frame_warns 与
+    test_freeze_recheck_sub_jnd_noise_still_warns。
+    """
+    out = tmp_path / "frames"
+    out.mkdir()
+    Image.fromarray(_subtitle_strokes(14, 44, 20, static)).save(out / "p5-06.png")
+    Image.fromarray(_subtitle_strokes(12, 50, 24, static)).save(out / "p5-07.png")
+    # 复现前提自检：指纹确实碰撞——若 fixture 改动使其不再碰撞，测试须大声
+    # 失败，否则退化成「哈希不同所以没 WARN」的空转正控
+    ha = qa_frames.mean_hash(
+        np.asarray(Image.open(out / "p5-06.png").convert("L").resize((16, 16)))
+    )
+    hb = qa_frames.mean_hash(
+        np.asarray(Image.open(out / "p5-07.png").convert("L").resize((16, 16)))
+    )
+    assert ha == hb
+    msgs: list[str] = []
+    check_frames(out, ["p5-06", "p5-07"], 1.0, False, msgs)
+    assert not any(m.startswith("WARN") and "帧指纹相同" in m for m in msgs), msgs
+    assert any(m.startswith("INFO") and "不判冻帧" in m for m in msgs), msgs
+
+
+def test_freeze_recheck_sub_jnd_noise_still_warns(tmp_path):
+    """真冻帧检出的硬约束正控：亚 JND 噪声（|Δ|=5 < 12）不构成「有实差」。
+
+    若复核阈值低于 jpeg 噪声底，草渲压缩噪声会让真冻帧（内容全同、仅解码
+    噪声微差）借 INFO 逃过 WARN——门为假阳收紧时不得顺手放走真冻帧。
+    """
+    out = tmp_path / "frames"
+    out.mkdir()
+    img = np.full((1080, 1920), 17, dtype=np.uint8)
+    img[100:200, 100:400] = 200
+    noisy = img.copy()
+    noisy[500:504, 500:504] += 5  # 17 → 22，|Δ|=5 < DIFF_JND 12
+    Image.fromarray(img).save(out / "p2-01.png")
+    Image.fromarray(noisy).save(out / "p2-02.png")
+    assert frame_diff(out / "p2-01.png", out / "p2-02.png")["frac"] == 0.0
+    msgs: list[str] = []
+    check_frames(out, ["p2-01", "p2-02"], 1.0, False, msgs)
+    assert any(m.startswith("WARN") and "帧指纹相同" in m for m in msgs), msgs
+
+
 def test_wcag_known_ratios():
     # WCAG 2.x 已知值：黑 vs 白 = 21:1；#F5C542 vs #0E1116 ≈ 11.66:1（与三集实测一致）
     assert abs(wcag_ratio((0, 0, 0), (255, 255, 255)) - 21.0) < 0.01
