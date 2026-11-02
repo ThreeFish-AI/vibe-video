@@ -218,9 +218,7 @@ def test_stuck_beat_subtitle_only_warns(tmp_path):
     assert d["bbox"][1] >= d["shape"][0] - qa_frames.SUBTITLE_BAND_PX
     msgs: list[str] = []
     check_frames(out, ["p5-06", "p5-07"], 1.0, False, msgs)
-    assert any(
-        m.startswith("WARN") and "装置区冻结仅字幕推进" in m for m in msgs
-    ), msgs
+    assert any(m.startswith("WARN") and "装置区冻结仅字幕推进" in m for m in msgs), msgs
     assert not any(m.startswith("INFO") and "不判冻帧" in m for m in msgs), msgs
 
 
