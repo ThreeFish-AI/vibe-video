@@ -155,6 +155,52 @@ def test_split_forwarded():
     )
 
 
+# ---------------- 透传用法提示（RSI-087：报错路径 argparse 不显示 epilog） ----------------
+
+
+def test_parser_error_appends_passthrough_usage(capsys):
+    """tts.py 旗标误放 `--` 之前：exit 2 且 stderr 在 error 行后带透传用法提示。"""
+    with pytest.raises(SystemExit) as e:
+        tts_resume.main(["--project", "X", "--engine", "indextts"])
+    assert e.value.code == 2
+    err = capsys.readouterr().err
+    assert "unrecognized arguments" in err
+    assert "error:" in err
+    assert tts_resume.PASSTHROUGH_USAGE in err
+
+
+def test_main_missing_forwarded_args_also_hints_usage(capsys):
+    """既有「缺转发参数」error 路径同样带用法提示（--help 可见之外的第二出口）。"""
+    with pytest.raises(SystemExit) as e:
+        tts_resume.main(["--server", "http://127.0.0.1:8766"])
+    assert e.value.code == 2
+    assert tts_resume.PASSTHROUGH_USAGE in capsys.readouterr().err
+
+
+def test_help_epilog_shows_passthrough_usage(capsys):
+    """--help 的 epilog 完整展示 `--` 分隔用法示例（RawDescriptionHelpFormatter）。"""
+    with pytest.raises(SystemExit) as e:
+        tts_resume.main(["--help", "--", "--engine", "indextts"])
+    assert e.value.code == 0
+    assert tts_resume.PASSTHROUGH_USAGE in capsys.readouterr().out
+
+
+def test_passthrough_usage_examples_anchored_to_docstring():
+    """防第二事实源：常量示例命令段与模块 docstring「用法」段一致。
+
+    比对须规范化——docstring 是普通字符串，源码里的 `\\`+换行在运行时被解析为
+    行续接、三行示例折成一行；常量中的 `\\\\` 则保留真实换行。
+    """
+
+    def _normalize(s: str) -> str:
+        return " ".join(s.replace("\\\n", " ").split())
+
+    doc = _normalize(tts_resume.__doc__ or "")
+    usage = _normalize(tts_resume.PASSTHROUGH_USAGE)
+    example = usage[usage.index("uv run"):]  # 首行说明按场景各自表述，锚命令段
+    assert example in doc, "PASSTHROUGH_USAGE 示例与模块 docstring 漂移"
+
+
 # ---------------- 健康检查分支（mock urlopen） ----------------
 
 
