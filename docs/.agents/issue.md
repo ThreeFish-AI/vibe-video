@@ -99,6 +99,7 @@
 | I-082 | episodes 嵌套布局在制片工具与分发模板的残余单层假设（record_archify 定位器、gitignore/README 模板） | ✅ 已完成 | 2026-11-02 | [详情](#I-082) |
 | I-083 | scaffold 建集 -video 后缀硬校验与已废除的集目录命名约定冲突——按现行约定新建集被拒 | ✅ 已完成 | 2026-10-31 | [详情](#I-083) |
 | I-084 | 文档死链两处——B 型「首次实践」外链宿主文件已随上游换代删除（master 404）+ I-009 详情内 I-010 旧 slug 锚点失配 | ✅ 已完成 | 2026-11-02 | [详情](#I-084) |
+| I-086 | accents 可达性门执法点滞后于建档，登记层零预检 | 🔄 进行中 | — | [详情](#I-086) |
 
 ---
 
@@ -1417,3 +1418,14 @@
 **后续防范**：skill 文档新增对「会变」上游内容仓的例证 / 证据外链一律钉 commit（或 tag 等不可变 ref），不裸用浮动分支深链；存量「目标分支上解析」的链不强制回改（I-083 裁定口径维持），断链一经发现即修。裸 URL 后紧跟非 ASCII 字符（全角标点 / 中文）一律以 `<url>` 包裹——GFM 扩展自动链接延伸到下一个 ASCII 空白，链接核验以渲染后 href 为准，不以源码正则提取的 URL 为准。台账锚点命中性入机器门：href×`<a id=>` 全文件对账失配即红（本条复现所用对账脚本可直接转正为 test_docs_paths 用例）。
 
 **同类问题影响**：[INDEXTTS-2.5-ADVANCED.md](../../references/INDEXTTS-2.5-ADVANCED.md)（58 / 60 / 171 / 173 行）与 [VOICE-CLONING.md](../../references/VOICE-CLONING.md)（25 / 27 行）共 9 个资产外链同因 404——negentropy master `docs/assets/architecture|mermaid/apps/` 下 indextts--synthesis-flow / indextts--reference-audio / voice-cloning--architecture 三图族（png + html + mmd）已随 negentropy PR #1160（aaa7c81dc，流水线机制外置为技能时删除管线侧图资产）删除，而三图族四件套（dark/light png + html + mmd）早已随「架构图源入库对齐全局 Archify 规范」迁移现存本仓 `docs/diagrams/<slug>/`（该迁移当时刻意保留的 negentropy 外链在源仓删除后腐烂）——已随本条经主 Agent 核准扩圈修复：9 链接改指本仓相对路径（PIPELINE.md 图源行同款惯例，「存于源仓」尾注随迁去除），四件套 12 文件在场核验、相对链接从 references/ 位置解析可达；negentropy 台账 / source-map / 调研文档各 master 链今日全 200 不动；I-050 表因上游台账链同因（浮动分支随上游合并删除）已随本条改钉 commit。
+
+
+<a id="I-086"></a>
+## I-086：accents 可达性门执法点滞后于建档，登记层零预检
+
+- **表因**：check_series 规则 4 只查 accents「theme.ts 存在+系列内不撞色」；对比度 ≥4.5:1 契约（references/08）由 qa_frames --check-theme 在 QA 末端（依赖渲染产物）才执法。实案：20 集系列 ep20 #8260E8 对 bg 4.31:1 在 QA 末端卡门，色值已在 series.json accents/theme.ts/storyboard/planning/series.md 五处登记，修复牵连五处同步。
+- **根因**：两门分离系 f418950 泛化抽取时的先天形态（一管登记一致性、一管 QA 末端可达性）；对比度契约句 PR #18（RSI-013）写入；scaffold 提示语一直口头提示 ≥4.5 但无机器执法。运行时证据：规约自相矛盾。
+- **定性**：门禁执法点错位（登记期防护缺位）。
+- **处理方式**：规则 4 内嵌 WCAG 对比度预检：from qa_frames import CONTRAST_MIN/THEME_COLOR_RE/wcag_ratio 三连同源（算法/阈值/基准单一事实源），accents 各色对该集 theme.ts bg <4.5:1 即 FAIL（错误信息含现值/比值/阈值/建议）；无 bg 令牌 WARN 跳过（对齐规则 4 分级哲学，末端 sys.exit 仍兜底）；不复制 I-073 豁免面（accents=登记语义）。存量核验：$B 版跑真实工作区 5 系列 35 集 FAIL 0 零命中（纯增量防护）。PR #70。
+- **后续防范**：色值可达性执法与登记一致性应同点；新门上线先跑存量对账；算法 import 单源防两套漂移。盲评：内容维新版胜出（场景 1+2 双贡献、answer 自报 WCAG 数值经复算全准）、结构维平局。
+- **同类问题影响**：任何「登记面与执法面分离」的视觉契约（字号、行高、色板族同族风险）。
