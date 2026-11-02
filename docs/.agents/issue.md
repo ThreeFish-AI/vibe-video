@@ -99,7 +99,7 @@
 | I-082 | episodes 嵌套布局在制片工具与分发模板的残余单层假设（record_archify 定位器、gitignore/README 模板） | ✅ 已完成 | 2026-11-02 | [详情](#I-082) |
 | I-083 | scaffold 建集 -video 后缀硬校验与已废除的集目录命名约定冲突——按现行约定新建集被拒 | ✅ 已完成 | 2026-10-31 | [详情](#I-083) |
 | I-084 | 文档死链两处——B 型「首次实践」外链宿主文件已随上游换代删除（master 404）+ I-009 详情内 I-010 旧 slug 锚点失配 | ✅ 已完成 | 2026-11-02 | [详情](#I-084) |
-| I-085 | qa_frames 冻帧指纹对「装置静持+仅字幕在换」形态系统性误报 | 🔄 进行中 | — | [详情](#I-085) |
+| I-085 | qa_frames 冻帧指纹对「装置静持+仅字幕在换」形态系统性误报 | ✅ 已完成 | 2026-11-02 | [详情](#I-085) |
 
 ---
 
@@ -1428,7 +1428,7 @@
 
 **定性**：误报（判据粒度不足，非回退）。
 
-**处理方式**：指纹相同帧对追加全帧 frame_diff（--compare 的 SSOT 判据，JND=12 抗 jpeg 噪声）二次复核：有实差降 INFO（含 bbox 定位、仅打印不进 WARN/FAIL 计数）；两帧全同维持 WARN（真冻帧不漏）；亚 JND 噪声不误判「实差」。references/09-render-qa.md 判据表冻帧行同步两段式判据与双处置（Split-Brain 消除）。PR #69。
+**处理方式**：指纹相同帧对追加全帧 frame_diff（--compare 的 SSOT 判据，JND=12 抗 jpeg 噪声）二次复核：有实差降 INFO（含 bbox 定位、仅打印不进 WARN/FAIL 计数）；两帧全同维持 WARN（真冻帧不漏）；亚 JND 噪声不误判「实差」。references/09-render-qa.md 判据表冻帧行同步两段式判据与双处置（Split-Brain 消除）。落地 [PR #69](https://github.com/ThreeFish-AI/vibe-video/pull/69)：6c9180f 实施 → 14851b5 合并前上下文审阅订正轮。核验：作者 G0–G4 全 ✅（Verifier 终态 ready）；上下文审阅 2 发现（F1 beat 头帧关判归属订正、F2 台账六段式体例 + I-029 交叉引用）全数落地；主 Agent 合并前对抗复核（独立 worktree 全量 machine_checks + ruff 双门 + frame_diff JND 边界实证 |Δ|=12 属「无实差」）零 blocker；machine_checks 1070 passed / 21 skipped RC=0 对拍基线 1067 净增 +3 零回归；ruff==0.14.5 零告警。
 
 **后续防范**：判据修改须同步 references/09 判据表指针；「裁字幕带」方向不可行（内容区静持是误报本体、裁带后必报且丢字幕敏感度）。盲评：内容维新版胜出（场景 1+2 双贡献——零人工排查 vs 旧版空手后人工兜底）、结构维平局。
 
