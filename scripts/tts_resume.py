@@ -380,9 +380,30 @@ def require_client_deps() -> None:
         )
 
 
+#: `--` 透传用法的唯一事实源（I-087）：--help 的 epilog 与报错路径的追加提示共用；
+#: 示例命令行与模块 docstring「用法」段逐字同源（测试钉死防第二事实源漂移）。
+PASSTHROUGH_USAGE = (
+    "用法（`--` 之后的参数原样转发 tts.py；--project/--engine 等 tts.py 旗标须放 `--` 之后）：\n"
+    "    uv run --no-project --with mutagen $T/scripts/tts_resume.py \\\n"
+    "        -- --engine indextts --final-voice --project $P --ref $V/<样本>.wav \\\n"
+    "        --expect-ref-sha1 <指纹> [--seed 4242] …"
+)
+
+
+class _ParserWithUsageHint(argparse.ArgumentParser):
+    """argparse 原生 error 只打印 usage 行、不显示 epilog（实测）——覆写使报错
+    时刻也带 PASSTHROUGH_USAGE，修「报错无用法提示」（I-087）。"""
+
+    def error(self, message):
+        self.print_usage(sys.stderr)
+        self.exit(2, f"{self.prog}: error: {message}\n{PASSTHROUGH_USAGE}\n")
+
+
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(
+    p = _ParserWithUsageHint(
         description="IndexTTS 长跑自愈编排（I-022）：`--` 之后的参数原样转发 tts.py",
+        epilog=PASSTHROUGH_USAGE,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p.add_argument(
         "--server",

@@ -101,6 +101,7 @@
 | I-084 | 文档死链两处——B 型「首次实践」外链宿主文件已随上游换代删除（master 404）+ I-009 详情内 I-010 旧 slug 锚点失配 | ✅ 已完成 | 2026-11-02 | [详情](#I-084) |
 | I-085 | qa_frames 冻帧指纹对「装置静持+仅字幕在换」形态系统性误报 | ✅ 已完成 | 2026-11-02 | [详情](#I-085) |
 | I-086 | accents 可达性门执法点滞后于建档，登记层零预检 | ✅ 已完成 | 2026-11-02 | [详情](#I-086) |
+| I-087 | tts_resume 报错路径无透传用法提示，参数面与 pipeline.py tts 不一致 | ✅ 已完成 | 2026-11-02 | [详情](#I-087) |
 
 ---
 
@@ -1448,3 +1449,17 @@
 **后续防范**：色值可达性执法与登记一致性应同点；新门上线先跑存量对账；算法 import 单源防两套漂移。盲评：内容维新版胜出（场景 1+2 双贡献、answer 自报 WCAG 数值经复算全准）、结构维平局。
 
 **同类问题影响**：任何「登记面与执法面分离」的视觉契约（字号、行高、色板族同族风险）。
+<a id="I-087"></a>
+## I-087：tts_resume 报错路径无透传用法提示，参数面与 pipeline.py tts 不一致
+
+**表因**：顶层误放 --project 等 tts.py 旗标时只输出「error: unrecognized arguments」不给正确用法（--project 须放 -- 之后）；正确用法仅存 docstring、报错时刻不可见；与 pipeline.py tts 子命令顶层 --project 参数面不一致，首次调用即失败。
+
+**根因**：argparse error() 只 print_usage、epilog 不进报错输出（实测证伪「加 epilog 即可」候选）；报错提示面自 PR #25 初建以来从未实现；两入口参数面差异系历史演化自然结果非回退。运行时证据：模板缺位。
+
+**定性**：CLI 可用性缺陷（报错不自愈）。
+
+**处理方式**：模块级常量 PASSTHROUGH_USAGE 单一事实源双路径消费：--help 走 epilog+RawDescriptionHelpFormatter、报错路径走 ArgumentParser 子类覆写 error()（仅公开 API）；docstring↔常量同源由规范化比对测试钉死；EXIT=2 参数语义零变化。4 新回归用例（base 全 FAILED 钉住失败形态）。落地 [PR #71](https://github.com/ThreeFish-AI/vibe-video/pull/71)：7ef9f35 实施 → 01ae012 合并前上下文审阅订正轮（旧前缀 token ×3 改 I-087 + ruff format 归位）。核验：作者 G1–G4a 全绿（T1 常规 PR 流程）；上下文审阅 4 发现（F1 legacy id 真红、F2 format 漂移、F3 rsi 适配档案漂移留痕、F4 `.temp` 假绿披露）处置齐；主 Agent 合并前对抗复核（独立 worktree 全量 machine_checks + ruff 双门 + error() 覆写四路径进程内实测与原生 argparse 逐字同构）零 blocker；machine_checks 1071 passed / 21 skipped RC=0 对拍基线 1067 净增 +4 零回归；ruff==0.14.5 零告警。
+
+**后续防范**：argparse 双路径提示须显式实现（epilog 只覆盖 help）；CLI 用法示例单源化防 docstring 漂移。
+
+**同类问题影响**：一切带 `--` 透传边界的编排器 CLI（子命令参数面与透传参数面分裂同族）。
