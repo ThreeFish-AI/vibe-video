@@ -136,6 +136,10 @@ def _subtitle_strokes(n_chars: int, char_w: int, gap: int, static: str) -> np.nd
 
     几何对齐真实形态：笔画稀疏分布让 16×16 降采样后字幕行 cell 均值全部留在
     全局均值同侧——换字一位不翻，指纹必碰撞（I-085 复现前提）。
+    装置区逐位一致 = stuck-beat 形态基底（I-088：装置区零差仅字幕推进 → WARN，
+    见 test_stuck_beat_subtitle_only_warns）；「实差涉及装置区」的合法静持路径
+    由调用方在装置区补超 JND 微动小块（见 test_static_hold_subtitle_change_
+    not_frozen）。
     """
     w, h = 1920, 1080
     arr = np.full((h, w), 17, dtype=np.uint8)
@@ -160,11 +164,17 @@ def test_static_hold_subtitle_change_not_frozen(tmp_path, static):
     修复 = 指纹相同帧对先做 frame_diff 像素级复核——字幕带有实差 = 烧录字幕
     推进 = 时间在走 → 降 INFO 留痕；真冻帧正控见 test_frozen_frame_warns 与
     test_freeze_recheck_sub_jnd_noise_still_warns。
+    I-088 演进：INFO 判据收紧为「实差涉及装置区」（装置微动/ChapterProgress
+    前沿推进 = 时间在走的证据），fixture 第二帧装置区补超 JND 微动小块锚定该
+    路径；装置区逐位一致的 stuck-beat 形态拆至 test_stuck_beat_subtitle_only_
+    warns（I-088 升 WARN）。
     """
     out = tmp_path / "frames"
     out.mkdir()
     Image.fromarray(_subtitle_strokes(14, 44, 20, static)).save(out / "p5-06.png")
-    Image.fromarray(_subtitle_strokes(12, 50, 24, static)).save(out / "p5-07.png")
+    b = _subtitle_strokes(12, 50, 24, static)
+    b[500:508, 600:608] += 180  # 装置区微动小块：|Δ|=180 > JND，不改 16×16 位
+    Image.fromarray(b).save(out / "p5-07.png")
     # 复现前提自检：指纹确实碰撞——若 fixture 改动使其不再碰撞，测试须大声
     # 失败，否则退化成「哈希不同所以没 WARN」的空转正控
     ha = qa_frames.mean_hash(
@@ -178,6 +188,40 @@ def test_static_hold_subtitle_change_not_frozen(tmp_path, static):
     check_frames(out, ["p5-06", "p5-07"], 1.0, False, msgs)
     assert not any(m.startswith("WARN") and "帧指纹相同" in m for m in msgs), msgs
     assert any(m.startswith("INFO") and "不判冻帧" in m for m in msgs), msgs
+
+
+def test_stuck_beat_subtitle_only_warns(tmp_path):
+    """I-088：装置区逐位一致 + 仅字幕带差 = beat 错位嫌疑，恢复 WARN。
+
+    I-085 两态判别把该形态连带降 INFO（PR #69 F4 留痕的方向级缺口，Context-
+    Reviewer 合成 stuck-beat 实验证分支版报 INFO）。但装置区零差而时间仅在
+    字幕层走恰是「句子未被分镜覆盖/采样窗错位」的信号——装置区冻结 = beat
+    未切换。可证伪锚：本 fixture 即该实验形态，修复后须转 WARN。
+    边界：无 ChapterProgress 的系列（chapters.json 为空时该全局层自渲染
+    null），静止装置的合法静持与 stuck-beat 在像素上同形态——WARN 是复核
+    信号非定罪（不影响退出码），文案已带 check_script --check-scenes 处置。
+    """
+    out = tmp_path / "frames"
+    out.mkdir()
+    Image.fromarray(_subtitle_strokes(14, 44, 20, "device")).save(out / "p5-06.png")
+    Image.fromarray(_subtitle_strokes(12, 50, 24, "device")).save(out / "p5-07.png")
+    ha = qa_frames.mean_hash(
+        np.asarray(Image.open(out / "p5-06.png").convert("L").resize((16, 16)))
+    )
+    hb = qa_frames.mean_hash(
+        np.asarray(Image.open(out / "p5-07.png").convert("L").resize((16, 16)))
+    )
+    assert ha == hb
+    # 分带判据前提自检：差异全落字幕带（bbox.y0 ≥ h-SUBTITLE_BAND_PX）
+    d = frame_diff(out / "p5-06.png", out / "p5-07.png")
+    assert d["shape"] == (1080, 1920)
+    assert d["bbox"][1] >= d["shape"][0] - qa_frames.SUBTITLE_BAND_PX
+    msgs: list[str] = []
+    check_frames(out, ["p5-06", "p5-07"], 1.0, False, msgs)
+    assert any(
+        m.startswith("WARN") and "装置区冻结仅字幕推进" in m for m in msgs
+    ), msgs
+    assert not any(m.startswith("INFO") and "不判冻帧" in m for m in msgs), msgs
 
 
 def test_freeze_recheck_sub_jnd_noise_still_warns(tmp_path):

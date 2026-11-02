@@ -27,7 +27,10 @@ A/B 对拍（有帧时 advisory；零匹配帧硬失败，供重制/重构回归
     冻帧           同幕相邻采样帧 16×16 灰度均值哈希 Hamming 距离 0 → 像素级复核
                    （frame_diff，JND=12）两帧仍全同才 WARN（beat 窗口错位/未覆盖
                    句区间渲染空白）；复核有实差降 INFO——静持幕跨句/仅字幕换字形态
-                   指纹必碰撞而时间在走（烧录字幕推进即证据，I-085）
+                   指纹必碰撞而时间在走（烧录字幕推进即证据，I-085）；实差仅落
+                   字幕带（bbox 在底部 SUBTITLE_BAND_PX 带内、装置区零差）= 装置
+                   区冻结而时间仅在字幕层走，beat 错位嫌疑恢复 WARN（I-088——
+                   只收严不放宽：全同仍 WARN、实差涉及装置区仍 INFO）
     字幕缺失       字幕带内无任何像素达文字亮度 → WARN（单句字幕渲染失败）
     纯底色段       画面内容区（顶部安全带 y<56 之下、字幕带之上）无内容像素持续
                    ≥ qa.max_dark_sec 秒（默认 8s，toml 可覆写；末幕豁免防片尾渐黑）
@@ -406,8 +409,9 @@ def frame_diff(a: Path, b: Path) -> dict:
     """两帧的差异摘要（纯函数，供 --compare 与单测）。
 
     mean：RGB 三通道平均绝对差（0-255）；frac：任一通道差 > DIFF_JND 的像素占比；
-    bbox：差异像素的包围盒 (x0, y0, x1, y1)，全同帧为 None。JND 取 12——抗 jpeg
-    压缩噪声的经验下限，非感知模型。
+    bbox：差异像素的包围盒 (x0, y0, x1, y1)，全同帧为 None；shape：帧几何
+    (h, w)——供调用侧做分带判别（bbox.y0 ≥ h-带高 ⟺ 差异全落底部带内，I-088）。
+    JND 取 12——抗 jpeg 压缩噪声的经验下限，非感知模型。
     """
     import numpy as np
     from PIL import Image
@@ -415,16 +419,28 @@ def frame_diff(a: Path, b: Path) -> dict:
     A = np.asarray(Image.open(a).convert("RGB"), dtype=np.float32)
     B = np.asarray(Image.open(b).convert("RGB"), dtype=np.float32)
     if A.shape != B.shape:
-        return {"mean": 255.0, "frac": 1.0, "bbox": None, "shape_mismatch": True}
+        return {
+            "mean": 255.0,
+            "frac": 1.0,
+            "bbox": None,
+            "shape_mismatch": True,
+            "shape": None,
+        }
     d = np.abs(A - B).max(axis=2)
     mask = d > DIFF_JND
     if not mask.any():
-        return {"mean": float(np.abs(A - B).mean()), "frac": 0.0, "bbox": None}
+        return {
+            "mean": float(np.abs(A - B).mean()),
+            "frac": 0.0,
+            "bbox": None,
+            "shape": (int(A.shape[0]), int(A.shape[1])),
+        }
     ys, xs = np.nonzero(mask)
     return {
         "mean": float(np.abs(A - B).mean()),
         "frac": float(mask.mean()),
         "bbox": (int(xs.min()), int(ys.min()), int(xs.max()), int(ys.max())),
+        "shape": (int(A.shape[0]), int(A.shape[1])),
     }
 
 
@@ -702,12 +718,27 @@ def check_frames(
                 if hashes[a] == hashes[b]:
                     # 指纹相同不定罪：16×16 均值哈希对「装置静持 + 仅字幕换字」
                     # 系统性失明（I-085），而静持幕跨句是合法形态（--beat-heads
-                    # 头帧早持同判）。像素级复核（JND=12 抗 jpeg 噪声）——两帧
-                    # 全同才 WARN；有实差说明时间在走（烧录字幕推进即证据），INFO。
+                    # 头帧早持同判）。像素级复核（JND=12 抗 jpeg 噪声）三态（I-088）：
+                    # 两帧全同 → WARN 冻帧；实差仅落字幕带（bbox.y0 = 差异像素最小
+                    # y，y0 ≥ h-band_px ⟺ 差异全在带内——精确等价）→ 装置区冻结
+                    # 而时间仅在字幕层走 = beat 错位嫌疑，WARN；实差涉及装置区 =
+                    # 装置区有可见变化（装置微动/ChapterProgress 前沿推进——帧驱动
+                    # 全局层，见 ChapterProgress.tsx）→ 时间在走，INFO。
                     d = frame_diff(pa, pb)
                     if d["frac"] == 0.0:
                         msgs.append(
                             f"WARN {a} 与 {b} 帧指纹相同（疑似冻帧/beat 窗口错位）"
+                        )
+                    elif (
+                        d["bbox"] is not None
+                        and d["shape"] is not None
+                        and d["bbox"][1] >= d["shape"][0] - band_px
+                    ):
+                        msgs.append(
+                            f"WARN {a} 与 {b} 帧指纹相同，装置区冻结仅字幕推进"
+                            f"（{d['frac']:.2%}@{d['bbox']}"
+                            "——beat 错位嫌疑：装置区零差而时间仅在字幕层走，"
+                            "查分镜覆盖/采样窗（check_script.py --check-scenes））"
                         )
                     else:
                         msgs.append(
