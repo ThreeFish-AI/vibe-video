@@ -140,7 +140,8 @@ def test_gitignore_template_covers_nested_episode_artifacts(tmp_path: Path):
     ws = tmp_path / "ws"
     ws.mkdir()
     (ws / ".gitignore").write_bytes((WS_TEMPLATE / "gitignore.tmpl").read_bytes())
-    # GIT_CONFIG_*=/dev/null 隔离全局/系统 excludesFile，只验模板自身的规则
+    # GIT_CONFIG_*=/dev/null 隔离全局/系统配置；默认 excludesFile（~/.config/git/ignore）
+    # 不随之失效，check-ignore 另以 -c 置空——只验模板自身的规则
     subprocess.run(
         ["git", "init", "-q"],
         cwd=ws,
@@ -169,7 +170,13 @@ def test_gitignore_template_covers_nested_episode_artifacts(tmp_path: Path):
         else:
             p.mkdir(exist_ok=True)
     r = subprocess.run(
-        ["git", "check-ignore", *[f"episodes/{rel}" for rel in rels]],
+        [
+            "git",
+            "-c",
+            f"core.excludesFile={os.devnull}",
+            "check-ignore",
+            *[f"episodes/{rel}" for rel in rels],
+        ],
         cwd=ws,
         capture_output=True,
         text=True,
