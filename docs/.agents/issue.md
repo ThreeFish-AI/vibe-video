@@ -102,7 +102,7 @@
 | I-085 | qa_frames 冻帧指纹对「装置静持+仅字幕在换」形态系统性误报 | ✅ 已完成 | 2026-11-02 | [详情](#I-085) |
 | I-086 | accents 可达性门执法点滞后于建档，登记层零预检 | ✅ 已完成 | 2026-11-02 | [详情](#I-086) |
 | I-087 | tts_resume 报错路径无透传用法提示，参数面与 pipeline.py tts 不一致 | ✅ 已完成 | 2026-11-02 | [详情](#I-087) |
-| I-088 | I-085 合并后冻帧 WARN 执法面收窄，beat 错位形态降 INFO 免追漏检 | 🔄 进行中 | — | [详情](#I-088) |
+| I-088 | I-085 合并后冻帧 WARN 执法面收窄，beat 错位形态降 INFO 免追漏检 | ✅ 已完成 | 2026-11-02 | [详情](#I-088) |
 
 ---
 
@@ -1476,7 +1476,7 @@
 
 **定性**：门禁执法面缺口（方向级收窄的副作用）。
 
-**处理方式**：冻帧判定三态：frame_diff 差异摘要新增 shape 键，freeze 层以 bbox.y0 ≥ h−band_px（SUBTITLE_BAND_PX SSOT 同口径）判「差异全落字幕带=装置区零差」→ 恢复 WARN「装置区冻结仅字幕推进——beat 错位嫌疑：查分镜覆盖/采样窗」；涉及装置区仍 INFO（I-085 不重刷——四集真实误报非字幕区 extrema 196–226 全 >0 亲历裁决，表因括注口径订正见 [I-085 复盘点](#I-085)）；全同仍 WARN；references/09 判据表三态同步；新测试 origin/main 必败钉住。PR #72。
+**处理方式**：冻帧判定三态：frame_diff 差异摘要新增 shape 键，freeze 层以 bbox.y0 ≥ h−band_px（SUBTITLE_BAND_PX SSOT 同口径）判「差异全落字幕带=装置区零差」→ 恢复 WARN「装置区冻结仅字幕推进——beat 错位嫌疑：查分镜覆盖/采样窗」；涉及装置区仍 INFO（I-085 不重刷——四集真实误报非字幕区 extrema 196–226 全 >0 亲历裁决，表因括注口径订正见 [I-085 复盘点](#I-085)）；全同仍 WARN；references/09 判据表三态同步；新测试 origin/main 必败钉住。落地 [PR #72](https://github.com/ThreeFish-AI/vibe-video/pull/72)：5f3f1de 实施 → 05a4139 台账登记 → bb033da 合并前上下文审阅订正轮（台账段落体归位 + I-085 复盘点订正 + PR 正文锚点订正 + ruff format 归位）。核验：作者 G0–G4a 全绿（T2，Verifier 终态 ready）；上下文审阅回执「可合并」（F1 正文锚点笔误已修、F2 交接块已落正文尾部）；主 Agent 合并前对抗复核（四维 finder × 逐 finding 三票反驳验证，3 确认项全处置，真实语料只读复跑章条系列 11 集 15 对指纹碰撞帧对 15/15 全 INFO、零命中新 WARN——I-085 误报族不重刷实证落账）；machine_checks 1078 passed / 21 skipped RC=0 对拍基线 1077 净增 +1 零回归；ruff==0.14.5 check/format 双门零告警。
 
 **后续防范**：判据三态修改须同步 references/09；候选「beat 归属判别」在 --check 调用面不可行（两处 freeze_check=False、timeline 可选）；残余边界（无 ChapterProgress+纯静止装置+跨句采样→新 WARN）系保守取舍不影响退出码，随 PR 披露。盲评：内容维胜出双贡献/结构平局。
 
