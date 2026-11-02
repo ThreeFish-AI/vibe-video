@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### I-088 I-085 合并后冻帧 WARN 执法面收窄，beat 错位形态降 INFO 免追漏检（rsi-088-subtitle-band-beat-gate，PR #72）
+
+- feat(rsi) 变更详见 PR #72 与 ledger [I-088](docs/.agents/issue.md#I-088)。
+
 ### Breaking（更名 to-video → vibe-video + 阶段重编号 I-013 + 模板钉版追新 I-016；建议发版 0.0.3）
 
 - skill 整体更名 **to-video → vibe-video**（GitHub 仓名、SKILL.md `name`、安装软链名同步；旧仓名靠 GitHub 重定向存活，不得复用）。运行时标识符全部随名：6 个 env `TO_VIDEO_*` → `VIBE_VIDEO_*`（WORKSPACE / HOME / DELIVER_ROOT / INDEX_TTS_ROOT / TEST_WORKSPACE / TTS_STORE）、工作区哨兵 `.to-video-root` → `.vibe-video-root`、工作区配置 `to-video.toml` → `vibe-video.toml`、tts-store 默认目录 `~/Library/Application Support/to-video` → `…/vibe-video`。无旧名 fallback（干净切换）。**既有工作区迁移**：① `mv .to-video-root .vibe-video-root`、`mv to-video.toml vibe-video.toml`（tracked 文件用 `git mv`）；② 各包装器按新模板整文件覆盖（resolver 链与 `VIBE_VIDEO_WORKSPACE` 注入行随名）；③ `mkdir -p ~/Library/Application\ Support/vibe-video && mv ~/Library/Application\ Support/to-video/tts-store ~/Library/Application\ Support/vibe-video/`（目标已存在改 `rsync -a` 合并，勿 mv 嵌套）；④ shell profile 与 Claude settings 里的 env 键同步改名（值不变）。
