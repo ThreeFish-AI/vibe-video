@@ -100,7 +100,7 @@
 | I-083 | scaffold 建集 -video 后缀硬校验与已废除的集目录命名约定冲突——按现行约定新建集被拒 | ✅ 已完成 | 2026-10-31 | [详情](#I-083) |
 | I-084 | 文档死链两处——B 型「首次实践」外链宿主文件已随上游换代删除（master 404）+ I-009 详情内 I-010 旧 slug 锚点失配 | ✅ 已完成 | 2026-11-02 | [详情](#I-084) |
 | I-085 | qa_frames 冻帧指纹对「装置静持+仅字幕在换」形态系统性误报 | ✅ 已完成 | 2026-11-02 | [详情](#I-085) |
-| I-086 | accents 可达性门执法点滞后于建档，登记层零预检 | 🔄 进行中 | — | [详情](#I-086) |
+| I-086 | accents 可达性门执法点滞后于建档，登记层零预检 | ✅ 已完成 | 2026-11-02 | [详情](#I-086) |
 
 ---
 
@@ -1443,7 +1443,7 @@
 
 **定性**：门禁执法点错位（登记期防护缺位）。
 
-**处理方式**：规则 4 内嵌 WCAG 对比度预检：from qa_frames import CONTRAST_MIN/THEME_COLOR_RE/wcag_ratio 三连同源（算法/阈值/基准单一事实源），accents 各色对该集 theme.ts bg <4.5:1 即 FAIL（错误信息含现值/比值/阈值/建议）；无 bg 令牌 WARN 跳过（对齐规则 4 分级哲学，末端 sys.exit 仍兜底）；不复制 I-073 豁免面（accents=登记语义）。存量核验：$B 版跑真实工作区 5 系列 35 集 FAIL 0 零命中（纯增量防护）。PR #70。
+**处理方式**：规则 4 内嵌 WCAG 对比度预检：from qa_frames import CONTRAST_MIN/THEME_COLOR_RE/wcag_ratio 三连同源（算法/阈值/基准单一事实源），accents 各色对该集 theme.ts bg <4.5:1 即 FAIL（错误信息含现值/比值/阈值/建议）；无 bg 令牌 WARN 跳过（对齐规则 4 分级哲学，末端 sys.exit 仍兜底）；不复制 I-073 豁免面（accents=登记语义）。存量核验：$B 版跑真实工作区 5 系列 35 集 FAIL 0 零命中（纯增量防护）。落地 [PR #70](https://github.com/ThreeFish-AI/vibe-video/pull/70)：fc638f8 实施 → 74599b3 合并前上下文审阅订正轮（台账溯源订正 + RSI- 旧前缀 token 清理 + ruff format 归位）。核验：作者 G0–G4a 全 ✅（盲评全门通过）；上下文审阅 3 发现（F1 legacy id 真红、F2 溯源事实错误、F3 format 漂移）全数落地；主 Agent 合并前对抗复核（独立 worktree 全量 machine_checks + ruff 双门 + bare env 零依赖 import 实测 + THEME_COLOR_RE 对 seeded 模板逐令牌对拍 + WCAG 数值复算）零 blocker；machine_checks 修复后复跑 1070 passed / 21 skipped RC=0 对拍基线 1067 净增 +3 零回归；ruff==0.14.5 零告警。
 
 **后续防范**：色值可达性执法与登记一致性应同点；新门上线先跑存量对账；算法 import 单源防两套漂移。盲评：内容维新版胜出（场景 1+2 双贡献、answer 自报 WCAG 数值经复算全准）、结构维平局。
 
