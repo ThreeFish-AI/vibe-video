@@ -17,7 +17,9 @@
      planning、知识索引
   3. 序号↔标题绑定：`第N集` 附近的标题必须与该标题自身的 episode 匹配
   4. 清单完整性：每个系列内 episode 连续无重、slug 全局唯一、路径存在、
-     accents 色值在该集 theme.ts 中存在且系列内不撞色；**反向登记**——
+     accents 色值在该集 theme.ts 中存在、系列内不撞色、且对该集 theme bg
+     对比度 ≥4.5:1（WCAG 概念色可达性，与 qa_frames --check-theme 同算法
+     同基准同阈值——登记即拦，不再等 QA 末端才发现，I-086）；**反向登记**——
      episodes/ 下未登记目录分级执法（narration.md 已落盘即 FAIL，见
      rule_manifest_integrity 的死锁注释）
   5. 相对链接死链：受检文件集内的 `](./x.md)` / `](../x)` 目标必须存在
@@ -73,6 +75,10 @@ from pathlib import Path
 
 # 同目录模块：作为脚本运行时脚本目录即 sys.path[0]，无需注入
 from paths import PROJECT, WORKSPACE
+# WCAG 对比度执法三件（令牌正则 / 比值算法 / 阈值）复用 qa_frames 既有实现
+# ——单一事实源，防本脚本另拷一套算法后两门漂移（qa_frames 顶层零重依赖，
+# --check-theme 本就零依赖设计，import 实测 <0.1s）
+from qa_frames import CONTRAST_MIN, THEME_COLOR_RE, wcag_ratio
 
 SERIES_JSON = WORKSPACE / "series.json"
 WORKSPACE_TOML = WORKSPACE / "vibe-video.toml"
@@ -440,6 +446,12 @@ def rule_ordinal_binding(
                     )
 
 
+def _hex_rgb(h: str) -> tuple[int, int, int]:
+    """'#RRGGBB' → (r, g, b)——qa_frames.check_theme 内嵌 hex_rgb 同式（嵌套
+    函数不可导入；此为平凡转换，算法本体 wcag_ratio 仍单源复用）。"""
+    return int(h[1:3], 16), int(h[3:5], 16), int(h[5:7], 16)
+
+
 def rule_manifest_integrity(series_list: list[dict], msgs: list[str]) -> None:
     """规则 4：清单完整性——episode 连续性按系列内判定，slug 全局唯一。
 
@@ -448,6 +460,17 @@ def rule_manifest_integrity(series_list: list[dict], msgs: list[str]) -> None:
     跨系列撞色是接受态（见模块 docstring 多系列语义）。色相邻近则是弹性建议
     ——判据松一分就漏、紧一分就假报（蓝 #4A9EFF 与青 #2DD4BF 本就相邻共存），
     假报一多门就会被关掉（ISSUE-167 防范 3 的教训）。
+
+    accents 对比度预检与撞值门同执法点（I-086）：可达性此前只在 QA 末端
+    --check-theme 执法，色值那时已在 series.json/theme.ts/storyboard/planning/
+    series.md 五处登记、修复牵连面最大；本规则把执法点前移到登记建档时（挂
+    pre-commit 即拦）。算法、阈值与基准（该集 theme.ts 的 bg 令牌）三连同源
+    自 qa_frames——不另拷第二套 WCAG 实现，防两门算法漂移。accents 的登记
+    语义即概念色，故**不引入** paper*/terminal* 豁免面（I-073 豁免的是全令牌
+    扫描对容器/表面绑定色的辖域外误伤；表面绑定色进 accents 属登记语义错误，
+    拦下是对的）。theme.ts 存在但未解析出 bg 令牌只 WARN 不 FAIL：真树底座
+    恒定（references/08 契约 1）必含 bg，无 bg 是异常/中间态，与「缺
+    theme.ts」同走分级执法——硬拦会重造登记期死锁（见下方反向登记注释）。
     """
     seen_slugs: dict[str, str] = {}
     for series in series_list:
@@ -474,6 +497,11 @@ def rule_manifest_integrity(series_list: list[dict], msgs: list[str]) -> None:
             theme = root / "video" / "src" / "design" / "theme.ts"
             if theme.is_file():
                 src = theme.read_text(encoding="utf-8")
+                tokens = {
+                    m.group("key"): m.group("val")
+                    for m in THEME_COLOR_RE.finditer(src)
+                }
+                bg = tokens.get("bg")
                 for hexv in e.get("accents", []):
                     by_hex.setdefault(hexv, []).append(e["slug"])
                     if hexv not in src:
@@ -481,6 +509,22 @@ def rule_manifest_integrity(series_list: list[dict], msgs: list[str]) -> None:
                             f"FAIL 规则4：{e['slug']} 的 accents 色值 {hexv} "
                             "未出现在其 theme.ts"
                         )
+                    #: 概念色可达性预检（I-086）：与撞值门同执法点，见函数 docstring
+                    if bg is not None:
+                        ratio = wcag_ratio(_hex_rgb(hexv), _hex_rgb(bg))
+                        if ratio < CONTRAST_MIN:
+                            msgs.append(
+                                f"FAIL 规则4：{e['slug']} 的 accents 色值 {hexv} "
+                                f"对本集 theme bg {bg} 对比度 {ratio:.2f}:1 "
+                                f"< {CONTRAST_MIN}（references/08 契约：概念色须 "
+                                "≥4.5:1——提亮该色或换系列空槽色）"
+                            )
+                if bg is None and e.get("accents"):
+                    msgs.append(
+                        f"WARN 规则4：{e['slug']} theme.ts 未解析出 bg 令牌，"
+                        "跳过 accents 对比度预检（qa_frames --check-theme "
+                        "仍末端执法）"
+                    )
             else:
                 msgs.append(f"WARN 规则4：{e['slug']} 缺 theme.ts（工程未初始化？）")
                 for hexv in e.get("accents", []):

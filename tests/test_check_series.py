@@ -376,6 +376,64 @@ def test_occupied_hex_info_line_present(tmp_path):
     assert EP1["accents"][0] in out and EP2["accents"][0] in out
 
 
+# ---------------------------------------------------------------- 概念色对比度预检（规则 4，I-086）
+
+#: 带 bg 底座的 theme 模板——真树底座恒定 #0E1116（references/08 契约 1，
+#: 冻结模板复制而来必含 bg）；默认 build_workspace 模板无 bg，恰覆盖
+#: 「theme.ts 在但缺 bg 令牌」的中间态降级路径。
+THEME_BG = """export const theme = {{
+  bg: '#0E1116',
+  v1: '{accent}',
+}} as const;
+"""
+
+
+def test_accent_contrast_below_threshold_fails(tmp_path):
+    """accents 概念色对 theme bg <4.5:1 登记即拦（I-086）——不等 QA 末端。
+
+    #8260E8 对 #0E1116 = 4.31:1 是触发本规则的实案色值；错误信息须给全
+    现值 / 比值 / 阈值 / 建议方向（提亮该色或换系列空槽）。"""
+    bad = {**EP1, "accents": ["#8260E8"]}
+    ws = build_workspace(
+        tmp_path,
+        [S("t", bad)],
+        {
+            f"episodes/{EP1['slug']}/video/src/design/theme.ts": THEME_BG.format(
+                accent="#8260E8"
+            )
+        },
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 1 and "规则4" in out and "#8260E8" in out
+    assert "4.31" in out and "4.5" in out and "≥4.5:1" in out
+
+
+def test_accent_contrast_ok_passes(tmp_path):
+    """达标概念色零噪音：金色 #F5C542 对 #0E1116 ≈11.6:1，不刷对比度行。"""
+    ws = build_workspace(
+        tmp_path,
+        [S("t", EP1)],
+        {
+            f"episodes/{EP1['slug']}/video/src/design/theme.ts": THEME_BG.format(
+                accent=EP1["accents"][0]
+            )
+        },
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 0, out
+    assert "对比度" not in out
+
+
+def test_theme_without_bg_token_warns_and_skips(tmp_path):
+    """theme.ts 在但未解析出 bg 令牌（默认 fixture 模板即此形态）：WARN 跳过
+    预检、不 FAIL——与「缺 theme.ts」同档分级执法，硬拦会重造登记期死锁
+    （真树冻结模板必含 bg；qa_frames --check-theme 末端仍执法兜底）。"""
+    ws = build_workspace(tmp_path, [S("t", EP1, EP2)], {})
+    rc, out = run_series_check(ws)
+    assert rc == 0 and "WARN 规则4" in out and "未解析出 bg" in out
+    assert "跳过 accents 对比度预检" in out
+
+
 # ---------------------------------------------------------------- 可渲染性（规则 6）
 
 
