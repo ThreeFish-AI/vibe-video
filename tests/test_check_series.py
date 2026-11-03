@@ -249,6 +249,142 @@ def test_dead_link_fails(tmp_path):
     assert rc == 1 and "规则5" in out and "video-package" in out
 
 
+# ------------------------------------------------- 规则 5 判据两盲区（I-089）
+
+
+def test_bare_relative_dead_link_fails(tmp_path):
+    """盲区①：裸相对链接（无 ./ 前缀）此前整体漏检——287 条漏网形态的钉子。
+
+    裸链按链接所在文件的深度解析：`series.json` 从嵌套 README 出发指向不
+    存在的 episodes/ep-a/series.json，同为死链（作者「以为在根」正是漏网
+    语境），一并钉住。"""
+    files = {
+        "episodes/ep-a/README.md": (
+            "# 甲集标题\n[裸死链](docs/missing.md)、[根误链](series.json)\n"
+        )
+    }
+    ws = build_workspace(tmp_path, [S("t", EP1, EP2)], files)
+    rc, out = run_series_check(ws)
+    assert rc == 1 and "规则5" in out and "docs/missing.md" in out
+    assert "series.json" in out
+
+
+def test_bare_link_external_forms_and_existing_target_not_flagged(tmp_path):
+    """裸匹配辖域钉子：scheme/锚点/站绝对不做磁盘判定；按深度解析存在的裸链静默。"""
+    files = {
+        "episodes/ep-a/README.md": (
+            "# 甲集标题\n[外链](https://example.com/x)、[锚](#sec)、"
+            "[站绝对](/ThreeFish-AI/vibe-video)、[现存](script/narration.md)\n"
+        )
+    }
+    ws = build_workspace(tmp_path, [S("t", EP1, EP2)], files)
+    rc, out = run_series_check(ws)
+    assert rc == 0, out
+
+
+def test_md_code_span_and_fence_links_not_flagged(tmp_path):
+    """示例链接不是真链接：code span 与围栏块内的 `](./x)` 剥除后不执法。"""
+    files = {
+        "episodes/ep-a/README.md": (
+            "# 甲集标题\n`[示例](./missing.md)` 与围栏：\n\n"
+            "```\n[围栏示例](./gone.md)\n```\n"
+        )
+    }
+    ws = build_workspace(tmp_path, [S("t", EP1, EP2)], files)
+    rc, out = run_series_check(ws)
+    assert rc == 0, out
+
+
+def test_cross_paragraph_stray_backticks_keep_links_scanned(tmp_path):
+    """I-089 评审订正：跨段落的孤立反引号不构成 code span——其间真实渲染的
+    链接不得被剥出扫描面（修前 `+[^`]*`+ 跨行吞链：前缀形态相对 main 属
+    执法面回归——base 原文直扫能抓、修前分支漏；裸形态随 BARE_LINK_RE 新增）。"""
+    files = {
+        "episodes/ep-a/README.md": (
+            "# 甲集标题\n\n段一有孤立反引号 `\n\n"
+            "[前缀死链](./missing.md) 与 [裸死链](docs/gone.md)\n\n"
+            "段二再一个孤立反引号 `\n"
+        )
+    }
+    ws = build_workspace(tmp_path, [S("t", EP1, EP2)], files)
+    rc, out = run_series_check(ws)
+    assert rc == 1 and "规则5" in out, out
+    assert "./missing.md" in out and "docs/gone.md" in out
+
+
+def test_ts_call_shape_not_flagged_as_bare_link(tmp_path):
+    """.ts/.tsx 刻意不放宽裸匹配：`cells[i](row)` 调用形状与裸链接同形。"""
+    files = {
+        "episodes/ep-a/video/src/rows.ts": (
+            "export const pick = (cells: unknown[], i: number, row: unknown) =>\n"
+            "  (cells[i] as (r: unknown) => unknown)(row);\n"
+        )
+    }
+    ws = build_workspace(tmp_path, [S("t", EP1, EP2)], files)
+    rc, out = run_series_check(ws)
+    assert rc == 0, out
+
+
+def _init_git_repo(root: Path) -> None:
+    """fixture 内真 git 仓：init + 全量首提交（身份内联覆盖，防宿主全局缺配置）。"""
+    subprocess.run(["git", "-C", str(root), "init", "-q"], check=True)
+    subprocess.run(["git", "-C", str(root), "add", "-A"], check=True)
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(root),
+            "-c",
+            "user.name=t",
+            "-c",
+            "user.email=t@t",
+            "commit",
+            "-qm",
+            "fixture baseline",
+        ],
+        check=True,
+    )
+
+
+def test_untracked_target_warns_in_git_workspace(tmp_path):
+    """盲区②：目标留盘但未跟踪 → WARN（作者本地全绿、净 clone 即死链的假绿）；
+    已跟踪目标静默。WARN 不改退出码（稳定后转 FAIL 的过渡语义）。"""
+    ws = build_workspace(tmp_path, [S("t", EP1, EP2)], {"draft.md": "素材\n"})
+    _init_git_repo(tmp_path)
+    (ws / "notes.md").write_text("个人草稿\n", encoding="utf-8")  # commit 后落盘=未跟踪
+    (ep_root(ws, EP1) / "README.md").write_text(
+        "# 甲集标题\n[未跟踪](../../notes.md)、[已跟踪](../../draft.md)\n",
+        encoding="utf-8",
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 0, out
+    assert out.count("目标未入库") == 1 and "notes.md" in out
+
+
+def test_ignored_target_warns_in_git_workspace(tmp_path):
+    """盲区②同族：.gitignore 挡住的目标留盘假绿 → WARN。"""
+    ws = build_workspace(tmp_path, [S("t", EP1, EP2)], {})
+    (tmp_path / ".gitignore").write_text("ws/local-cache.log\n", encoding="utf-8")
+    (ws / "local-cache.log").write_text("cache\n", encoding="utf-8")
+    _init_git_repo(tmp_path)  # add -A 遵循 .gitignore：log 不入库
+    (ep_root(ws, EP1) / "README.md").write_text(
+        "# 甲集标题\n[忽略文件](../../local-cache.log)\n", encoding="utf-8"
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 0, out
+    assert "目标未入库" in out and "local-cache.log" in out
+
+
+def test_no_untracked_warn_without_git_repo(tmp_path):
+    """非 git 环境（独立工作区）：无跟踪态可判，只做磁盘存在性判定。"""
+    ws = build_workspace(tmp_path, [S("t", EP1, EP2)], {"notes.md": "n\n"})
+    (ep_root(ws, EP1) / "README.md").write_text(
+        "# 甲集标题\n[本地](../../notes.md)\n", encoding="utf-8"
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 0 and "目标未入库" not in out
+
+
 def test_accent_not_in_theme_fails(tmp_path):
     bad = {**EP1, "accents": ["#F5C542", "#123456"]}
     ws = build_workspace(tmp_path, [S("t", bad, EP2)], {})
