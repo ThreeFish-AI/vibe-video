@@ -144,9 +144,32 @@ def test_map_has_human_counterpart_md():
 # ---------------------------------------------------------------- 归档的许可声明
 
 
+#: 归档双档（I-091）：平面 `episodes/<集>/…` 与一级系列子文件夹 `episodes/<组>/<集>/…`
+#: （I-081）两档枚举而非 `**`——口径同 check_series.py AUDIENCE_GLOBS 注：多级嵌套
+#: 是非目标形态，枚举双档以模式数翻倍换误匹配面归零。
+_ARCHIVE_GLOBS = (
+    "episodes/*/research/source-archive",
+    "episodes/*/*/research/source-archive",
+)
+
+
 def archive_dirs() -> list[Path]:
     """→ 全部 `research/source-archive/` 目录（有归档的集才有）。"""
-    return sorted(p for p in WORKSPACE.glob("episodes/*/research/source-archive"))
+    return sorted(p for g in _ARCHIVE_GLOBS for p in WORKSPACE.glob(g))
+
+
+def _archives_or_skip() -> list[Path]:
+    """零归档显式 skip（I-091）：空集静默通过即 vacuous pass 的温床——glob 再失准
+    也会伪装成「无归档」。零归档本身是合法形态（references/01 §多章批量取证 4：上游无许可或
+    禁止再分发时不建归档），故 skip 而非 fail；skip 计数在 -q 输出可见，「执法面
+    为空」与「执法通过」就此可区分（先例：test_deliver.py 文件系统大小写 skip）。"""
+    dirs = archive_dirs()
+    if not dirs:
+        pytest.skip(
+            "工作区零 source-archive（合法形态：上游无许可/禁再分发时不建归档，"
+            "references/01 §多章批量取证 4）——若工作区实有归档，先查双档 glob 是否失准"
+        )
+    return dirs
 
 
 def test_every_source_archive_carries_upstream_license():
@@ -157,7 +180,7 @@ def test_every_source_archive_carries_upstream_license():
     脚手架不会替你补）。声明必须按集落地，因为各集工程目录是可单独取出的交付单位。
     """
     missing: list[str] = []
-    for d in archive_dirs():
+    for d in _archives_or_skip():
         rel = d.relative_to(WORKSPACE)
         for name in ("LICENSE", "README.md"):
             if not (d / name).is_file():
@@ -170,7 +193,7 @@ def test_every_source_archive_carries_upstream_license():
 
 def test_source_archive_license_is_nonempty_text():
     """空文件占位不算声明——「有个文件」与「有声明」必须不可混淆。"""
-    for d in archive_dirs():
+    for d in _archives_or_skip():
         lic = d / "LICENSE"
         if not lic.is_file():
             continue  # 缺失由上一条点名，此处不重复报
