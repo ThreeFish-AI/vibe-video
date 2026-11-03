@@ -99,3 +99,34 @@ def test_local_cache_hit_backfills_empty_store(monkeypatch, tmp_path):
 
     assert result["durationSec"] == 1.25
     assert store_has(store, "ep", "p4-01", digest)
+
+
+def test_rename_miss_and_migration_mv_or_symlink(tmp_path):
+    """I-092：store 键＝集目录叶名——集目录改名后新键零命中（失败形态）；
+    库内目录 mv 改键、或软链（链接名＝新键、目标＝旧键目录，兼容未拉取改名
+    的旧 checkout）迁移后新旧键恢复命中。迁移指引见 references/07 改名迁移段。"""
+    audio, store = tmp_path / "audio", tmp_path / "store"
+    audio.mkdir()
+    digest = "d" * 40
+    src = _mk(audio, "p1-01.mp3")
+    store_deposit(src, "p1-01", digest, store, "a-video")
+
+    # 失败形态：集目录 a-video 改名 a 后，新叶名键下同 digest take 零命中
+    assert store_has(store, "a-video", "p1-01", digest)
+    assert not store_has(store, "a", "p1-01", digest)
+
+    # 迁移①：mv 库内目录改键——新键恢复命中，字节等价
+    (store / "a-video").rename(store / "a")
+    out1 = tmp_path / "audio1"
+    out1.mkdir()
+    assert store_restore("p1-01", digest, out1, store, "a")
+    assert (out1 / "p1-01.mp3").read_bytes() == src.read_bytes()
+
+    # 迁移②（多 checkout 过渡）：软链链接名＝新键、目标＝旧键目录——新旧两键同时命中
+    (store / "a").rename(store / "a-video")
+    (store / "a").symlink_to("a-video")
+    out2, out3 = tmp_path / "audio2", tmp_path / "audio3"
+    out2.mkdir()
+    out3.mkdir()
+    assert store_restore("p1-01", digest, out2, store, "a")
+    assert store_restore("p1-01", digest, out3, store, "a-video")

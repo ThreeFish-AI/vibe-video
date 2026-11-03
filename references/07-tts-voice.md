@@ -51,6 +51,8 @@
 
 **延续条款（I-040）**：同一次显式要求任务内的延续操作——take 验收补块、断点续跑（`tts_resume`）、改稿后增量重配（store 按 digest 兜底、只重录变更块）、幂等 no-op 重跑——命令照带 `--final-voice`（审计留痕），**无需新的显式要求**。跨会话恢复（换 worktree / 换机重建）以 `tts --plan` 对账划界：**零待合成**（tts-store 完好、纯缓存回收）属恢复操作，照带 `--final-voice` 即可；**有待合成**（store 丢失即整集重合成）与一切整集重配 / 换风格 / 换样本＝**新的一次**人工显式要求（灾备流程见 [references/10](./10-final-render.md)）。
 
+**tts-store 键与集目录改名迁移（I-092）**：store 键＝**集目录叶名**（`tts.py` 取 `slug = root.name`），条目按 `<叶名>/<句id>.<digest12>.mp3` 内容寻址。集目录**改名 / 归组**（`*-video` 后缀清理、挪入系列组子目录等）后键随叶名变化：旧 take 全部未命中，`tts --plan` 呈整集待合成——这是**键待迁移**、不是 store 丢失，先迁移再对账：库内目录改键 `mv "$VIBE_VIDEO_TTS_STORE/<旧叶名>" "$VIBE_VIDEO_TTS_STORE/<新叶名>"`；尚有**未拉取改名的旧 checkout** 时用软链过渡（在库根内 `ln -s <旧叶名> <新叶名>`，链接名＝新叶名、目标＝旧叶名目录，新旧两键同时命中），全部 checkout 拉齐后换 mv 收口。迁移后 `tts --plan` 应回「零待合成」（纯缓存回收＝恢复操作口径，见上方延续条款）；跳过迁移直接实跑，会把可迁移的恢复误判成整集重合成＝小时级长跑 + 一次新的显式授权。两系列**同叶名**集共用同一 store 目录属预期：跨集命中只发生在（句 id、digest）全同的条目上——digest 覆盖文本与全部合成参数，输入全同即输出可互换（良性去重），一方改名也不触及另一方条目。
+
 ## 双语配音（en 版，双语集）
 
 - **追配触发**（示例话术）：「使用 index tts 2.5 及本人声音（风格：xxx）**额外为本集视频配置英文配音**」——en 的克隆配音是**独立的一次**人工显式要求（zh 的授权不自动延伸）；单次命令的 flag 覆盖 zh+en 时（如 `--lang zh,en`），两语言的显式要求须**分别取得**。在既有 zh 集上追加完整英文版：`narration.langs` 补 `"en"` + `[tts.en]` 声明 `engine = "indextts"` 与跨语种 `ref`/`style`，其后走 [PIPELINE.md §五「双语渲染」](PIPELINE.md) 全轨：`narration.en.md` 句 id 1:1 → `build --lang en`（基线锁）→ `check --lang en` → **跨语种试听（下一条，不可跳）** → `tts --lang en --final-voice` → `check_archify --lang en` → `render --lang en` + qa → `captions` / `deliver --lang en`（en 版本号独立）。
