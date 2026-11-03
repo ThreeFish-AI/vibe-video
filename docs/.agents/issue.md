@@ -103,6 +103,7 @@
 | I-086 | accents 可达性门执法点滞后于建档，登记层零预检 | ✅ 已完成 | 2026-11-02 | [详情](#I-086) |
 | I-087 | tts_resume 报错路径无透传用法提示，参数面与 pipeline.py tts 不一致 | ✅ 已完成 | 2026-11-02 | [详情](#I-087) |
 | I-088 | I-085 合并后冻帧 WARN 执法面收窄，beat 错位形态降 INFO 免追漏检 | ✅ 已完成 | 2026-11-02 | [详情](#I-088) |
+| I-091 | source-archive 测试 glob 单层假绿：双档枚举 + 零归档显式 skip + 离线回归钉 | 🔄 进行中 | — | [详情](#I-091) |
 
 ---
 
@@ -1481,3 +1482,17 @@
 **后续防范**：判据三态修改须同步 references/09；候选「beat 归属判别」在 --check 调用面不可行（两处 freeze_check=False、timeline 可选）；残余边界（无 ChapterProgress+纯静止装置+跨句采样→新 WARN）系保守取舍不影响退出码，随 PR 披露。盲评：内容维胜出双贡献/结构平局。
 
 **同类问题影响**：任何静持装置+烧录字幕层管线的采样帧判别（片尾卡、loading 循环、无章节导航系列同族）。
+<a id="I-091"></a>
+## I-091：source-archive 测试 glob 单层假绿：双档枚举 + 零归档显式 skip + 离线回归钉
+
+**表因**：tests/test_source_map.py 的 source-archive glob 只匹配一层（`episodes/*/research/source-archive`），两级布局工作区命中 0 目录，test_every_source_archive_carries_upstream_license 与 test_source_archive_license_is_nonempty_text 空集通过（vacuous pass 假绿）；且该文件在 skill 仓自跑 machine_checks 环境整文件 env-gate skip，分支在声明门禁中零可执行差异。
+
+**根因**：glob 诞生于平面布局时代（b89bc466，2026-09-21），d02992d（PR #16）随迁原样保留；I-081（649b877）引入两级布局支持时未同步本测试，I-082（PR #68）嵌套残余清扫漏网——其回执「第五处单层假设漏网=无」的漏网实证。
+
+**定性**：skill 执法测试自身的门禁无法判定类缺陷；宿主仓 negentropy #1220 分集两级化迁移审计 fallout（宿主 I-246 审计 CFG missed#2）。
+
+**处理方式**：双档枚举（`_ARCHIVE_GLOBS` 常量 + `_archives_or_skip()` 复用，同 check_series 双档风格；弃 `episodes/**` 防多级隐性执法面）；零归档改 SKIPPED 带理由（弃 fail-on-empty——references/01 §4 明文零归档合法）；首轮 Verifier G3 ❌ 后补 env-gate 门外独立回归钉 tests/test_source_map_globs.py（双档全枚举双向钉 + 空集 skip 钉，machine_checks 计数恰 +2 passed）。连带红披露：修后真实两级工作区必然转红（宿主 26 归档中 25 缺 LICENSE），属作业对象缺陷按 references/01 §4 补件转绿。PR #74。
+
+**后续防范**：测试的 glob 辖域须与其执法对象的布局契约同步；env-gate 门内的测试族补钉时须落门外独立文件，否则修复在声明门禁中不可观测。
+
+**同类问题影响**：一切「按模块级 env-gate skip」的测试族，其修复若无门外回归钉都会复现「合并后零可执行差异、回退不可检出」形态。
