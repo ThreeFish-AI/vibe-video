@@ -160,14 +160,14 @@ def archive_dirs() -> list[Path]:
 
 def _archives_or_skip() -> list[Path]:
     """零归档显式 skip（I-091）：空集静默通过即 vacuous pass 的温床——glob 再失准
-    也会伪装成「无归档」。零归档本身是合法形态（references/01 §4：上游无许可或
+    也会伪装成「无归档」。零归档本身是合法形态（references/01 §多章批量取证 4：上游无许可或
     禁止再分发时不建归档），故 skip 而非 fail；skip 计数在 -q 输出可见，「执法面
     为空」与「执法通过」就此可区分（先例：test_deliver.py 文件系统大小写 skip）。"""
     dirs = archive_dirs()
     if not dirs:
         pytest.skip(
             "工作区零 source-archive（合法形态：上游无许可/禁再分发时不建归档，"
-            "references/01 §4）——若工作区实有归档，先查双档 glob 是否失准"
+            "references/01 §多章批量取证 4）——若工作区实有归档，先查双档 glob 是否失准"
         )
     return dirs
 

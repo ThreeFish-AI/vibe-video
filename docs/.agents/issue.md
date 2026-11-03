@@ -1491,7 +1491,7 @@
 
 **定性**：skill 执法测试自身的门禁无法判定类缺陷；宿主仓 negentropy #1220 分集两级化迁移审计 fallout（宿主 I-246 审计 CFG missed#2）。
 
-**处理方式**：双档枚举（`_ARCHIVE_GLOBS` 常量 + `_archives_or_skip()` 复用，同 check_series 双档风格；弃 `episodes/**` 防多级隐性执法面）；零归档改 SKIPPED 带理由（弃 fail-on-empty——references/01 §4 明文零归档合法）；首轮 Verifier G3 ❌ 后补 env-gate 门外独立回归钉 tests/test_source_map_globs.py（双档全枚举双向钉 + 空集 skip 钉，machine_checks 计数恰 +2 passed）。连带红披露：修后真实两级工作区必然转红（宿主 26 归档中 25 缺 LICENSE），属作业对象缺陷按 references/01 §4 补件转绿。PR #74。
+**处理方式**：双档枚举（`_ARCHIVE_GLOBS` 常量 + `_archives_or_skip()` 复用，同 check_series 双档风格；弃 `episodes/**` 防多级隐性执法面）；零归档改 SKIPPED 带理由（弃 fail-on-empty——references/01 §多章批量取证 4 明文零归档合法）；首轮 Verifier G3 ❌ 后补 env-gate 门外独立回归钉 tests/test_source_map_globs.py（双档全枚举双向钉 + 空集 skip 钉，machine_checks 计数恰 +2 passed）。连带红披露：修后真实两级工作区必然转红（宿主 26 归档中 25 缺 LICENSE），属作业对象缺陷按 references/01 §多章批量取证 4 补件转绿。PR #74。
 
 **后续防范**：测试的 glob 辖域须与其执法对象的布局契约同步；env-gate 门内的测试族补钉时须落门外独立文件，否则修复在声明门禁中不可观测。
 
