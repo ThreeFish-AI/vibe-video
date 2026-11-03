@@ -1491,7 +1491,7 @@
 
 **定性**：文档缺位类 T2；宿主仓 negentropy #1220 分集两级化迁移审计 fallout（宿主 I-246 审计 TRK-3，宿主曾以 13 个软链临时止血、ep1 57/57 命中）。
 
-**处理方式**：references/07-tts-voice.md 新增「tts-store 键与集目录改名迁移」段（mv 改键 / 软链过渡兼容未拉取改名的旧 checkout / 迁移后 `--plan` 应回零待合成 / 同叶名共用属良性去重——digest 覆盖文本与全部合成参数）；tts.py:420 原句逐字保留 + 追加键语义与指针；回归测试钉失败形态与两条迁移路径。比选否决按 series.json slug 取键（存量集目录名≠slug、键面全变全失配）与 store 别名表（须改 vibe-tts 超界）。PR #76。
+**处理方式**：references/07-tts-voice.md 新增「tts-store 键与集目录改名迁移」段（mv 改键 / 软链过渡兼容未拉取改名的旧 checkout / 迁移后 `--plan` 应回零待合成 / 同叶名共用属良性去重——digest 覆盖文本与全部合成参数）；tts.py:420 原句逐字保留 + 追加键语义与指针；回归测试钉失败形态与两条迁移路径。比选否决按 series.json slug 取键（存量集目录名≠slug、键面全变全失配）与 store 别名表（须改 vibe-tts 超界）。落地 [PR #76](https://github.com/ThreeFish-AI/vibe-video/pull/76)：71abd82 实施 → bd418d7 台账转写 → e490f18 CHANGELOG 回填。
 
 **后续防范**：以叶名为键的存储，改名/归组迁移须有成文路径与零待合成对账判据；注释承诺「零失效」时须限定搬迁类型。
 
