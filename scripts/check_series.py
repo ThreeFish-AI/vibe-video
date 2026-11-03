@@ -577,13 +577,17 @@ def rule_manifest_integrity(series_list: list[dict], msgs: list[str]) -> None:
         """root 下的未登记集目录（I-081 一级系列子文件夹）：含 video/ 或
         script/ 判集目录（scaffold 两件必落其一）；否则视为组目录下探一层
         再判。组目录自身不点名（布局容器而非工程，旧口径会把它当孤儿假报），
-        其下的未登记集照常点名——孤儿 FAIL 语义不随布局放宽，防盲区回归。"""
+        其下的未登记集照常点名——孤儿 FAIL 语义不随布局放宽，防盲区回归。
+        判型先于名字判重（I-090）：组目录与已登记 slug 同名（组 ctx 下同名集
+        ctx 是合法布局）时，名字判重会把组目录当已登记集跳过、其下未登记新集
+        逃过点名——组目录是布局容器，不按名字豁免，一律下钻。"""
         out: list[Path] = []
         for p in sorted(root.iterdir()):
-            if not p.is_dir() or p.name in seen_slugs:
+            if not p.is_dir():
                 continue
             if (p / "video").is_dir() or (p / "script").is_dir():
-                out.append(p)
+                if p.name not in seen_slugs:
+                    out.append(p)
             else:
                 out.extend(
                     q

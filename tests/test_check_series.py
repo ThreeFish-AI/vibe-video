@@ -484,6 +484,23 @@ def test_registered_episode_no_orphan_message(tmp_path):
     assert rc == 0 and "未登记到 series.json" not in out
 
 
+def test_orphan_under_group_named_like_registered_slug(tmp_path):
+    """同名组目录不豁免下钻（I-090）：组 ctx 与已登记 slug ctx 撞名时，
+    判型（组目录无 script/ 直接子目录）先于名字判重——组下未登记新集照常
+    FAIL，同名已登记集自身不误报。"""
+    nested = {**EP1, "slug": "ctx", "path": "episodes/ctx/ctx"}
+    ws = build_workspace(tmp_path, [S("t", nested)], {})
+    orphan = ws / "episodes" / "ctx" / "new-unreg"
+    (orphan / "script").mkdir(parents=True)
+    (orphan / "script" / "narration.md").write_text(
+        "## P0\n\n- [p0-01] 独立成片。\n", encoding="utf-8"
+    )
+    rc, out = run_series_check(ws)
+    assert rc == 1 and "规则4" in out and "new-unreg" in out
+    assert "已有 narration.md" in out
+    assert "ctx 未登记到 series.json" not in out
+
+
 # ---------------------------------------------------------------- 撞色（规则 4 系列内）
 
 

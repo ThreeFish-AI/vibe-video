@@ -104,6 +104,9 @@
 | I-087 | tts_resume 报错路径无透传用法提示，参数面与 pipeline.py tts 不一致 | ✅ 已完成 | 2026-11-02 | [详情](#I-087) |
 | I-088 | I-085 合并后冻帧 WARN 执法面收窄，beat 错位形态降 INFO 免追漏检 | ✅ 已完成 | 2026-11-02 | [详情](#I-088) |
 | I-089 | check_series 规则 5 死链判据补盲：裸相对链接（仅 .md）+ git 感知留盘假绿 WARN | 🔄 进行中 | — | [详情](#I-089) |
+| I-090 | 孤儿发现遇同名系列组目录不下钻：_orphan_dirs 与 verify_skeleton 判型先行 | ✅ 已完成 | 2026-11-03 | [详情](#I-090) |
+| I-091 | source-archive 测试 glob 单层假绿：双档枚举 + 零归档显式 skip + 离线回归钉 | ✅ 已完成 | 2026-11-03 | [详情](#I-091) |
+| I-092 | tts-store 键与集目录改名迁移指引缺位：改名后旧 take 孤立且注释过度承诺 | ✅ 已完成 | 2026-11-03 | [详情](#I-092) |
 
 ---
 
@@ -1496,3 +1499,45 @@
 **后续防范**：链接死链判据的辖域（前缀形态×文件族）与存在性口径（磁盘 vs git 跟踪）变更时须对齐净 clone 语义；「本地留盘文件」不等于「读者可见文件」。
 
 **同类问题影响**：一切以磁盘存在性判定「已交付」的门禁，对 gitignored/未跟踪目标都有同构假绿面。
+<a id="I-090"></a>
+## I-090：孤儿发现遇同名系列组目录不下钻：_orphan_dirs 与 verify_skeleton 判型先行
+
+**表因**：check_series `_orphan_dirs` 与 verify_skeleton 孤儿发现先按 `p.name in seen_slugs/registered_slugs` 判重再 continue，未先判是否组目录——系列组目录与已登记 slug 同名（如组 `episodes/<组>/` 下恰有同名集 slug）时，整组被当作集目录跳过，其下未登记新集逃过规则 4 FAIL 与孤儿清单（合成 fixture：`episodes/ctx/ctx/`（slug=ctx 已登记）下 new-unreg 零报、对照 `episodes/infra/new-unreg2` 正常报出）。
+
+**根因**：两处孤儿下探均由 649b877（I-081 / PR #65）引入，初衷是嵌套布局下组目录下探一层、组自身不点名；引入时「名字判重先于组目录判型」的判序留下缺口。非 I-081/I-082 已修缺陷的回退，属其引入代码的新缺口。
+
+**定性**：skill 执法脚本自身缺陷（门禁无法判定类运行时证据）；宿主仓 negentropy #1220 分集两级化迁移的审计 fallout（宿主 I-246 审计 CFG missed#1）。
+
+**处理方式**：判型先行——`is_dir` 后先按既有契约判据（`video/` 或 `script/` 直接在场）判是否集目录，集目录按名字豁免、非集目录一律下探；verify_skeleton 沿用既有 `_looks_like_episode`、check_series 沿用其内联判据（无第二判据源）。新增两条回归测试（缺陷版必败/修复版通过双态实证）。[PR #73](https://github.com/ThreeFish-AI/vibe-video/pull/73)。核验：合并前评审（finder + 逐 finding 对抗核验）machine_checks 1080 passed / 21 skipped RC=0（较 I-088 基线 1078 净 +2 = 新增回归钉）、ruff==0.14.5 零告警、两条回归钉 BASE 必败实证；唯一 finding 为与 PR #75 的 CHANGELOG/台账合并冲突预警（非缺陷，后合并方机械解冲突）。
+
+**后续防范**：布局判型先于名字判重；新增布局形态时孤儿发现的判型契约（scaffold 必落 video/ 或 script/ 之一）须同步入测试。
+
+**同类问题影响**：任何「按名字豁免目录」的扫描逻辑在名字空间与 slug 空间重叠时都会出现同类逃逸。
+<a id="I-091"></a>
+## I-091：source-archive 测试 glob 单层假绿：双档枚举 + 零归档显式 skip + 离线回归钉
+
+**表因**：tests/test_source_map.py 的 source-archive glob 只匹配一层（`episodes/*/research/source-archive`），两级布局工作区命中 0 目录，test_every_source_archive_carries_upstream_license 与 test_source_archive_license_is_nonempty_text 空集通过（vacuous pass 假绿）；且该文件在 skill 仓自跑 machine_checks 环境整文件 env-gate skip，分支在声明门禁中零可执行差异。
+
+**根因**：glob 诞生于平面布局时代（b89bc466，2026-09-21），d02992d（PR #16）随迁原样保留；I-081（649b877）引入两级布局支持时未同步本测试，I-082（PR #68）嵌套残余清扫漏网——其回执「第五处单层假设漏网=无」的漏网实证。
+
+**定性**：skill 执法测试自身的门禁无法判定类缺陷；宿主仓 negentropy #1220 分集两级化迁移审计 fallout（宿主 I-246 审计 CFG missed#2）。
+
+**处理方式**：双档枚举（`_ARCHIVE_GLOBS` 常量 + `_archives_or_skip()` 复用，同 check_series 双档风格；弃 `episodes/**` 防多级隐性执法面）；零归档改 SKIPPED 带理由（弃 fail-on-empty——references/01 §多章批量取证 4 明文零归档合法）；首轮 Verifier G3 ❌ 后补 env-gate 门外独立回归钉 tests/test_source_map_globs.py（双档全枚举双向钉 + 空集 skip 钉，machine_checks 计数恰 +2 passed）。连带红披露：修后真实两级工作区必然转红（宿主 26 归档中 25 缺 LICENSE），属作业对象缺陷按 references/01 §多章批量取证 4 补件转绿。PR #74。核验：合并前评审 machine_checks 1080 passed / 21 skipped RC=0（较基线净 +2 = 门外回归钉 ×2）、ruff==0.14.5 零告警、双钉 BASE 必败实证（单层 glob 漏嵌套档实锤）；评审订正：CHANGELOG 排版归位（Fixed 标题后空行恢复）与台账尾链补齐。
+
+**后续防范**：测试的 glob 辖域须与其执法对象的布局契约同步；env-gate 门内的测试族补钉时须落门外独立文件，否则修复在声明门禁中不可观测。
+
+**同类问题影响**：一切「按模块级 env-gate skip」的测试族，其修复若无门外回归钉都会复现「合并后零可执行差异、回退不可检出」形态。
+<a id="I-092"></a>
+## I-092：tts-store 键与集目录改名迁移指引缺位：改名后旧 take 孤立且注释过度承诺
+
+**表因**：tts-store 以集目录叶名为键（scripts/tts.py `slug = root.name`），集目录改名/归组后新键零命中、旧 take 全部孤立，触发克隆声重合成（受人工闸）；`:420` 注释「库根整体搬迁零失效（mv 即迁移）」以偏概全，未覆盖集改名；两系列同叶名集共用同一 store 目录。
+
+**根因**：store 键取叶名系初始设计（f418950，与 scaffold/deliver 的叶名身份约定一致），非缺陷；缺的是改名迁移指引与键语义成文——改名即换键无任何文档与恢复路径（宿主能力不符且无降级路径）。
+
+**定性**：文档缺位类 T2；宿主仓 negentropy #1220 分集两级化迁移审计 fallout（宿主 I-246 审计 TRK-3，宿主曾以 13 个软链临时止血、ep1 57/57 命中）。
+
+**处理方式**：references/07-tts-voice.md 新增「tts-store 键与集目录改名迁移」段（mv 改键 / 软链过渡兼容未拉取改名的旧 checkout / 迁移后 `--plan` 应回零待合成 / 同叶名共用属良性去重——digest 覆盖文本与全部合成参数）；tts.py:420 原句逐字保留 + 追加键语义与指针；回归测试钉失败形态与两条迁移路径。比选否决按 series.json slug 取键（存量集目录名≠slug、键面全变全失配）与 store 别名表（须改 vibe-tts 超界）。落地 [PR #76](https://github.com/ThreeFish-AI/vibe-video/pull/76)：71abd82 实施 → bd418d7 台账转写 → e490f18 CHANGELOG 回填。核验：合并前评审 machine_checks 1079 passed / 21 skipped RC=0（较基线净 +1 = 改名迁移回归钉）、ruff==0.14.5 零告警；评审订正：CHANGELOG 台账尾链补齐（Direct Hyperlinking 同批口径）。
+
+**后续防范**：以叶名为键的存储，改名/归组迁移须有成文路径与零待合成对账判据；注释承诺「零失效」时须限定搬迁类型。
+
+**同类问题影响**：一切以目录名/叶名寻址的缓存与版本库，在重命名后都有同构孤立面；软链过渡是兼容未同步 checkout 的通用止血式样。
