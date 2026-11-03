@@ -186,9 +186,10 @@ BARE_LINK_RE = re.compile(r"\]\((?!\.{1,2}/)([^)#?<>\s]+)\)")
 #: ——磁盘存在性无从判定，不属规则 5 辖域，匹配后滤除。
 EXTERNAL_LINK_RE = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*:|^[#/]")
 #: 规则 5 的 .md 匹配面前处理用：围栏开栏/闭栏行（行首 ≤3 空格 + ≥3 个
-#: 反引号或波浪线）与行内 code span（≥1 反引号包夹非反引号内容）。
+#: 反引号或波浪线）与行内 code span（≥1 反引号包夹非反引号内容、不跨行
+#: ——CommonMark 跨空行反引号不构成 code span，其间真链接保守受检）。
 MD_FENCE_RE = re.compile(r"^ {0,3}(?P<fence>`{3,}|~{3,})")
-MD_CODE_SPAN_RE = re.compile(r"`+[^`]*`+")
+MD_CODE_SPAN_RE = re.compile(r"`+[^`\n]*`+")
 EP_NUM = re.compile(r"第([一二三四五六七八九十])集")
 
 #: 规则 7 · 课程站点标识（观众可见层禁词）。`课程/站点` 单独成词太宽——
@@ -611,7 +612,9 @@ def _strip_md_code(text: str) -> str:
 
     文档示例里的 `[x](./missing.md)` 渲染层不产链接，对它执法是假报。近似
     口径（保守方向 = 剥不净时该链接继续受检）：缩进代码块（4 空格）不剥；
-    闭栏判定从宽（行首 ≥3 个与开栏同字符的围栏符即闭）。"""
+    闭栏判定从宽（行首 ≥3 个与开栏同字符的围栏符即闭）；code span 不跨行
+    ——跨段落孤立反引号间的内容仍受检（跨行 `[^`]*` 会把真链接整段吞出
+    扫描面，评审订正）。"""
     kept: list[str] = []
     fence = ""
     for line in text.splitlines(keepends=True):

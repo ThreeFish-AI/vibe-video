@@ -295,6 +295,23 @@ def test_md_code_span_and_fence_links_not_flagged(tmp_path):
     assert rc == 0, out
 
 
+def test_cross_paragraph_stray_backticks_keep_links_scanned(tmp_path):
+    """I-089 评审订正：跨段落的孤立反引号不构成 code span——其间真实渲染的
+    链接不得被剥出扫描面（修前 `+[^`]*`+ 跨行吞链：前缀形态相对 main 属
+    执法面回归——base 原文直扫能抓、修前分支漏；裸形态随 BARE_LINK_RE 新增）。"""
+    files = {
+        "episodes/ep-a/README.md": (
+            "# 甲集标题\n\n段一有孤立反引号 `\n\n"
+            "[前缀死链](./missing.md) 与 [裸死链](docs/gone.md)\n\n"
+            "段二再一个孤立反引号 `\n"
+        )
+    }
+    ws = build_workspace(tmp_path, [S("t", EP1, EP2)], files)
+    rc, out = run_series_check(ws)
+    assert rc == 1 and "规则5" in out, out
+    assert "./missing.md" in out and "docs/gone.md" in out
+
+
 def test_ts_call_shape_not_flagged_as_bare_link(tmp_path):
     """.ts/.tsx 刻意不放宽裸匹配：`cells[i](row)` 调用形状与裸链接同形。"""
     files = {
