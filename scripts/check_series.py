@@ -23,7 +23,11 @@
      episodes/ 下未登记目录分级执法（narration.md 已落盘即 FAIL，见
      rule_manifest_integrity 的死锁注释）
   5. 相对链接死链：受检文件集内的 `](./x.md)` / `](../x)` 目标必须存在
-    （抓 video-package 类残留并防复发）
+    （抓 video-package 类残留并防复发）；.md 另扫**裸相对目标**（无 scheme、
+    不以 `#`/`/` 开头——negentropy #1220 分集两级化后 287 条裸链接实证该形态
+    漏检；.ts/.tsx 不放宽，`cells[i](row)` 调用形状与裸链接同形），匹配前剥
+    围栏块与码 span（示例链接不是真链接）；git 工作区下目标留盘但未跟踪/
+    被忽略只 WARN（作者本地全绿、净 clone 即死链的假绿信号，稳定后转 FAIL）
   6. 可渲染性：storyboard 已定稿的集，video/src/scenes/*.tsx 非空，且
      Main.tsx 的 SCENE_COMPONENTS 注册表与场景文件双向对齐——注册→文件
      是 FAIL 方向（注册了却渲染不出来，build 必炸），文件→注册只 WARN
@@ -70,6 +74,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -171,6 +176,19 @@ SPOKEN_TOKEN_RE = re.compile(
 )
 SPOKEN_LINE_RE = re.compile(r"^- \[(?P<id>[a-z0-9-]+)\]\s+(?P<text>.+)$", re.M)
 REL_LINK_RE = re.compile(r"\]\((\.{1,2}/[^)#?]+)\)")
+#: 规则 5 的 .md 专属裸相对目标（I-089）：`./`/`../` 前缀形态仍由 REL_LINK_RE
+#: 承担（负向环视排除防双报），此处只补无前缀的裸目标——negentropy #1220 分集
+#: 两级化迁移后的 287 条裸链接全数从前缀正则眼下漏过，净 clone 即死链。字符类
+#: 刻意排除空白与 `<>`（CommonMark 含空格目标须尖括号包裹，那是另一形态）。
+#: .ts/.tsx 不放宽：`cells[i](row)` 调用形状与裸链接同形，一概放宽即假报。
+BARE_LINK_RE = re.compile(r"\]\((?!\.{1,2}/)([^)#?<>\s]+)\)")
+#: 裸目标的外部形态（`https:`/`mailto:` 类 scheme、纯锚点 `#x`、站绝对 `/x`）
+#: ——磁盘存在性无从判定，不属规则 5 辖域，匹配后滤除。
+EXTERNAL_LINK_RE = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*:|^[#/]")
+#: 规则 5 的 .md 匹配面前处理用：围栏开栏/闭栏行（行首 ≤3 空格 + ≥3 个
+#: 反引号或波浪线）与行内码 span（≥1 反引号包夹非反引号内容）。
+MD_FENCE_RE = re.compile(r"^ {0,3}(?P<fence>`{3,}|~{3,})")
+MD_CODE_SPAN_RE = re.compile(r"`+[^`]*`+")
 EP_NUM = re.compile(r"第([一二三四五六七八九十])集")
 
 #: 规则 7 · 课程站点标识（观众可见层禁词）。`课程/站点` 单独成词太宽——
@@ -588,17 +606,97 @@ def rule_manifest_integrity(series_list: list[dict], msgs: list[str]) -> None:
             )
 
 
+def _strip_md_code(text: str) -> str:
+    """剥围栏代码块（整段不进匹配面）与行内码 span（置空）——规则 5 专用。
+
+    文档示例里的 `[x](./missing.md)` 渲染层不产链接，对它执法是假报。近似
+    口径（保守方向 = 剥不净时该链接继续受检）：缩进代码块（4 空格）不剥；
+    闭栏判定从宽（行首 ≥3 个与开栏同字符的围栏符即闭）。"""
+    kept: list[str] = []
+    fence = ""
+    for line in text.splitlines(keepends=True):
+        m = MD_FENCE_RE.match(line)
+        if fence:
+            if (
+                m
+                and m.group("fence")[0] == fence[0]
+                and len(m.group("fence")) >= len(fence)
+            ):
+                fence = ""
+            continue
+        if m:
+            fence = m.group("fence")
+            continue
+        kept.append(line)
+    return MD_CODE_SPAN_RE.sub("", "".join(kept))
+
+
+def _git_tracked_files() -> set[str] | None:
+    """PROJECT 所在 git 仓库的已跟踪文件集（PROJECT 相对 posix 路径）。
+
+    None = 无跟踪态可判，调用侧跳过未入库 WARN（**绝不影响 FAIL 判定**）：
+    无 .git（独立工作区）/ git 不可用 / .git 文件指针指向不存在的 gitdir
+    （测试 fixture 的 worktree 指针形态）/ 零跟踪文件（git init 后未首提交
+    ——此刻全盘未入库是脚手架常态，逐条 WARN 只是噪声）。单次 ls-files 而
+    非逐链接查询：大工作区数百链接下 N 次 subprocess 会把门拖成秒级。"""
+    if not (PROJECT / ".git").exists():
+        return None
+    try:
+        r = subprocess.run(
+            ["git", "-C", str(PROJECT), "ls-files", "-z", "--cached"],
+            capture_output=True,
+            check=True,
+            timeout=30,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    tracked = {p for p in r.stdout.decode("utf-8", "surrogateescape").split("\0") if p}
+    return tracked or None
+
+
+def _is_tracked(target: Path, tracked: set[str]) -> bool:
+    """目标是否在跟踪集内；仓库外（上溯越出 PROJECT，如 `../../outside.md`）
+    恒为未入库——那正是净 clone 必死的形态。子模块内文件在外层 ls-files 只
+    登记 gitlink 目录、会读作未入库：本仓 episodes 不用子模块（verify_
+    skeleton 同前提），已知边界不另设豁免。"""
+    try:
+        return target.relative_to(PROJECT).as_posix() in tracked
+    except ValueError:
+        return False
+
+
 def rule_dead_links(files: list[Path], msgs: list[str]) -> None:
-    """规则 5：受检文件内的相对链接目标必须存在。"""
+    """规则 5：受检文件内的相对链接目标必须存在。
+
+    .md 剥围栏块与码 span 后同时匹配前缀形态（REL_LINK_RE）与裸相对目标
+    （BARE_LINK_RE，外部形态后滤）；.ts/.tsx 只认前缀形态。存在性之外，
+    git 工作区下目标留盘却未跟踪/被忽略 → WARN：作者本地全绿、净 clone 即
+    死链的假绿形态（I-089；稳定后转 FAIL）。"""
+    tracked = _git_tracked_files()
     for f in files:
         try:
             text = f.read_text(encoding="utf-8")
         except UnicodeDecodeError:
             continue
-        for m in REL_LINK_RE.finditer(text):
-            target = (f.parent / m.group(1)).resolve()
+        if f.suffix == ".md":
+            scan = _strip_md_code(text)
+            targets = [m.group(1) for m in REL_LINK_RE.finditer(scan)]
+            targets += [
+                t
+                for t in (m.group(1) for m in BARE_LINK_RE.finditer(scan))
+                if not EXTERNAL_LINK_RE.match(t)
+            ]
+        else:
+            targets = [m.group(1) for m in REL_LINK_RE.finditer(text)]
+        for t in targets:
+            target = (f.parent / t).resolve()
             if not target.exists():
-                msgs.append(f"FAIL 规则5：{f.relative_to(PROJECT)} 死链 {m.group(1)}")
+                msgs.append(f"FAIL 规则5：{f.relative_to(PROJECT)} 死链 {t}")
+            elif tracked is not None and not _is_tracked(target, tracked):
+                msgs.append(
+                    f"WARN 规则5：{f.relative_to(PROJECT)} 目标未入库 {t}"
+                    "（留盘假绿：净 clone 即死链）"
+                )
 
 
 #: Main.tsx（regioned 档）每集两处可变区域，形状在四集上稳定（verify_skeleton.py
