@@ -418,6 +418,9 @@ async def synth_edge(
 # 无 2 小时级资产可丢。
 #
 # 条目按内容寻址（<slug>/<sid>.<digest12>.mp3），库根整体搬迁零失效（mv 即迁移）。
+# <slug>＝集目录叶名（main() 取 slug = root.name）：集目录改名/归组后键随叶名变、
+# 旧 take 全部未命中——是键待迁移、不是库丢失；迁移做法（库内目录 mv 改键 / 多
+# checkout 过渡用软链）见 references/07-tts-voice.md 延续条款后的改名迁移段。
 #
 # ⚠️ 继承是中性的：坏 take 同样按 digest 逐代继承（187/187 句恢复零重合成 =
 # 缺陷一并回来；换 worktree 重建继续继承，ISSUE-192）。撤销发音标注会使 digest
