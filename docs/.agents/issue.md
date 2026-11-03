@@ -103,7 +103,7 @@
 | I-086 | accents 可达性门执法点滞后于建档，登记层零预检 | ✅ 已完成 | 2026-11-02 | [详情](#I-086) |
 | I-087 | tts_resume 报错路径无透传用法提示，参数面与 pipeline.py tts 不一致 | ✅ 已完成 | 2026-11-02 | [详情](#I-087) |
 | I-088 | I-085 合并后冻帧 WARN 执法面收窄，beat 错位形态降 INFO 免追漏检 | ✅ 已完成 | 2026-11-02 | [详情](#I-088) |
-| I-092 | tts-store 键与集目录改名迁移指引缺位：改名后旧 take 孤立且注释过度承诺 | 🔄 进行中 | — | [详情](#I-092) |
+| I-092 | tts-store 键与集目录改名迁移指引缺位：改名后旧 take 孤立且注释过度承诺 | ✅ 已完成 | 2026-11-03 | [详情](#I-092) |
 
 ---
 
@@ -1491,7 +1491,7 @@
 
 **定性**：文档缺位类 T2；宿主仓 negentropy #1220 分集两级化迁移审计 fallout（宿主 I-246 审计 TRK-3，宿主曾以 13 个软链临时止血、ep1 57/57 命中）。
 
-**处理方式**：references/07-tts-voice.md 新增「tts-store 键与集目录改名迁移」段（mv 改键 / 软链过渡兼容未拉取改名的旧 checkout / 迁移后 `--plan` 应回零待合成 / 同叶名共用属良性去重——digest 覆盖文本与全部合成参数）；tts.py:420 原句逐字保留 + 追加键语义与指针；回归测试钉失败形态与两条迁移路径。比选否决按 series.json slug 取键（存量集目录名≠slug、键面全变全失配）与 store 别名表（须改 vibe-tts 超界）。落地 [PR #76](https://github.com/ThreeFish-AI/vibe-video/pull/76)：71abd82 实施 → bd418d7 台账转写 → e490f18 CHANGELOG 回填。
+**处理方式**：references/07-tts-voice.md 新增「tts-store 键与集目录改名迁移」段（mv 改键 / 软链过渡兼容未拉取改名的旧 checkout / 迁移后 `--plan` 应回零待合成 / 同叶名共用属良性去重——digest 覆盖文本与全部合成参数）；tts.py:420 原句逐字保留 + 追加键语义与指针；回归测试钉失败形态与两条迁移路径。比选否决按 series.json slug 取键（存量集目录名≠slug、键面全变全失配）与 store 别名表（须改 vibe-tts 超界）。落地 [PR #76](https://github.com/ThreeFish-AI/vibe-video/pull/76)：71abd82 实施 → bd418d7 台账转写 → e490f18 CHANGELOG 回填。核验：合并前评审 machine_checks 1079 passed / 21 skipped RC=0（较基线净 +1 = 改名迁移回归钉）、ruff==0.14.5 零告警；评审订正：CHANGELOG 台账尾链补齐（Direct Hyperlinking 同批口径）。
 
 **后续防范**：以叶名为键的存储，改名/归组迁移须有成文路径与零待合成对账判据；注释承诺「零失效」时须限定搬迁类型。
 
