@@ -283,7 +283,7 @@ def test_bare_link_external_forms_and_existing_target_not_flagged(tmp_path):
 
 
 def test_md_code_span_and_fence_links_not_flagged(tmp_path):
-    """示例链接不是真链接：码 span 与围栏块内的 `](./x)` 剥除后不执法。"""
+    """示例链接不是真链接：code span 与围栏块内的 `](./x)` 剥除后不执法。"""
     files = {
         "episodes/ep-a/README.md": (
             "# 甲集标题\n`[示例](./missing.md)` 与围栏：\n\n"

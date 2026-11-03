@@ -26,7 +26,7 @@
     （抓 video-package 类残留并防复发）；.md 另扫**裸相对目标**（无 scheme、
     不以 `#`/`/` 开头——negentropy #1220 分集两级化后 287 条裸链接实证该形态
     漏检；.ts/.tsx 不放宽，`cells[i](row)` 调用形状与裸链接同形），匹配前剥
-    围栏块与码 span（示例链接不是真链接）；git 工作区下目标留盘但未跟踪/
+    围栏块与 code span（示例链接不是真链接）；git 工作区下目标留盘但未跟踪/
     被忽略只 WARN（作者本地全绿、净 clone 即死链的假绿信号，稳定后转 FAIL）
   6. 可渲染性：storyboard 已定稿的集，video/src/scenes/*.tsx 非空，且
      Main.tsx 的 SCENE_COMPONENTS 注册表与场景文件双向对齐——注册→文件
@@ -186,7 +186,7 @@ BARE_LINK_RE = re.compile(r"\]\((?!\.{1,2}/)([^)#?<>\s]+)\)")
 #: ——磁盘存在性无从判定，不属规则 5 辖域，匹配后滤除。
 EXTERNAL_LINK_RE = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*:|^[#/]")
 #: 规则 5 的 .md 匹配面前处理用：围栏开栏/闭栏行（行首 ≤3 空格 + ≥3 个
-#: 反引号或波浪线）与行内码 span（≥1 反引号包夹非反引号内容）。
+#: 反引号或波浪线）与行内 code span（≥1 反引号包夹非反引号内容）。
 MD_FENCE_RE = re.compile(r"^ {0,3}(?P<fence>`{3,}|~{3,})")
 MD_CODE_SPAN_RE = re.compile(r"`+[^`]*`+")
 EP_NUM = re.compile(r"第([一二三四五六七八九十])集")
@@ -607,7 +607,7 @@ def rule_manifest_integrity(series_list: list[dict], msgs: list[str]) -> None:
 
 
 def _strip_md_code(text: str) -> str:
-    """剥围栏代码块（整段不进匹配面）与行内码 span（置空）——规则 5 专用。
+    """剥围栏代码块（整段不进匹配面）与行内 code span（置空）——规则 5 专用。
 
     文档示例里的 `[x](./missing.md)` 渲染层不产链接，对它执法是假报。近似
     口径（保守方向 = 剥不净时该链接继续受检）：缩进代码块（4 空格）不剥；
@@ -668,7 +668,7 @@ def _is_tracked(target: Path, tracked: set[str]) -> bool:
 def rule_dead_links(files: list[Path], msgs: list[str]) -> None:
     """规则 5：受检文件内的相对链接目标必须存在。
 
-    .md 剥围栏块与码 span 后同时匹配前缀形态（REL_LINK_RE）与裸相对目标
+    .md 剥围栏块与 code span 后同时匹配前缀形态（REL_LINK_RE）与裸相对目标
     （BARE_LINK_RE，外部形态后滤）；.ts/.tsx 只认前缀形态。存在性之外，
     git 工作区下目标留盘却未跟踪/被忽略 → WARN：作者本地全绿、净 clone 即
     死链的假绿形态（I-089；稳定后转 FAIL）。"""
