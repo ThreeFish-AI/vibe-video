@@ -673,6 +673,30 @@ def test_nested_orphan_named_group_dir_not(tmp_path):
     assert "demo-group" not in out, out
 
 
+def test_orphan_descends_group_named_like_registered_slug(tmp_path):
+    """组目录与已登记 slug 同名（I-090）：判型先于名字判重——组目录不因
+    撞名豁免下钻，组内未登记集照常点名；同名已登记集与组目录自身都不误报
+    （二者同名字符串，一次断言双盖）。"""
+    skill = mirror_skill(tmp_path)
+    ws = flat_ws(tmp_path)
+    assert scaffold_into(skill, ws, PROBE_A).returncode == 0
+    assert scaffold_into(skill, ws, PROBE_B).returncode == 0
+    stage = tmp_path / "stage"  # 先挪出再建同名组目录（目录不能移进自身子树）
+    shutil.move(str(ws / "episodes" / PROBE_A), str(stage))
+    group = ws / "episodes" / PROBE_A  # 组目录与已登记 slug 同名（撞名形态）
+    group.mkdir()
+    shutil.move(str(stage), str(group / PROBE_A))
+    shutil.move(str(ws / "episodes" / PROBE_B), str(group / PROBE_B))
+    write_series(
+        ws, [("solo", [PROBE_A])], paths={PROBE_A: f"episodes/{PROBE_A}/{PROBE_A}"}
+    )
+    out = run(skill / "scripts" / "verify_skeleton.py", cwd=ws).stdout
+    orphan_lines = [ln for ln in out.splitlines() if "未登记到 series.json" in ln]
+    assert orphan_lines, out
+    assert PROBE_B in orphan_lines[0], out
+    assert PROBE_A not in orphan_lines[0], out
+
+
 def test_scaffold_produces_gate_clean_episode(tmp_path):
     """scaffold 出来的新集必须立刻通过冻结档比对（模板即真理）。
 

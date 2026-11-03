@@ -426,15 +426,17 @@ def main() -> int:
         return (p / "video").is_dir() or (p / "script").is_dir()
 
     #: 一级系列子文件夹（I-081）：组目录下探一层，未登记集照常点名；组目录
-    #: 自身不点名（布局容器而非工程，旧口径会把它当孤儿假报）。
+    #: 自身不点名（布局容器而非工程，旧口径会把它当孤儿假报）。判型先于
+    #: 名字判重（I-090）：组目录与已登记 slug 同名时不按名字豁免下钻。
     orphans: list[str] = []
     episodes_root = paths.WORKSPACE / "episodes"
     if episodes_root.is_dir():
         for p in sorted(episodes_root.iterdir()):
-            if not p.is_dir() or p.name in registered_slugs:
+            if not p.is_dir():
                 continue
             if _looks_like_episode(p):
-                orphans.append(p.name)
+                if p.name not in registered_slugs:
+                    orphans.append(p.name)
             else:
                 orphans.extend(
                     q.name
