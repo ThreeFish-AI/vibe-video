@@ -1491,7 +1491,7 @@
 
 **定性**：skill 执法脚本自身缺陷（门禁无法判定类运行时证据）；宿主仓 negentropy #1220 分集两级化迁移的审计 fallout（宿主 I-246 审计 CFG missed#1）。
 
-**处理方式**：判型先行——`is_dir` 后先按既有契约判据（`video/` 或 `script/` 直接在场）判是否集目录，集目录按名字豁免、非集目录一律下探；verify_skeleton 沿用既有 `_looks_like_episode`、check_series 沿用其内联判据（无第二判据源）。新增两条回归测试（缺陷版必败/修复版通过双态实证）。PR #73。
+**处理方式**：判型先行——`is_dir` 后先按既有契约判据（`video/` 或 `script/` 直接在场）判是否集目录，集目录按名字豁免、非集目录一律下探；verify_skeleton 沿用既有 `_looks_like_episode`、check_series 沿用其内联判据（无第二判据源）。新增两条回归测试（缺陷版必败/修复版通过双态实证）。[PR #73](https://github.com/ThreeFish-AI/vibe-video/pull/73)。
 
 **后续防范**：布局判型先于名字判重；新增布局形态时孤儿发现的判型契约（scaffold 必落 video/ 或 script/ 之一）须同步入测试。
 
