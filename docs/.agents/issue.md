@@ -103,7 +103,7 @@
 | I-086 | accents 可达性门执法点滞后于建档，登记层零预检 | ✅ 已完成 | 2026-11-02 | [详情](#I-086) |
 | I-087 | tts_resume 报错路径无透传用法提示，参数面与 pipeline.py tts 不一致 | ✅ 已完成 | 2026-11-02 | [详情](#I-087) |
 | I-088 | I-085 合并后冻帧 WARN 执法面收窄，beat 错位形态降 INFO 免追漏检 | ✅ 已完成 | 2026-11-02 | [详情](#I-088) |
-| I-090 | 孤儿发现遇同名系列组目录不下钻：_orphan_dirs 与 verify_skeleton 判型先行 | 🔄 进行中 | — | [详情](#I-090) |
+| I-090 | 孤儿发现遇同名系列组目录不下钻：_orphan_dirs 与 verify_skeleton 判型先行 | ✅ 已完成 | 2026-11-03 | [详情](#I-090) |
 
 ---
 
@@ -1491,7 +1491,7 @@
 
 **定性**：skill 执法脚本自身缺陷（门禁无法判定类运行时证据）；宿主仓 negentropy #1220 分集两级化迁移的审计 fallout（宿主 I-246 审计 CFG missed#1）。
 
-**处理方式**：判型先行——`is_dir` 后先按既有契约判据（`video/` 或 `script/` 直接在场）判是否集目录，集目录按名字豁免、非集目录一律下探；verify_skeleton 沿用既有 `_looks_like_episode`、check_series 沿用其内联判据（无第二判据源）。新增两条回归测试（缺陷版必败/修复版通过双态实证）。[PR #73](https://github.com/ThreeFish-AI/vibe-video/pull/73)。
+**处理方式**：判型先行——`is_dir` 后先按既有契约判据（`video/` 或 `script/` 直接在场）判是否集目录，集目录按名字豁免、非集目录一律下探；verify_skeleton 沿用既有 `_looks_like_episode`、check_series 沿用其内联判据（无第二判据源）。新增两条回归测试（缺陷版必败/修复版通过双态实证）。[PR #73](https://github.com/ThreeFish-AI/vibe-video/pull/73)。核验：合并前评审（finder + 逐 finding 对抗核验）machine_checks 1080 passed / 21 skipped RC=0（较 I-088 基线 1078 净 +2 = 新增回归钉）、ruff==0.14.5 零告警、两条回归钉 BASE 必败实证；唯一 finding 为与 PR #75 的 CHANGELOG/台账合并冲突预警（非缺陷，后合并方机械解冲突）。
 
 **后续防范**：布局判型先于名字判重；新增布局形态时孤儿发现的判型契约（scaffold 必落 video/ 或 script/ 之一）须同步入测试。
 
