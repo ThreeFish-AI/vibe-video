@@ -41,6 +41,7 @@
 | [opus5-video-techniques.md](../research/opus5-video-techniques.md) | Opus 5.5 视频生态五仓评估：onetake carry score / lemo-opuscar 风格骨架与原创配乐路线 / Remotion 官方 skill 对读 / 反模式交叉核对，引入形态七案比选与待信号清单（I-068） |
 | [anatomy-skill.md](../research/anatomy-skill.md) | Anatomy skill（等距机器图解）精读与通俗拆解：真实数字单一模型、几何审计归零、反糊弄与苛刻自验五组机制，含实测复跑与破坏性实验（I-071） |
 | [anatomy-skill-mapping.md](../research/anatomy-skill-mapping.md) | Anatomy ↔ vibe-video 机制映射报告：10 条映射判定（7 对齐 / 2 并入 / 1 落地），另 4 项暂缓住 ledger，净增量收敛于规模成本门控行为学（I-071） |
+| [core-goal-and-evaluability.md](../research/core-goal-and-evaluability.md) | 核心目标重审与可评测改进：核心目标重述与度量原则、理论与行业实践证据（IEEE 引用）、现状盘点与实测基线、缺口映射、候选改进方案比选与分阶段计划、以客观端点为主的评测设计、不做与待信号清单及撤销条件（I-093） |
 
 ## 资产
 
