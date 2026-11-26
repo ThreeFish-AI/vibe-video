@@ -490,6 +490,7 @@ def test_spec_fact_corrections_stay_corrected():
     03 把 story 档写成「默认配音」（新集缺省引擎是 edge）；09 用「300 字/分 ÷ 60」
     外推起步语速（与写稿预算的含停顿口径不是同一个量）。
     03 的句均秒数死值「句均 ~1.9s」另设负锚（现留公式与指针，不写排他说法）。
+    01 的启用条件「至少 2 集校准」另设负锚（无出处，归属语现由验收抽查确认）。
     """
     refs = SKILL_ROOT / "references"
     plan_text = (refs / "02-planning.md").read_text(encoding="utf-8")
@@ -505,6 +506,10 @@ def test_spec_fact_corrections_stay_corrected():
     assert "（可机械检查）" not in source_text, (
         "01-source-extraction.md 把归属语检查写回「可机械检查」：机器面未实现，现由"
         "评审检查（I-094）"
+    )
+    assert "至少 2 集校准" not in source_text, (
+        "01-source-extraction.md 写回无出处的启用条件「至少 2 集校准」：归属语现由"
+        "验收抽查确认，不得再挂到待校准的机器面（I-094）"
     )
     narration_text = (refs / "03-narration.md").read_text(encoding="utf-8")
     assert "story 档（默认配音）" not in narration_text, (
