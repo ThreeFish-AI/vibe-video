@@ -489,6 +489,7 @@ def test_spec_fact_corrections_stay_corrected():
     「经验规则」拦只删不标）；01 把归属语检查写成「可机械检查」（机器面未实现）；
     03 把 story 档写成「默认配音」（新集缺省引擎是 edge）；09 用「300 字/分 ÷ 60」
     外推起步语速（与写稿预算的含停顿口径不是同一个量）。
+    03 的句均秒数死值「句均 ~1.9s」另设负锚（现留公式与指针，不写排他说法）。
     """
     refs = SKILL_ROOT / "references"
     plan_text = (refs / "02-planning.md").read_text(encoding="utf-8")
@@ -509,6 +510,10 @@ def test_spec_fact_corrections_stay_corrected():
     assert "story 档（默认配音）" not in narration_text, (
         "03-narration.md 把 story 档写回「默认配音」：新集缺省引擎是 edge，story 是"
         "克隆升档引擎的默认风格档（I-094）"
+    )
+    assert "句均 ~1.9s" not in narration_text, (
+        "03-narration.md 把句均秒数写回死值「句均 ~1.9s」：它是语速口径的派生量，"
+        "须留公式与指针（I-094）"
     )
     qa_text = (refs / "09-render-qa.md").read_text(encoding="utf-8")
     assert "300 字/分 ÷ 60" not in qa_text, (
