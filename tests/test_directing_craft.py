@@ -16,7 +16,8 @@ I-069 追加：§七反模式表节标题计数与表行数的机器一致性门
 计数漂移靠评审人眼抓漏，本门使漂移即测试失败）。
 
 I-096 追加：§5.1 音画落点口径三量拆分锚（「画面先行 0–0.5s」曾与 ITU-R BT.1359
-毫秒阈并写一处；现钉 DC 点名三个量、BT.1359 只作类比，DC 与 06 均不含混写串）。
+毫秒阈并写一处；现钉 DC 点名三个量、BT.1359 只作类比，DC、06 与研究文档
+docs/research/directing-craft.md 的落位映射表均不含混写串）。
 """
 
 from __future__ import annotations
@@ -141,8 +142,9 @@ def test_av_landing_three_quantities_split():
     """I-096：§5.1 音画落点口径拆三个量，「画面先行 0–0.5s」不得与毫秒阈并写。
 
     原文把秒级经验值「画面先行 0–0.5s 最稳」与 ITU-R BT.1359 的 45ms / 125ms
-    可察觉限写在一处，读者会把唇动实验的类比阈当成本仓数值门。本门钉三件事：
-    DC 点名三个量、BT.1359 标明只作类比、DC 与 06 均不含混写串；判据数值
+    可察觉限写在一处，读者会把唇动实验的类比阈当成本仓数值门。本门钉四件事：
+    DC 点名三个量、BT.1359 标明只作类比、DC 与 06 均不含混写串、研究文档
+    docs/research/directing-craft.md 的落位映射表不含混写串；判据数值
     （音前 4–6 帧、滞后 >300ms、抢跑 >1s）不动。
     """
     craft = read_ref("DIRECTING-CRAFT.md")
@@ -154,6 +156,13 @@ def test_av_landing_three_quantities_split():
         assert mixed not in text, (
             f"{name} 仍含「{mixed}」：秒级经验值与 BT.1359 毫秒阈并写（I-096）"
         )
+
+    research = skill_root().joinpath("docs", "research", "directing-craft.md")
+    assert mixed not in research.read_text(encoding="utf-8"), (
+        "docs/research/directing-craft.md 落位映射表「旁白锚定时序」行仍含"
+        f"「{mixed}」：研究文档把秒级经验值归到 BT.1359 名下，"
+        "与 DIRECTING-CRAFT §5.1 三个量口径不一致（I-096）"
+    )
 
     for quantity in ("启动提前量", "落定同步带", "剧透带"):
         assert quantity in craft, (
