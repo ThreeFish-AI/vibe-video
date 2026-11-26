@@ -505,7 +505,7 @@ def test_spec_fact_corrections_stay_corrected():
     source_text = (refs / "01-source-extraction.md").read_text(encoding="utf-8")
     assert "（可机械检查）" not in source_text, (
         "01-source-extraction.md 把归属语检查写回「可机械检查」：机器面未实现，现由"
-        "评审检查（I-094）"
+        "验收抽查确认（I-094）"
     )
     assert "至少 2 集校准" not in source_text, (
         "01-source-extraction.md 写回无出处的启用条件「至少 2 集校准」：归属语现由"
