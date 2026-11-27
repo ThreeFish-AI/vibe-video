@@ -1550,7 +1550,7 @@
 
 **根因**：此前没有做过一轮覆盖全仓的目标重审；评估类产出按 RSI.md 第四节自查项落 docs/research/ 并登记索引，缺位不是写错。
 
-**定性**：非阻断改进 · T2（评估类，I-060 与 PR #44 先例）。
+**定性**：非阻断改进 · T2（评估类，沿用 [RSI.md](../../RSI.md) 第四节所列 I-060 与 PR #50 两个先例）。
 
 **处理方式**：PR：[#81](https://github.com/ThreeFish-AI/vibe-video/pull/81)（分支 `ThreeFish-AI/rsi-093-skill-core-goal-research`，squash 前的分支 commit 依次 9856526 → 2ef44d0）。新增[研究文档](../research/core-goal-and-evaluability.md)（十节，119 条 IEEE 引用）：核心目标重述与度量原则、理论与行业实践证据、现状盘点（门禁与执法分布、故障史、评测资产、仓外实测基线、阈值依据类型）、缺口映射、候选改进的分波计划与裁决记录、以客观端点为主的评测设计、不做与待信号、撤销条件；[知识索引](knowledge-map.md) 登记一行。文档只含聚合数，不含分集名、工作区名与本机路径；不改任何规格、脚本与评测文件。核验：Verifier G1 至 G4a 全过，machine_checks 1091 passed / 21 skipped；盲评回放 3 名判定员 2 名成立（content 6 胜 2 负 1 平，structure 2 胜 4 负 3 平；structure 合并计分净负，靠预登记的按判定员净额计不退步规则通过）。
 
