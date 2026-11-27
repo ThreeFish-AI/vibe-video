@@ -1552,8 +1552,8 @@
 
 **定性**：非阻断改进 · T1（事实订正，带回归锚）。
 
-**处理方式**：PR：[#78](https://github.com/ThreeFish-AI/vibe-video/pull/78)（分支 `ThreeFish-AI/rsi-094-spec-fact-corrections`，squash 前的分支 commit 依次 0a94a3f → 2b23917 → f8400fc → cc27ea7 → 0b3f0c4）。① [02](../../references/02-planning.md) 与 [04](../../references/04-verification.md) 把开篇秒数标为经验规则并写明实证边界（前 3 至 10 秒的留存没有可靠实证，平台官方留存口径只到前 30 秒；判据句不动）；② [03](../../references/03-narration.md) 的 story 档改述为克隆升档引擎的默认风格档，句均秒数改为公式加非排他指针；③ [01](../../references/01-source-extraction.md) 的归属语检查改述为「由验收抽查确认，见本文件七、验收」；④ [07](../../references/07-tts-voice.md) 与 [09](../../references/09-render-qa.md) 把含停顿的等效语速与纯语音速率分开命名并互链；⑤ [研究文档](../research/opus5-video-techniques.md) 的两个约等号标为未核实线索；⑥ [tests/test_skill_spec.py](../../tests/test_skill_spec.py) 新增回归锚钉住五处不回退。核验：Verifier 三轮后 G1 至 G4a 全过（首轮订正新加的两句一句没有出处、一句是排他指针，均已订正），machine_checks 1092 passed / 21 skipped。
+**处理方式**：PR：[#78](https://github.com/ThreeFish-AI/vibe-video/pull/78)（分支 `ThreeFish-AI/rsi-094-spec-fact-corrections`，squash 前的分支 commit 依次 0a94a3f → 2b23917 → f8400fc → cc27ea7 → 0b3f0c4）。① [02](../../references/02-planning.md) 与 [04](../../references/04-verification.md) 把开篇秒数标为经验规则并写明实证边界（前 3 至 10 秒的留存没有可靠实证，平台官方留存口径只到前 30 秒；判据句不动）；② [03](../../references/03-narration.md) 的 story 档改述为克隆升档引擎的默认风格档，句均秒数改为公式加非排他指针；③ [01](../../references/01-source-extraction.md) 的归属语检查改述为「由验收抽查确认，见本文件七、验收」；④ [07](../../references/07-tts-voice.md) 与 [09](../../references/09-render-qa.md) 把含停顿的等效语速与纯语音速率分开命名，09 指向 07 完成门；⑤ [研究文档](../research/opus5-video-techniques.md) 的两个约等号标为未核实线索；⑥ [tests/test_skill_spec.py](../../tests/test_skill_spec.py) 新增回归锚钉住五处不回退。核验：Verifier 三轮后 G1 至 G4a 全过（首轮订正新加的两句一句没有出处、一句是排他指针，均已订正），machine_checks 1092 passed / 21 skipped。
 
 **后续防范**：订正类条目只写仓内有明文依据的现状，不顺手写启用条件，不写「只住某处」的排他指针；事实表述的依据类型（有实证、经验值、未核实）随数值同行标注。
 
-**同类问题影响**：04:45、07:96 与研究文档 opus5:96 三条订正没有回归锚；scripts/tts_sample.py 第 13 行的用法注释仍有同一句 story 档陈旧表述，留后续条目；「3 至 5 秒」在 04 判据句与 SKILL.md 不变量句是否同改仍未裁决。
+**同类问题影响**：04:45、07:96 与研究文档 opus5:96 三条订正没有回归锚；docs/research/prose-refinement.md 第 84 行仍写「story 档为新集默认配音」，留后续条目；「3 至 5 秒」在 04 判据句与 SKILL.md 不变量句是否同改仍未裁决。
