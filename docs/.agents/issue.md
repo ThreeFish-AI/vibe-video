@@ -107,6 +107,9 @@
 | I-090 | 孤儿发现遇同名系列组目录不下钻：_orphan_dirs 与 verify_skeleton 判型先行 | ✅ 已完成 | 2026-11-03 | [详情](#I-090) |
 | I-091 | source-archive 测试 glob 单层假绿：双档枚举 + 零归档显式 skip + 离线回归钉 | ✅ 已完成 | 2026-11-03 | [详情](#I-091) |
 | I-092 | tts-store 键与集目录改名迁移指引缺位：改名后旧 take 孤立且注释过度承诺 | ✅ 已完成 | 2026-11-03 | [详情](#I-092) |
+| I-093 | 核心目标重审与可评测改进调研存证：阈值依据、实测基线、缺口映射与评测设计入仓 | ✅ 已完成 | 2026-11-27 | [详情](#I-093) |
+| I-094 | 规格事实订正：经验规则、未实现能力与混排口径各归其位 | ✅ 已完成 | 2026-11-27 | [详情](#I-094) |
+| I-095 | 成文规格的依据分层与事实表述订正 | ✅ 已完成 | 2026-11-27 | [详情](#I-095) |
 | I-096 | 音画落点口径拆成三个量：「画面先行 0–0.5s」不再与 BT.1359 毫秒阈并写 | ✅ 已完成 | 2026-11-27 | [详情](#I-096) |
 
 ---
@@ -1542,6 +1545,53 @@
 **后续防范**：以叶名为键的存储，改名/归组迁移须有成文路径与零待合成对账判据；注释承诺「零失效」时须限定搬迁类型。
 
 **同类问题影响**：一切以目录名/叶名寻址的缓存与版本库，在重命名后都有同构孤立面；软链过渡是兼容未同步 checkout 的通用止血式样。
+
+<a id="I-093"></a>
+## I-093：核心目标重审与可评测改进调研存证：阈值依据、实测基线、缺口映射与评测设计入仓
+
+**表因**：（2026-11-25，用户点名）用户要求完整扫描本仓、重新审视 skill 的核心目标，对最新权威理论与行业实践做调研并沉淀入仓，据此做可评测的改进。盘点发现：规格里的阈值与口径散在各文件，依据有无、数值多少都要现查；④⑤ 两道质量门只有 LLM 自述；evals 只量过程合规；仓内没有一份把核心目标、规格依据、实测基线与评测设计放在一处的存证。
+
+**根因**：此前没有做过一轮覆盖全仓的目标重审；评估类产出按 RSI.md 第四节自查项落 docs/research/ 并登记索引，缺位不是写错。
+
+**定性**：非阻断改进 · T2（评估类，沿用 [RSI.md](../../RSI.md) 第四节所列 I-060 与 PR #50 两个先例）。
+
+**处理方式**：PR：[#81](https://github.com/ThreeFish-AI/vibe-video/pull/81)（分支 `ThreeFish-AI/rsi-093-skill-core-goal-research`，squash 前的分支 commit 依次 9856526 → 2ef44d0）。新增[研究文档](../research/core-goal-and-evaluability.md)（十节，119 条 IEEE 引用）：核心目标重述与度量原则、理论与行业实践证据、现状盘点（门禁与执法分布、故障史、评测资产、仓外实测基线、阈值依据类型）、缺口映射、候选改进的分波计划与裁决记录、以客观端点为主的评测设计、不做与待信号、撤销条件；[知识索引](knowledge-map.md) 登记一行。文档只含聚合数，不含分集名、工作区名与本机路径；不改任何规格、脚本与评测文件。核验：Verifier G1 至 G4a 全过，machine_checks 1091 passed / 21 skipped；盲评回放 3 名判定员 2 名成立（content 6 胜 2 负 1 平，structure 2 胜 4 负 3 平；structure 合并计分净负，靠预登记的按判定员净额计不退步规则通过）。合并前上下文审阅：可合并（八镜头全查；追加 commit f8189a7、d1b0d46、728f470，订正研究文档 4 处与 CHANGELOG 1 处；回执见 PR 评论）。
+
+**后续防范**：评估类产出只落聚合数与有出处的结论；引用实测基线时注明测量时点；新增或改动阈值前先查该文档的阈值依据类型表；Skill 工程文件不因调研文档改变行为，待信号项只在本条登记。
+
+**同类问题影响**：同批口径订正（I-094 至 I-096）、执法指针回填（I-097）与评测量具的候选方案都以该文档为依据来源；该文档合并前其他分支不链接它。
+
+**待信号与暂缓项**（RSI.md 第四节评估类自查项，只登记不立项；括号内为触发条件与预期落位，触发条件成立时走 RSI 立项）：① 改「这是 XXX」钩子句式（积累引子作答闭合率与启动率数据之后；[02](../../references/02-planning.md) 与 [03](../../references/03-narration.md)）；② 改写稿语速 254 与 280 字每分（新配音档位首轮实测后回写；[scripts/config.py](../../scripts/config.py) 的 `STYLE_CHARS_PER_MIN` 与 [07](../../references/07-tts-voice.md)）；③ 收紧或放宽术语密度与 beat 句数（真实语料分布出来之后；[03](../../references/03-narration.md) 与 [05](../../references/05-prose-refinement.md)）；④ 用检测器或中文标志词阈值做门（不评估；[05](../../references/05-prose-refinement.md) 不加此类门）；⑤ 给 ⑤ 加句长门（不评估；[scripts/check_script.py](../../scripts/check_script.py) 不加）；⑥ 改烧录字幕几何（字幕每秒字数与行长分布出来之后；工作区 frozen 模板的字幕组件）；⑦ 把 −14 LUFS 或任何平台值写成交付目标（取得平台官方口径之后；[10](../../references/10-final-render.md)）；⑧ 把 ITU-R BT.1359 的毫秒值当旁白音画同步硬门（词级时间戳可得之后；[导演手艺](../../references/DIRECTING-CRAFT.md)）；⑨ 引入 pixelmatch、FLIP、Playwright 视觉回归（不评估）；⑩ 改 frozen 运动层与 token（出现组合约定失真事故；不变量 3 与 4）；⑪ 拆分 [PIPELINE.md](../../references/PIPELINE.md) 与两份克隆手册（用会话转录量出读取量之后）；⑫ 改 SKILL.md description（只读 runner 入仓之后；[SKILL.md](../../SKILL.md) frontmatter 与 [evals](../../evals/README.md)）；⑬ 批量替换全仓中文破折号（新增文本零增量即可）；⑭ 机械门族（节奏、焦点位移、pacing；至少 2 集实际使用镜头语言标注；[scripts/qa_frames.py](../../scripts/qa_frames.py)）；⑮ SKILL.md 软余量闸与段落下沉（仓外读取量数据显示确有需要时；[tests/test_skill_spec.py](../../tests/test_skill_spec.py) 与 [SKILL.md](../../SKILL.md)）；⑯ 六处新门：响度、全句字错率、交付前三项检查、改动表机器校验、软余量闸、n-gram 重叠扫描（各自的基线出来之后；依次 [10](../../references/10-final-render.md)、[07](../../references/07-tts-voice.md)、[PIPELINE.md](../../references/PIPELINE.md) 的 deliver 段、[05](../../references/05-prose-refinement.md)、[tests/test_skill_spec.py](../../tests/test_skill_spec.py)、[scripts/check_script.py](../../scripts/check_script.py)）；⑰ 背景音乐与音效、信源间接提示注入、图形诚信（调研未覆盖，另行立项）。条件项（待基线与裁决后立项）：响度归一化与门、合规清单（维护者按主要发布平台定档并取得官方口径之后；[10](../../references/10-final-render.md)）；字幕时间轴机检、门输出稳定码（字幕时间轴基线出来之后；[scripts/qa_frames.py](../../scripts/qa_frames.py)）；deliver 前程序化检查（交付前三项检查的基线出来之后；[PIPELINE.md](../../references/PIPELINE.md) 的 deliver 段）；全句 ASR 忠实度复核（配音基线出来之后；[07](../../references/07-tts-voice.md)）；覆盖率口径并入 machine_checks（裁决后；[RSI.md](../../RSI.md) 第四节的命令）；只读 runner、配音听感评测资产（手工或仓外跑过两轮后三条并一个入仓；[evals](../../evals/README.md)）；同级规则优先级登记（裁决后；[05](../../references/05-prose-refinement.md)）。维护者未裁决、裁决前不动作的事项：「3 至 5 秒」在 [04](../../references/04-verification.md) 判据句与 SKILL.md 不变量句是否同改；Hook 选定口径（[04](../../references/04-verification.md) 与 [02](../../references/02-planning.md)）；克隆手册勘误块与进阶篇旧结论（[VOICE-CLONING.md](../../references/VOICE-CLONING.md) 与 [INDEXTTS-2.5-ADVANCED.md](../../references/INDEXTTS-2.5-ADVANCED.md)）；7 条假绿积压（对应测试文件）；是否引入 CI；台账与 CHANGELOG 瘦身（本文件与 [CHANGELOG](../../CHANGELOG.md)）。
+
+<a id="I-094"></a>
+## I-094：规格事实订正：经验规则、未实现能力与混排口径各归其位
+
+**表因**：（2026-11-26，用户点名后的规格依据核对）8 处表述把经验规则、尚未实现的能力和不同口径的数字写成了事实或同一个量：02 与 04 的「前 3–5 秒决定完播率」「黄金 3–5 秒留存」；03 的 story 档「默认配音」与句均 1.9 秒；01 的归属语检查「可机械检查」；07 与 09 的两个语速口径混排；研究文档 opus5 的两个响度等价关系。
+
+**根因**：写规格时没有区分有出处的结论与经验规则；03 的括注在 PR #29 把新集缺省引擎改成 edge 后没有同步；「可机械检查」是设计意图，实现里没有对应检查。
+
+**定性**：非阻断改进 · T1（事实订正，带回归锚）。
+
+**处理方式**：PR：[#78](https://github.com/ThreeFish-AI/vibe-video/pull/78)（分支 `ThreeFish-AI/rsi-094-spec-fact-corrections`，squash 前的分支 commit 依次 0a94a3f → 2b23917 → f8400fc → cc27ea7 → 0b3f0c4）。① [02](../../references/02-planning.md) 与 [04](../../references/04-verification.md) 把开篇秒数标为经验规则并写明实证边界（前 3 至 10 秒的留存没有可靠实证，平台官方留存口径只到前 30 秒；判据句不动）；② [03](../../references/03-narration.md) 的 story 档改述为克隆升档引擎的默认风格档，句均秒数改为公式加非排他指针；③ [01](../../references/01-source-extraction.md) 的归属语检查改述为「由验收抽查确认，见本文件七、验收」；④ [07](../../references/07-tts-voice.md) 与 [09](../../references/09-render-qa.md) 把含停顿的等效语速与纯语音速率分开命名，09 指向 07 完成门；⑤ [研究文档](../research/opus5-video-techniques.md) 的两个约等号标为未核实线索；⑥ [tests/test_skill_spec.py](../../tests/test_skill_spec.py) 新增回归锚钉住五处不回退。核验：Verifier 三轮后 G1 至 G4a 全过（首轮订正新加的两句一句没有出处、一句是排他指针，均已订正），machine_checks 1092 passed / 21 skipped。合并前上下文审阅：可合并（八镜头全查；追加 commit 8aedbc5、d0d5f86、436f92c，均为 CHANGELOG 与台账的登记文字订正；回执见 PR 评论）。
+
+**后续防范**：订正类条目只写仓内有明文依据的现状，不顺手写启用条件，不写「只住某处」的排他指针；事实表述的依据类型（有实证、经验值、未核实）随数值同行标注。
+
+**同类问题影响**：04:45、07:96 与研究文档 opus5:96 三条订正没有回归锚；docs/research/prose-refinement.md 第 84 行的同一句由 I-095（PR #79）订正；「3 至 5 秒」在 04 判据句与 SKILL.md 不变量句是否同改仍未裁决。
+
+<a id="I-095"></a>
+## I-095：成文规格的依据分层与事实表述订正
+
+**表因**：（2026-11-26，用户点名后的规格依据核对）成文优化规格把经验值、英文从业者文章的结论和单一实验的结论写成了普遍事实：句长 8–35 字没有依据标注；「广播写作规范高度一致」所引为英文从业者文章；「讲得清楚流畅的科普视频反而没有学习增益」超出原文献的实验条件；story 档「新集终声档默认」与现行两档生命周期不符；13 CPS 的屏幕阅读速度常数没有标校准状态；研究文档的检查表计数停在 Z1–Z13。
+
+**根因**：依据列只放文献编号，不区分来源性质；两处 story 档括注在 PR #33 与 #37 把 edge 定为全程缺省引擎后没有同步；Z14 由 PR #31 增补时计数指针没有跟着改。
+
+**定性**：非阻断改进 · T1（事实订正与依据标注，带回归锚）。
+
+**处理方式**：PR：[#79](https://github.com/ThreeFish-AI/vibe-video/pull/79)（分支 `ThreeFish-AI/rsi-095-evidence-tier-labeling`，squash 前的分支 commit 依次 0c940d0 → c04ffcb → 17a1bbb）。① [05](../../references/05-prose-refinement.md) 新增「依据按来源性质分层」一段，句长标为经验值并指向字幕单行宽度门，「研究表明」一句收窄为该文实验条件下的结论，story 档两处括注随现行规格同步；② [导演手艺](../../references/DIRECTING-CRAFT.md) 的 13 CPS 标为未校准的屏幕阅读速度估值，并区分屏幕阅读速度、字幕阅读速度与口播语速；③ [研究文档](../research/prose-refinement.md) 的计数指针改 Z1–Z14，陈旧的 story 档表述同步；④ 新增 [tests/test_prose_refinement_spec.py](../../tests/test_prose_refinement_spec.py) 钉住五处事实订正与分层段。核验：Verifier G1 至 G4a 全过，machine_checks 1092 passed / 21 skipped。合并前上下文审阅：可合并（两轮：第 1 轮追加 commit 1cb4b60、b4667e7、acef1e3，修复横跨 3 个文件触发第 2 轮新实例窄审，第 2 轮无追加；回执见 PR 评论）。
+
+**后续防范**：一个规格文件引用多种性质的来源时，集中写明每类来源是什么、能支撑什么；引用的实验结论按原文献的实验条件收窄；数值常数标校准状态。
+
+**同类问题影响**：仓内其余 story 档表述已复核。[03](../../references/03-narration.md) 第 83 行的「story 档（默认配音）」是同源残留，由 I-094（PR [#78](https://github.com/ThreeFish-AI/vibe-video/pull/78)）订正为同一口径，本条的回归锚只守 05、03 那处靠 I-094 自己的锚；[scripts/tts_sample.py](../../scripts/tts_sample.py) 第 13 行的用法注释写「story＝新集终声档默认」，说的是终声档（克隆升档引擎）的默认风格，与订正后的口径一致，不属残留。
 
 <a id="I-096"></a>
 ## I-096：音画落点口径拆成三个量：「画面先行 0–0.5s」不再与 BT.1359 毫秒阈并写

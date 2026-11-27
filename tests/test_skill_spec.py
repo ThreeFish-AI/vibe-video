@@ -476,3 +476,52 @@ def test_opening_hook_discipline_cross_docs_consistency():
     assert _lines_with(impl_text, "开篇首镜视听合力", "严禁静止文字卡"), (
         "08-remotion-implementation.md 实现层须镜像开篇首镜定式落地条目"
     )
+
+
+# ── 8. 规格事实订正回归锚（I-094） ────────────────────────────────────────────
+
+
+def test_spec_fact_corrections_stay_corrected():
+    """规格事实订正的回归锚（I-094）：四种失败形态不得回退。
+
+    I-094 订正的是把经验规则、未实现的能力或混排口径写成事实的表述，此处钉住其中四种
+    失败形态：02 把开篇秒数写成实证（「决定完播率」，现按经验规则表述，另设正锚
+    「经验规则」拦只删不标）；01 把归属语检查写成「可机械检查」（机器面未实现）；
+    03 把 story 档写成「默认配音」（新集缺省引擎是 edge）；09 用「300 字/分 ÷ 60」
+    外推起步语速（与写稿预算的含停顿口径不是同一个量）。
+    03 的句均秒数死值「句均 ~1.9s」另设负锚（现留公式与指针，不写排他说法）。
+    01 的启用条件「至少 2 集校准」另设负锚（无出处，归属语现由验收抽查确认）。
+    """
+    refs = SKILL_ROOT / "references"
+    plan_text = (refs / "02-planning.md").read_text(encoding="utf-8")
+    assert "决定完播率" not in plan_text, (
+        "02-planning.md 把开篇秒数写回实证「决定完播率」：前 3 至 10 秒的留存没有"
+        "可靠实证，须按经验规则表述（I-094）"
+    )
+    assert "经验规则" in plan_text, (
+        "02-planning.md 丢了「经验规则」限定：开篇秒数的证据边界不再可见，钩子句会被"
+        "读成实证口径（I-094）"
+    )
+    source_text = (refs / "01-source-extraction.md").read_text(encoding="utf-8")
+    assert "（可机械检查）" not in source_text, (
+        "01-source-extraction.md 把归属语检查写回「可机械检查」：机器面未实现，现由"
+        "验收抽查确认（I-094）"
+    )
+    assert "至少 2 集校准" not in source_text, (
+        "01-source-extraction.md 写回无出处的启用条件「至少 2 集校准」：归属语现由"
+        "验收抽查确认，不得再挂到待校准的机器面（I-094）"
+    )
+    narration_text = (refs / "03-narration.md").read_text(encoding="utf-8")
+    assert "story 档（默认配音）" not in narration_text, (
+        "03-narration.md 把 story 档写回「默认配音」：新集缺省引擎是 edge，story 是"
+        "克隆升档引擎的默认风格档（I-094）"
+    )
+    assert "句均 ~1.9s" not in narration_text, (
+        "03-narration.md 把句均秒数写回死值「句均 ~1.9s」：它是语速口径的派生量，"
+        "须留公式与指针（I-094）"
+    )
+    qa_text = (refs / "09-render-qa.md").read_text(encoding="utf-8")
+    assert "300 字/分 ÷ 60" not in qa_text, (
+        "09-render-qa.md 把起步语速写回「300 字/分 ÷ 60」外推：外推速率是纯语音速率，"
+        "须引语言注册表起步值，与写稿预算的含停顿等效口径不是同一个量（I-094）"
+    )
