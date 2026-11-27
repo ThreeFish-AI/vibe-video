@@ -1552,8 +1552,8 @@
 
 **定性**：触碰不变量清单本体（只追加指针、判由不动）· T3 制度变更，仅 Draft PR。
 
-**处理方式**：PR：[#82](https://github.com/ThreeFish-AI/vibe-video/pull/82)（分支 `ThreeFish-AI/rsi-097-rsi-invariant-enforcement-pointers`，squash 前的分支 commit 依次 4f5b1f1）。① [RSI.md](../../RSI.md) 第九节第 3、4、5、6、7、9、12、14 条句末追加能解析到在位测试的「执法：」指针，确无直接测试的第 2、13 条保持原样；② 第二节补统一协议分级表与 G2 盲评回放定义的指针。核验：Verifier G1 至 G4a 全过，machine_checks 1091 passed / 21 skipped。盲评回放 3 名判定员、4 个场景：content 维 11 平 1 负，新版 0 胜，落死区；预登记软指标（作答里给出可核对测试名的不变量条数）旧版 16、新版 23；按死区豁免申报，2026-11-27 经维护者裁决确认。
+**处理方式**：PR：[#82](https://github.com/ThreeFish-AI/vibe-video/pull/82)（分支 `ThreeFish-AI/rsi-097-rsi-invariant-enforcement-pointers`，squash 前的分支 commit 依次 4f5b1f1）。① [RSI.md](../../RSI.md) 第九节第 3、4、6、7、9、12、14 条句末追加能解析到在位测试的「执法：」指针，第 2、5、13 条保持原样；② 第二节补统一协议分级表与 G2 盲评回放定义的指针。核验：Verifier G1 至 G4a 全过，machine_checks 1091 passed / 21 skipped。盲评回放 3 名判定员、4 个场景：content 维 11 平 1 负，新版 0 胜，落死区；预登记软指标（作答里给出可核对测试名的不变量条数）旧版 16、新版 23；按死区豁免申报，2026-11-27 经维护者裁决确认。
 
 **后续防范**：补测试时同步回填索引指针；指针只放能解析到在位测试的文件与测试名，不断言「无执法」（会随补测试过期）；索引补全型改动的收益用客观指标量，成对盲判对它不敏感。
 
-**同类问题影响**：第 3、5、6、14 条的指针只钉该条判由的一部分（第 14 条只钉 pyproject 无 `[project]`；第 5 条的 `test_golden_frames` 只钉双语同构，且只覆盖 Python 侧）；[tests/test_tts_blocks.py](../../tests/test_tts_blocks.py) 有一处存量断言（无 timing.json 时回退默认值）与第 5 条的字面有张力，另立条目处理。
+**同类问题影响**：第 3、6、14 条的指针只钉该条判由的一部分（第 14 条只钉 pyproject 无 `[project]`）；第 5 条的两个候选测试都不钉这条判由（`test_load_constants_missing_exits` 只钉缺少 timing.json 时退出，`test_golden_frames` 用测试内联的常数钉公式同构），且 [scripts/tts.py](../../scripts/tts.py) 第 645、1426 行在 Python 侧内联了 0.32 回退值，[tests/test_tts_blocks.py](../../tests/test_tts_blocks.py) 有一处存量断言（无 timing.json 时回退默认值）与第 5 条的字面有张力；维护者 2026-11-27 裁决第 5 条暂不挂指针，扫描测试另立条目。

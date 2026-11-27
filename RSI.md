@@ -74,7 +74,7 @@ uv run --no-project --with pytest --with numpy --with pillow --with mutagen --wi
 2. `narration.md` 唯一 SSOT；narration.json / manifest.json / chapters.json 是派生物，不得开「直改派生物」的口子。
 3. frozen Remotion skeleton：改 frozen 文件 = 改模板 + 全集同步 + `verify_skeleton.py` 字节级过；不得只改某一集的复制件（执法：[test_skeleton.py](tests/test_skeleton.py) 的 `test_gate_actually_detects_drift`、`test_every_template_file_is_classified`）。
 4. 运动层 `video/src/motion/` frozen 且不读 theme token（执法：[test_skeleton.py](tests/test_skeleton.py) 的 `test_motion_layer_is_frozen_and_complete`、`test_motion_layer_reads_no_theme_tokens`）。
-5. `timing.json` 时序 SSOT（TS/Python 双语共读），不得在任何一侧内联时序常数（执法：[test_timeline.py](tests/test_timeline.py) 的 `test_load_constants_missing_exits`、`test_golden_frames`）。
+5. `timing.json` 时序 SSOT（TS/Python 双语共读），不得在任何一侧内联时序常数。
 6. 「复制不共享」边界：Python 实现只住 `$T/scripts/`，工作区 / 分集 scripts 只许薄包装（执法：[test_wrapper_resolver.py](tests/test_wrapper_resolver.py) 的 `test_episode_wrapper_bodies_identical_modulo_target`、`test_workspace_wrapper_bodies_identical_modulo_target`）。
 7. config SCHEMA 是默认值唯一来源，toml 只写偏离；机器属性永不进 toml（执法：[test_config.py](tests/test_config.py) 的 `test_consumers_do_not_inline_schema_defaults`、`test_machine_property_never_in_toml`）。
 8. 全部阶段 gates 与 [stages.toml](references/stages.toml) 同源（SKILL.md 速查表门列逐字抄录，执法：`test_router_gates_match_stages`）；不新增阶段状态机。
