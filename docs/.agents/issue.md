@@ -1552,7 +1552,7 @@
 
 **定性**：触碰不变量清单本体（只追加指针、判由不动）· T3 制度变更，仅 Draft PR。
 
-**处理方式**：PR：[#82](https://github.com/ThreeFish-AI/vibe-video/pull/82)（分支 `ThreeFish-AI/rsi-097-rsi-invariant-enforcement-pointers`，squash 前的分支 commit 依次 4f5b1f1 实施、1adf1c5 按维护者裁决撤下第 5 条指针）。① [RSI.md](../../RSI.md) 第九节第 3、4、6、7、9、12、14 条句末追加能解析到在位测试的「执法：」指针，第 2、5、13 条保持原样；② 第二节补统一协议分级表与 G2 盲评回放定义的指针。核验：Verifier G1 至 G4a 全过，machine_checks 1091 passed / 21 skipped。盲评回放 3 名判定员、4 个场景：content 维 11 平 1 负，新版 0 胜，落死区；预登记软指标（作答里给出可核对测试名的不变量条数）旧版 16、新版 23；按死区豁免申报，2026-11-27 经维护者裁决确认。
+**处理方式**：PR：[#82](https://github.com/ThreeFish-AI/vibe-video/pull/82)（分支 `ThreeFish-AI/rsi-097-rsi-invariant-enforcement-pointers`，squash 前的分支 commit 依次 4f5b1f1 实施、1adf1c5 按维护者裁决撤下第 5 条指针）。① [RSI.md](../../RSI.md) 第九节第 3、4、6、7、9、12、14 条句末追加能解析到在位测试的「执法：」指针，第 2、5、13 条保持原样；② 第二节补统一协议分级表与 G2 盲评回放定义的指针。核验：Verifier G1 至 G4a 全过，machine_checks 1091 passed / 21 skipped。盲评回放 3 名判定员、4 个场景：content 维 11 平 1 负，新版 0 胜，落死区；预登记软指标（作答里给出可核对测试名的不变量条数）旧版 16、新版 23（按回填 8 条时的文本测得，撤下第 5 条指针后未重跑）；按死区豁免申报，2026-11-27 经维护者裁决确认。
 
 **后续防范**：补测试时同步回填索引指针；指针只放能解析到在位测试的文件与测试名，不断言「无执法」（会随补测试过期）；索引补全型改动的收益用客观指标量，成对盲判对它不敏感。
 
