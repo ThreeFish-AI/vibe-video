@@ -93,7 +93,7 @@ XML 分段范式（`inputs/direction/structure/build/gotchas/start`）[9] 与本
 - **合成**：Karplus–Strong 物理建模拨弦 + numpy 波形合成（chip tune/drone）+ 程序化音效（click/whoosh/thump）——确定性可复现，与本仓帧驱动哲学同构；
 - **驱动**：页面事件（`window.EV`）触发音效 → 本仓对应「句 id / 实测词窗 / beat 事件 → cue」，可复用 TTS manifest 词级时间戳；onetake 侧印证「音效按实测峰值对齐事件、剪点落重拍」；
 - **画面推导音效与空间属性**（Austerlitz [11]，三轮补证）：`events.js` 从画面事件派生音效 cue（每声炮、齐射、马蹄），并携带距离衰减、声像 pan 与 343 m/s 声速延迟——音效不仅按事件时间轴摆放，还能从「画面上发生了什么」推导，且带空间物理属性；作为 cue 粒度与属性设计的上限参照。其「阵型与粒子是 time 的纯函数、任意帧可独立渲染」与本仓确定性渲染哲学同构（验证收敛）；真实地形数据管线（SRTM 高程 → WebGL）与 [text-to-cad](./dependency-policy-and-asset-tools.md) 同属「数据驱动外部资产」先例，按集 opt-in 模式可平移；**分块可恢复渲染**（README 级线索：`tools/render.mjs` 自述 resumable chunks，未读实现，无断点机制细节）对照本仓：TTS 有 `tts_resume` 自愈续跑、渲染无断点续跑——当前分钟级渲染成本下可接受，入待信号（§四）；
-- **混音**：loudnorm 归一 + voice 高于 music 约 10dB；响度口径两仓不同（opuscar −14 LUFS ≈ YouTube 标准、onetake −16 LUFS ≈ 播客标准），立项时按分发平台定档。
+- **混音**：loudnorm 归一 + voice 高于 music 约 10dB；响度口径两仓不同（opuscar −14 LUFS、onetake −16 LUFS；「≈ YouTube 标准」「≈ 播客标准」两个等价关系属未核实线索，平台归一化口径的官方页未取得，立项定档前须重新核实），立项时按分发平台定档。
 
 ## 引用
 
