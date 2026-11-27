@@ -1552,7 +1552,7 @@
 
 **定性**：非阻断改进 · T1（表述拆分，带回归锚）。
 
-**处理方式**：PR：[#80](https://github.com/ThreeFish-AI/vibe-video/pull/80)（分支 `ThreeFish-AI/rsi-096-av-landing-criteria-split`，squash 前的分支 commit 依次 9e3945d → f06484d）。① [导演手艺 §5.1](../../references/DIRECTING-CRAFT.md) 把一句拆成启动提前量、落定同步带、剧透带三条，毫秒阈标为只作类比、不是本仓数值门，判据数值与原则不动；② 导演手艺的节奏行与 [06](../../references/06-storyboard.md) 的复述改为指针；③ [研究文档](../research/directing-craft.md) 的落位映射表同步；④ [tests/test_directing_craft.py](../../tests/test_directing_craft.py) 扩充回归锚。核验：Verifier 取 BT.1359-1 原文核实原句互斥，G1 至 G4a 全过，machine_checks 1092 passed / 21 skipped。
+**处理方式**：PR：[#80](https://github.com/ThreeFish-AI/vibe-video/pull/80)（分支 `ThreeFish-AI/rsi-096-av-landing-criteria-split`，squash 前的分支 commit 依次 9e3945d → f06484d）。① [导演手艺 §5.1](../../references/DIRECTING-CRAFT.md) 把一句拆成启动提前量、落定同步带、剧透带三条，毫秒阈标为只作类比、不是本仓数值门，判据数值与原则不动；② 导演手艺的节奏行改为指向 §5.1 的指针，[06](../../references/06-storyboard.md) 的复述删去混写串、保留判据数值与指针；③ [研究文档](../research/directing-craft.md) 的落位映射表同步；④ [tests/test_directing_craft.py](../../tests/test_directing_craft.py) 扩充回归锚。核验：Verifier 取 BT.1359-1 原文核实原句互斥，G1 至 G4a 全过，machine_checks 1092 passed / 21 skipped。
 
 **后续防范**：一句话里出现量级不同的两个数时拆条，并写明各自的来源与适用对象；实验阈值只作类比时写明对象（唇动实验不等同旁白音画同步）。
 
