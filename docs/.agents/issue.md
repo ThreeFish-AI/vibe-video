@@ -107,7 +107,7 @@
 | I-090 | 孤儿发现遇同名系列组目录不下钻：_orphan_dirs 与 verify_skeleton 判型先行 | ✅ 已完成 | 2026-11-03 | [详情](#I-090) |
 | I-091 | source-archive 测试 glob 单层假绿：双档枚举 + 零归档显式 skip + 离线回归钉 | ✅ 已完成 | 2026-11-03 | [详情](#I-091) |
 | I-092 | tts-store 键与集目录改名迁移指引缺位：改名后旧 take 孤立且注释过度承诺 | ✅ 已完成 | 2026-11-03 | [详情](#I-092) |
-| I-094 | 规格事实订正：经验规则、未实现能力与混排口径各归其位 | 🔄 进行中 | — | [详情](#I-094) |
+| I-094 | 规格事实订正：经验规则、未实现能力与混排口径各归其位 | ✅ 已完成 | 2026-11-27 | [详情](#I-094) |
 
 ---
 
@@ -1552,7 +1552,7 @@
 
 **定性**：非阻断改进 · T1（事实订正，带回归锚）。
 
-**处理方式**：PR：[#78](https://github.com/ThreeFish-AI/vibe-video/pull/78)（分支 `ThreeFish-AI/rsi-094-spec-fact-corrections`，squash 前的分支 commit 依次 0a94a3f → 2b23917 → f8400fc → cc27ea7 → 0b3f0c4）。① [02](../../references/02-planning.md) 与 [04](../../references/04-verification.md) 把开篇秒数标为经验规则并写明实证边界（前 3 至 10 秒的留存没有可靠实证，平台官方留存口径只到前 30 秒；判据句不动）；② [03](../../references/03-narration.md) 的 story 档改述为克隆升档引擎的默认风格档，句均秒数改为公式加非排他指针；③ [01](../../references/01-source-extraction.md) 的归属语检查改述为「由验收抽查确认，见本文件七、验收」；④ [07](../../references/07-tts-voice.md) 与 [09](../../references/09-render-qa.md) 把含停顿的等效语速与纯语音速率分开命名，09 指向 07 完成门；⑤ [研究文档](../research/opus5-video-techniques.md) 的两个约等号标为未核实线索；⑥ [tests/test_skill_spec.py](../../tests/test_skill_spec.py) 新增回归锚钉住五处不回退。核验：Verifier 三轮后 G1 至 G4a 全过（首轮订正新加的两句一句没有出处、一句是排他指针，均已订正），machine_checks 1092 passed / 21 skipped。
+**处理方式**：PR：[#78](https://github.com/ThreeFish-AI/vibe-video/pull/78)（分支 `ThreeFish-AI/rsi-094-spec-fact-corrections`，squash 前的分支 commit 依次 0a94a3f → 2b23917 → f8400fc → cc27ea7 → 0b3f0c4）。① [02](../../references/02-planning.md) 与 [04](../../references/04-verification.md) 把开篇秒数标为经验规则并写明实证边界（前 3 至 10 秒的留存没有可靠实证，平台官方留存口径只到前 30 秒；判据句不动）；② [03](../../references/03-narration.md) 的 story 档改述为克隆升档引擎的默认风格档，句均秒数改为公式加非排他指针；③ [01](../../references/01-source-extraction.md) 的归属语检查改述为「由验收抽查确认，见本文件七、验收」；④ [07](../../references/07-tts-voice.md) 与 [09](../../references/09-render-qa.md) 把含停顿的等效语速与纯语音速率分开命名，09 指向 07 完成门；⑤ [研究文档](../research/opus5-video-techniques.md) 的两个约等号标为未核实线索；⑥ [tests/test_skill_spec.py](../../tests/test_skill_spec.py) 新增回归锚钉住五处不回退。核验：Verifier 三轮后 G1 至 G4a 全过（首轮订正新加的两句一句没有出处、一句是排他指针，均已订正），machine_checks 1092 passed / 21 skipped。合并前上下文审阅：可合并（八镜头全查；追加 commit 8aedbc5、d0d5f86、436f92c，均为 CHANGELOG 与台账的登记文字订正；回执见 PR 评论）。
 
 **后续防范**：订正类条目只写仓内有明文依据的现状，不顺手写启用条件，不写「只住某处」的排他指针；事实表述的依据类型（有实证、经验值、未核实）随数值同行标注。
 
