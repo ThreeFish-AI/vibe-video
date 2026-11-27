@@ -149,7 +149,7 @@ uv run --no-project --with pillow --with numpy $T/scripts/qa_frames.py \
 做法（`out/draft.mp4` 还不存在时也能做，走 `remotion still` 而非 `qa_frames`）：
 
 1. 混合 manifest：已合成句用 `mutagen` 读实测时长，未合成句按**实测语速**外推
-   （首集可用 300 字/分 ÷ 60 = 5 字/秒起步，跑出几十句后改用本集实测值）；
+   （外推速率即 `qa_frames.py --stills-plan` 的 `--chars-per-sec`，显式值优先，缺省取语言注册表起步值，住 `scripts/langs.py` 的 `stills_rate`：zh 5 字/秒（首集实测 300 字/分）、en 2.5 词/秒（未标定，仅量级参考）；这是**纯语音速率**口径，与写稿预算的含停顿等效口径 254 / 280 字/分不是同一个量，后者见 [07 完成门](./07-tts-voice.md) 与 [PIPELINE.md](./PIPELINE.md) 字段表；跑出几十句后改用本集实测值）；
 2. 用 `timeline.compute()` 算 beat 帧位（与 `timing.ts` 同构，见 `timeline.py`），
    取每镜中点 + 关键转折句的帧号；
 3. `remotion still Main out.png --frame=N --scale=0.4` 逐帧渲（**首帧含打包约 100 秒，

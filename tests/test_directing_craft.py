@@ -14,6 +14,10 @@ I-060 追加：§4.1 回看密度规则的回拉层级澄清锚（「最近一�
 
 I-069 追加：§七反模式表节标题计数与表行数的机器一致性门（A-29/A-30 落地时
 计数漂移靠评审人眼抓漏，本门使漂移即测试失败）。
+
+I-096 追加：§5.1 音画落点口径三量拆分锚（「画面先行 0–0.5s」曾与 ITU-R BT.1359
+毫秒阈并写一处；现钉 DC 点名三个量、BT.1359 只作类比，DC、06 与研究文档
+docs/research/directing-craft.md 的落位映射表均不含混写串）。
 """
 
 from __future__ import annotations
@@ -132,3 +136,48 @@ def test_section_count_matches_table():
         f"§七标题计数「{declared} 条」≠ 表内反模式行数 {len(rows)}"
         "——条目增删后须同步节标题计数（I-069 机器执法门）"
     )
+
+
+def test_av_landing_three_quantities_split():
+    """I-096：§5.1 音画落点口径拆三个量，「画面先行 0–0.5s」不得与毫秒阈并写。
+
+    原文把秒级经验值「画面先行 0–0.5s 最稳」与 ITU-R BT.1359 的 45ms / 125ms
+    可察觉限写在一处，读者会把唇动实验的类比阈当成本仓数值门。本门钉四件事：
+    DC 点名三个量、BT.1359 标明只作类比、DC 与 06 均不含混写串、研究文档
+    docs/research/directing-craft.md 的落位映射表不含混写串；判据数值
+    （音前 4–6 帧、滞后 >300ms、抢跑 >1s）不动。
+    """
+    craft = read_ref("DIRECTING-CRAFT.md")
+    storyboard = read_ref("06-storyboard.md")
+    docs = (("DIRECTING-CRAFT.md", craft), ("06-storyboard.md", storyboard))
+
+    mixed = "画面先行 0–0.5s"
+    for name, text in docs:
+        assert mixed not in text, (
+            f"{name} 仍含「{mixed}」：秒级经验值与 BT.1359 毫秒阈并写（I-096）"
+        )
+
+    research = skill_root().joinpath("docs", "research", "directing-craft.md")
+    assert mixed not in research.read_text(encoding="utf-8"), (
+        "docs/research/directing-craft.md 落位映射表「旁白锚定时序」行仍含"
+        f"「{mixed}」：研究文档把秒级经验值归到 BT.1359 名下，"
+        "与 DIRECTING-CRAFT §5.1 三个量口径不一致（I-096）"
+    )
+
+    for quantity in ("启动提前量", "落定同步带", "剧透带"):
+        assert quantity in craft, (
+            f"DIRECTING-CRAFT §5.1 缺「{quantity}」：三量拆分不完整（I-096）"
+        )
+    assert "仅作类比，不是本仓数值门" in craft, (
+        "DIRECTING-CRAFT §5.1 未标明 BT.1359 只作类比：类比阈会被当成本仓数值门"
+    )
+
+    for needle in (
+        "关键词音前 4–6 帧启动",
+        "滞后 >300ms 观众察觉脱节",
+        "抢跑 >1s 剧透结论",
+    ):
+        for name, text in docs:
+            assert needle in text, (
+                f"{name} 判据数值「{needle}」丢失：I-096 只拆口径、不动数值"
+            )
