@@ -107,7 +107,7 @@
 | I-090 | 孤儿发现遇同名系列组目录不下钻：_orphan_dirs 与 verify_skeleton 判型先行 | ✅ 已完成 | 2026-11-03 | [详情](#I-090) |
 | I-091 | source-archive 测试 glob 单层假绿：双档枚举 + 零归档显式 skip + 离线回归钉 | ✅ 已完成 | 2026-11-03 | [详情](#I-091) |
 | I-092 | tts-store 键与集目录改名迁移指引缺位：改名后旧 take 孤立且注释过度承诺 | ✅ 已完成 | 2026-11-03 | [详情](#I-092) |
-| I-095 | 成文规格的依据分层与事实表述订正 | 🔄 进行中 | — | [详情](#I-095) |
+| I-095 | 成文规格的依据分层与事实表述订正 | ✅ 已完成 | 2026-11-27 | [详情](#I-095) |
 
 ---
 
@@ -1552,7 +1552,7 @@
 
 **定性**：非阻断改进 · T1（事实订正与依据标注，带回归锚）。
 
-**处理方式**：PR：[#79](https://github.com/ThreeFish-AI/vibe-video/pull/79)（分支 `ThreeFish-AI/rsi-095-evidence-tier-labeling`，squash 前的分支 commit 依次 0c940d0 → c04ffcb → 17a1bbb）。① [05](../../references/05-prose-refinement.md) 新增「依据按来源性质分层」一段，句长标为经验值并指向字幕单行宽度门，「研究表明」一句收窄为该文实验条件下的结论，story 档两处括注随现行规格同步；② [导演手艺](../../references/DIRECTING-CRAFT.md) 的 13 CPS 标为未校准的屏幕阅读速度估值，并区分屏幕阅读速度、字幕阅读速度与口播语速；③ [研究文档](../research/prose-refinement.md) 的计数指针改 Z1–Z14，陈旧的 story 档表述同步；④ 新增 [tests/test_prose_refinement_spec.py](../../tests/test_prose_refinement_spec.py) 钉住五处事实订正与分层段。核验：Verifier G1 至 G4a 全过，machine_checks 1092 passed / 21 skipped。
+**处理方式**：PR：[#79](https://github.com/ThreeFish-AI/vibe-video/pull/79)（分支 `ThreeFish-AI/rsi-095-evidence-tier-labeling`，squash 前的分支 commit 依次 0c940d0 → c04ffcb → 17a1bbb）。① [05](../../references/05-prose-refinement.md) 新增「依据按来源性质分层」一段，句长标为经验值并指向字幕单行宽度门，「研究表明」一句收窄为该文实验条件下的结论，story 档两处括注随现行规格同步；② [导演手艺](../../references/DIRECTING-CRAFT.md) 的 13 CPS 标为未校准的屏幕阅读速度估值，并区分屏幕阅读速度、字幕阅读速度与口播语速；③ [研究文档](../research/prose-refinement.md) 的计数指针改 Z1–Z14，陈旧的 story 档表述同步；④ 新增 [tests/test_prose_refinement_spec.py](../../tests/test_prose_refinement_spec.py) 钉住五处事实订正与分层段。核验：Verifier G1 至 G4a 全过，machine_checks 1092 passed / 21 skipped。合并前上下文审阅：可合并（两轮：第 1 轮追加 commit 1cb4b60、b4667e7、acef1e3，修复横跨 3 个文件触发第 2 轮新实例窄审，第 2 轮无追加；回执见 PR 评论）。
 
 **后续防范**：一个规格文件引用多种性质的来源时，集中写明每类来源是什么、能支撑什么；引用的实验结论按原文献的实验条件收窄；数值常数标校准状态。
 
