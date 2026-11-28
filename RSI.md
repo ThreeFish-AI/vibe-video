@@ -25,7 +25,7 @@
 - 台账为「头部索引表 + 主体详情」双层：新条目**同时**追加索引行（表末）与详情块（文件末），均按 ID 升序，索引行标题与详情块标题逐字一致；详情块以 `<a id="<ID>"></a>` 建锚、标题形如 `## <ID>：<标题>`；索引行五列——ID、标题、完成状态（✅ 已完成｜🔄 进行中｜⏸ 暂不处理，登记未处理默认 ⏸）、完成时间（`YYYY-MM-DD`，未完成置 `—`）、`[详情](#<ID>)` 锚点，PR 回填处理结果时同步状态与完成时间。
 - 同一问题只维护一处；复发不新开编号，在原条目追加带日期的复盘点。
 - 登记字段六段式：表因（可观测症状）/ 根因（技术归因，含文件路径）/ 定性（阻断性缺陷｜非阻断改进）/ 处理方式（PR + commit 链接）/ 后续防范（Negative Prompt 式禁令）/ 同类问题影响（可选）。
-- 条目格式（与统一模板字段映射）：仓内沿用六段式——表因↔最小复现与来源、根因↔疑似根因、定性↔两种处理模式归属（阻断性缺陷｜非阻断改进）并可标注统一分级 T1–T3、处理方式↔结论（PR/commit 回填即 `submitted` 终态；「排队待议」「不成立 + 证据」即 `ready`/`rejected` 的仓内自然语言形态）、后续防范与同类问题影响为仓内特有（Negative Prompt 沉淀，统一模板无对应）；统一模板的状态六态住项目 `.temp` backlog（统一协议 §3），回填本 ledger 时不搬运。
+- 条目格式（与统一模板字段映射）：仓内沿用六段式——表因↔最小复现与来源、根因↔疑似根因、定性↔两种处理模式归属（阻断性缺陷｜非阻断改进）并可标注统一分级 T1–T3（分级表与 G2 盲评回放定义见[统一协议 §3](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#3-旁路捕获)与[统一协议 §5](https://github.com/ThreeFish-AI/rsi/blob/main/references/protocol.md#5-核验门禁)）、处理方式↔结论（PR/commit 回填即 `submitted` 终态；「排队待议」「不成立 + 证据」即 `ready`/`rejected` 的仓内自然语言形态）、后续防范与同类问题影响为仓内特有（Negative Prompt 沉淀，统一模板无对应）；统一模板的状态六态住项目 `.temp` backlog（统一协议 §3），回填本 ledger 时不搬运。
 
 ## 三、子代理协议（fresh context）
 
@@ -72,18 +72,18 @@ uv run --no-project --with pytest --with numpy --with pillow --with mutagen --wi
 
 1. 阶段序号与规格文件号一一对齐（第 N 阶段 ↔ `NN-*.md`；I-009 废除历史错位，I-013 插入 ⑤ 时整段顺移），严禁再引入错位；新增或删除阶段 = 规格整段改名 + 全仓入链同步（执法：`test_stage_numbers_align_spec_files`、`test_spec_references_resolve`）。
 2. `narration.md` 唯一 SSOT；narration.json / manifest.json / chapters.json 是派生物，不得开「直改派生物」的口子。
-3. frozen Remotion skeleton：改 frozen 文件 = 改模板 + 全集同步 + `verify_skeleton.py` 字节级过；不得只改某一集的复制件。
-4. 运动层 `video/src/motion/` frozen 且不读 theme token。
+3. frozen Remotion skeleton：改 frozen 文件 = 改模板 + 全集同步 + `verify_skeleton.py` 字节级过；不得只改某一集的复制件（执法：[test_skeleton.py](tests/test_skeleton.py) 的 `test_gate_actually_detects_drift`、`test_every_template_file_is_classified`）。
+4. 运动层 `video/src/motion/` frozen 且不读 theme token（执法：[test_skeleton.py](tests/test_skeleton.py) 的 `test_motion_layer_is_frozen_and_complete`、`test_motion_layer_reads_no_theme_tokens`）。
 5. `timing.json` 时序 SSOT（TS/Python 双语共读），不得在任何一侧内联时序常数。
-6. 「复制不共享」边界：Python 实现只住 `$T/scripts/`，工作区 / 分集 scripts 只许薄包装。
-7. config SCHEMA 是默认值唯一来源，toml 只写偏离；机器属性永不进 toml。
+6. 「复制不共享」边界：Python 实现只住 `$T/scripts/`，工作区 / 分集 scripts 只许薄包装（执法：[test_wrapper_resolver.py](tests/test_wrapper_resolver.py) 的 `test_episode_wrapper_bodies_identical_modulo_target`、`test_workspace_wrapper_bodies_identical_modulo_target`）。
+7. config SCHEMA 是默认值唯一来源，toml 只写偏离；机器属性永不进 toml（执法：[test_config.py](tests/test_config.py) 的 `test_consumers_do_not_inline_schema_defaults`、`test_machine_property_never_in_toml`）。
 8. 全部阶段 gates 与 [stages.toml](references/stages.toml) 同源（SKILL.md 速查表门列逐字抄录，执法：`test_router_gates_match_stages`）；不新增阶段状态机。
-9. `deliver` 刻意不串联 `render --final`、不入扇出白名单（完成行信号契约 + 破坏性命令显式执行）。
+9. `deliver` 刻意不串联 `render --final`、不入扇出白名单（完成行信号契约 + 破坏性命令显式执行；执法：[test_stages.py](tests/test_stages.py) 的 `test_render_and_all_never_chain_deliver`、`test_deliver_stays_outside_fanout_whitelist`）。
 10. 命令四变量锚定：`$T` 命令不混工作区字面量；变量定义只在 [references/PIPELINE.md](references/PIPELINE.md)（执法：`test_docs_paths.py`）。
 11. SKILL.md 路由壳纪律：只给路由、指针与不变量、速查表行数 = stages.toml 阶段数（一阶段一行）、不复制正文；frontmatter 只用 Agent Skills 规范六字段且须过官方校验器口径（执法：[test_skill_spec](tests/test_skill_spec.py)）。
-12. 双锚点：skill 根自 `__file__` 找 SKILL.md、工作区根由哨兵搜索；静默猜根被禁止。
+12. 双锚点：skill 根自 `__file__` 找 SKILL.md、工作区根由哨兵搜索；静默猜根被禁止（执法：[test_paths.py](tests/test_paths.py) 的 `test_skill_root_hits_repo_from_module_file`、`test_workspace_root_hits_new_sentinel`、`test_workspace_root_without_sentinel_exits_with_init_hint`）。
 13. 声音样本生物特征纪律：不入库只存指纹；RSI 材料与示例不得引导样本路径进仓。
-14. 许可与依赖纪律：pyproject 刻意无 `[project]`（依赖走 `--with`）；不引入未审计第三方依赖或新许可冲突。
+14. 许可与依赖纪律：pyproject 刻意无 `[project]`（依赖走 `--with`）；不引入未审计第三方依赖或新许可冲突（执法：[test_subproject_hygiene.py](tests/test_subproject_hygiene.py) 的 `test_pyproject_is_not_a_package`）。
 15. 建模手册有界：预算与条目规则唯一实现于 [check_playbook.py](scripts/check_playbook.py)；超限只许按第十节压缩阶梯逐级压缩，禁整文件重写与「搬进规格正文腾预算」（执法：[test_modeling_playbook](tests/test_modeling_playbook.py)）。
 16. TTS 机制 SSOT 在 [vibe-tts 仓](https://github.com/ThreeFish-AI/vibe-tts)：风格预设、摘要、HTTP 客户端、版本库原语与服务端只住 vibe-tts，本仓 `tts.py` 按 [PIPELINE.md「环境变量」节](references/PIPELINE.md)的定位顺序（`VIBE_TTS_HOME` 优先）定位后 import 并再导出，不得再内联或另拷副本；vibe-tts 缺位即大声退出，禁静默降级（执法：[test_vibe_tts_delegation](tests/test_vibe_tts_delegation.py) 的 `__module__`/AST 双面扫描；缓存摘要黄金哈希测试只住 vibe-tts 仓的 `tests/test_digest.py`，本仓经委托继承）。
 
