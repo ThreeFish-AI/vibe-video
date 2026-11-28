@@ -6,13 +6,13 @@
 即红。
 
 现存例外 2 处，都登记在容许清单 ALLOWED 里、处数钉死：scripts/tts.py 的
-`discard_sec: float = 0.32`（函数默认参数，唯一调用点显式传值，默认值不可达）与
-块模式（story 档）的 `discard_sec = 0.32`（timing.json 缺失、缺键或损坏时静默
-沿用的回退值）。两处由 PR #17（I-011）引入；tts.py 受 paths.py 导入边界约束不得
-import timeline，回退行为是否改成大声退出属行为语义改动，不在本测试的改动面内。
+`discard_sec: float = 0.32`（函数默认参数，scripts/ 内唯一调用点显式传值，生产路径
+不可达）与块模式（story 档）的 `discard_sec = 0.32`（timing.json 缺失、缺键或
+损坏时静默沿用的回退值）。两处由 PR #17（I-011）引入；tts.py 受 paths.py 导入边界约束
+不得 import timeline，回退行为是否改成大声退出属行为语义改动，不在本测试的改动面内。
 
-只扫 float 字面量：fps 的 30、秒转分钟的 60、sha 截断的 12 这类 int 到处都是，
-按 int 扫噪声压过信号。
+只扫 float 字面量，不扫 int：按衍生值（帧数、毫秒数）扫会多出 10 处巧合命中
+（秒转分钟的 60、sha 截断的 12 等），噪声压过信号；fps 的 30 是模板唯一的 int 默认值。
 
 漏报面：注释、docstring 与字符串里的数值；以表达式给出的数值（如 `32 / 100`）；
 TS 侧；分集场景代码；扫描名单之外的脚本（新增的时间轴相关脚本须手动加进
@@ -58,10 +58,10 @@ ALLOWED = (
         0.32,
         2,
         "sentenceGapSec",
-        "现存回退值：synth_block_indextts 的 discard_sec 默认参数（唯一调用点显式"
-        "传值，默认值不可达），与块模式在 timing.json 缺失、缺键或损坏时沿用的"
-        "回退值；PR #17（I-011）引入，tts.py 受 paths.py 导入边界约束不得 import "
-        "timeline",
+        "现存回退值：synth_block_indextts 的 discard_sec 默认参数（scripts/ 内唯一"
+        "调用点显式传值，生产路径不可达；tests/test_tts_blocks.py 的调用用到"
+        "默认值），与块模式在 timing.json 缺失、缺键或损坏时沿用的回退值；"
+        "PR #17（I-011）引入，tts.py 受 paths.py 导入边界约束不得 import timeline",
     ),
     ("tts.py", 0.6, 1, None, "与时序无关的巧合：情绪强度 emo_alpha 的缺省值"),
     ("tts.py", 2.0, 1, None, "与时序无关的巧合：语速校准 --duration-factor 取值域上界"),
