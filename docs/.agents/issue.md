@@ -1634,8 +1634,8 @@
 
 **定性**：给只有判由的不变量补执法面（只新增测试文件）· T3 制度变更，仅 Draft PR。
 
-**处理方式**：PR：[#83](https://github.com/ThreeFish-AI/vibe-video/pull/83)（分支 `ThreeFish-AI/rsi-100-timing-constants-scan`，squash 前的分支 commit 依次 bc99f84 → 047803d）。新增 [tests/test_timing_constants_scan.py](../../tests/test_timing_constants_scan.py)，三条测试：8 个时间轴相关脚本里不得有等于模板默认值的 float 字面量（容许清单钉住现存 4 处，增减都红）；模板键集、REQUIRED_KEYS、timing.ts 消费的键三处相等且夹具与模板逐字节相同；容许清单里的镜像值等于模板当前默认值。核验：Verifier G1 至 G4a 全过，machine_checks 1097 passed / 21 skipped。盲评回放两轮（场景相同，每轮 4 个场景）：第一轮每臂每场景 1 份作答，护栏场景上不通过；维护者裁决复评一次，第二轮每臂每场景 3 份作答、按中位数比较，通过（3 个判定席里 2 席成立）。客观端点两臂全部满分，量不出差别。变异基准：50 个变异体与事先预期逐条一致，名单内 float 字面量违规 16 个全红、接线与回退值漂移 10 个全红，基线对这两类是 0 检出。
+**处理方式**：PR：[#83](https://github.com/ThreeFish-AI/vibe-video/pull/83)（分支 `ThreeFish-AI/rsi-100-timing-constants-scan`，squash 前的分支 commit 依次 bc99f84 → 047803d）。新增 [tests/test_timing_constants_scan.py](../../tests/test_timing_constants_scan.py)，三条测试：8 个时间轴相关脚本里不得有等于模板默认值的 float 字面量（容许清单钉住现存 4 处，增减都红）；模板键集、REQUIRED_KEYS、timing.ts 消费的键三处相等且夹具与模板逐字节相同；容许清单里的镜像值等于模板当前默认值。核验：Verifier G1 至 G4a 全过，machine_checks 1097 passed / 21 skipped。盲评回放两轮（场景相同，每轮 4 个场景）：第一轮每臂每场景 1 份作答，护栏场景上不通过；维护者裁决复评一次，第二轮每臂每场景 3 份作答、按中位数比较，通过（3 个判定席里 2 席成立）。盲评的已知局限：客观端点两臂全部满分，量不出差别，新版的优势只体现在判定员对「机械核对是否落到仓内现有测试」的评价上；三个相关场景里新版作答都引用了新增的测试文件，判定员可以据此认出是哪一臂，只有无关场景 S4 的判定是盲的；第二轮的取样与聚合规则是在看到第一轮结果之后、经维护者授权复评时定下的，四个场景文本与第一轮逐字相同。变异基准（事后补的机械证据，不是预登记端点）：50 个变异体与事先预期逐条一致，名单内 float 字面量违规 16 个全红、接线与回退值漂移 10 个全红；基线 origin/main 全量套件对这两类的检出分别是 0/16 与 0/7，接线类另 3 个基线已由既有测试抓到。
 
 **后续防范**：新增时序常数一律经 timeline.load_constants 读取，容许清单只收与时序无关的巧合和已在案的现存回退值；模板默认值改了，容许清单里的数值与 scripts/tts.py 的回退值要一起改；数值相等的巧合会红，核实后登记清单。
 
-**同类问题影响**：漏报面不变：int 字面量、以表达式或字符串给出的数值、TS 侧、扫描名单之外的脚本。scripts/tts.py 两处 0.32 回退值登记为现存例外，行为没改。tests/test_timeline.py 的常数字典 C 手抄模板默认值且无测试绑定，另立条目处理。
+**同类问题影响**：本测试不覆盖的漏报面：int 字面量（模板里是 int 的只有 fps 的 30）、注释与字符串里的数值、以表达式给出的数值、TS 侧与分集场景代码、扫描名单之外的脚本（新增的时间轴相关脚本要手动加进 `SCANNED_SCRIPTS`）。scripts/tts.py 两处 0.32 回退值登记为现存例外，行为没改。tests/test_timeline.py 的常数字典 C 手抄模板默认值且无测试绑定，另立条目处理。
